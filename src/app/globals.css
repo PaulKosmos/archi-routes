@@ -24,3 +24,81 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.building-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.route-point-marker {
+  background: none !important;
+  border: none !important;
+}
+
+/* Исправление z-index для модальных окон */
+.route-creator-modal {
+  z-index: 9999 !important;
+}
+
+.route-creator-backdrop {
+  z-index: 9998 !important;
+}
+
+/* Исправление для Leaflet карт */
+.leaflet-container {
+  z-index: 1 !important;
+}
+
+.leaflet-control-container {
+  z-index: 2 !important;
+}
+
+/* Стили для маркеров маршрута */
+.building-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.route-point-marker {
+  background: none !important;
+  border: none !important;
+}
+
+/* Исправление для попапов Leaflet */
+.leaflet-popup-pane {
+  z-index: 3 !important;
+}
+
+/* Убираем z-index конфликты */
+.leaflet-map-pane {
+  z-index: auto !important;
+}
+
+/* Улучшенные стили для создания маршрутов */
+.route-creator-backdrop {
+  z-index: 9998 !important;
+}
+
+.route-creator-modal {
+  z-index: 9999 !important;
+}
+
+.building-marker,
+.route-point-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.building-marker:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s;
+}
+
+/* Курсор для режима добавления */
+.leaflet-container.crosshair-cursor {
+  cursor: crosshair !important;
+}
+
+.leaflet-container.crosshair-cursor * {
+  cursor: crosshair !important;
+}
