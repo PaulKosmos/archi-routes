@@ -1,0 +1,153 @@
+import React from 'react';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { createServerClient } from '@/lib/supabase-server';
+import NewsDetailClient from './NewsDetailClient';
+import { NewsArticle } from '@/types/news';
+
+interface NewsDetailPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+// ✅ ГЕНЕРАЦИЯ ДИНАМИЧЕСКИХ МЕТАДАННЫХ
+export async function generateMetadata({ params }: NewsDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+
+  try {
+    const supabase = await createServerClient();
+    
+    // Загружаем новость для метаданных
+    const { data: article, error } = await supabase
+      .from('architecture_news')
+      .select(`
+        title,
+        summary,
+        content,
+        featured_image_url,
+        category,
+        city,
+        country,
+        tags,
+        published_at,
+        meta_title,
+        meta_description,
+        meta_keywords,
+        author_id,
+        profiles!architecture_news_author_id_fkey (
+          full_name
+        )
+      `)
+      .eq('slug', slug)
+      .eq('status', 'published') // Только опубликованные для SEO
+      .single();
+
+    if (error || !article) {
+      return {
+        title: 'Новость не найдена | Archi Routes',
+        description: 'Запрашиваемая новость не найдена или больше не доступна.',
+      };
+    }
+
+    // Формируем метаданные
+    const title = article.meta_title || `${article.title} | Archi Routes`;
+    const description = article.meta_description || article.summary || 
+      article.content.substring(0, 160).replace(/\n/g, ' ') + '...';
+    
+    const imageUrl = article.featured_image_url || '/images/default-news-og.jpg';
+    const publishedTime = article.published_at || undefined;
+    const author = Array.isArray(article.profiles) ? article.profiles[0]?.full_name : 
+                  article.profiles?.full_name || 'Archi Routes';
+
+    // Формируем ключевые слова
+    const keywords = [
+      ...(article.meta_keywords || []),
+      ...(article.tags || []),
+      'архитектура',
+      'новости архитектуры',
+      article.city,
+      article.country,
+    ].filter(Boolean).join(', ');
+
+    const categoryNames = {
+      'projects': 'архитектурные проекты',
+      'events': 'события архитектуры',
+      'personalities': 'архитекторы персоналии',
+      'trends': 'тренды архитектуры',
+      'planning': 'городское планирование',
+      'heritage': 'архитектурное наследие'
+    };
+
+    const categoryName = categoryNames[article.category as keyof typeof categoryNames] || 'архитектура';
+
+    return {
+      title,
+      description,
+      keywords,
+      
+      // Open Graph для социальных сетей
+      openGraph: {
+        type: 'article',
+        title,
+        description,
+        images: [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: article.title,
+          }
+        ],
+        publishedTime,
+        authors: [author],
+        section: categoryName,
+        tags: article.tags || [],
+        locale: 'ru_RU',
+        siteName: 'Archi Routes',
+      },
+
+      // Twitter Card
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [imageUrl],
+        creator: '@archi_routes',
+      },
+
+      // Дополнительные meta теги
+      other: {
+        'article:author': author,
+        'article:published_time': publishedTime || '',
+        'article:section': categoryName,
+        'article:tag': (article.tags || []).join(','),
+        'geo.placename': article.city || '',
+        'geo.region': article.country || '',
+      },
+
+      // Robots и индексация
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      },
+    };
+
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Новости архитектуры | Archi Routes',
+      description: 'Последние новости и события в мире архитектуры и дизайна.',
+    };
+  }
+}
+
+export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
+  const { slug } = await params;
+  return <NewsDetailClient slug={slug} />;
+}

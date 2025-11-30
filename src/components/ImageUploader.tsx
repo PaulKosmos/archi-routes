@@ -16,7 +16,7 @@ interface ImageFile {
 
 interface ImageUploaderProps {
   maxFiles?: number
-  folder?: 'buildings' | 'routes' | 'profiles'
+  folder?: 'buildings' | 'routes' | 'profiles' | 'news'
   onImagesChange?: (urls: string[]) => void
   existingImages?: string[]
   className?: string

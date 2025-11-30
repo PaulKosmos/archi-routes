@@ -1,0 +1,248 @@
+'use client';
+
+import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { NewsArticle } from '@/types/news';
+import { createClient } from '@/lib/supabase';
+import NewsCard from '@/components/news/NewsCard';
+import { Building2, ChevronRight, Calendar, Eye } from 'lucide-react';
+
+interface BuildingNewsProps {
+  buildingId: string;
+  buildingName: string;
+  limit?: number;
+  showTitle?: boolean;
+  className?: string;
+}
+
+export default function BuildingNews({ 
+  buildingId, 
+  buildingName, 
+  limit = 6,
+  showTitle = true,
+  className = ''
+}: BuildingNewsProps) {
+  const supabase = useMemo(() => createClient(), []);
+  const [news, setNews] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const fetchBuildingNews = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log('🏢 [DEBUG] Загружаем новости для здания:', buildingId, buildingName);
+      const newsStartTime = Date.now();
+
+      // Используем API endpoint для получения новостей
+      const response = await fetch(`/api/buildings/${buildingId}/news`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      const newsEndTime = Date.now();
+      console.log('🏢 [DEBUG] News API took:', newsEndTime - newsStartTime, 'ms');
+
+      if (!result.success) {
+        throw new Error(result.error || 'Ошибка загрузки новостей');
+      }
+
+      setNews(result.news || []);
+      setTotalCount(result.count || 0);
+      console.log(`✅ Загружено ${result.news?.length || 0} новостей из ${result.count || 0} для здания ${buildingName}`);
+
+    } catch (err) {
+      console.error('🏢 [ERROR] Ошибка загрузки новостей здания:', err);
+      console.error('🏢 [ERROR] Error details:', {
+        message: err.message,
+        stack: err.stack,
+        name: err.name
+      });
+      setError(err instanceof Error ? err.message : 'Ошибка загрузки новостей');
+    } finally {
+      console.log('🏢 [DEBUG] News loading finished');
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (buildingId) {
+      fetchBuildingNews();
+    }
+  }, [buildingId, limit]);
+
+  if (loading) {
+    return (
+      <div className={`bg-white rounded-xl shadow-sm border border-gray-200 p-6 ${className}`}>
+        {showTitle && (
+          <div className="flex items-center gap-2 mb-4">
+            <Building2 className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Новости об этом здании</h3>
+          </div>
+        )}
+        <div className="animate-pulse space-y-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="flex gap-4">
+              <div className="w-20 h-20 bg-gray-200 rounded-lg"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`bg-red-50 border border-red-200 rounded-xl p-6 ${className}`}>
+        <p className="text-red-600 text-sm">{error}</p>
+      </div>
+    );
+  }
+
+  if (news.length === 0) {
+    return (
+      <div className={`bg-gray-50 border border-gray-200 rounded-xl p-6 text-center ${className}`}>
+        <Building2 className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+        <p className="text-gray-600 text-sm">
+          Пока нет новостей об этом здании
+        </p>
+        <Link
+          href="/news"
+          className="inline-block mt-2 text-blue-600 hover:text-blue-800 text-sm transition-colors"
+        >
+          Смотреть все новости
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden ${className}`}>
+      
+      {/* Заголовок */}
+      {showTitle && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                Новости об этом здании
+              </h3>
+              <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                {totalCount}
+              </span>
+            </div>
+            
+            {totalCount > limit && (
+              <Link
+                href={`/news?building=${buildingId}`}
+                className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+              >
+                Все новости
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="p-6">
+        {/* Компактные карточки новостей */}
+        <div className="space-y-4">
+          {news.map((article) => (
+            <Link
+              key={article.id}
+              href={`/news/${article.slug}`}
+              className="flex gap-4 p-4 rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-all duration-300 group"
+            >
+              {/* Изображение */}
+              {article.featured_image_url && (
+                <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                  <Image
+                    src={article.featured_image_url}
+                    alt={article.featured_image_alt || article.title}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-300"
+                    sizes="80px"
+                  />
+                </div>
+              )}
+
+              {/* Контент */}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1 line-clamp-2">
+                  {article.title}
+                </h4>
+                
+                {article.summary && (
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    {article.summary}
+                  </p>
+                )}
+
+                <div className="flex items-center gap-4 text-xs text-gray-500">
+                  {article.published_at && (
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>
+                        {new Date(article.published_at).toLocaleDateString('ru-RU', {
+                          day: 'numeric',
+                          month: 'short'
+                        })}
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-3 h-3" />
+                    <span>{article.views_count || 0}</span>
+                  </div>
+
+                  {article.category && (
+                    <span className="bg-gray-100 px-2 py-0.5 rounded text-xs">
+                      {article.category === 'projects' && 'Проекты'}
+                      {article.category === 'events' && 'События'}
+                      {article.category === 'personalities' && 'Персоналии'}
+                      {article.category === 'trends' && 'Тренды'}
+                      {article.category === 'planning' && 'Планирование'}
+                      {article.category === 'heritage' && 'Наследие'}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Стрелка */}
+              <div className="flex items-center text-gray-400 group-hover:text-blue-600 transition-colors">
+                <ChevronRight className="w-5 h-5" />
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Ссылка на все новости */}
+        {totalCount > limit && (
+          <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+            <Link
+              href={`/news?building=${buildingId}`}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Посмотреть все {totalCount} новостей
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

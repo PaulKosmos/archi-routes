@@ -1,14 +1,13 @@
-// src/app/routes/[id]/RouteMap.tsx
+// src/app/routes/[id]/RouteMap.tsx - ПОЛНОСТЬЮ ИСПРАВЛЕННЫЕ ВСПЛЫВАЮЩИЕ ОКНА
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-
-// Импортируем библиотеку стрелок
 import 'leaflet-polylinedecorator'
+import { Route, RouteGeometry, TransportModeHelper, formatDistance, formatDuration } from '../../../types/route'
 
-// Расширяем типы Leaflet
+// Расширяем типы Leaflet для декораторов
 declare global {
   namespace L {
     function polylineDecorator(
@@ -45,16 +44,28 @@ L.Icon.Default.mergeOptions({
 })
 
 interface RouteMapProps {
-  route: any
+  route: Route
   currentPointIndex?: number
+  showNavigation?: boolean
+  userLocation?: {
+    latitude: number
+    longitude: number
+    accuracy: number
+  } | null
 }
 
-export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProps) {
+export default function RouteMap({ route, currentPointIndex = -1, showNavigation = false, userLocation = null }: RouteMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<L.Map | null>(null)
   const markersLayer = useRef<L.LayerGroup | null>(null)
   const routeLayer = useRef<L.Polyline | null>(null)
   const decoratorLayer = useRef<any>(null)
+  const userLocationMarker = useRef<L.CircleMarker | null>(null)
+  const userAccuracyCircle = useRef<L.Circle | null>(null)
+  
+  // 🔧 УПРОЩЕННОЕ УПРАВЛЕНИЕ ПОПАПАМИ
+  const markersRef = useRef<Map<number, L.Marker>>(new Map())
+  const popupTimers = useRef<Map<number, NodeJS.Timeout>>(new Map())
 
   // Создание кастомных иконок для точек маршрута
   const createNumberedIcon = (number: number, isActive: boolean = false, hasBuilding: boolean = false) => {
@@ -94,7 +105,7 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return
 
-    console.log('🗺️ Initializing route map with decorators...')
+    console.log('🗺️ Initializing route map with real roads...')
 
     // Создаем карту
     mapInstance.current = L.map(mapRef.current, {
@@ -116,6 +127,10 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
     markersLayer.current = L.layerGroup().addTo(mapInstance.current)
 
     return () => {
+      // Очищаем все таймеры
+      popupTimers.current.forEach(timer => clearTimeout(timer))
+      popupTimers.current.clear()
+      
       if (mapInstance.current) {
         mapInstance.current.remove()
         mapInstance.current = null
@@ -132,8 +147,12 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
 
     console.log('🔄 Updating route map with', route.route_points.length, 'points')
 
-    // Очищаем предыдущие слои
+    // Очищаем предыдущие слои и состояние
     markersLayer.current.clearLayers()
+    markersRef.current.clear()
+    popupTimers.current.forEach(timer => clearTimeout(timer))
+    popupTimers.current.clear()
+    
     if (routeLayer.current) {
       mapInstance.current.removeLayer(routeLayer.current)
     }
@@ -141,8 +160,6 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
       mapInstance.current.removeLayer(decoratorLayer.current)
     }
 
-    // Создаем координаты для линии маршрута
-    const routeCoordinates: [number, number][] = []
     const validPoints = route.route_points.filter((point: any) => 
       point.latitude && point.longitude
     )
@@ -165,9 +182,9 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
         }
       )
       
-      // Создаем попап с информацией о точке
+      // 🔧 ИСПРАВЛЕННОЕ СОДЕРЖИМОЕ ПОПАПА
       const popupContent = `
-        <div style="min-width: 250px; max-width: 300px;">
+        <div class="route-popup-content" style="min-width: 250px; max-width: 300px;">
           <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: ${isActive ? '#3B82F6' : '#1F2937'};">
             ${index + 1}. ${point.title}
           </h3>
@@ -179,25 +196,27 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
           ` : ''}
           
           ${point.buildings ? `
-            <div style="margin: 12px 0; padding: 10px; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 6px;">
-              <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #065F46;">
-                🏛️ ${point.buildings.name}
-              </h4>
-              <p style="margin: 2px 0; font-size: 12px; color: #047857;">
-                ${point.buildings.architect || 'Архитектор неизвестен'} • ${point.buildings.year_built || 'Год неизвестен'}
-              </p>
-              ${point.buildings.architectural_style ? `
+              <div style="margin: 12px 0; padding: 10px; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 6px;">
+                <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #065F46;">
+                  🏛️ ${point.buildings.name}
+                </h4>
                 <p style="margin: 2px 0; font-size: 12px; color: #047857;">
-                  Стиль: ${point.buildings.architectural_style}
+                  ${point.buildings.architect || 'Архитектор неизвестен'} • ${point.buildings.year_built || 'Год неизвестен'}
                 </p>
-              ` : ''}
-              <button 
-                onclick="window.location.href='/buildings/${point.buildings.id}'"
-                style="margin-top: 6px; background: #10B981; color: white; padding: 4px 8px; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;"
-              >
-                Подробнее о здании →
-              </button>
-            </div>
+                ${point.buildings.architectural_style ? `
+                  <p style="margin: 2px 0; font-size: 12px; color: #047857;">
+                    Стиль: ${point.buildings.architectural_style}
+                  </p>
+                ` : ''}
+                <div style="margin-top: 8px;">
+                  <a 
+                    href="/buildings/${point.buildings.id}"
+                    style="display: inline-block; margin-right: 8px; background: #10B981; color: white; padding: 4px 8px; border: none; border-radius: 4px; font-size: 11px; text-decoration: none;"
+                  >
+                    Подробнее →
+                  </a>
+                </div>
+              </div>
           ` : ''}
           
           ${point.audio_url ? `
@@ -218,6 +237,19 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
               📍 Текущая точка маршрута
             </div>
           ` : ''}
+          
+          ${userLocation && index > 0 ? `
+            <div style="margin: 8px 0; text-align: center;">
+              <button 
+                onclick="if(window.startFromThisPoint) window.startFromThisPoint(${index})"
+                style="background: #3B82F6; color: white; padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500;"
+                onmouseover="this.style.background='#2563EB'"
+                onmouseout="this.style.background='#3B82F6'"
+              >
+                🚀 Начать с этой точки
+              </button>
+            </div>
+          ` : ''}
         </div>
       `
       
@@ -225,56 +257,153 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
         maxWidth: 350,
         className: 'route-point-popup',
         closeButton: true,
-        autoClose: false
+        autoClose: false,
+        closeOnClick: false
+      })
+      
+      // 🔧 ИСПРАВЛЕННЫЕ ОБРАБОТЧИКИ СОБЫТИЙ МАРКЕРОВ
+      marker.on('mouseover', () => {
+        console.log('🖱️ Mouse ENTER на точку', index, point.title)
+        
+        // Очищаем все таймеры для этой точки
+        const timer = popupTimers.current.get(index)
+        if (timer) {
+          clearTimeout(timer)
+          popupTimers.current.delete(index)
+        }
+        
+        // Открываем попап с небольшой задержкой
+        const openTimer = setTimeout(() => {
+          if (!marker.getPopup()?.isOpen()) {
+            marker.openPopup()
+          }
+        }, 150)
+        
+        popupTimers.current.set(index, openTimer)
+      })
+
+      marker.on('mouseout', () => {
+        console.log('🖱️ Mouse LEAVE точки', index, point.title)
+        
+        // 🔧 ИСПРАВЛЕНО: Закрываем ВСЕ точки, включая первую
+        const closeTimer = setTimeout(() => {
+          if (marker.getPopup()?.isOpen()) {
+            marker.closePopup()
+          }
+        }, 300)
+        
+        popupTimers.current.set(index, closeTimer)
+      })
+      
+      // 🔧 ИСПРАВЛЕННЫЕ ОБРАБОТЧИКИ ПОПАПОВ
+      marker.on('popupopen', () => {
+        console.log('📋 Попап открыт для точки', index)
+        
+        // Небольшая задержка для рендера DOM
+        setTimeout(() => {
+          const popupElement = marker.getPopup()?.getElement()
+          if (popupElement) {
+            
+            // Функция для обработки наведения на попап
+            const handlePopupMouseEnter = () => {
+              console.log('🖱️ Mouse ENTER на попап точки', index)
+              // Очищаем таймер закрытия
+              const timer = popupTimers.current.get(index)
+              if (timer) {
+                clearTimeout(timer)
+                popupTimers.current.delete(index)
+              }
+            }
+            
+            // Функция для обработки ухода с попапа
+            const handlePopupMouseLeave = () => {
+              console.log('🖱️ Mouse LEAVE попапа точки', index)
+              
+              // 🔧 ИСПРАВЛЕНО: Закрываем все попапы
+              const closeTimer = setTimeout(() => {
+                marker.closePopup()
+              }, 200)
+              
+              popupTimers.current.set(index, closeTimer)
+            }
+            
+            // Добавляем обработчики к попапу
+            popupElement.addEventListener('mouseenter', handlePopupMouseEnter)
+            popupElement.addEventListener('mouseleave', handlePopupMouseLeave)
+            
+            // Убираем обработчики при закрытии попапа
+            marker.once('popupclose', () => {
+              popupElement.removeEventListener('mouseenter', handlePopupMouseEnter)
+              popupElement.removeEventListener('mouseleave', handlePopupMouseLeave)
+            })
+          }
+        }, 100)
       })
       
       // Автоматически открываем попап для активной точки
-      if (isActive) {
-        marker.openPopup()
+      if (isActive && index > 0) {
+        setTimeout(() => marker.openPopup(), 100)
       }
       
-      // Добавляем обработчик клика
-      marker.on('click', () => {
-        console.log('🖱️ Clicked on route point:', point.title)
-      })
-      
+      // Сохраняем маркер и добавляем на карту
+      markersRef.current.set(index, marker)
       markersLayer.current?.addLayer(marker)
-      routeCoordinates.push([point.latitude, point.longitude])
     })
 
-    // Создаем линию маршрута
-    if (routeCoordinates.length > 1) {
+    // Отображаем маршрут
+    let routeCoordinates: [number, number][] = []
+
+    if (route.route_geometry && route.route_geometry.coordinates && route.route_geometry.coordinates.length > 0) {
+      console.log('✅ Using real route geometry with', route.route_geometry.coordinates.length, 'points')
+      routeCoordinates = route.route_geometry.coordinates.map(coord => [coord[1], coord[0]])
+      
       routeLayer.current = L.polyline(routeCoordinates, {
-        color: '#3B82F6',
-        weight: 4,
+        color: getRouteColor(route.transport_mode),
+        weight: getRouteWeight(route.transport_mode),
         opacity: 0.8,
-        smoothFactor: 1
+        smoothFactor: 1,
+        className: `route-line route-${route.transport_mode}`
       }).addTo(mapInstance.current)
 
-      // Добавляем стрелки направления
+    } else {
+      console.log('⚠️ No route geometry, falling back to straight lines')
+      routeCoordinates = validPoints
+        .filter(point => point.latitude !== null && point.longitude !== null)
+        .map(point => [point.latitude!, point.longitude!])
+      
+      if (routeCoordinates.length > 1) {
+        routeLayer.current = L.polyline(routeCoordinates, {
+          color: getRouteColor(route.transport_mode),
+          weight: getRouteWeight(route.transport_mode),
+          opacity: 0.6,
+          smoothFactor: 1,
+          dashArray: '10, 5',
+          className: `route-line route-${route.transport_mode} route-fallback`
+        }).addTo(mapInstance.current)
+      }
+    }
+
+    // Добавляем стрелки направления
+    if (routeLayer.current && routeCoordinates.length > 1) {
       try {
         if (typeof (L as any).polylineDecorator === 'function') {
           decoratorLayer.current = (L as any).polylineDecorator(routeLayer.current, {
             patterns: [
               {
                 offset: '15%',
-                repeat: '25%',
+                repeat: route.route_geometry ? '5%' : '25%',
                 symbol: (L as any).Symbol.arrowHead({
-                  pixelSize: 10,
+                  pixelSize: getArrowSize(route.transport_mode),
                   headAngle: 45,
                   pathOptions: {
                     fillOpacity: 0.8,
                     weight: 0,
-                    color: '#3B82F6'
+                    color: getRouteColor(route.transport_mode)
                   }
                 })
               }
             ]
           }).addTo(mapInstance.current)
-          
-          console.log('✅ Route decorators added successfully')
-        } else {
-          console.log('⚠️ Polyline decorator not available')
         }
       } catch (error) {
         console.log('⚠️ Error adding decorators:', error)
@@ -290,7 +419,79 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
       })
     }
 
-  }, [route, currentPointIndex])
+  }, [route, currentPointIndex, userLocation])
+
+  // Отображение местоположения пользователя - СТАБИЛЬНОЕ ОБНОВЛЕНИЕ
+  useEffect(() => {
+    if (!mapInstance.current) return
+
+    if (userLocation) {
+      console.log('📍 Обновляем местоположение пользователя:', userLocation)
+      
+      // Обновляем существующие маркеры вместо пересоздания
+      if (userLocationMarker.current && userAccuracyCircle.current) {
+        // Просто обновляем позицию
+        userLocationMarker.current.setLatLng([userLocation.latitude, userLocation.longitude])
+        userAccuracyCircle.current.setLatLng([userLocation.latitude, userLocation.longitude])
+        userAccuracyCircle.current.setRadius(userLocation.accuracy)
+      } else {
+        // Создаем новые маркеры только если их нет
+        userAccuracyCircle.current = L.circle(
+          [userLocation.latitude, userLocation.longitude],
+          {
+            radius: userLocation.accuracy,
+            fillColor: '#3B82F6',
+            fillOpacity: 0.1,
+            color: '#3B82F6',
+            weight: 1,
+            opacity: 0.3
+          }
+        ).addTo(mapInstance.current)
+        
+        userLocationMarker.current = L.circleMarker(
+          [userLocation.latitude, userLocation.longitude],
+          {
+            radius: 8,
+            fillColor: '#3B82F6',
+            fillOpacity: 1,
+            color: '#FFFFFF',
+            weight: 3,
+            opacity: 1
+          }
+        ).addTo(mapInstance.current)
+        
+        userLocationMarker.current.bindPopup(`
+          <div style="text-align: center; min-width: 200px;">
+            <h4 style="margin: 0 0 8px 0; color: #3B82F6;">📍 Ваше местоположение</h4>
+            <p style="margin: 4px 0; font-size: 12px; color: #6B7280;">
+              Широта: ${userLocation.latitude.toFixed(6)}<br>
+              Долгота: ${userLocation.longitude.toFixed(6)}
+            </p>
+            <p style="margin: 4px 0; font-size: 12px; color: #6B7280;">
+              Точность: ±${Math.round(userLocation.accuracy)} метров
+            </p>
+            <div style="margin-top: 8px; padding: 6px; background: #EFF6FF; border-radius: 4px; font-size: 11px; color: #1D4ED8;">
+              🧭 GPS активен
+            </div>
+          </div>
+        `, {
+          closeButton: true,
+          autoClose: false,
+          className: 'user-location-popup'
+        })
+      }
+    } else {
+      // Убираем маркеры если нет местоположения
+      if (userLocationMarker.current) {
+        mapInstance.current.removeLayer(userLocationMarker.current)
+        userLocationMarker.current = null
+      }
+      if (userAccuracyCircle.current) {
+        mapInstance.current.removeLayer(userAccuracyCircle.current)
+        userAccuracyCircle.current = null
+      }
+    }
+  }, [userLocation])
 
   // Центрируем карту на активной точке при смене
   useEffect(() => {
@@ -306,16 +507,87 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
     }
   }, [currentPointIndex, route])
 
+  // Глобальная функция "Начать с этой точки"
+  useEffect(() => {
+    (window as any).startFromThisPoint = (pointIndex: number) => {
+      console.log('🚀 Начинаем навигацию с точки:', pointIndex)
+      
+      if (!userLocation) {
+        alert('Сначала включите GPS-навигацию')
+        return
+      }
+      
+      if (!route.route_points || pointIndex >= route.route_points.length) {
+        alert('Некорректная точка маршрута')
+        return
+      }
+      
+      if (typeof (window as any).setCurrentStepFromMap === 'function') {
+        (window as any).setCurrentStepFromMap(pointIndex)
+      }
+    }
+
+    return () => {
+      delete (window as any).startFromThisPoint
+    }
+  }, [route, userLocation])
+
+  // Функции для стилизации маршрута
+  const getRouteColor = (transportMode?: string) => {
+    switch (transportMode) {
+      case 'walking': return '#10B981'
+      case 'cycling': return '#3B82F6'
+      case 'driving': return '#EF4444'
+      case 'public_transport': return '#8B5CF6'
+      default: return '#6B7280'
+    }
+  }
+
+  const getRouteWeight = (transportMode?: string) => {
+    switch (transportMode) {
+      case 'walking': return 4
+      case 'cycling': return 5
+      case 'driving': return 6
+      case 'public_transport': return 5
+      default: return 4
+    }
+  }
+
+  const getArrowSize = (transportMode?: string) => {
+    switch (transportMode) {
+      case 'walking': return 8
+      case 'cycling': return 10
+      case 'driving': return 12
+      case 'public_transport': return 10
+      default: return 8
+    }
+  }
+
   return (
     <div className="relative">
       {/* Информационная панель */}
       <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-md border px-3 py-2">
-        <div className="text-sm font-medium text-gray-900">
+        <div className="text-sm font-medium text-gray-900 flex items-center">
+          <span className="mr-2">{TransportModeHelper.getIcon(route.transport_mode || 'walking')}</span>
           Маршрут: {route.route_points?.length || 0} точек
         </div>
+        
+        {route.route_summary && (
+          <div className="text-xs text-gray-600 mt-1 space-y-1">
+            <div>📏 {formatDistance(route.route_summary.distance)}</div>
+            <div>⏱️ {formatDuration(route.route_summary.duration)}</div>
+          </div>
+        )}
+        
         {currentPointIndex >= 0 && route.route_points?.[currentPointIndex] && (
-          <div className="text-xs text-blue-600 mt-1">
+          <div className="text-xs text-blue-600 mt-1 pt-1 border-t">
             Точка {currentPointIndex + 1}: {route.route_points[currentPointIndex].title}
+          </div>
+        )}
+        
+        {userLocation && (
+          <div className="text-xs text-green-600 mt-1 pt-1 border-t">
+            📍 GPS: ±{Math.round(userLocation.accuracy)}м
           </div>
         )}
       </div>
@@ -338,43 +610,155 @@ export default function RouteMap({ route, currentPointIndex = -1 }: RouteMapProp
               <span>Текущая точка</span>
             </div>
           )}
+          {userLocation && (
+            <div className="flex items-center">
+              <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white mr-2 animate-pulse"></div>
+              <span>Ваше местоположение</span>
+            </div>
+          )}
           <div className="flex items-center pt-1 border-t">
-            <div className="w-4 h-1 bg-blue-500 mr-2"></div>
-            <span>Линия с направлением</span>
+            <div 
+              className="w-4 h-1 mr-2"
+              style={{ backgroundColor: getRouteColor(route.transport_mode) }}
+            ></div>
+            <span>
+              {route.route_geometry ? 'Реальные дороги' : 'Прямые линии'}
+            </span>
           </div>
+          {!route.route_geometry && (
+            <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded border">
+              ⚠️ Маршрут не построен. Показаны прямые линии между точками.
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Индикатор типа транспорта */}
+      {showNavigation && (
+        <div className="absolute bottom-4 left-4 z-[1000] bg-white rounded-lg shadow-md border px-3 py-2">
+          <div className="flex items-center text-sm">
+            <span className="text-xl mr-2">{TransportModeHelper.getIcon(route.transport_mode || 'walking')}</span>
+            <span className="font-medium">{TransportModeHelper.getLabel(route.transport_mode || 'walking')}</span>
+          </div>
+        </div>
+      )}
 
       {/* Контейнер карты */}
       <div 
         ref={mapRef} 
-        className="w-full h-[500px] rounded-lg"
-        style={{ minHeight: '500px' }}
+        className="w-full h-[600px] rounded-lg"
+        style={{ minHeight: '600px' }}
       />
 
-      {/* Кастомные стили для попапов */}
+      {/* Кастомные стили для попапов и маршрутов */}
       <style jsx global>{`
+        /* 🔧 КРИТИЧНО: Максимальные z-index для попапов */
+        .leaflet-popup-pane {
+          z-index: 99999 !important;
+        }
+        
+        .leaflet-popup {
+          z-index: 100000 !important;
+          pointer-events: auto !important;
+        }
+        
+        .leaflet-popup-content-wrapper {
+          z-index: 100001 !important;
+          pointer-events: auto !important;
+        }
+        
         .route-point-popup .leaflet-popup-content-wrapper {
           border-radius: 12px;
           box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
           border: 1px solid #E5E7EB;
+          z-index: 100002 !important;
+          pointer-events: auto !important;
         }
+        
         .route-point-popup .leaflet-popup-content {
           margin: 16px;
           line-height: 1.4;
         }
+        
         .route-point-popup .leaflet-popup-tip {
           border-top-color: #E5E7EB;
+          z-index: 100003 !important;
         }
+        
+        .user-location-popup .leaflet-popup-content-wrapper {
+          border-radius: 12px;
+          border: 2px solid #3B82F6;
+          box-shadow: 0 10px 25px -3px rgba(59, 130, 246, 0.3);
+          z-index: 100002 !important;
+        }
+        
+        /* Основные слои карты - низкие z-index */
+        .leaflet-container {
+          z-index: 1 !important;
+        }
+        
+        .leaflet-map-pane {
+          z-index: 1 !important;
+        }
+        
+        .leaflet-tile-pane {
+          z-index: 1 !important;
+        }
+        
+        .leaflet-overlay-pane {
+          z-index: 2 !important;
+        }
+        
+        .leaflet-marker-pane {
+          z-index: 3 !important;
+        }
+        
+        .leaflet-shadow-pane {
+          z-index: 2 !important;
+        }
+        
         .custom-route-marker {
           background: transparent !important;
           border: none !important;
+          z-index: 4 !important;
         }
+        
+        /* Стили для разных типов маршрутов */
+        .route-walking {
+          stroke-dasharray: none;
+        }
+        .route-cycling {
+          stroke-dasharray: none;
+          filter: drop-shadow(0 0 2px rgba(59, 130, 246, 0.3));
+        }
+        .route-driving {
+          stroke-dasharray: none;
+          filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.3));
+        }
+        .route-public_transport {
+          stroke-dasharray: 8 4;
+        }
+        .route-fallback {
+          stroke-dasharray: 10 5 !important;
+          opacity: 0.6 !important;
+        }
+        
         .leaflet-container {
           cursor: default;
         }
-        .leaflet-popup {
-          z-index: 1000 !important;
+        
+        /* Дополнительные стили для лучшей работы hover */
+        .leaflet-marker-icon {
+          cursor: pointer;
+        }
+        
+        .route-popup-content button {
+          transition: all 0.2s ease;
+        }
+        
+        .route-popup-content button:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
       `}</style>
     </div>

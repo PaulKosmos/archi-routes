@@ -1,8 +1,8 @@
 // components/UserProfile.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect, useMemo } from 'react'
+import { createClient } from '@/lib/supabase'
 import type { Profile } from '../types/building'
 import { User, LogOut, Settings, Star, Map, Camera } from 'lucide-react'
 
@@ -12,6 +12,7 @@ interface UserProfileProps {
 }
 
 export default function UserProfile({ user, onLogout }: UserProfileProps) {
+  const supabase = useMemo(() => createClient(), [])
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)

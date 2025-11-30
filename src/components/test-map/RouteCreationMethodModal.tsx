@@ -1,0 +1,155 @@
+'use client'
+
+import { X, MapPin, Sparkles } from 'lucide-react'
+
+interface RouteCreationMethodModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onSelectManual: () => void
+  onSelectAI: () => void
+}
+
+export default function RouteCreationMethodModal({
+  isOpen,
+  onClose,
+  onSelectManual,
+  onSelectAI
+}: RouteCreationMethodModalProps) {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl relative animate-fadeIn">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            Создание маршрута
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-8">
+          <p className="text-center text-gray-600 mb-8 text-lg">
+            Как вы хотите создать маршрут?
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Вручную */}
+            <button
+              onClick={onSelectManual}
+              className="group relative overflow-hidden rounded-xl border-2 border-gray-200 hover:border-blue-500 transition-all duration-300 hover:shadow-xl bg-white p-8"
+            >
+              {/* Icon */}
+              <div className="flex justify-center mb-4">
+                <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+                  <MapPin className="w-10 h-10 text-blue-600 group-hover:text-white transition-colors" />
+                </div>
+              </div>
+
+              {/* Title */}
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center">
+                Создать вручную
+              </h3>
+
+              {/* Description */}
+              <p className="text-gray-600 text-center mb-4 leading-relaxed">
+                Выберите объекты на карте самостоятельно и создайте персональный маршрут
+              </p>
+
+              {/* Features */}
+              <ul className="text-sm text-gray-500 space-y-2 mb-6">
+                <li className="flex items-center justify-center">
+                  <span className="mr-2">✓</span>
+                  <span>Полный контроль над маршрутом</span>
+                </li>
+                <li className="flex items-center justify-center">
+                  <span className="mr-2">✓</span>
+                  <span>Выбор порядка объектов</span>
+                </li>
+                <li className="flex items-center justify-center">
+                  <span className="mr-2">✓</span>
+                  <span>От 2 до 20 объектов</span>
+                </li>
+              </ul>
+
+              {/* Button */}
+              <div className="mt-auto">
+                <div className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium group-hover:bg-blue-700 transition-colors text-center">
+                  Выбрать
+                </div>
+              </div>
+
+              {/* Hover effect */}
+              <div className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+            </button>
+
+            {/* AI генерация */}
+            <div className="relative rounded-xl border-2 border-gray-200 bg-gray-50 p-8 opacity-60">
+              {/* "Скоро" badge */}
+              <div className="absolute top-4 right-4">
+                <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+                  Скоро
+                </span>
+              </div>
+
+              {/* Icon */}
+              <div className="flex justify-center mb-4">
+                <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Sparkles className="w-10 h-10 text-purple-600" />
+                </div>
+              </div>
+
+              {/* Title */}
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center">
+                Сгенерировать с AI
+              </h3>
+
+              {/* Description */}
+              <p className="text-gray-600 text-center mb-4 leading-relaxed">
+                Укажите ваши предпочтения, и AI создаст идеальный маршрут
+              </p>
+
+              {/* Features */}
+              <ul className="text-sm text-gray-500 space-y-2 mb-6">
+                <li className="flex items-center justify-center">
+                  <span className="mr-2">✓</span>
+                  <span>Умные рекомендации</span>
+                </li>
+                <li className="flex items-center justify-center">
+                  <span className="mr-2">✓</span>
+                  <span>Учет ваших интересов</span>
+                </li>
+                <li className="flex items-center justify-center">
+                  <span className="mr-2">✓</span>
+                  <span>Оптимальный маршрут</span>
+                </li>
+              </ul>
+
+              {/* Button */}
+              <div className="mt-auto">
+                <div className="px-6 py-3 bg-gray-400 text-white rounded-lg font-medium text-center cursor-not-allowed">
+                  В разработке
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Info */}
+          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800 text-center flex items-center justify-center">
+              <span className="mr-2">💡</span>
+              <span>Создавайте личные маршруты для своих прогулок. Вы сможете редактировать их в любое время.</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+

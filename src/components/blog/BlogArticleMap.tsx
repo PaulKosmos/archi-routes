@@ -1,0 +1,229 @@
+// components/blog/BlogArticleMap.tsx
+// Интерактивная карта объектов из блога
+
+'use client';
+
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import dynamic from 'next/dynamic';
+import { createClient } from '@/lib/supabase';
+import { BlogContentBlock } from '@/types/blog';
+import { Building } from '@/types/building';
+import { extractBuildingIds } from '@/utils/blogBlocks';
+import { ChevronDown, ChevronUp, Map as MapIcon, Building2 } from 'lucide-react';
+
+// Динамический импорт карты (чтобы избежать SSR проблем)
+const EnhancedMap = dynamic(() => import('@/components/EnhancedMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[400px] bg-gray-100 rounded-lg flex items-center justify-center">
+      <div className="text-center">
+        <MapIcon className="h-12 w-12 text-gray-400 mx-auto mb-2 animate-pulse" />
+        <p className="text-sm text-gray-500">Загрузка карты...</p>
+      </div>
+    </div>
+  ),
+});
+
+// ============================================================
+// ТИПЫ
+// ============================================================
+
+interface BlogArticleMapProps {
+  blocks: BlogContentBlock[];
+  blogPostId?: string;
+  blogPostTitle?: string;
+  onBuildingClick?: (buildingId: string) => void;
+  defaultCollapsed?: boolean;
+}
+
+// ============================================================
+// КОМПОНЕНТ
+// ============================================================
+
+export default function BlogArticleMap({
+  blocks,
+  blogPostId,
+  blogPostTitle,
+  onBuildingClick,
+  defaultCollapsed = false,
+}: BlogArticleMapProps) {
+  const supabase = useMemo(() => createClient(), []);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
+
+  // Извлекаем ID зданий из блоков
+  const buildingIds = useMemo(() => extractBuildingIds(blocks), [blocks]);
+
+  /**
+   * Загружает данные зданий
+   */
+  useEffect(() => {
+    const loadBuildings = async () => {
+      if (buildingIds.length === 0) {
+        setBuildings([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('buildings')
+        .select('*')
+        .in('id', buildingIds)
+        .eq('moderation_status', 'approved');
+
+      if (data && !error) {
+        setBuildings(data);
+      } else {
+        console.error('Error loading buildings for map:', error);
+        setBuildings([]);
+      }
+      setIsLoading(false);
+    };
+
+    loadBuildings();
+  }, [buildingIds, supabase]);
+
+  /**
+   * Обработчик клика по зданию
+   */
+  const handleBuildingClick = useCallback(
+    (buildingId: string) => {
+      setSelectedBuilding(buildingId);
+      if (onBuildingClick) {
+        onBuildingClick(buildingId);
+      } else {
+        // По умолчанию - переход на страницу карты
+        window.location.href = `/map?building=${buildingId}`;
+      }
+    },
+    [onBuildingClick]
+  );
+
+  /**
+   * Обработчик открытия деталей здания
+   */
+  const handleBuildingDetails = useCallback((building: Building) => {
+    // Открываем BuildingModal или переходим на страницу
+    window.location.href = `/buildings/${building.id}`;
+  }, []);
+
+  // Если нет зданий, не показываем карту
+  if (buildingIds.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="blog-article-map bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden my-8">
+      {/* Заголовок с кнопкой сворачивания */}
+      <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-green-50 to-blue-50 border-b border-gray-200">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-green-500 rounded-lg">
+            <MapIcon className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Объекты из статьи на карте
+            </h3>
+            <p className="text-sm text-gray-600">
+              {buildings.length} {buildings.length === 1 ? 'объект' : 'объекта'} упомянуто в статье
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white rounded-lg transition-all"
+          aria-label={isCollapsed ? 'Развернуть карту' : 'Свернуть карту'}
+        >
+          {isCollapsed ? (
+            <ChevronDown className="h-6 w-6" />
+          ) : (
+            <ChevronUp className="h-6 w-6" />
+          )}
+        </button>
+      </div>
+
+      {/* Содержимое */}
+      {!isCollapsed && (
+        <div className="p-6">
+          {isLoading ? (
+            <div className="w-full h-[400px] bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <MapIcon className="h-12 w-12 text-gray-400 mx-auto mb-2 animate-pulse" />
+                <p className="text-sm text-gray-500">Загрузка объектов...</p>
+              </div>
+            </div>
+          ) : buildings.length > 0 ? (
+            <>
+              {/* Список объектов */}
+              <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {buildings.map((building) => (
+                  <button
+                    key={building.id}
+                    onClick={() => handleBuildingClick(building.id)}
+                    className={`flex items-start gap-3 p-3 rounded-lg border-2 transition-all text-left ${
+                      selectedBuilding === building.id
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {building.image_url ? (
+                      <img
+                        src={building.image_url}
+                        alt={building.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                        <Building2 className="h-6 w-6 text-gray-400" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 truncate text-sm">
+                        {building.name}
+                      </div>
+                      <div className="text-xs text-gray-600 truncate">
+                        {building.city}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Карта */}
+              <div className="rounded-lg overflow-hidden border-2 border-gray-200">
+                <EnhancedMap
+                  buildings={buildings}
+                  routes={[]}
+                  selectedBuilding={selectedBuilding}
+                  onBuildingClick={handleBuildingClick}
+                  onBuildingDetails={handleBuildingDetails}
+                  showRoutes={false}
+                  showBuildings={true}
+                  className="h-[400px]"
+                />
+              </div>
+
+              {/* Подсказка */}
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  💡 <strong>Совет:</strong> Нажмите на объект, чтобы открыть его на полной карте.
+                  Используйте кнопку "Составить маршрут" ниже, чтобы построить маршрут через выбранные объекты.
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Building2 className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+              <p>Объекты не найдены или находятся на модерации</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

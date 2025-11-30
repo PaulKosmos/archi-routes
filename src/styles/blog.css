@@ -1,0 +1,188 @@
+/* 🔧 ИСПРАВЛЕННЫЕ стили для интерактивных упоминаний зданий в блоге */
+
+@layer components {
+  .building-mention {
+    @apply cursor-pointer px-1 py-0.5 rounded transition-all duration-200;
+    @apply bg-blue-50 text-blue-800 border-b-2 border-blue-300;
+    @apply hover:bg-blue-100 hover:border-blue-400;
+    text-decoration: none !important;
+    position: relative;
+    display: inline-block;
+    font-weight: 600;
+  }
+
+  .building-mention:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  }
+
+  /* Стили для зданий в маршруте */
+  .building-mention.in-route {
+    @apply bg-green-50 text-green-800 border-green-300;
+    @apply hover:bg-green-100 hover:border-green-400;
+  }
+
+  .building-mention.in-route:hover {
+    box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
+  }
+
+  /* 🔧 СОВМЕСТИМОСТЬ: альтернативный класс для старых версий */
+  .building-mention-marker {
+    @apply cursor-pointer px-1 py-0.5 rounded transition-all duration-200;
+    @apply bg-blue-50 text-blue-800 border-b-2 border-blue-300;
+    @apply hover:bg-blue-100 hover:border-blue-400;
+    text-decoration: none !important;
+    position: relative;
+    display: inline-block;
+    font-weight: 600;
+  }
+}
+
+/* Анимация появления hover cards */
+.building-hover-card {
+  animation: buildingCardFadeIn 0.2s ease-out;
+  z-index: 9999 !important; /* Убеждаемся что карточка поверх всего */
+}
+
+@keyframes buildingCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Стили для выделения зданий в тексте статьи */
+.prose .building-mention {
+  font-weight: 600;
+  display: inline-block;
+  margin: 0 1px; /* Небольшой отступ для лучшей читаемости */
+}
+
+/* Адаптивные стили для мобильных */
+@media (max-width: 640px) {
+  .building-hover-card {
+    width: 90vw !important;
+    max-width: 320px;
+    left: 5vw !important;
+    right: 5vw !important;
+    transform: translateX(0) !important;
+  }
+  
+  .building-mention {
+    padding: 2px 4px; /* Больше отступы на мобильных */
+  }
+}
+
+/* 🔧 УЛУЧШЕНИЯ для отладки */
+.building-mention[data-building-id] {
+  /* Подсветка для всех активных упоминаний */
+  outline: 1px dotted rgba(59, 130, 246, 0.3);
+  outline-offset: 1px;
+}
+
+.building-mention[data-building-id]:hover {
+  outline-color: rgba(59, 130, 246, 0.6);
+}
+
+/* Стили для FAB кнопки */
+.route-fab {
+  animation: fabBounce 2s infinite;
+}
+
+@keyframes fabBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-5px);
+  }
+  60% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Стили для выбора зданий в FAB */
+.building-selection-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.building-selection-item:hover {
+  transform: translateY(-2px);
+}
+
+.building-selection-item.selected {
+  animation: selectionPulse 0.5s ease-out;
+}
+
+@keyframes selectionPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 🔧 ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ ОТЛАДКИ */
+
+/* Debug стили для development режима */
+@media screen {
+  .building-mention::before {
+    content: "🏗️";
+    font-size: 10px;
+    position: absolute;
+    top: -8px;
+    left: -2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  
+  .building-mention:hover::before {
+    opacity: 0.7;
+  }
+}
+
+/* Стили для успешно найденных упоминаний */
+@layer components {
+  .building-mention-found {
+    @apply bg-green-100 border-green-400;
+    animation: foundPulse 1s ease-out;
+  }
+}
+
+@keyframes foundPulse {
+  0% { background-color: #dcfce7; }
+  50% { background-color: #bbf7d0; }
+  100% { background-color: #dcfce7; }
+}
+
+/* Стили для карточки при загрузке */
+.building-hover-card.loading {
+  opacity: 0.7;
+}
+
+.building-hover-card.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
