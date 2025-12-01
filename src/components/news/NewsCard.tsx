@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import OptimizedImage from '@/components/OptimizedImage';
 import { NewsArticleWithDetails, getNewsCategoryIcon } from '@/types/news';
 import { Calendar, Eye, Heart, MapPin, User, Building2, Clock, Share2 } from 'lucide-react';
 
@@ -119,16 +119,18 @@ export default function NewsCard({
         <div className={`relative ${getImageClasses()} overflow-hidden ${size === 'large' ? 'md:flex-shrink-0' : ''} ${!news.featured_image_url ? 'bg-gradient-to-br from-gray-100 via-gray-50 to-blue-50' : ''}`}>
           {news.featured_image_url ? (
             <>
-              <Image
+              <OptimizedImage
                 src={news.featured_image_url}
                 alt={news.featured_image_alt || news.title}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                className="group-hover:scale-105 transition-transform duration-500"
+                objectFit="cover"
                 sizes={
                   size === 'featured' ? '(max-width: 768px) 100vw, 80vw' :
                   size === 'large' ? '(max-width: 768px) 100vw, 320px' :
                   '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
                 }
+                priority={size === 'featured'}
               />
 
               {/* Градиент для лучшей читаемости текста */}

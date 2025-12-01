@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import OptimizedImage from '@/components/OptimizedImage'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
 import { MapPin, Building2 } from 'lucide-react'
@@ -128,12 +128,14 @@ export default function CitiesExploreSection() {
             >
               {/* Фоновое изображение */}
               {city.sampleImage ? (
-                <Image
+                <OptimizedImage
                   src={getStorageUrl(city.sampleImage, 'photos')}
                   alt={city.city}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="transition-transform duration-500 group-hover:scale-110"
+                  objectFit="cover"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  priority={index === 0}
                 />
               ) : (
                 // Fallback градиент если нет изображения
