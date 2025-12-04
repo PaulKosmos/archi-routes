@@ -1,9 +1,8 @@
-# 📋 План реализации интернационализации (i18n)
+# 📋 План реализации интернационализации и локализации (i18n/l10n)
 
-**Дата:** 1 декабря 2025
-**Статус:** Планирование
-**Приоритет:** ВЫСОКИЙ (для международной аудитории)
-**Оценка времени:** 2-3 недели
+**Дата:** 2 декабря 2025
+**Статус:** Планирование (обновлённая версия v2)
+**Приоритет:** ВЫСОКИЙ (международная аудитория)
 **Готовность к старту:** ✅ Да
 
 ---
@@ -11,29 +10,44 @@
 ## 📊 Обзор задачи
 
 ### Цель
-Реализовать двухъязычную систему (Русский + Английский) для платформы Archi-Routes.
+Локализовать платформу Archi-Routes для международной аудитории с поддержкой трёх языков интерфейса и сохранением оригинального контента.
 
 ### Стратегия
-**"Перевести один раз и хранить в БД"**
+**"Оригинал + английский перевод"**
 
-1. Контент создаётся на русском (оригинал)
-2. Перевод делается ОДИН РАЗ → сохраняется в БД
-3. Пользователь выбирает язык → видит оригинал или перевод
+1. **UI локализован** на 3 языка (English, Deutsch, Русский)
+2. **Контент хранится в оригинале** (язык автора) + английский перевод
+3. **Пользователь выбирает**:
+   - Язык интерфейса (EN/DE/RU)
+   - Для контента: оригинал или английский перевод
+4. **Перевод контента ручной** (без автоматизации на первом этапе)
 
-### Что будет переведено
+---
 
-**UI (интерфейс):**
-- Кнопки, меню, навигация
-- Сообщения об ошибках
-- Формы и подсказки
-- Общие тексты
+## 🌍 Языковая модель
 
-**Контент (из БД):**
-- Названия и описания зданий
-- Маршруты
-- Блог посты
-- Новости
-- Отзывы пользователей
+### UI (Интерфейс платформы)
+Полная локализация на **3 языка**:
+- 🇬🇧 **English** (основной международный)
+- 🇩🇪 **Deutsch** (немецкий)
+- 🇷🇺 **Русский**
+
+### Контент (из БД)
+**Двухъязычная модель**:
+- **Оригинальный язык** (тот, на котором автор создал контент)
+- **Английский перевод** (для международной аудитории)
+
+**Пример:**
+```
+Здание "Brandenburger Tor"
+├── original_language: "de"
+├── name (оригинал): "Brandenburger Tor"
+└── name_en (перевод): "Brandenburg Gate"
+
+Пользователь видит:
+- Если выбрал "Read in original" → "Brandenburger Tor"
+- Если выбрал "Read in English" → "Brandenburg Gate"
+```
 
 ---
 
@@ -42,119 +56,213 @@
 ### Компоненты системы
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    ПОЛЬЗОВАТЕЛЬ                              │
-│              [Выбирает язык: RU / EN]                        │
-└──────────────────────┬──────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                         ПОЛЬЗОВАТЕЛЬ                             │
+│                                                                  │
+│  При первом визите:                                              │
+│  ┌──────────────────────────────────────────────────┐           │
+│  │  🌐 Language Selection Modal                      │           │
+│  │  Choose your language: EN | DE | RU              │           │
+│  └──────────────────────────────────────────────────┘           │
+└──────────────────────┬───────────────────────────────────────────┘
                        │
-           ┌───────────┴────────────┐
-           │                        │
-    ┌──────▼──────┐         ┌──────▼──────┐
-    │  UI тексты  │         │   Контент   │
-    │  (next-intl)│         │    (БД)     │
-    └──────┬──────┘         └──────┬──────┘
-           │                        │
-    ┌──────▼──────────┐    ┌────────▼────────────┐
-    │ JSON файлы      │    │ content_translations│
-    │ ru/common.json  │    │      таблица        │
-    │ en/common.json  │    │                     │
-    └─────────────────┘    └─────────────────────┘
+         ┌─────────────┴─────────────┐
+         │                           │
+  ┌──────▼──────┐            ┌───────▼────────┐
+  │  UI ЯЗЫК    │            │  КОНТЕНТ ЯЗЫК  │
+  │  (3 языка)  │            │  (оригинал+EN) │
+  └──────┬──────┘            └───────┬────────┘
+         │                           │
+  ┌──────▼──────────┐       ┌────────▼────────────────┐
+  │ JSON файлы      │       │ БД таблицы:             │
+  │ en/common.json  │       │ - original_language     │
+  │ de/common.json  │       │ - field (оригинал)      │
+  │ ru/common.json  │       │ - field_en (перевод)    │
+  └─────────────────┘       └─────────────────────────┘
 ```
 
 ### Две независимые системы
 
-| Система | Что переводит | Хранение | Технология |
-|---------|---------------|----------|------------|
-| **UI переводы** | Интерфейс, кнопки, меню | JSON файлы | next-intl |
-| **Контент переводы** | Здания, маршруты, блоги | PostgreSQL таблица | Custom service |
+| Система | Что локализует | Языки | Технология | Хранение |
+|---------|----------------|-------|------------|----------|
+| **UI локализация** | Интерфейс, кнопки, меню | EN, DE, RU | next-intl | JSON файлы |
+| **Контент перевод** | Здания, маршруты, блоги | Оригинал + EN | Custom | PostgreSQL столбцы |
 
 ---
 
 ## 📝 Детальный план работы
 
-### 🎯 Этап 1: Подготовка и настройка (2-3 дня)
+### 🎯 Этап 1: Подготовка и настройка (1-2 дня)
 
 **Цель:** Установить библиотеки, создать структуру, настроить конфигурацию
 
 #### 1.1 Установка зависимостей
-**Время:** 30 минут
 
 ```bash
 npm install next-intl
-npm install @google-cloud/translate  # Опционально
-npm install deepl-node               # Опционально
 ```
 
 **Что делает:**
-- `next-intl` - библиотека для UI переводов в Next.js 15
-- `@google-cloud/translate` - Google Translate API (для автоперевода)
-- `deepl-node` - DeepL API (альтернатива Google)
+- `next-intl` - библиотека для UI локализации в Next.js 15 App Router
+
+**НЕ устанавливаем** (на первом этапе):
+- ❌ Google Translate API
+- ❌ DeepL API
+- ❌ OpenAI API
+
+Переводы контента будут **ручными**.
 
 ---
 
 #### 1.2 Создание структуры папок
-**Время:** 15 минут
 
 ```bash
 src/
 ├── i18n/
-│   ├── config.ts           # Конфигурация языков
-│   ├── request.ts          # Серверная конфигурация
+│   ├── config.ts              # Конфигурация: 3 языка
+│   ├── request.ts             # Серверная конфигурация
 │   └── locales/
-│       ├── ru/
-│       │   ├── common.json        # Общие тексты
-│       │   ├── navigation.json    # Навигация
-│       │   ├── forms.json         # Формы
-│       │   └── errors.json        # Ошибки
-│       └── en/
+│       ├── en/
+│       │   ├── common.json          # Общие тексты
+│       │   ├── navigation.json      # Навигация
+│       │   ├── forms.json           # Формы
+│       │   ├── buildings.json       # Здания
+│       │   ├── routes.json          # Маршруты
+│       │   └── errors.json          # Ошибки
+│       ├── de/
+│       │   ├── common.json
+│       │   ├── navigation.json
+│       │   ├── forms.json
+│       │   ├── buildings.json
+│       │   ├── routes.json
+│       │   └── errors.json
+│       └── ru/
 │           ├── common.json
 │           ├── navigation.json
 │           ├── forms.json
+│           ├── buildings.json
+│           ├── routes.json
 │           └── errors.json
 ```
 
-**Объяснение:**
-- `config.ts` - список языков, язык по умолчанию
-- `request.ts` - определяет язык из URL или cookie
-- `locales/` - JSON файлы с переводами UI
-
 ---
 
-#### 1.3 Создание миграции БД
-**Время:** 1 час
+#### 1.3 Миграция БД для контента
 
-**Файл:** `database/migrations/030_add_content_translations.sql`
+**Файл:** `database/migrations/030_add_content_localization.sql`
+
+**Стратегия:** Добавляем столбцы `_en` для английских переводов и `original_language` для отслеживания языка оригинала.
 
 ```sql
--- Таблица для хранения переводов контента
-CREATE TABLE content_translations (
+-- ============================================
+-- BUILDINGS: Добавляем поля локализации
+-- ============================================
+
+-- Поле для языка оригинала
+ALTER TABLE buildings
+ADD COLUMN original_language TEXT NOT NULL DEFAULT 'ru';
+
+-- Английские переводы
+ALTER TABLE buildings
+ADD COLUMN name_en TEXT,
+ADD COLUMN description_en TEXT,
+ADD COLUMN short_description_en TEXT,
+ADD COLUMN historical_context_en TEXT,
+ADD COLUMN architectural_style_notes_en TEXT;
+
+-- Комментарий
+COMMENT ON COLUMN buildings.original_language IS 'Language of original content: en, de, or ru';
+COMMENT ON COLUMN buildings.name_en IS 'English translation of building name';
+COMMENT ON COLUMN buildings.description_en IS 'English translation of description';
+
+-- ============================================
+-- ROUTES: Добавляем поля локализации
+-- ============================================
+
+ALTER TABLE routes
+ADD COLUMN original_language TEXT NOT NULL DEFAULT 'ru',
+ADD COLUMN title_en TEXT,
+ADD COLUMN description_en TEXT;
+
+COMMENT ON COLUMN routes.original_language IS 'Language of original content: en, de, or ru';
+
+-- ============================================
+-- BUILDING_REVIEWS: Добавляем поля локализации
+-- ============================================
+
+ALTER TABLE building_reviews
+ADD COLUMN original_language TEXT NOT NULL DEFAULT 'ru',
+ADD COLUMN review_text_en TEXT,
+ADD COLUMN audio_description_en TEXT;
+
+COMMENT ON COLUMN building_reviews.original_language IS 'Language of original content: en, de, or ru';
+
+-- ============================================
+-- BLOG_POSTS: Добавляем поля локализации
+-- ============================================
+
+ALTER TABLE blog_posts
+ADD COLUMN original_language TEXT NOT NULL DEFAULT 'ru',
+ADD COLUMN title_en TEXT,
+ADD COLUMN content_en TEXT,
+ADD COLUMN excerpt_en TEXT;
+
+-- ============================================
+-- NEWS_POSTS: Добавляем поля локализации
+-- ============================================
+
+ALTER TABLE news_posts
+ADD COLUMN original_language TEXT NOT NULL DEFAULT 'ru',
+ADD COLUMN title_en TEXT,
+ADD COLUMN content_en TEXT;
+
+-- ============================================
+-- ИНДЕКСЫ для производительности
+-- ============================================
+
+CREATE INDEX idx_buildings_original_language ON buildings(original_language);
+CREATE INDEX idx_routes_original_language ON routes(original_language);
+CREATE INDEX idx_blog_posts_original_language ON blog_posts(original_language);
+
+-- ============================================
+-- ТАБЛИЦА: user_preferences (для хранения настроек)
+-- ============================================
+
+CREATE TABLE user_preferences (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  entity_type TEXT NOT NULL,      -- 'building', 'route', 'blog_post', etc.
-  entity_id UUID NOT NULL,
-  field_name TEXT NOT NULL,       -- 'name', 'description', 'content'
-  source_lang TEXT NOT NULL DEFAULT 'ru',
-  target_lang TEXT NOT NULL,
-  original_text TEXT NOT NULL,
-  translated_text TEXT NOT NULL,
-  translation_method TEXT NOT NULL, -- 'manual', 'google', 'deepl', 'gpt4'
-  is_approved BOOLEAN DEFAULT FALSE,
-  translated_by UUID REFERENCES auth.users(id),
-  translated_at TIMESTAMPTZ DEFAULT NOW(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+
+  -- Язык интерфейса
+  ui_language TEXT NOT NULL DEFAULT 'en' CHECK (ui_language IN ('en', 'de', 'ru')),
+
+  -- Предпочтение для контента
+  content_language_preference TEXT NOT NULL DEFAULT 'original'
+    CHECK (content_language_preference IN ('original', 'english')),
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
 
-  -- Один перевод на комбинацию
-  UNIQUE(entity_type, entity_id, field_name, target_lang)
+  -- Один набор настроек на пользователя
+  UNIQUE(user_id)
 );
 
--- Индексы для быстрого поиска переводов
-CREATE INDEX idx_translations_lookup
-  ON content_translations(entity_type, entity_id, target_lang);
+-- RLS политики
+ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
 
-CREATE INDEX idx_translations_approval
-  ON content_translations(is_approved, entity_type);
+CREATE POLICY "Users can view own preferences"
+ON user_preferences FOR SELECT
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own preferences"
+ON user_preferences FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own preferences"
+ON user_preferences FOR UPDATE
+USING (auth.uid() = user_id);
 
 -- Триггер для updated_at
-CREATE OR REPLACE FUNCTION update_translations_updated_at()
+CREATE OR REPLACE FUNCTION update_user_preferences_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -162,58 +270,80 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_update_translations_updated_at
-BEFORE UPDATE ON content_translations
+CREATE TRIGGER trigger_update_user_preferences
+BEFORE UPDATE ON user_preferences
 FOR EACH ROW
-EXECUTE FUNCTION update_translations_updated_at();
+EXECUTE FUNCTION update_user_preferences_updated_at();
 
--- RLS политики
-ALTER TABLE content_translations ENABLE ROW LEVEL SECURITY;
+-- ============================================
+-- ФУНКЦИЯ: Получить контент на нужном языке
+-- ============================================
 
--- Все могут читать утверждённые переводы
-CREATE POLICY "Anyone can view approved translations"
-ON content_translations FOR SELECT
-USING (is_approved = true);
+CREATE OR REPLACE FUNCTION get_localized_field(
+  original_value TEXT,
+  english_value TEXT,
+  original_lang TEXT,
+  user_preference TEXT
+) RETURNS TEXT AS $$
+BEGIN
+  -- Если пользователь выбрал оригинал
+  IF user_preference = 'original' THEN
+    RETURN original_value;
+  END IF;
 
--- Админы могут всё
-CREATE POLICY "Admins can manage translations"
-ON content_translations FOR ALL
-USING (
-  EXISTS (
-    SELECT 1 FROM profiles
-    WHERE profiles.id = auth.uid()
-    AND profiles.role IN ('admin', 'moderator')
-  )
-);
+  -- Если пользователь выбрал английский
+  IF user_preference = 'english' THEN
+    -- Если есть перевод, возвращаем его
+    IF english_value IS NOT NULL AND english_value != '' THEN
+      RETURN english_value;
+    END IF;
+
+    -- Если перевода нет, возвращаем оригинал
+    RETURN original_value;
+  END IF;
+
+  -- По умолчанию - оригинал
+  RETURN original_value;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+COMMENT ON FUNCTION get_localized_field IS
+'Returns appropriate content based on user language preference';
 ```
 
 **Объяснение:**
-- Одна таблица для всех переводов (универсальная схема)
-- `entity_type` + `entity_id` = ссылка на контент
-- `field_name` = какое поле переводим (name, description)
-- `is_approved` = модерация переводов
-- RLS защита + индексы для производительности
+- Каждая сущность получает `original_language` (en/de/ru)
+- Добавляются столбцы `*_en` для английских переводов
+- `user_preferences` хранит предпочтения пользователя
+- Функция `get_localized_field()` автоматически выбирает правильную версию
 
 ---
 
-### 🎯 Этап 2: UI переводы (next-intl) (3-4 дня)
+### 🎯 Этап 2: UI локализация (next-intl) (3-4 дня)
 
-**Цель:** Перевести весь интерфейс на английский
+**Цель:** Перевести весь интерфейс на 3 языка
 
 #### 2.1 Настройка next-intl
-**Время:** 2 часа
 
 **Файл:** `src/i18n/config.ts`
 
 ```typescript
-export const locales = ['ru', 'en'] as const
+export const locales = ['en', 'de', 'ru'] as const
 export type Locale = (typeof locales)[number]
 
-export const defaultLocale: Locale = 'ru'
+// Английский как основной международный
+export const defaultLocale: Locale = 'en'
 
 export const localeNames: Record<Locale, string> = {
-  ru: 'Русский',
-  en: 'English'
+  en: 'English',
+  de: 'Deutsch',
+  ru: 'Русский'
+}
+
+export const localeFlags: Record<Locale, string> = {
+  en: '🇬🇧',
+  de: '🇩🇪',
+  ru: '🇷🇺'
 }
 ```
 
@@ -229,7 +359,14 @@ export default getRequestConfig(async ({ locale }) => {
   if (!locales.includes(locale as any)) notFound()
 
   return {
-    messages: (await import(`./locales/${locale}/common.json`)).default
+    messages: {
+      ...(await import(`./locales/${locale}/common.json`)).default,
+      ...(await import(`./locales/${locale}/navigation.json`)).default,
+      ...(await import(`./locales/${locale}/forms.json`)).default,
+      ...(await import(`./locales/${locale}/buildings.json`)).default,
+      ...(await import(`./locales/${locale}/routes.json`)).default,
+      ...(await import(`./locales/${locale}/errors.json`)).default,
+    }
   }
 })
 ```
@@ -248,23 +385,17 @@ const nextConfig = {
 export default withNextIntl(nextConfig)
 ```
 
-**Объяснение:**
-- next-intl интегрируется в Next.js 15 App Router
-- URL будет: `/ru/buildings`, `/en/buildings`
-- Автоматическое определение языка из URL
-
 ---
 
 #### 2.2 Реструктуризация app/ под локали
-**Время:** 3 часа
 
 **Было:**
 ```
 src/app/
 ├── page.tsx
-├── buildings/
+├── test-map/
 │   └── page.tsx
-└── map/
+└── admin/
     └── page.tsx
 ```
 
@@ -272,13 +403,17 @@ src/app/
 ```
 src/app/
 ├── [locale]/
-│   ├── layout.tsx         # Root layout с провайдером
-│   ├── page.tsx
-│   ├── buildings/
+│   ├── layout.tsx         # Root layout с next-intl провайдером
+│   ├── page.tsx           # Home page
+│   ├── test-map/
 │   │   └── page.tsx
-│   └── map/
-│       └── page.tsx
-└── not-found.tsx          # 404 страница
+│   ├── admin/
+│   │   ├── page.tsx
+│   │   └── translations/
+│   │       └── page.tsx   # Новая страница управления переводами
+│   └── not-found.tsx
+├── middleware.ts          # Редирект на /en по умолчанию
+└── not-found.tsx
 ```
 
 **Файл:** `src/app/[locale]/layout.tsx`
@@ -320,76 +455,33 @@ export default async function LocaleLayout({
 }
 ```
 
-**Объяснение:**
-- Все страницы перемещаются под `[locale]/`
-- next-intl провайдер оборачивает всё приложение
-- Автоматическая генерация статических страниц для обоих языков
+**Файл:** `src/middleware.ts` (создать)
 
----
+```typescript
+import createMiddleware from 'next-intl/middleware'
+import { locales, defaultLocale } from './i18n/config'
 
-#### 2.3 Создание JSON файлов переводов
-**Время:** 6-8 часов
+export default createMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: 'always' // URLs всегда с префиксом: /en, /de, /ru
+})
 
-**Файл:** `src/i18n/locales/ru/common.json`
-
-```json
-{
-  "nav": {
-    "home": "Главная",
-    "buildings": "Здания",
-    "routes": "Маршруты",
-    "map": "Карта",
-    "blog": "Блог",
-    "news": "Новости",
-    "podcasts": "Подкасты",
-    "about": "О проекте",
-    "contact": "Контакты"
-  },
-  "common": {
-    "loading": "Загрузка...",
-    "error": "Ошибка",
-    "success": "Успешно",
-    "save": "Сохранить",
-    "cancel": "Отменить",
-    "delete": "Удалить",
-    "edit": "Редактировать",
-    "search": "Поиск",
-    "filter": "Фильтр",
-    "readMore": "Читать далее"
-  },
-  "auth": {
-    "login": "Войти",
-    "logout": "Выйти",
-    "register": "Регистрация",
-    "email": "Email",
-    "password": "Пароль",
-    "forgotPassword": "Забыли пароль?"
-  },
-  "buildings": {
-    "title": "Здания",
-    "description": "Архитектурные объекты",
-    "addReview": "Добавить отзыв",
-    "viewOnMap": "Посмотреть на карте"
-  }
-  // ... ещё ~200-300 строк
+export const config = {
+  matcher: ['/', '/(de|en|ru)/:path*']
 }
 ```
 
-**Файл:** `src/i18n/locales/en/common.json`
+---
+
+#### 2.3 Создание JSON переводов
+
+**Примеры файлов:**
+
+**`src/i18n/locales/en/common.json`**
 
 ```json
 {
-  "nav": {
-    "home": "Home",
-    "buildings": "Buildings",
-    "routes": "Routes",
-    "map": "Map",
-    "blog": "Blog",
-    "news": "News",
-    "podcasts": "Podcasts",
-    "about": "About",
-    "contact": "Contact"
-  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
@@ -400,38 +492,219 @@ export default async function LocaleLayout({
     "edit": "Edit",
     "search": "Search",
     "filter": "Filter",
-    "readMore": "Read more"
-  },
-  "auth": {
-    "login": "Login",
-    "logout": "Logout",
-    "register": "Sign up",
-    "email": "Email",
-    "password": "Password",
-    "forgotPassword": "Forgot password?"
-  },
-  "buildings": {
-    "title": "Buildings",
-    "description": "Architectural objects",
-    "addReview": "Add review",
-    "viewOnMap": "View on map"
+    "readMore": "Read more",
+    "showOriginal": "Read in original language",
+    "showEnglish": "Read in English",
+    "originalLanguage": "Original language"
   }
-  // ... ещё ~200-300 строк
 }
 ```
 
-**Процесс:**
-1. Собрать все жестко закодированные тексты из компонентов
-2. Сгруппировать по категориям (nav, auth, buildings, etc.)
-3. Создать структуру JSON
-4. Перевести на английский (можно использовать GPT-4)
+**`src/i18n/locales/de/common.json`**
 
-**Оценка:** ~300-400 строк переводов для UI
+```json
+{
+  "common": {
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "search": "Suchen",
+    "filter": "Filter",
+    "readMore": "Mehr lesen",
+    "showOriginal": "In Originalsprache lesen",
+    "showEnglish": "Auf Englisch lesen",
+    "originalLanguage": "Originalsprache"
+  }
+}
+```
+
+**`src/i18n/locales/ru/common.json`**
+
+```json
+{
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "save": "Сохранить",
+    "cancel": "Отменить",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "readMore": "Читать далее",
+    "showOriginal": "Читать на языке оригинала",
+    "showEnglish": "Читать на английском",
+    "originalLanguage": "Язык оригинала"
+  }
+}
+```
+
+**Оценка:** ~400-500 строк переводов на каждый язык
 
 ---
 
-#### 2.4 Обновление компонентов
-**Время:** 8-10 часов
+#### 2.4 Language Selection Modal (при первом визите)
+
+**Файл:** `src/components/LanguageSelectionModal.tsx`
+
+```typescript
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import { localeNames, localeFlags, type Locale } from '@/i18n/config'
+
+export default function LanguageSelectionModal() {
+  const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+
+  useEffect(() => {
+    // Проверяем, был ли уже выбран язык
+    const hasSelectedLanguage = localStorage.getItem('language-selected')
+
+    if (!hasSelectedLanguage) {
+      setIsOpen(true)
+    }
+  }, [])
+
+  const selectLanguage = (locale: Locale) => {
+    // Сохраняем выбор
+    localStorage.setItem('language-selected', 'true')
+    localStorage.setItem('preferred-locale', locale)
+
+    // Редирект на выбранный язык
+    router.push(`/${locale}${pathname}`)
+    setIsOpen(false)
+  }
+
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold mb-2">Welcome to Archi-Routes</h2>
+          <p className="text-gray-600">Please select your preferred language</p>
+        </div>
+
+        <div className="space-y-3">
+          {(['en', 'de', 'ru'] as const).map((locale) => (
+            <button
+              key={locale}
+              onClick={() => selectLanguage(locale)}
+              className="w-full flex items-center justify-between px-6 py-4
+                       border-2 border-gray-200 rounded-xl
+                       hover:border-blue-500 hover:bg-blue-50
+                       transition-all duration-200 group"
+            >
+              <span className="text-3xl">{localeFlags[locale]}</span>
+              <span className="text-lg font-medium group-hover:text-blue-600">
+                {localeNames[locale]}
+              </span>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity">
+                →
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <p className="text-xs text-gray-500 text-center mt-6">
+          You can change the language anytime in settings
+        </p>
+      </div>
+    </div>
+  )
+}
+```
+
+**Разместить:** В `src/app/[locale]/layout.tsx` (внутри body)
+
+---
+
+#### 2.5 Language Switcher (переключатель в header)
+
+**Файл:** `src/components/LanguageSwitcher.tsx`
+
+```typescript
+'use client'
+
+import { useLocale } from 'next-intl'
+import { usePathname, useRouter } from 'next/navigation'
+import { localeNames, localeFlags, type Locale } from '@/i18n/config'
+import { useState } from 'react'
+
+export default function LanguageSwitcher() {
+  const locale = useLocale() as Locale
+  const router = useRouter()
+  const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(false)
+
+  const switchLocale = (newLocale: Locale) => {
+    // Update localStorage
+    localStorage.setItem('preferred-locale', newLocale)
+
+    // Navigate to new locale
+    const newPath = pathname.replace(`/${locale}`, `/${newLocale}`)
+    router.push(newPath)
+    setIsOpen(false)
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center space-x-2 px-3 py-2 rounded-lg
+                 hover:bg-gray-100 transition-colors"
+      >
+        <span className="text-xl">{localeFlags[locale]}</span>
+        <span className="font-medium">{locale.toUpperCase()}</span>
+        <svg
+          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg
+                      shadow-xl border border-gray-200 py-2 z-50">
+          {(['en', 'de', 'ru'] as const).map((loc) => (
+            <button
+              key={loc}
+              onClick={() => switchLocale(loc)}
+              className={`w-full flex items-center space-x-3 px-4 py-2
+                       hover:bg-gray-100 transition-colors ${
+                         locale === loc ? 'bg-blue-50 text-blue-600' : ''
+                       }`}
+            >
+              <span className="text-xl">{localeFlags[loc]}</span>
+              <span className="font-medium">{localeNames[loc]}</span>
+              {locale === loc && (
+                <svg className="w-5 h-5 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+```
+
+---
+
+#### 2.6 Обновление компонентов
 
 **Было:**
 ```typescript
@@ -439,8 +712,7 @@ export default function Navigation() {
   return (
     <nav>
       <Link href="/">Главная</Link>
-      <Link href="/buildings">Здания</Link>
-      <Link href="/routes">Маршруты</Link>
+      <Link href="/test-map">Карта</Link>
     </nav>
   )
 }
@@ -451,16 +723,15 @@ export default function Navigation() {
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { Link, usePathname } from '@/i18n/navigation'
+import { Link } from '@/i18n/navigation'
 
 export default function Navigation() {
-  const t = useTranslations('nav')
+  const t = useTranslations('navigation')
 
   return (
     <nav>
       <Link href="/">{t('home')}</Link>
-      <Link href="/buildings">{t('buildings')}</Link>
-      <Link href="/routes">{t('routes')}</Link>
+      <Link href="/test-map">{t('map')}</Link>
     </nav>
   )
 }
@@ -477,701 +748,625 @@ export const { Link, redirect, usePathname, useRouter } =
 ```
 
 **Компоненты для обновления (приоритет):**
-1. Navigation / Header (~2 часа)
+1. Header/Navigation (~2 часа)
 2. Footer (~1 час)
-3. AuthModal (~1 час)
-4. BuildingModalNew (~2 часа)
-5. RouteViewerModal (~2 часа)
-6. Forms (AddReviewModal, etc.) (~3 часа)
+3. BuildingModalNew (~2 часа)
+4. RouteViewerModal (~2 часа)
+5. AddReviewModal (~2 часа)
+6. AuthModal (~1 час)
+7. Forms и другие UI компоненты (~4 часа)
 
-**Итого:** ~30-40 компонентов для обновления
+**Итого:** ~40-50 компонентов
 
 ---
 
-#### 2.5 Language Switcher (переключатель языка)
-**Время:** 2 часа
+### 🎯 Этап 3: Система перевода контента (3-4 дня)
 
-**Файл:** `src/components/LanguageSwitcher.tsx`
+**Цель:** Реализовать ручной перевод контента с выбором оригинал/английский
+
+#### 3.1 React Hook для выбора языка контента
+
+**Файл:** `src/hooks/useContentLanguage.ts`
 
 ```typescript
 'use client'
 
-import { useLocale } from 'next-intl'
-import { usePathname, useRouter } from 'next/navigation'
-import { localeNames } from '@/i18n/config'
-import type { Locale } from '@/i18n/config'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
 
-export default function LanguageSwitcher() {
-  const locale = useLocale() as Locale
-  const router = useRouter()
-  const pathname = usePathname()
+export type ContentLanguagePreference = 'original' | 'english'
 
-  const switchLocale = (newLocale: Locale) => {
-    // Replace locale in pathname
-    const newPath = pathname.replace(`/${locale}`, `/${newLocale}`)
-    router.push(newPath)
+export function useContentLanguage() {
+  const [preference, setPreference] = useState<ContentLanguagePreference>('original')
+  const { user } = useAuth()
+  const supabase = createClient()
+
+  // Загружаем предпочтение пользователя
+  useEffect(() => {
+    async function loadPreference() {
+      if (user) {
+        const { data } = await supabase
+          .from('user_preferences')
+          .select('content_language_preference')
+          .eq('user_id', user.id)
+          .single()
+
+        if (data) {
+          setPreference(data.content_language_preference)
+        }
+      } else {
+        // Для неавторизованных - из localStorage
+        const saved = localStorage.getItem('content-language-preference')
+        if (saved) {
+          setPreference(saved as ContentLanguagePreference)
+        }
+      }
+    }
+
+    loadPreference()
+  }, [user, supabase])
+
+  // Обновить предпочтение
+  const updatePreference = async (newPreference: ContentLanguagePreference) => {
+    setPreference(newPreference)
+
+    if (user) {
+      await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: user.id,
+          content_language_preference: newPreference
+        })
+    } else {
+      localStorage.setItem('content-language-preference', newPreference)
+    }
+  }
+
+  return { preference, updatePreference }
+}
+```
+
+---
+
+#### 3.2 Утилита для получения локализованного контента
+
+**Файл:** `src/lib/get-localized-content.ts`
+
+```typescript
+export type ContentLanguagePreference = 'original' | 'english'
+
+export function getLocalizedText(
+  originalText: string,
+  englishText: string | null,
+  preference: ContentLanguagePreference
+): string {
+  if (preference === 'english' && englishText) {
+    return englishText
+  }
+  return originalText
+}
+
+// Для множественных полей
+export function getLocalizedFields<T extends Record<string, any>>(
+  original: T,
+  englishFields: Partial<Record<keyof T, string>>,
+  preference: ContentLanguagePreference,
+  fieldsToLocalize: (keyof T)[]
+): T {
+  if (preference === 'original') {
+    return original
+  }
+
+  const localized = { ...original }
+
+  fieldsToLocalize.forEach(field => {
+    const englishValue = englishFields[field]
+    if (englishValue) {
+      localized[field] = englishValue as T[keyof T]
+    }
+  })
+
+  return localized
+}
+```
+
+---
+
+#### 3.3 Компонент переключения языка контента
+
+**Файл:** `src/components/ContentLanguageToggle.tsx`
+
+```typescript
+'use client'
+
+import { useTranslations } from 'next-intl'
+import { useContentLanguage } from '@/hooks/useContentLanguage'
+import { localeFlags } from '@/i18n/config'
+
+interface ContentLanguageToggleProps {
+  originalLanguage: 'en' | 'de' | 'ru'
+  hasEnglishTranslation: boolean
+}
+
+export default function ContentLanguageToggle({
+  originalLanguage,
+  hasEnglishTranslation
+}: ContentLanguageToggleProps) {
+  const t = useTranslations('common')
+  const { preference, updatePreference } = useContentLanguage()
+
+  // Если оригинал уже на английском, не показываем переключатель
+  if (originalLanguage === 'en') {
+    return null
   }
 
   return (
-    <div className="flex items-center space-x-2">
-      {(['ru', 'en'] as const).map((loc) => (
+    <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-2">
+      <button
+        onClick={() => updatePreference('original')}
+        className={`flex items-center space-x-2 px-3 py-1.5 rounded-md transition-colors ${
+          preference === 'original'
+            ? 'bg-white shadow-sm text-blue-600 font-medium'
+            : 'text-gray-600 hover:text-gray-900'
+        }`}
+      >
+        <span>{localeFlags[originalLanguage]}</span>
+        <span className="text-sm">{t('showOriginal')}</span>
+      </button>
+
+      {hasEnglishTranslation && (
         <button
-          key={loc}
-          onClick={() => switchLocale(loc)}
-          className={`px-3 py-1 rounded ${
-            locale === loc
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          onClick={() => updatePreference('english')}
+          className={`flex items-center space-x-2 px-3 py-1.5 rounded-md transition-colors ${
+            preference === 'english'
+              ? 'bg-white shadow-sm text-blue-600 font-medium'
+              : 'text-gray-600 hover:text-gray-900'
           }`}
         >
-          {localeNames[loc]}
+          <span>{localeFlags.en}</span>
+          <span className="text-sm">{t('showEnglish')}</span>
         </button>
+      )}
+
+      {!hasEnglishTranslation && preference === 'english' && (
+        <span className="text-xs text-amber-600 ml-2">
+          Translation not available yet
+        </span>
+      )}
+    </div>
+  )
+}
+```
+
+---
+
+#### 3.4 Интеграция в BuildingModalNew
+
+**Обновляем:** `src/components/BuildingModalNew.tsx`
+
+```typescript
+'use client'
+
+import { useMemo } from 'react'
+import { useContentLanguage } from '@/hooks/useContentLanguage'
+import { getLocalizedText } from '@/lib/get-localized-content'
+import ContentLanguageToggle from './ContentLanguageToggle'
+
+export default function BuildingModalNew({ building }: { building: Building }) {
+  const { preference } = useContentLanguage()
+
+  // Получаем локализованный контент
+  const displayName = useMemo(
+    () => getLocalizedText(building.name, building.name_en, preference),
+    [building.name, building.name_en, preference]
+  )
+
+  const displayDescription = useMemo(
+    () => getLocalizedText(building.description, building.description_en, preference),
+    [building.description, building.description_en, preference]
+  )
+
+  const hasEnglishTranslation = Boolean(building.name_en)
+
+  return (
+    <div className="building-modal">
+      {/* Переключатель языка */}
+      <ContentLanguageToggle
+        originalLanguage={building.original_language}
+        hasEnglishTranslation={hasEnglishTranslation}
+      />
+
+      {/* Контент */}
+      <h1>{displayName}</h1>
+      <p>{displayDescription}</p>
+
+      {/* ... остальной контент */}
+    </div>
+  )
+}
+```
+
+---
+
+#### 3.5 Админ-панель для управления переводами
+
+**Файл:** `src/app/[locale]/admin/translations/page.tsx`
+
+```typescript
+import { createClient } from '@/lib/supabase'
+import TranslationEditor from '@/components/admin/TranslationEditor'
+
+export default async function TranslationsAdminPage() {
+  const supabase = createClient()
+
+  // Получаем здания без английского перевода
+  const { data: buildingsNeedingTranslation } = await supabase
+    .from('buildings')
+    .select('id, name, description, original_language, name_en, description_en')
+    .is('name_en', null)
+    .limit(20)
+
+  // Статистика
+  const { count: totalBuildings } = await supabase
+    .from('buildings')
+    .select('*', { count: 'exact', head: true })
+
+  const { count: translatedBuildings } = await supabase
+    .from('buildings')
+    .select('*', { count: 'exact', head: true })
+    .not('name_en', 'is', null)
+
+  const translationProgress = totalBuildings
+    ? Math.round((translatedBuildings / totalBuildings) * 100)
+    : 0
+
+  return (
+    <div className="p-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-4">Content Translation Management</h1>
+
+        {/* Прогресс */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-3">Translation Progress</h2>
+          <div className="flex items-center space-x-4">
+            <div className="flex-1">
+              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-600 transition-all"
+                  style={{ width: `${translationProgress}%` }}
+                />
+              </div>
+            </div>
+            <span className="text-2xl font-bold text-blue-600">
+              {translationProgress}%
+            </span>
+          </div>
+          <p className="text-sm text-gray-600 mt-2">
+            {translatedBuildings} of {totalBuildings} buildings translated
+          </p>
+        </div>
+      </div>
+
+      {/* Список для перевода */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-6 border-b">
+          <h2 className="text-xl font-semibold">Buildings Needing Translation</h2>
+        </div>
+
+        <div className="divide-y">
+          {buildingsNeedingTranslation?.map(building => (
+            <TranslationEditor
+              key={building.id}
+              entityType="building"
+              entityId={building.id}
+              originalLanguage={building.original_language}
+              fields={{
+                name: building.name,
+                description: building.description
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+**Файл:** `src/components/admin/TranslationEditor.tsx`
+
+```typescript
+'use client'
+
+import { useState } from 'react'
+import { createClient } from '@/lib/supabase'
+import { localeFlags } from '@/i18n/config'
+
+interface TranslationEditorProps {
+  entityType: 'building' | 'route' | 'blog_post' | 'news_post'
+  entityId: string
+  originalLanguage: 'en' | 'de' | 'ru'
+  fields: Record<string, string>
+}
+
+export default function TranslationEditor({
+  entityType,
+  entityId,
+  originalLanguage,
+  fields
+}: TranslationEditorProps) {
+  const [translations, setTranslations] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
+  const supabase = createClient()
+
+  const handleSave = async () => {
+    setSaving(true)
+
+    // Подготовка объекта для обновления
+    const updates: Record<string, string> = {}
+    Object.keys(translations).forEach(fieldName => {
+      updates[`${fieldName}_en`] = translations[fieldName]
+    })
+
+    const { error } = await supabase
+      .from(entityType === 'building' ? 'buildings' : `${entityType}s`)
+      .update(updates)
+      .eq('id', entityId)
+
+    if (!error) {
+      alert('Translation saved successfully!')
+    }
+
+    setSaving(false)
+  }
+
+  return (
+    <div className="p-6">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center space-x-2">
+          <span className="text-2xl">{localeFlags[originalLanguage]}</span>
+          <span className="text-sm text-gray-500">→</span>
+          <span className="text-2xl">{localeFlags.en}</span>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving ? 'Saving...' : 'Save Translation'}
+        </button>
+      </div>
+
+      {Object.entries(fields).map(([fieldName, originalText]) => (
+        <div key={fieldName} className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {fieldName} (Original)
+          </label>
+          <div className="p-3 bg-gray-50 rounded-lg mb-2 text-sm">
+            {originalText}
+          </div>
+
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {fieldName} (English Translation)
+          </label>
+          <textarea
+            value={translations[fieldName] || ''}
+            onChange={(e) => setTranslations({
+              ...translations,
+              [fieldName]: e.target.value
+            })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg
+                     focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            rows={3}
+            placeholder="Enter English translation..."
+          />
+        </div>
       ))}
     </div>
   )
 }
 ```
 
-**Разместить:**
-- В Header (правый верхний угол)
-- В Footer (дополнительно)
-- В настройках профиля (сохранять предпочтение)
-
 ---
 
-### 🎯 Этап 3: Переводы контента из БД (4-5 дней)
+### 🎯 Этап 4: Обновление форм создания контента (2 дня)
 
-**Цель:** Система автоперевода и хранения переводов контента
+**Цель:** Добавить поля для языка оригинала и английского перевода
 
-#### 3.1 Сервис перевода
-**Время:** 4-5 часов
+#### 4.1 Обновление формы создания отзыва
 
-**Файл:** `src/lib/translation-service.ts`
+**В `AddReviewModal.tsx` добавить:**
 
 ```typescript
-import { createClient } from '@/lib/supabase'
-import { logger } from '@/lib/logger'
+// Добавить поле выбора языка
+<div className="mb-4">
+  <label className="block text-sm font-medium mb-2">
+    Review Language
+  </label>
+  <select
+    value={originalLanguage}
+    onChange={(e) => setOriginalLanguage(e.target.value)}
+    className="w-full px-3 py-2 border rounded-lg"
+  >
+    <option value="en">🇬🇧 English</option>
+    <option value="de">🇩🇪 Deutsch</option>
+    <option value="ru">🇷🇺 Русский</option>
+  </select>
+</div>
 
-export type TranslationMethod = 'google' | 'deepl' | 'gpt4' | 'manual'
-
-export interface TranslateOptions {
-  entityType: 'building' | 'route' | 'blog_post' | 'news_post' | 'review'
-  entityId: string
-  fieldName: string
-  originalText: string
-  sourceLang: string
-  targetLang: string
-  method?: TranslationMethod
-}
-
-export async function translateAndStore(options: TranslateOptions): Promise<string> {
-  const {
-    entityType,
-    entityId,
-    fieldName,
-    originalText,
-    sourceLang,
-    targetLang,
-    method = 'google'
-  } = options
-
-  const supabase = createClient()
-
-  // 1. Проверяем кэш (уже есть перевод?)
-  const { data: existing } = await supabase
-    .from('content_translations')
-    .select('translated_text')
-    .eq('entity_type', entityType)
-    .eq('entity_id', entityId)
-    .eq('field_name', fieldName)
-    .eq('target_lang', targetLang)
-    .single()
-
-  if (existing) {
-    logger.info('Translation cache hit', { entityType, entityId, fieldName })
-    return existing.translated_text
-  }
-
-  // 2. Выполняем перевод
-  logger.info('Translating content', { entityType, entityId, fieldName, method })
-
-  const translatedText = await performTranslation(
-    originalText,
-    sourceLang,
-    targetLang,
-    method
-  )
-
-  // 3. Сохраняем в БД
-  await supabase.from('content_translations').insert({
-    entity_type: entityType,
-    entity_id: entityId,
-    field_name: fieldName,
-    source_lang: sourceLang,
-    target_lang: targetLang,
-    original_text: originalText,
-    translated_text: translatedText,
-    translation_method: method,
-    is_approved: false  // Требует модерации
-  })
-
-  logger.info('Translation stored', { entityType, entityId, fieldName })
-
-  return translatedText
-}
-
-async function performTranslation(
-  text: string,
-  sourceLang: string,
-  targetLang: string,
-  method: TranslationMethod
-): Promise<string> {
-  try {
-    switch (method) {
-      case 'google':
-        return await translateWithGoogle(text, sourceLang, targetLang)
-      case 'deepl':
-        return await translateWithDeepL(text, sourceLang, targetLang)
-      case 'gpt4':
-        return await translateWithGPT4(text, sourceLang, targetLang)
-      case 'manual':
-        return text // Placeholder для ручного перевода
-      default:
-        throw new Error(`Unknown translation method: ${method}`)
-    }
-  } catch (error) {
-    logger.error('Translation failed', error as Error, { text: text.substring(0, 100) })
-    throw error
-  }
-}
-
-// Google Translate API
-async function translateWithGoogle(text: string, from: string, to: string): Promise<string> {
-  const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY
-
-  if (!apiKey) {
-    throw new Error('GOOGLE_TRANSLATE_API_KEY not configured')
-  }
-
-  const response = await fetch(
-    `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        q: text,
-        source: from,
-        target: to,
-        format: 'text'
-      })
-    }
-  )
-
-  if (!response.ok) {
-    throw new Error(`Google Translate API error: ${response.statusText}`)
-  }
-
-  const data = await response.json()
-  return data.data.translations[0].translatedText
-}
-
-// DeepL API
-async function translateWithDeepL(text: string, from: string, to: string): Promise<string> {
-  const apiKey = process.env.DEEPL_API_KEY
-
-  if (!apiKey) {
-    throw new Error('DEEPL_API_KEY not configured')
-  }
-
-  const response = await fetch('https://api-free.deepl.com/v2/translate', {
-    method: 'POST',
-    headers: {
-      'Authorization': `DeepL-Auth-Key ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      text: [text],
-      source_lang: from.toUpperCase(),
-      target_lang: to.toUpperCase()
-    })
-  })
-
-  if (!response.ok) {
-    throw new Error(`DeepL API error: ${response.statusText}`)
-  }
-
-  const data = await response.json()
-  return data.translations[0].text
-}
-
-// OpenAI GPT-4
-async function translateWithGPT4(text: string, from: string, to: string): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY
-
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY not configured')
-  }
-
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'gpt-4-turbo',
-      messages: [
-        {
-          role: 'system',
-          content: `You are a professional translator specializing in architectural content.
-Translate from ${from} to ${to}. Preserve technical terms, proper nouns, and formatting.
-Maintain the tone and style of the original text.`
-        },
-        {
-          role: 'user',
-          content: text
-        }
-      ],
-      temperature: 0.3
-    })
-  })
-
-  if (!response.ok) {
-    throw new Error(`OpenAI API error: ${response.statusText}`)
-  }
-
-  const data = await response.json()
-  return data.choices[0].message.content
-}
+{/* Опционально: поле для английского перевода */}
+{originalLanguage !== 'en' && (
+  <div className="mb-4">
+    <label className="block text-sm font-medium mb-2">
+      English Translation (optional)
+    </label>
+    <textarea
+      value={reviewTextEn}
+      onChange={(e) => setReviewTextEn(e.target.value)}
+      className="w-full px-3 py-2 border rounded-lg"
+      rows={4}
+      placeholder="Add English translation to reach international audience..."
+    />
+  </div>
+)}
 ```
 
-**Объяснение:**
-- Три метода перевода: Google (дешевле), DeepL (качественнее), GPT-4 (лучше для длинных текстов)
-- Кэширование: перевод делается ОДИН РАЗ, потом берется из БД
-- Логирование через наш logger
-- Error handling для всех API
+#### 4.2 Аналогично обновить:
+- RouteCreator - добавить `original_language` и `title_en`, `description_en`
+- BlogPostEditor - добавить поля перевода
+- NewsPostEditor - добавить поля перевода
 
 ---
 
-#### 3.2 Получение переводов
-**Время:** 2 часа
+### 🎯 Этап 5: SEO и метаданные (1 день)
 
-**Файл:** `src/lib/get-translated-content.ts`
+**Цель:** Настроить hreflang теги и мультиязычные метаданные
 
-```typescript
-import { createClient } from '@/lib/supabase'
-
-export async function getTranslatedContent(
-  entityType: string,
-  entityId: string,
-  fieldName: string,
-  targetLang: string,
-  originalText: string
-): Promise<string> {
-  // Если русский (оригинал), возвращаем как есть
-  if (targetLang === 'ru') {
-    return originalText
-  }
-
-  const supabase = createClient()
-
-  const { data, error } = await supabase
-    .from('content_translations')
-    .select('translated_text')
-    .eq('entity_type', entityType)
-    .eq('entity_id', entityId)
-    .eq('field_name', fieldName)
-    .eq('target_lang', targetLang)
-    .eq('is_approved', true)  // Только утверждённые переводы
-    .single()
-
-  if (error || !data) {
-    // Если перевода нет, возвращаем оригинал
-    return originalText
-  }
-
-  return data.translated_text
-}
-
-// Batch версия для оптимизации
-export async function getBatchTranslatedContent(
-  entityType: string,
-  entityIds: string[],
-  targetLang: string
-): Promise<Map<string, Record<string, string>>> {
-  if (targetLang === 'ru') {
-    return new Map()
-  }
-
-  const supabase = createClient()
-
-  const { data, error } = await supabase
-    .from('content_translations')
-    .select('entity_id, field_name, translated_text')
-    .eq('entity_type', entityType)
-    .in('entity_id', entityIds)
-    .eq('target_lang', targetLang)
-    .eq('is_approved', true)
-
-  if (error || !data) {
-    return new Map()
-  }
-
-  // Группируем по entity_id
-  const result = new Map<string, Record<string, string>>()
-
-  data.forEach(translation => {
-    if (!result.has(translation.entity_id)) {
-      result.set(translation.entity_id, {})
-    }
-    result.get(translation.entity_id)![translation.field_name] = translation.translated_text
-  })
-
-  return result
-}
-```
-
-**Объяснение:**
-- Простая функция: если перевод есть → возвращаем, если нет → оригинал
-- Batch версия для списков (например, список зданий)
-- Только утверждённые переводы (`is_approved = true`)
-
----
-
-#### 3.3 React Hook для переводов
-**Время:** 2 часа
-
-**Файл:** `src/hooks/useContentTranslation.ts`
+**Файл:** `src/app/[locale]/layout.tsx` (обновить)
 
 ```typescript
-'use client'
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }) {
+  const t = await getTranslations({ locale, namespace: 'metadata' })
 
-import { useEffect, useState } from 'react'
-import { useLocale } from 'next-intl'
-import { getTranslatedContent } from '@/lib/get-translated-content'
-
-export function useContentTranslation(
-  entityType: string,
-  entityId: string,
-  fields: Record<string, string>
-) {
-  const locale = useLocale()
-  const [translatedFields, setTranslatedFields] = useState(fields)
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (locale === 'ru') {
-      // Русский - показываем оригинал
-      setTranslatedFields(fields)
-      return
-    }
-
-    async function loadTranslations() {
-      setLoading(true)
-
-      const translations: Record<string, string> = {}
-
-      for (const [fieldName, originalText] of Object.entries(fields)) {
-        const translated = await getTranslatedContent(
-          entityType,
-          entityId,
-          fieldName,
-          locale,
-          originalText
-        )
-        translations[fieldName] = translated
+  return {
+    title: t('title'),
+    description: t('description'),
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        'en': '/en',
+        'de': '/de',
+        'ru': '/ru'
       }
-
-      setTranslatedFields(translations)
-      setLoading(false)
+    },
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      locale: locale,
+      alternateLocale: ['en', 'de', 'ru'].filter(l => l !== locale)
     }
-
-    loadTranslations()
-  }, [locale, entityId, entityType])
-
-  return { ...translatedFields, loading }
-}
-```
-
-**Использование:**
-
-```typescript
-'use client'
-
-import { useContentTranslation } from '@/hooks/useContentTranslation'
-
-export default function BuildingCard({ building }: { building: Building }) {
-  const { name, description, loading } = useContentTranslation(
-    'building',
-    building.id,
-    {
-      name: building.name,
-      description: building.description
-    }
-  )
-
-  if (loading) {
-    return <div>Loading translation...</div>
   }
-
-  return (
-    <div>
-      <h2>{name}</h2>
-      <p>{description}</p>
-    </div>
-  )
 }
 ```
 
 ---
 
-#### 3.4 Админ-панель переводов
-**Время:** 8-10 часов
+### 🎯 Этап 6: Тестирование (2-3 дня)
 
-**Файл:** `src/app/[locale]/admin/translations/page.tsx`
+#### 6.1 Ручное тестирование
 
-Функционал:
-1. **Просмотр всех переводов** - таблица с фильтрами
-2. **Утверждение переводов** - кнопка approve/reject
-3. **Редактирование переводов** - inline edit
-4. **Массовый перевод** - кнопка "Translate all buildings"
-5. **Статистика** - сколько переведено, сколько ждёт модерации
-
-**Примерный UI:**
-
-```typescript
-export default async function TranslationsAdminPage() {
-  const supabase = createClient()
-
-  const { data: translations } = await supabase
-    .from('content_translations')
-    .select('*')
-    .eq('is_approved', false)
-    .order('translated_at', { ascending: false })
-    .limit(50)
-
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Управление переводами</h1>
-
-      {/* Фильтры */}
-      <div className="flex gap-4 mb-6">
-        <select className="px-4 py-2 border rounded">
-          <option value="">Все типы</option>
-          <option value="building">Здания</option>
-          <option value="route">Маршруты</option>
-          <option value="blog_post">Блог</option>
-        </select>
-
-        <select className="px-4 py-2 border rounded">
-          <option value="pending">Ожидают проверки</option>
-          <option value="approved">Утверждены</option>
-        </select>
-
-        <button className="px-4 py-2 bg-blue-600 text-white rounded">
-          Массовый перевод
-        </button>
-      </div>
-
-      {/* Таблица */}
-      <table className="w-full">
-        <thead className="bg-gray-100">
-          <tr>
-            <th>Тип</th>
-            <th>Поле</th>
-            <th>Оригинал</th>
-            <th>Перевод</th>
-            <th>Метод</th>
-            <th>Действия</th>
-          </tr>
-        </thead>
-        <tbody>
-          {translations?.map(t => (
-            <tr key={t.id}>
-              <td>{t.entity_type}</td>
-              <td>{t.field_name}</td>
-              <td className="max-w-xs truncate">{t.original_text}</td>
-              <td className="max-w-xs truncate">{t.translated_text}</td>
-              <td>{t.translation_method}</td>
-              <td>
-                <button className="text-green-600">✓ Approve</button>
-                <button className="text-red-600 ml-2">✗ Reject</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-```
+**Чеклист:**
+- [ ] Language Selection Modal появляется при первом визите
+- [ ] Переключение UI языка (EN/DE/RU) работает
+- [ ] Переключение языка контента (Original/English) работает
+- [ ] Админ-панель переводов функционирует
+- [ ] Формы создания контента сохраняют `original_language`
+- [ ] SEO теги (hreflang) корректны
+- [ ] Mobile версия работает
+- [ ] Персистентность настроек (localStorage + БД)
 
 ---
 
-### 🎯 Этап 4: Тестирование (2-3 дня)
+## 📊 Временная шкала
 
-#### 4.1 Unit тесты
-**Время:** 4 hours
-
-Тесты для:
-- `translation-service.ts`
-- `get-translated-content.ts`
-- `useContentTranslation` hook
-
-#### 4.2 Integration тесты
-**Время:** 4 часа
-
-Тесты для:
-- Переключение языка в UI
-- Загрузка переводов из БД
-- Создание новых переводов
-
-#### 4.3 Manual тестирование
-**Время:** 1 день
-
-Проверить:
-- [ ] Все страницы на RU
-- [ ] Все страницы на EN
-- [ ] Language Switcher работает
-- [ ] Переводы контента загружаются
-- [ ] Админ-панель переводов
-- [ ] Mobile версия
-- [ ] SEO (hreflang tags)
+| Этап | Описание | Детали |
+|------|----------|---------|
+| **Этап 1** | Подготовка и настройка | Установка next-intl, миграция БД, структура папок |
+| **Этап 2** | UI локализация | JSON переводы (EN/DE/RU), Language Modal, Switcher |
+| **Этап 3** | Система перевода контента | Hooks, утилиты, ContentLanguageToggle |
+| **Этап 4** | Обновление форм | Добавление полей original_language и *_en |
+| **Этап 5** | SEO и метаданные | hreflang теги, Open Graph |
+| **Этап 6** | Тестирование | Ручное и автоматическое тестирование |
 
 ---
 
-## 📊 Оценка времени и ресурсов
+## 💰 Стоимость
 
-### Временная шкала
+### Вариант 1: Только ручной перевод (рекомендуется для старта)
+- **Затраты:** $0/мес на API
+- **Время на перевод:** Зависит от объёма контента
+- **Качество:** Наивысшее (ручной перевод)
 
-| Этап | Описание | Время | Кумулятивно |
-|------|----------|-------|-------------|
-| **Этап 1** | Подготовка и настройка | 2-3 дня | 2-3 дня |
-| **Этап 2** | UI переводы (next-intl) | 3-4 дня | 5-7 дней |
-| **Этап 3** | Переводы контента (БД) | 4-5 дней | 9-12 дней |
-| **Этап 4** | Тестирование | 2-3 дня | 11-15 дней |
-| **Буфер** | Непредвиденные задачи | 2-3 дня | **13-18 дней** |
+### Вариант 2: Добавить автоперевод позже
+Когда контента станет много, можно добавить:
+- Google Translate API (~$20/мес)
+- DeepL API (~$20/мес)
 
-**Итого:** 2.5-3.5 недели
-
----
-
-### Стоимость API (месячно)
-
-#### Вариант 1: Только Google Translate (минимум)
-- **Google Translate API:** ~$20-40/мес
-- **Итого:** $20-40/мес
-
-#### Вариант 2: Google + DeepL (оптимально)
-- **Google Translate API:** ~$20/мес (для коротких текстов)
-- **DeepL API:** ~$20/мес (для важных текстов)
-- **Итого:** $40/мес
-
-#### Вариант 3: Полный (Google + DeepL + GPT-4)
-- **Google Translate:** ~$20/мес
-- **DeepL:** ~$20/мес
-- **OpenAI GPT-4:** ~$50-100/мес (для блогов)
-- **Итого:** $90-140/мес
-
-**Рекомендация для старта:** Вариант 1 (только Google)
-
----
-
-## 🎯 Приоритизация контента для перевода
-
-### Фаза 1: Критичный контент (первая неделя после запуска)
-1. **UI тексты** - 100% (через next-intl)
-2. **Landing page** - описания, призывы к действию
-3. **Топ-20 зданий** - самые популярные
-4. **Топ-10 маршрутов** - featured routes
-
-### Фаза 2: Основной контент (1-2 месяца)
-1. Все здания (~200-300 шт)
-2. Все маршруты (~50-100 шт)
-3. Блог посты (новые автоматически)
-
-### Фаза 3: Дополнительный контент (2-3 месяца)
-1. Отзывы пользователей
-2. Новости
-3. Подкасты
+**Рекомендация:** Начать с ручного перевода, добавить автоматизацию через 2-3 месяца.
 
 ---
 
 ## ✅ Чек-лист готовности
 
 ### Перед началом:
-- [ ] Прочитал этот план
-- [ ] Понятна архитектура
-- [ ] Выбрал метод перевода (Google/DeepL/GPT-4)
-- [ ] Готов API key для выбранного метода
-- [ ] Согласован бюджет ($20-140/мес)
+- [ ] Прочитал план v2
+- [ ] Понятна концепция (UI 3 языка, контент оригинал+EN)
+- [ ] Согласован объём работ
+- [ ] Определены приоритеты контента для перевода
 
 ### После Этапа 1:
 - [ ] next-intl установлен
 - [ ] Миграция БД применена
-- [ ] Структура папок создана
+- [ ] Структура i18n создана
 
 ### После Этапа 2:
-- [ ] UI переведён на английский
-- [ ] Language Switcher работает
-- [ ] Все страницы доступны на /ru и /en
+- [ ] UI переведён на 3 языка
+- [ ] Language Selection Modal работает
+- [ ] Language Switcher в header
 
 ### После Этапа 3:
-- [ ] Сервис перевода работает
-- [ ] Переводы сохраняются в БД
+- [ ] Система выбора языка контента работает
 - [ ] Админ-панель переводов готова
 
-### После Этапа 4:
+### После Этапа 6:
 - [ ] Все тесты пройдены
-- [ ] Manual проверка завершена
-- [ ] SEO настроен (hreflang)
+- [ ] SEO настроен
 - [ ] **ГОТОВО К ЗАПУСКУ** 🚀
 
 ---
 
-## 🔗 Дополнительные ресурсы
+## 🎯 Приоритизация контента для перевода
 
-### Документация:
-- **next-intl:** https://next-intl-docs.vercel.app/
-- **Google Translate API:** https://cloud.google.com/translate/docs
-- **DeepL API:** https://www.deepl.com/docs-api
-- **OpenAI GPT-4:** https://platform.openai.com/docs
+### Фаза 1: Критичный контент (первый месяц)
+1. **UI тексты** - 100% на всех 3 языках
+2. **Топ-20 зданий** - перевести на английский
+3. **Featured маршруты** (~10 шт) - перевести на английский
 
-### Инструменты:
-- **i18n Ally (VS Code):** Расширение для работы с переводами
-- **JSON Translator:** Онлайн инструмент для batch перевода JSON
+### Фаза 2: Основной контент (2-3 месяца)
+1. Все здания с высоким рейтингом
+2. Популярные маршруты
+3. Ключевые блог посты
 
----
-
-## ❓ FAQ
-
-### Q: Можно ли сделать быстрее?
-**A:** Да, если сократить scope:
-- Только UI переводы (без контента) - 1 неделя
-- UI + ручной перевод топ-20 зданий - 1.5 недели
-
-### Q: Нужно ли сразу делать автоперевод?
-**A:** Нет, можно начать с ручных переводов:
-1. Перевести UI (next-intl)
-2. Вручную перевести топ-20 зданий
-3. Позже добавить автоперевод
-
-### Q: Можно ли обойтись без платных API?
-**A:** Да, но качество будет ниже:
-- Использовать бесплатные лимиты Google Translate
-- Переводить вручную через ChatGPT
-- Краудсорсинг (пользователи помогают переводить)
-
-### Q: Когда лучше запускать i18n?
-**A:** **Рекомендация:** Через 1-2 месяца после запуска
-- Сначала запуститесь на русском
-- Соберите feedback
-- Потом добавьте английский
-- Это снизит риски и даст время на качественный перевод
+### Фаза 3: Полное покрытие (3-6 месяцев)
+1. Все оставшиеся здания
+2. Все маршруты
+3. Весь блог
 
 ---
 
-**Подготовил:** Claude (Anthropic)
-**Дата:** 1 декабря 2025
-**Статус:** Ready to implement
-**Следующий шаг:** Обсудить приоритеты и scope
+## 🔑 Ключевые отличия от предыдущего плана
+
+| Аспект | Старый план | Новый план |
+|--------|-------------|------------|
+| **UI языки** | 2 (RU, EN) | 3 (EN, DE, RU) |
+| **Основной язык** | Русский | Английский |
+| **Контент** | Всегда русский оригинал | Язык автора (EN/DE/RU) |
+| **Переводы** | Автоматические (API) | Ручные |
+| **Выбор языка** | Простой switcher | Modal при первом визите |
+| **Хранение переводов** | Таблица translations | Столбцы *_en в основных таблицах |
+| **Затраты** | $20-140/мес | $0/мес |
+
+---
+
+**Статус:** ✅ Ready to implement
+**Следующий шаг:** Получить утверждение плана и начать с Этапа 1
+
+---
+
+Вопросы для обсуждения:
+1. Согласованы ли 3 языка UI (EN/DE/RU)?
+2. Достаточно ли только английского для переводов контента?
+3. Когда планируется запуск?
+4. Есть ли приоритетный контент для первоочередного перевода?

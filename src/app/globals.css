@@ -4,6 +4,22 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* New design system colors (HSL) */
+  --new-background: 0 0% 98%;
+  --new-foreground: 0 0% 8%;
+  --new-card: 0 0% 100%;
+  --new-card-foreground: 0 0% 8%;
+  --new-primary: 4 90% 58%;
+  --new-primary-foreground: 0 0% 100%;
+  --new-secondary: 0 0% 13%;
+  --new-secondary-foreground: 0 0% 98%;
+  --new-muted: 0 0% 92%;
+  --new-muted-foreground: 0 0% 40%;
+  --new-accent: 48 100% 50%;
+  --new-accent-foreground: 0 0% 8%;
+  --new-border: 0 0% 88%;
+  --new-radius: 0.75rem;
 }
 
 @theme inline {
@@ -11,12 +27,29 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-outfit: var(--font-outfit);
+  --font-sora: var(--font-sora);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    /* New design system dark mode */
+    --new-background: 0 0% 8%;
+    --new-foreground: 0 0% 98%;
+    --new-card: 0 0% 13%;
+    --new-card-foreground: 0 0% 98%;
+    --new-primary: 4 90% 58%;
+    --new-primary-foreground: 0 0% 100%;
+    --new-secondary: 0 0% 18%;
+    --new-secondary-foreground: 0 0% 98%;
+    --new-muted: 0 0% 18%;
+    --new-muted-foreground: 0 0% 60%;
+    --new-accent: 48 100% 50%;
+    --new-accent-foreground: 0 0% 8%;
+    --new-border: 0 0% 22%;
   }
 }
 
@@ -236,4 +269,22 @@ body {
 
 .animate-fadeIn {
   animation: fadeIn 0.2s ease-out;
+}
+
+/* New Design System Utilities */
+.bevel-edge {
+  border-radius: var(--new-radius);
+}
+
+.bevel-card {
+  border-radius: var(--new-radius);
+  box-shadow: 0 4px 12px -2px hsl(var(--new-foreground) / 0.08);
+}
+
+.geometric-circle {
+  border-radius: 9999px;
+}
+
+.geometric-square {
+  border-radius: var(--new-radius);
 }

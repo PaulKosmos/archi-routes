@@ -44,7 +44,10 @@
       "mcp__playwright__playwright_evaluate",
       "Bash(powershell:*)",
       "mcp__supabase__execute_sql",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "mcp__context7__get-library-docs",
+      "Bash(Select-Object FullName)",
+      "Bash(Format-Table -AutoSize)"
     ],
     "deny": [],
     "ask": []
