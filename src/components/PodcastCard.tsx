@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
+import OptimizedImage from '@/components/OptimizedImage'
 import { Calendar, Clock, Headphones, Play, Pause } from 'lucide-react'
 import { PodcastEpisode } from '@/types/podcast'
 import { getStorageUrl } from '@/lib/storage'
@@ -64,11 +64,13 @@ export default function PodcastCard({
         {/* Cover Image/Gradient */}
         <div className={`relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br ${getGradientFromSeries()} flex items-center justify-center`}>
           {coverImageUrl ? (
-            <Image
+            <OptimizedImage
               src={coverImageUrl}
               alt={episode.title}
               fill
-              className="object-cover group-hover:scale-110 transition-transform duration-300"
+              className="group-hover:scale-110 transition-transform duration-300"
+              objectFit="cover"
+              sizes="96px"
             />
           ) : (
             <Headphones className="text-white/60" size={32} />
@@ -150,11 +152,13 @@ export default function PodcastCard({
         {/* Cover Image/Gradient */}
         <div className={`relative w-full aspect-square rounded-lg overflow-hidden bg-gradient-to-br ${getGradientFromSeries()} mb-3 flex items-center justify-center`}>
           {coverImageUrl ? (
-            <Image
+            <OptimizedImage
               src={coverImageUrl}
               alt={episode.title}
               fill
-              className="object-cover group-hover:scale-110 transition-transform duration-300"
+              className="group-hover:scale-110 transition-transform duration-300"
+              objectFit="cover"
+              sizes="(max-width: 768px) 50vw, 33vw"
             />
           ) : (
             <Headphones className="text-white/60" size={48} />
@@ -188,11 +192,13 @@ export default function PodcastCard({
       {/* Cover Image/Gradient */}
       <div className={`relative w-full aspect-square rounded-t-2xl overflow-hidden bg-gradient-to-br ${getGradientFromSeries()} flex items-center justify-center`}>
         {coverImageUrl ? (
-          <Image
+          <OptimizedImage
             src={coverImageUrl}
             alt={episode.title}
             fill
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            className="group-hover:scale-110 transition-transform duration-500"
+            objectFit="cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           <Headphones className="text-white/60" size={64} />

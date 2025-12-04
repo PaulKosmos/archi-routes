@@ -8,12 +8,15 @@ interface OptimizedImageProps {
   alt: string
   width?: number
   height?: number
+  fill?: boolean
   className?: string
   priority?: boolean
   placeholder?: 'blur' | 'empty'
   blurDataURL?: string
   sizes?: string
   quality?: number
+  objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
+  objectPosition?: string
   onLoad?: () => void
   onError?: () => void
   fallback?: React.ReactNode
@@ -24,12 +27,15 @@ export default function OptimizedImage({
   alt,
   width,
   height,
+  fill = false,
   className = '',
   priority = false,
   placeholder = 'blur',
   blurDataURL,
   sizes,
   quality = 75,
+  objectFit = 'cover',
+  objectPosition = 'center',
   onLoad,
   onError,
   fallback
@@ -100,8 +106,8 @@ export default function OptimizedImage({
     return (
       <div
         ref={imgRef}
-        className={`bg-gray-200 animate-pulse ${className}`}
-        style={{ width, height }}
+        className={`bg-gray-200 animate-pulse ${fill ? 'absolute inset-0' : ''} ${className}`}
+        style={fill ? undefined : { width, height }}
       >
         {placeholder === 'blur' && (
           <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300" />
@@ -114,8 +120,8 @@ export default function OptimizedImage({
   if (isError) {
     return (
       <div
-        className={`bg-gray-100 border border-gray-200 rounded flex items-center justify-center ${className}`}
-        style={{ width, height }}
+        className={`bg-gray-100 border border-gray-200 rounded flex items-center justify-center ${fill ? 'absolute inset-0' : ''} ${className}`}
+        style={fill ? undefined : { width, height }}
       >
         {fallback || (
           <div className="text-center text-gray-500">
@@ -128,12 +134,14 @@ export default function OptimizedImage({
   }
 
   return (
-    <div ref={imgRef} className={`relative ${className}`}>
+    <div ref={imgRef} className={fill ? `relative ${className}` : className}>
       <Image
         src={src}
         alt={alt}
-        width={width}
-        height={height}
+        {...(fill
+          ? { fill: true }
+          : { width: width!, height: height! }
+        )}
         priority={priority}
         placeholder={placeholder}
         blurDataURL={defaultBlurDataURL}
@@ -144,12 +152,15 @@ export default function OptimizedImage({
         className={`transition-opacity duration-300 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         }`}
-        style={{
+        style={fill ? {
+          objectFit,
+          objectPosition
+        } : {
           width: '100%',
           height: 'auto'
         }}
       />
-      
+
       {/* Показываем placeholder пока изображение загружается */}
       {!isLoaded && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse">

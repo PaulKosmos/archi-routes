@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import OptimizedImage from '@/components/OptimizedImage'
 import { Building, Star, MapPin, Calendar, User, Eye, MessageSquare, MoreHorizontal, Grid, List } from 'lucide-react'
 import { Building as BuildingType } from '@/hooks/useSearch'
 import { highlightMatches } from '@/utils/searchUtils'
@@ -60,11 +60,12 @@ export function SearchResults({
             ${viewMode === 'grid' ? 'aspect-[4/3]' : 'w-48 h-32 flex-shrink-0'}
           `}>
             {hasImages ? (
-              <Image
+              <OptimizedImage
                 src={primaryImage!}
                 alt={building.name}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-200"
+                objectFit="cover"
                 sizes={viewMode === 'grid' ? '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw' : '192px'}
               />
             ) : (

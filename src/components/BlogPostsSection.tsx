@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import OptimizedImage from '@/components/OptimizedImage'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
 import { BlogPost } from '@/types/blog'
@@ -190,12 +190,14 @@ export default function BlogPostsSection() {
               {/* Изображение */}
               <div className="relative h-64 rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-blue-100 to-purple-100">
                 {post.featured_image_url ? (
-                  <Image
+                  <OptimizedImage
                     src={getStorageUrl(post.featured_image_url, 'photos')}
                     alt={post.title}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="transition-transform duration-500 group-hover:scale-110"
+                    objectFit="cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={index === 0}
                   />
                 ) : (
                   // Fallback градиент если нет изображения
@@ -241,11 +243,12 @@ export default function BlogPostsSection() {
                   <div className="flex items-center space-x-2 pt-2">
                     {post.author.avatar_url ? (
                       <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-200">
-                        <Image
+                        <OptimizedImage
                           src={getStorageUrl(post.author.avatar_url, 'photos')}
                           alt={post.author.display_name || post.author.full_name || 'Автор'}
                           fill
                           className="object-cover"
+                          sizes="32px"
                         />
                       </div>
                     ) : (

@@ -1,36 +1,180 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏛️ Archi-Routes
 
-## Getting Started
+Платформа для изучения архитектуры города с аудиогидами, интерактивными маршрутами и социальными функциями.
 
-First, run the development server:
+**Технологии:** Next.js 15, React 19, TypeScript, Supabase, Leaflet/Mapbox
+
+**Готовность к запуску:** 93/100 ⬆️
+
+---
+
+## 🚀 Быстрый старт
+
+### Для разработки:
 
 ```bash
+# Установка зависимостей
+npm install
+
+# Запуск dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Открыть http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Тестовые credentials:**
+- Email: `testguide@archiroutes.com`
+- Password: `TestGuide2024!`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📚 Документация
 
-## Learn More
+### 🆕 Начните здесь:
 
-To learn more about Next.js, take a look at the following resources:
+**→ [PROJECT_GUIDE.md](./PROJECT_GUIDE.md)** - Единый путеводитель по проекту
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Внутри вы найдёте:
+- ✅ Пошаговый план до запуска
+- ✅ Навигацию по всем документам
+- ✅ Что делать дальше
+- ✅ Объяснение Logger и Sentry
+- ✅ FAQ и чек-листы
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+### Ключевые документы:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Документ | Описание |
+|----------|----------|
+| **[PROJECT_GUIDE.md](./PROJECT_GUIDE.md)** | 🆕 Главная навигация и план действий |
+| **[LAUNCH_READINESS_REPORT.md](./LAUNCH_READINESS_REPORT.md)** | Статус готовности (93/100) |
+| **[CLAUDE.md](./CLAUDE.md)** | Инструкции для разработки |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Инструкции по настройке:
+
+| Когда | Документ | Что внутри |
+|-------|----------|------------|
+| После домена | [OAUTH_SETUP_GUIDE.md](./OAUTH_SETUP_GUIDE.md) | Настройка Google/GitHub OAuth |
+| Опционально | [SENTRY_SETUP_GUIDE.md](./SENTRY_SETUP_GUIDE.md) | Мониторинг ошибок |
+
+---
+
+## 🎯 Текущий статус
+
+### ✅ Готово (93%)
+
+- ✅ **Безопасность БД** - RLS, middleware, защита функций
+- ✅ **Производительность БД** - 161 индекс, оптимизация запросов
+- ✅ **Фронтенд** - Bundle size, image optimization, lazy loading
+- ✅ **SEO** - Sitemap, Open Graph, meta tags
+- ✅ **Мониторинг** - Logger и Sentry подготовлены
+
+### ⏳ Требует домена (7%)
+
+1. Купить домен
+2. Настроить OAuth (Google, GitHub)
+3. Deploy на Vercel
+4. Финальное тестирование
+
+**Подробнее:** [PROJECT_GUIDE.md](./PROJECT_GUIDE.md)
+
+---
+
+## 🛠️ Команды для разработки
+
+```bash
+# Development
+npm run dev              # Запуск dev server (http://localhost:3000)
+
+# Build
+npm run build            # Production build
+npm run build:prod       # Production build with NODE_ENV=production
+npm start                # Запуск production сервера
+
+# Analysis
+npm run analyze          # Анализ bundle size (все отчёты)
+npm run analyze:browser  # Только browser bundle
+npm run analyze:server   # Только server bundle
+
+# Quality
+npm run lint             # ESLint проверка
+npm run lint:fix         # Исправить ESLint ошибки
+npm run type-check       # TypeScript проверка
+
+# Maintenance
+npm run clean            # Очистить .next и build артефакты
+npm run clean:all        # Полная очистка + переустановка node_modules
+```
+
+---
+
+## 📁 Структура проекта
+
+```
+archi-routes-new/
+├── 📄 PROJECT_GUIDE.md              ← НАЧНИТЕ ЗДЕСЬ
+├── 📄 LAUNCH_READINESS_REPORT.md    ← Статус готовности
+├── 📄 CLAUDE.md                     ← Инструкции для разработки
+│
+├── src/
+│   ├── app/                  ← Next.js страницы (App Router)
+│   ├── components/           ← React компоненты
+│   ├── lib/                  ← Утилиты и конфигурация
+│   │   ├── logger.ts         ← Логирование 🆕
+│   │   ├── sentry.ts         ← Мониторинг ошибок 🆕
+│   │   ├── supabase.ts       ← Supabase клиент
+│   │   └── storage.ts        ← Файловое хранилище
+│   ├── hooks/                ← React хуки
+│   ├── types/                ← TypeScript типы
+│   └── utils/                ← Вспомогательные функции
+│
+└── database/
+    └── migrations/           ← SQL миграции Supabase
+```
+
+---
+
+## 🔗 Полезные ссылки
+
+### Development:
+- **Dev Server:** http://localhost:3000
+- **Test Map:** http://localhost:3000/test-map
+- **Admin Panel:** http://localhost:3000/admin
+
+### Production (после deploy):
+- **Vercel Dashboard:** https://vercel.com/dashboard
+- **Supabase Dashboard:** https://supabase.com/dashboard
+- **Sentry Dashboard:** https://sentry.io (после активации)
+
+---
+
+## 🆕 Что нового (1 декабря 2025)
+
+- ✅ Создан **Logger utility** для structured logging
+- ✅ Подготовлен **Sentry** для error tracking
+- ✅ Создан **PROJECT_GUIDE.md** - единая навигация
+- ✅ Дополнительная image оптимизация (SearchResults, BlogPosts)
+- ✅ Готовность увеличена до **93/100** (+1%)
+
+**Подробности:** [PRE_DOMAIN_IMPROVEMENTS_REPORT.md](./PRE_DOMAIN_IMPROVEMENTS_REPORT.md)
+
+---
+
+## 📞 Поддержка
+
+**Вопросы?** Читайте [PROJECT_GUIDE.md](./PROJECT_GUIDE.md) - там есть раздел FAQ
+
+**Нужна помощь с настройкой?** Следуйте пошаговым инструкциям в соответствующих GUIDE файлах
+
+---
+
+## 📜 Лицензия
+
+Частный проект
+
+---
+
+**Последнее обновление:** 1 декабря 2025
+**Версия:** 0.1.0
+**Статус:** Ready for domain setup ✅

@@ -7,13 +7,22 @@ import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
 import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
-import AudioPlayer from './AudioPlayer'
 import dynamic from 'next/dynamic'
 
 // Динамический импорт карты
 const DynamicMiniMap = dynamic(() => import('./RouteViewerMiniMap'), {
   ssr: false,
   loading: () => <div className="h-full bg-gray-100 animate-pulse rounded-lg"></div>
+})
+
+// Динамический импорт AudioPlayer
+const AudioPlayer = dynamic(() => import('./AudioPlayer'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-24 bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
+      <Headphones className="h-6 w-6 text-gray-400 animate-pulse" />
+    </div>
+  )
 })
 
 interface RouteViewerModalProps {
