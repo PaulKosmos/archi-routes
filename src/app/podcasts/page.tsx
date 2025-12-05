@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 
 
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import Header from '@/components/Header'
@@ -152,7 +152,9 @@ export default function PodcastsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
-      <Header buildings={buildings} />
+      <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+        <Header buildings={buildings} />
+      </Suspense>
 
       <main>
         {/* Hero Section - Title Only */}
