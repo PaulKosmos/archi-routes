@@ -106,7 +106,7 @@ export default function OptimizedImage({
     return (
       <div
         ref={imgRef}
-        className={`bg-gray-200 animate-pulse ${fill ? 'absolute inset-0' : ''} ${className}`}
+        className={`bg-gray-200 animate-pulse ${fill ? 'w-full h-full' : ''} ${className}`}
         style={fill ? undefined : { width, height }}
       >
         {placeholder === 'blur' && (
@@ -120,7 +120,7 @@ export default function OptimizedImage({
   if (isError) {
     return (
       <div
-        className={`bg-gray-100 border border-gray-200 rounded flex items-center justify-center ${fill ? 'absolute inset-0' : ''} ${className}`}
+        className={`bg-gray-100 border border-gray-200 rounded flex items-center justify-center ${fill ? 'w-full h-full' : ''} ${className}`}
         style={fill ? undefined : { width, height }}
       >
         {fallback || (
@@ -134,7 +134,7 @@ export default function OptimizedImage({
   }
 
   return (
-    <div ref={imgRef} className={fill ? `relative ${className}` : className}>
+    <div ref={imgRef} className={fill ? 'relative w-full h-full' : className}>
       <Image
         src={src}
         alt={alt}
@@ -151,7 +151,7 @@ export default function OptimizedImage({
         onError={handleError}
         className={`transition-opacity duration-300 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        } ${className}`}
         style={fill ? {
           objectFit,
           objectPosition
