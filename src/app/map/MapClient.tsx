@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
 import { buildRoute } from '@/lib/mapbox-routing-service'
@@ -989,7 +989,9 @@ export default function TestMapPage() {
   return (
     <div className="h-screen bg-gray-50 overflow-hidden">
       {/* Оригинальный хэдер */}
-      <Header buildings={buildings} />
+      <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+        <Header buildings={buildings} />
+      </Suspense>
       
 
       {/* Основной контент в стиле Яндекс.Путешествий */}
