@@ -1,10 +1,11 @@
 // src/lib/autogeneration/route-generator.ts - Ядро системы автогенерации маршрутов
 
-import { supabase } from '../supabase'
-import type { 
-  RouteTemplate, 
-  GenerationParams, 
-  GeneratedPoint, 
+import { createClient } from '../supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type {
+  RouteTemplate,
+  GenerationParams,
+  GeneratedPoint,
   GenerationResult,
   AIProvider,
   RouteGenerationLog
@@ -16,10 +17,12 @@ import type { Building } from '../../types/building'
 // ======================================
 
 export class RouteGenerator {
+  private supabase: SupabaseClient
   private aiProvider?: AIProvider
   private generationLog: Partial<RouteGenerationLog> = {}
 
-  constructor(aiProvider?: AIProvider) {
+  constructor(supabase: SupabaseClient, aiProvider?: AIProvider) {
+    this.supabase = supabase
     this.aiProvider = aiProvider
   }
 
@@ -116,8 +119,8 @@ export class RouteGenerator {
 
     // Поддержка многоязычных названий городов
     const cityVariants = this.getCityVariants(params.city)
-    
-    let query = supabase
+
+    let query = this.supabase
       .from('buildings')
       .select('*')
       .in('city', cityVariants)
@@ -647,7 +650,7 @@ export class RouteGenerator {
   }
 
   private async getTemplate(templateId: string): Promise<RouteTemplate | null> {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('route_templates')
       .select('*')
       .eq('id', templateId)
@@ -666,7 +669,7 @@ export class RouteGenerator {
   // ======================================
 
   private async createGenerationLog(params: GenerationParams): Promise<void> {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('route_generation_logs')
       .insert({
         template_id: params.template_id,
@@ -713,7 +716,7 @@ export class RouteGenerator {
       updates.error_message = errorMessage
     }
 
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('route_generation_logs')
       .update(updates)
       .eq('id', this.generationLog.id)
@@ -729,7 +732,10 @@ export class RouteGenerator {
 // ======================================
 
 export class RouteGeneratorFactory {
-  static async createGenerator(aiProviderName?: string): Promise<RouteGenerator> {
+  static async createGenerator(
+    supabase: SupabaseClient,
+    aiProviderName?: string
+  ): Promise<RouteGenerator> {
     let aiProvider: AIProvider | undefined
 
     if (aiProviderName) {
@@ -743,10 +749,10 @@ export class RouteGeneratorFactory {
       aiProvider = data || undefined
     }
 
-    return new RouteGenerator(aiProvider)
+    return new RouteGenerator(supabase, aiProvider)
   }
 
-  static async getAvailableProviders(): Promise<AIProvider[]> {
+  static async getAvailableProviders(supabase: SupabaseClient): Promise<AIProvider[]> {
     const { data, error } = await supabase
       .from('ai_providers')
       .select('*')

@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
 
     // Создаем генератор с AI провайдером
     const generator = await RouteGeneratorFactory.createGenerator(
+      supabaseAdmin,
       body.ai_options?.provider
     )
 
