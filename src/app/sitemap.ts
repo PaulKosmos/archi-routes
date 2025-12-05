@@ -2,11 +2,48 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com'
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com'
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase credentials for sitemap generation')
+    // Return only static pages if DB is not available
+    return [
+      {
+        url: baseUrl,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 1,
+      },
+      {
+        url: `${baseUrl}/buildings`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/routes`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/blog`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/news`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.8,
+      },
+    ]
+  }
+
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
   // Получаем опубликованные здания

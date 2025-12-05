@@ -4,9 +4,6 @@ import { createClient } from '@supabase/supabase-js'
 import Header from '../../../../../components/Header'
 import CreateReviewClient from './CreateReviewClient'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
 interface PageProps {
   params: Promise<{
     id: string
@@ -15,7 +12,15 @@ interface PageProps {
 
 export default async function CreateReviewPage({ params }: PageProps) {
   const resolvedParams = await params
-  
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase credentials')
+    return notFound()
+  }
+
   // Создаем публичный клиент
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
 

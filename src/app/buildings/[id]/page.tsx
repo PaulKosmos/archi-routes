@@ -5,10 +5,6 @@ import { createClient } from '@supabase/supabase-js'
 import Header from '../../../components/Header'
 import BuildingDetailClient from './BuildingDetailClient'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com'
-
 interface PageProps {
   params: Promise<{
     id: string
@@ -21,6 +17,17 @@ interface PageProps {
 // Генерация динамических SEO мета-тегов
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const resolvedParams = await params
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com'
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return {
+      title: 'Здание не найдено',
+    }
+  }
+
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
   const { data: building } = await supabase
@@ -75,10 +82,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BuildingDetailPage({ params, searchParams }: PageProps) {
   console.log('🏢 [DEBUG] BuildingDetailPage server component called')
-  
+
   const resolvedParams = await params
   console.log('🏢 [DEBUG] Resolved params:', resolvedParams)
-  
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase credentials')
+    return notFound()
+  }
+
   // Создаем публичный клиент
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
