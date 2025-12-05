@@ -2,14 +2,14 @@
 // API endpoint для получения новостей, связанных с конкретным зданием
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = createClient();
   const { id: buildingId } = await params;
+  const supabase = await createServerClient();
 
   console.log(`🏛️ Fetching news for building: ${buildingId}`);
 
