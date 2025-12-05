@@ -3,6 +3,8 @@
 
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect } from 'react'
 import { Heart, Route as RouteIcon, MapPin, Clock, Star, Filter, Grid, List, Download, Search, Trash2, ExternalLink } from 'lucide-react'
 import { UserRouteFavorites } from '@/lib/smart-route-filtering'

@@ -3,6 +3,8 @@
 
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect, useMemo } from 'react'
 import { Route as RouteIcon, Globe, Lock, Clock, MapPin, Users, Star, Eye, Edit, Trash2, FileText, Send, Plus } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'

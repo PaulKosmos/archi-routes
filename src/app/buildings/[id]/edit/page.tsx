@@ -1,6 +1,8 @@
 // src/app/buildings/[id]/edit/page.tsx - Страница редактирования здания
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect, use, useMemo } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'

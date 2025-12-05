@@ -3,6 +3,8 @@
 
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useAuth } from '@/hooks/useAuth'
 import Header from '@/components/Header'
 import Link from 'next/link'

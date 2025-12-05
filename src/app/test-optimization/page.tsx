@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState } from 'react'
 import OptimizedImage from '../../components/OptimizedImage'
 import WebPImage from '../../components/WebPImage'

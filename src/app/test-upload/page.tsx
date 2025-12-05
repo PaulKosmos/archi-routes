@@ -1,6 +1,8 @@
 // src/app/test-upload/page.tsx
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState } from 'react'
 import ImageUploader from '../../components/ImageUploader'
 

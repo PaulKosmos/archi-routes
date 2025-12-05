@@ -1,6 +1,10 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 'use client'
+
+export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase'
