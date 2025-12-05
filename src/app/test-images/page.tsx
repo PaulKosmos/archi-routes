@@ -1,8 +1,10 @@
-// src/app/test-images/page.tsx - Тест загрузки изображений
-
 'use client'
 
 export const dynamic = 'force-dynamic'
+
+// src/app/test-images/page.tsx - Тест загрузки изображений
+
+
 
 import { useState } from 'react'
 import { getStorageUrl } from '@/lib/storage'

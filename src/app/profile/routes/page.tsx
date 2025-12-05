@@ -1,11 +1,13 @@
-// src/app/profile/routes/page.tsx
-// Страница управления личными маршрутами пользователя
-
 'use client'
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect, useMemo } from 'react'
+// src/app/profile/routes/page.tsx
+// Страница управления личными маршрутами пользователя
+
+
+
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import { Route as RouteIcon, Globe, Lock, Clock, MapPin, Users, Star, Eye, Edit, Trash2, FileText, Send, Plus } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
@@ -165,7 +167,9 @@ export default function ProfileRoutesPage() {
   if (loading || isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header buildings={[]} />
+        <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+          <Header buildings={[]} />
+        </Suspense>
         <div className="max-w-6xl mx-auto p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -187,7 +191,9 @@ export default function ProfileRoutesPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header buildings={[]} />
+        <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+          <Header buildings={[]} />
+        </Suspense>
         <div className="max-w-4xl mx-auto p-6 text-center">
           <div className="bg-white rounded-lg shadow-sm p-12">
             <RouteIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -211,7 +217,9 @@ export default function ProfileRoutesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header buildings={[]} />
+      <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+        <Header buildings={[]} />
+      </Suspense>
       
       <div className="max-w-6xl mx-auto p-6">
         {/* Заголовок и кнопка создания */}

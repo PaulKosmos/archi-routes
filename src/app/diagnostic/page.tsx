@@ -1,7 +1,9 @@
-// src/app/diagnostic/page.tsx - Диагностическая страница
 'use client'
 
 export const dynamic = 'force-dynamic'
+
+// src/app/diagnostic/page.tsx - Диагностическая страница
+
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase'

@@ -1,5 +1,8 @@
-// src/app/auth/page.tsx - Простая страница авторизации
 'use client'
+
+export const dynamic = 'force-dynamic'
+
+// src/app/auth/page.tsx - Простая страница авторизации
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -7,7 +10,6 @@ import { useAuth } from '@/hooks/useAuth'
 import { Loader2 } from 'lucide-react'
 
 // Disable static generation for this auth page
-export const dynamic = 'force-dynamic'
 
 export default function AuthPage() {
   const router = useRouter()

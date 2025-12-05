@@ -2,6 +2,8 @@
 
 export const dynamic = 'force-dynamic'
 
+
+
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { useState, useEffect, useMemo } from 'react'

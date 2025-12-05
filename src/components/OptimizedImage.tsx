@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 
 interface OptimizedImageProps {
@@ -81,6 +81,8 @@ export default function OptimizedImage({
 
   // Генерируем blur placeholder если не предоставлен
   const generateBlurDataURL = useCallback((w: number = 10, h: number = 10) => {
+    if (typeof document === 'undefined') return ''
+
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
     if (!ctx) return ''
@@ -92,14 +94,16 @@ export default function OptimizedImage({
     const gradient = ctx.createLinearGradient(0, 0, w, h)
     gradient.addColorStop(0, '#f3f4f6')
     gradient.addColorStop(1, '#e5e7eb')
-    
+
     ctx.fillStyle = gradient
     ctx.fillRect(0, 0, w, h)
 
     return canvas.toDataURL()
   }, [])
 
-  const defaultBlurDataURL = blurDataURL || generateBlurDataURL()
+  const defaultBlurDataURL = useMemo(() => {
+    return blurDataURL || (typeof document !== 'undefined' ? generateBlurDataURL() : '')
+  }, [blurDataURL, generateBlurDataURL])
 
   // Если изображение не в зоне видимости, показываем placeholder
   if (!isInView) {

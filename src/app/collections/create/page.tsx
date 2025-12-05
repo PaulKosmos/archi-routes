@@ -1,7 +1,9 @@
-// src/app/collections/create/page.tsx - Создание новой коллекции
 'use client'
 
 export const dynamic = 'force-dynamic'
+
+// src/app/collections/create/page.tsx - Создание новой коллекции
+
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'

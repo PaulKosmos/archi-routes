@@ -1,8 +1,10 @@
-// src/app/admin/autogeneration/page.tsx - Полная страница автогенерации
-
 'use client'
 
 export const dynamic = 'force-dynamic'
+
+// src/app/admin/autogeneration/page.tsx - Полная страница автогенерации
+
+
 
 import { useState } from 'react'
 import { useAuth } from '../../../hooks/useAuth'

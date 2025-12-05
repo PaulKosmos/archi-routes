@@ -1,7 +1,9 @@
+'use client'
+
+export const dynamic = 'force-dynamic'
+
 // app/blog/test-editor/page.tsx
 // Тестовая страница для проверки редактора блогов
-
-'use client';
 
 import { useState } from 'react';
 import { CreateBlogContentBlock } from '@/types/blog';

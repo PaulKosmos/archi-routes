@@ -1,11 +1,13 @@
-// src/app/profile/favorite-routes/page.tsx
-// Страница избранных маршрутов пользователя
-
 'use client'
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from 'react'
+// src/app/profile/favorite-routes/page.tsx
+// Страница избранных маршрутов пользователя
+
+
+
+import { useState, useEffect, Suspense } from 'react'
 import { Heart, Route as RouteIcon, MapPin, Clock, Star, Filter, Grid, List, Download, Search, Trash2, ExternalLink } from 'lucide-react'
 import { UserRouteFavorites } from '@/lib/smart-route-filtering'
 import { useAuth } from '@/hooks/useAuth'
@@ -148,7 +150,9 @@ export default function FavoriteRoutesPage() {
   if (loading || isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header buildings={[]} />
+        <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+          <Header buildings={[]} />
+        </Suspense>
         <div className="max-w-6xl mx-auto p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -170,7 +174,9 @@ export default function FavoriteRoutesPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header buildings={[]} />
+        <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+          <Header buildings={[]} />
+        </Suspense>
         <div className="max-w-4xl mx-auto p-6 text-center">
           <div className="bg-white rounded-lg shadow-sm p-12">
             <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -194,7 +200,9 @@ export default function FavoriteRoutesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header buildings={[]} />
+      <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+        <Header buildings={[]} />
+      </Suspense>
       
       <div className="max-w-6xl mx-auto p-6">
         {/* Заголовок и статистика */}

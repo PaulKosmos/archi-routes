@@ -1,8 +1,10 @@
-// src/app/test-autogeneration/page.tsx - Страница для тестирования исправлений автогенерации
-
 'use client'
 
 export const dynamic = 'force-dynamic'
+
+// src/app/test-autogeneration/page.tsx - Страница для тестирования исправлений автогенерации
+
+
 
 import { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'

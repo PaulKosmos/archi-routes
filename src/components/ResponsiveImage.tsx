@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import WebPImage from './WebPImage'
 
 interface ResponsiveImageProps {
@@ -37,10 +37,12 @@ export default function ResponsiveImage({
   const [currentBreakpoint, setCurrentBreakpoint] = useState<string>('desktop')
 
   // Определяем текущий breakpoint
-  useMemo(() => {
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
     const updateBreakpoint = () => {
       const screenWidth = window.innerWidth
-      
+
       if (screenWidth < breakpoints.tablet) {
         setCurrentBreakpoint('mobile')
       } else if (screenWidth < breakpoints.desktop) {
@@ -52,7 +54,7 @@ export default function ResponsiveImage({
 
     updateBreakpoint()
     window.addEventListener('resize', updateBreakpoint)
-    
+
     return () => window.removeEventListener('resize', updateBreakpoint)
   }, [breakpoints])
 
@@ -107,10 +109,12 @@ export function useResponsiveBreakpoint(breakpoints = {
 }): string {
   const [breakpoint, setBreakpoint] = useState<string>('desktop')
 
-  useMemo(() => {
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
     const updateBreakpoint = () => {
       const screenWidth = window.innerWidth
-      
+
       if (screenWidth < breakpoints.tablet) {
         setBreakpoint('mobile')
       } else if (screenWidth < breakpoints.desktop) {
@@ -122,7 +126,7 @@ export function useResponsiveBreakpoint(breakpoints = {
 
     updateBreakpoint()
     window.addEventListener('resize', updateBreakpoint)
-    
+
     return () => window.removeEventListener('resize', updateBreakpoint)
   }, [breakpoints])
 
