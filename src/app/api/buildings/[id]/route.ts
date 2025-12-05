@@ -1,16 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Создаем серверный клиент с service role key
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+/**
+ * Создает Supabase admin клиент с service role
+ * Создаем внутри функции, чтобы избежать ошибок при build на Vercel
+ */
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Supabase URL и Service Role Key обязательны')
   }
-})
+
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+}
 
 export async function DELETE(
   request: NextRequest,
@@ -19,22 +28,22 @@ export async function DELETE(
   try {
     console.log('🗑️ API Route: Начало удаления здания')
 
+    // Создаем Supabase admin клиент
+    const supabaseAdmin = getSupabaseAdmin()
+
     const { id: buildingId } = await params
     console.log('🗑️ API Route: ID здания для удаления:', buildingId)
-    
+
     // Проверяем авторизацию
     const authHeader = request.headers.get('authorization')
     if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    
+
     const token = authHeader.replace('Bearer ', '')
-    
-    // Проверяем токен через обычный supabase клиент
-    const { createClient } = await import('@supabase/supabase-js')
-    const supabaseClient = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-    
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
+
+    // Проверяем токен через admin client
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
     
     if (authError || !user) {
       console.error('❌ API Route: Ошибка авторизации:', authError)

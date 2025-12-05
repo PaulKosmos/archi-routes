@@ -4,28 +4,39 @@ import { NextRequest, NextResponse } from 'next/server'
 import { RouteGenerator, RouteGeneratorFactory } from '../../../../lib/autogeneration/route-generator'
 import { buildRoute } from '../../../../lib/mapbox-routing-service'
 import { createClient } from '@supabase/supabase-js'
-import type { 
-  GenerateRouteRequest, 
+import type {
+  GenerateRouteRequest,
   GenerateRouteResponse,
   GenerationParams,
   GenerationResult
 } from '../../../../types/autogeneration'
 
-// Создаем Supabase клиент с service role для обхода RLS
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
+/**
+ * Создает Supabase admin клиент с service role для обхода RLS
+ * Создаем внутри функции, чтобы избежать ошибок при build на Vercel
+ */
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Supabase URL и Service Role Key обязательны')
+  }
+
+  return createClient(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
     }
-  }
-)
+  })
+}
 
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 API: Запрос на генерацию маршрута')
+
+    // Создаем Supabase admin клиент
+    const supabaseAdmin = getSupabaseAdmin()
 
     // Получаем токен авторизации из заголовков
     const authHeader = request.headers.get('authorization')
@@ -93,7 +104,7 @@ export async function POST(request: NextRequest) {
     console.log('✅ Генерация успешна, создаем маршрут в БД...')
 
     // Создаем маршрут в базе данных
-    const routeId = await createRouteFromGeneration(result, generationParams, user.id, body.route_title.trim())
+    const routeId = await createRouteFromGeneration(result, generationParams, user.id, body.route_title.trim(), supabaseAdmin)
 
     const response: GenerateRouteResponse = {
       success: true,
@@ -122,10 +133,11 @@ export async function POST(request: NextRequest) {
 // ======================================
 
 async function createRouteFromGeneration(
-  result: GenerationResult, 
+  result: GenerationResult,
   params: GenerationParams,
   userId: string,
-  userTitle: string
+  userTitle: string,
+  supabaseAdmin: ReturnType<typeof createClient>
 ): Promise<string> {
   try {
     // 2. ИСПРАВЛЕНИЕ КРИТИЧНОЙ ПРОБЛЕМЫ: Оптимизируем порядок точек для логичного маршрута
