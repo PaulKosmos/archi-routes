@@ -4,36 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // === ЗАЩИТА ВСЕГО САЙТА ПАРОЛЕМ ===
-  const sitePasswordEnabled = process.env.NEXT_PUBLIC_SITE_PASSWORD_ENABLED === 'true'
-
-  if (sitePasswordEnabled) {
-    // Разрешаем доступ к странице ввода пароля и статическим ресурсам
-    const allowedPaths = [
-      '/site-password',
-      '/api/site-password',
-      '/_next/',
-      '/favicon.ico'
-    ]
-
-    const isAllowedPath = allowedPaths.some(path => pathname.startsWith(path))
-
-    if (!isAllowedPath) {
-      // Проверяем cookie с паролем
-      const authCookie = request.cookies.get('site-auth')
-      const correctPasswordHash = process.env.SITE_PASSWORD_HASH
-
-      if (authCookie?.value !== correctPasswordHash) {
-        // Редирект на страницу ввода пароля
-        const url = request.nextUrl.clone()
-        url.pathname = '/site-password'
-        url.searchParams.set('redirect', pathname)
-        return NextResponse.redirect(url)
-      }
-    }
-  }
-
-  // === ЗАЩИТА АДМИН-МАРШРУТОВ ===
+  // Защищенные маршруты
   const protectedRoutes = ['/admin', '/settings', '/profile/edit']
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
 
