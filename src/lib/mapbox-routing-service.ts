@@ -3,15 +3,6 @@
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'your_mapbox_token_here'
 const MAPBOX_BASE_URL = 'https://api.mapbox.com/directions/v5/mapbox'
 
-// Debug: проверяем токен при загрузке модуля
-console.log('🔍 DEBUG: MapBox Token check:', {
-  exists: !!MAPBOX_TOKEN,
-  value: MAPBOX_TOKEN ? MAPBOX_TOKEN.substring(0, 20) + '...' : 'NO TOKEN',
-  length: MAPBOX_TOKEN?.length,
-  envVarName: 'NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN',
-  tokenType: MAPBOX_TOKEN?.startsWith('pk.') ? 'PUBLIC' : MAPBOX_TOKEN?.startsWith('sk.') ? 'SECRET (БУДЕТ РАБОТАТЬ, НО НЕБЕЗОПАСНО)' : 'UNKNOWN'
-})
-
 export interface RoutePoint {
   latitude: number
   longitude: number
@@ -78,13 +69,7 @@ export async function buildRoute(
     return buildStraightLineRoute(points, options)
   }
 
-  // ИСПРАВЛЕНИЕ: Разрешаем использование sk. токена для тестирования
-  if (MAPBOX_TOKEN.startsWith('sk.')) {
-    console.warn('⚠️ ПРЕДУПРЕЖДЕНИЕ: Используется секретный токен (sk.)')
-    console.warn('💡 Для продакшена создайте публичный токен (pk.) в MapBox панели')
-    console.log('🚀 Продолжаем с текущим токеном...')
-    // НЕ ПРЕРЫВАЕМ выполнение, просто предупреждаем
-  }
+  // Разрешаем использование как публичных (pk.), так и секретных (sk.) токенов
 
   try {
     const result = await buildRouteFromAPI(points, options)
