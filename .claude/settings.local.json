@@ -47,7 +47,11 @@
       "Bash(npm run build:*)",
       "mcp__context7__get-library-docs",
       "Bash(Select-Object FullName)",
-      "Bash(Format-Table -AutoSize)"
+      "Bash(Format-Table -AutoSize)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git rev-parse:*)"
     ],
     "deny": [],
     "ask": []
