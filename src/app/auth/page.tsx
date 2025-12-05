@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Loader2 } from 'lucide-react'
 
+// Disable static generation for this auth page
+export const dynamic = 'force-dynamic'
+
 export default function AuthPage() {
   const router = useRouter()
   const { user, loading, initialized, signIn } = useAuth()
