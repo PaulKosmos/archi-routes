@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Use standalone output to avoid static export issues with dynamic pages
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
