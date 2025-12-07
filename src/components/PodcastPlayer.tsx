@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Maximize2, ChevronUp } from 'lucide-react'
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, ChevronUp } from 'lucide-react'
 
 interface AudioPlayerProps {
   audioUrl: string
@@ -285,13 +285,6 @@ export default function PodcastPlayer({
               </>
             )}
           </div>
-
-          <button
-            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
-            title="Fullscreen"
-          >
-            <Maximize2 size={18} />
-          </button>
         </div>
       </div>
     </div>

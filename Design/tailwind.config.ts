@@ -61,6 +61,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        news: {
+          primary: "hsl(var(--news-primary))",
+          "primary-foreground": "hsl(var(--news-primary-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

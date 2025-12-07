@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 import ContentBlockRenderer from '@/components/blog/ContentBlockRenderer'
 import BlogArticleMap from '@/components/blog/BlogArticleMap'
 import BlogRouteBuilder from '@/components/blog/BlogRouteBuilder'
@@ -273,6 +274,8 @@ export default function BlogPostPage() {
           </div>
         </div>
       </div>
+
+      <EnhancedFooter />
     </div>
   )
 }

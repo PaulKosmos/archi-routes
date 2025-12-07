@@ -190,7 +190,7 @@ export default function PodcastNewPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
         <Header buildings={buildings} />
         <main className="py-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
               <CheckCircle className="mx-auto text-green-600 mb-4" size={48} />
               <h2 className="text-2xl font-bold text-green-900 mb-2">Успешно загружено!</h2>
@@ -210,7 +210,7 @@ export default function PodcastNewPage() {
       <Header buildings={buildings} />
 
       <main className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           {/* Back button */}
           <Link href="/podcasts" className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8 group">
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
@@ -225,7 +225,7 @@ export default function PodcastNewPage() {
           </div>
 
           {error && (
-            <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 max-w-3xl">
               <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
               <div>
                 <p className="text-red-700 font-semibold">Ошибка</p>
@@ -234,24 +234,32 @@ export default function PodcastNewPage() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
-            <PodcastUploadForm
-              series={series}
-              tags={tags}
-              onSubmit={handleUpload}
-              isSubmitting={submitting}
-            />
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main form - Takes 2 columns on large screens */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+                <PodcastUploadForm
+                  series={series}
+                  tags={tags}
+                  onSubmit={handleUpload}
+                  isSubmitting={submitting}
+                />
+              </div>
+            </div>
 
-          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="font-semibold text-blue-900 mb-2">Советы по загрузке:</h3>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Поддерживаемые форматы аудио: MP3, WAV, OGG, FLAC</li>
-              <li>• Максимальный размер файла: 500MB</li>
-              <li>• Рекомендуемый размер обложки: 1:1 (например, 600x600px)</li>
-              <li>• Вы можете добавить несколько тегов для лучшей категоризации</li>
-              <li>• Сохраняйте информацию в черновике перед публикацией</li>
-            </ul>
+            {/* Tips sidebar - Takes 1 column on large screens */}
+            <div className="lg:col-span-1">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 sticky top-4">
+                <h3 className="font-semibold text-blue-900 mb-3">Советы по загрузке:</h3>
+                <ul className="text-sm text-blue-800 space-y-2">
+                  <li>• Поддерживаемые форматы аудио: MP3, WAV, OGG, FLAC</li>
+                  <li>• Максимальный размер файла: 500MB</li>
+                  <li>• Рекомендуемый размер обложки: 1:1 (например, 600x600px)</li>
+                  <li>• Вы можете добавить несколько тегов для лучшей категоризации</li>
+                  <li>• Сохраняйте информацию в черновике перед публикацией</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </main>

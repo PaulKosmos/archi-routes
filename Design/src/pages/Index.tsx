@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { BlogCard } from "@/components/BlogCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,10 +71,14 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 mb-8 pb-6 border-b-2 border-border">
+        <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-border">
           <span className="text-sm font-medium">
             Найдено статей: <span className="font-bold text-primary">{blogPosts.length}</span>
           </span>
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Добавить историю
+          </Button>
         </div>
 
         {view === 'grid' ? (
@@ -111,6 +116,8 @@ const Index = () => {
             <p className="text-muted-foreground">Попробуйте изменить параметры поиска</p>
           </div>}
       </main>
+
+      <Footer />
 
       <div className="fixed bottom-8 right-8 w-16 h-16 bg-accent rounded-full shadow-lg flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-foreground rounded-lg" />

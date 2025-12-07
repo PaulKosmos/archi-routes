@@ -34,16 +34,37 @@ export default function PodcastMiniPlayer({
   // Generate proper storage URL for audio
   const storageAudioUrl = audioUrl ? getStorageUrl(audioUrl, 'podcasts') : ''
 
-  // Auto play/pause when isPlaying changes
+  // Reset player when episode changes
   useEffect(() => {
     if (audioRef.current) {
+      const wasPlaying = isPlaying
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      setCurrentTime(0)
+      audioRef.current.load()
+
+      // Auto-start new episode if it was playing before
+      if (wasPlaying) {
+        const timer = setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.play().catch(err => console.error('Auto-play error:', err))
+          }
+        }, 100)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [episode?.id, isPlaying])
+
+  // Auto play/pause when isPlaying changes
+  useEffect(() => {
+    if (audioRef.current && storageAudioUrl) {
       if (isPlaying) {
         audioRef.current.play().catch(err => console.error('Play error:', err))
       } else {
         audioRef.current.pause()
       }
     }
-  }, [isPlaying])
+  }, [isPlaying, storageAudioUrl])
 
   // Format time as mm:ss
   const formatTime = (seconds: number) => {

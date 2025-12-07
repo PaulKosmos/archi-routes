@@ -38,6 +38,10 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
+    /* News page theme colors */
+    --news-primary: 217 91% 60%;
+    --news-primary-foreground: 0 0% 100%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 8%;
     --sidebar-primary: 4 90% 58%;
@@ -76,6 +80,10 @@ All colors MUST be HSL.
     --border: 0 0% 22%;
     --input: 0 0% 18%;
     --ring: 4 90% 58%;
+
+    /* News page theme colors */
+    --news-primary: 217 91% 60%;
+    --news-primary-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 8%;
     --sidebar-foreground: 0 0% 98%;

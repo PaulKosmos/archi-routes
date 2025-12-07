@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogFilters from '@/components/blog/BlogFilters'
 import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 import { Search, Grid, List } from 'lucide-react'
 import Link from 'next/link'
 
@@ -192,6 +193,8 @@ export default function BlogPage() {
         )}
 
       </div>
+
+      <EnhancedFooter />
     </div>
   )
 }

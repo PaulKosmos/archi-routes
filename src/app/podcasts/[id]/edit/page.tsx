@@ -256,7 +256,7 @@ export default function PodcastEditPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
         <Header buildings={buildings} />
         <main className="py-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
               <AlertCircle className="mx-auto text-red-600 mb-4" size={48} />
               <h2 className="text-2xl font-bold text-red-900 mb-2">Эпизод не найден</h2>
@@ -276,7 +276,7 @@ export default function PodcastEditPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
         <Header buildings={buildings} />
         <main className="py-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
               <CheckCircle className="mx-auto text-green-600 mb-4" size={48} />
               <h2 className="text-2xl font-bold text-green-900 mb-2">Успешно обновлено!</h2>
@@ -296,7 +296,7 @@ export default function PodcastEditPage() {
       <Header buildings={buildings} />
 
       <main className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           {/* Back button */}
           <Link href={`/podcasts/${episodeId}`} className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8 group">
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
@@ -311,7 +311,7 @@ export default function PodcastEditPage() {
           </div>
 
           {error && (
-            <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 max-w-3xl">
               <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
               <div>
                 <p className="text-red-700 font-semibold">Ошибка</p>
@@ -320,65 +320,74 @@ export default function PodcastEditPage() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
-            <PodcastUploadForm
-              series={series}
-              tags={tags}
-              onSubmit={handleUpdate}
-              isSubmitting={submitting}
-              isEditing={true}
-              initialData={{
-                title: episode.title,
-                description: episode.description || '',
-                episode_number: episode.episode_number,
-                series_id: episode.series_id,
-                status: episode.status,
-                published_at: episode.published_at,
-                apple_podcasts_url: episode.apple_podcasts_url,
-                spotify_url: episode.spotify_url,
-                yandex_music_url: episode.yandex_music_url,
-                google_podcasts_url: episode.google_podcasts_url,
-                tags: episodeTags,
-                cover_image_url: episode.cover_image_url
-              }}
-            />
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main form - Takes 2 columns on large screens */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+                <PodcastUploadForm
+                  series={series}
+                  tags={tags}
+                  onSubmit={handleUpdate}
+                  isSubmitting={submitting}
+                  isEditing={true}
+                  initialData={{
+                    title: episode.title,
+                    description: episode.description || '',
+                    episode_number: episode.episode_number,
+                    series_id: episode.series_id,
+                    status: episode.status,
+                    published_at: episode.published_at,
+                    apple_podcasts_url: episode.apple_podcasts_url,
+                    spotify_url: episode.spotify_url,
+                    yandex_music_url: episode.yandex_music_url,
+                    google_podcasts_url: episode.google_podcasts_url,
+                    tags: episodeTags,
+                    cover_image_url: episode.cover_image_url
+                  }}
+                />
+              </div>
+            </div>
 
-          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="font-semibold text-blue-900 mb-2">Примечания:</h3>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Аудиофайл и обложку можно оставить без изменений</li>
-              <li>• Если загрузите новый файл, старый будет заменён</li>
-              <li>• Изменения вступят в силу сразу после сохранения</li>
-            </ul>
-          </div>
+            {/* Sidebar - Takes 1 column on large screens */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Notes Section */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 sticky top-4">
+                <h3 className="font-semibold text-blue-900 mb-3">Примечания:</h3>
+                <ul className="text-sm text-blue-800 space-y-2">
+                  <li>• Аудиофайл и обложку можно оставить без изменений</li>
+                  <li>• Если загрузите новый файл, старый будет заменён</li>
+                  <li>• Изменения вступят в силу сразу после сохранения</li>
+                </ul>
+              </div>
 
-          {/* Delete Section */}
-          <div className="mt-8 p-6 bg-red-50 border-2 border-red-200 rounded-lg">
-            <h3 className="font-bold text-red-900 mb-2 flex items-center gap-2">
-              <Trash2 size={20} />
-              Опасная зона
-            </h3>
-            <p className="text-sm text-red-700 mb-4">
-              Удаление подкаста приведёт к безвозвратной потере всех данных, включая аудиофайл, обложку, теги и статистику.
-            </p>
-            <button
-              onClick={handleDelete}
-              disabled={deleting || submitting}
-              className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {deleting ? (
-                <>
-                  <Loader2 size={20} className="animate-spin" />
-                  Удаление...
-                </>
-              ) : (
-                <>
+              {/* Delete Section */}
+              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6">
+                <h3 className="font-bold text-red-900 mb-2 flex items-center gap-2">
                   <Trash2 size={20} />
-                  Удалить подкаст
-                </>
-              )}
-            </button>
+                  Опасная зона
+                </h3>
+                <p className="text-sm text-red-700 mb-4">
+                  Удаление подкаста приведёт к безвозвратной потере всех данных, включая аудиофайл, обложку, теги и статистику.
+                </p>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting || submitting}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin" />
+                      Удаление...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={20} />
+                      Удалить подкаст
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </main>

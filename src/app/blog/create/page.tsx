@@ -13,6 +13,7 @@ import ContentBlockEditor from '@/components/blog/ContentBlockEditor'
 import BlogPreviewModal from '@/components/blog/BlogPreviewModal'
 import TagsAutocompleteInput from '@/components/blog/TagsAutocompleteInput'
 import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 import {
   Save,
   Eye,
@@ -372,6 +373,8 @@ export default function CreateBlogPage() {
           readingTime={Math.max(1, Math.ceil(blocks.filter(b => b.content).map(b => b.content).join(' ').split(/\s+/).length / 200))}
         />
       </div>
+
+      <EnhancedFooter />
     </div>
   )
 }

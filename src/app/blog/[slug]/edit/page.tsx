@@ -8,6 +8,7 @@ import { CreateBlogContentBlock, BlogTag, generateSlug } from '@/types/blog'
 import ContentBlockEditor from '@/components/blog/ContentBlockEditor'
 import BlogPreviewModal from '@/components/blog/BlogPreviewModal'
 import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 import {
   Save,
   Eye,
@@ -505,6 +506,8 @@ export default function EditBlogPage() {
         selectedTagIds={selectedTagIds}
         readingTime={Math.max(1, Math.ceil(blocks.filter(b => b.content).map(b => b.content).join(' ').split(/\s+/).length / 200))}
       />
+
+      <EnhancedFooter />
     </div>
   )
 }
