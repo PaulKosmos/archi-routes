@@ -4,10 +4,12 @@ import { Footer } from "@/components/Footer";
 import { BlogCard } from "@/components/BlogCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Grid3x3, List, Plus, Search } from "lucide-react";
+import { Grid3x3, List, Plus, Search, ChevronRight } from "lucide-react";
+import { useScrollEnd } from "@/hooks/use-scroll-end";
 const Index = () => {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [contentRef, isAtEnd] = useScrollEnd(200);
   const blogPosts = [{
     id: 1,
     image: "https://images.unsplash.com/photo-1486718448742-163732cd1544?w=800&q=80",
@@ -54,67 +56,76 @@ const Index = () => {
       <Header onViewChange={setView} currentView={view} onSearch={setSearchQuery} />
       
       <main className="container mx-auto px-6 py-8">
+        <div ref={contentRef}>
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input placeholder="Поиск статей..." className="pl-12 h-12 border border-border" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+            </div>
+            
+            <div className="flex gap-2">
+              <Button variant={view === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setView('grid')} className="h-12 w-12">
+                <Grid3x3 className="h-5 w-5" />
+              </Button>
+              <Button variant={view === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setView('list')} className="h-12 w-12">
+                <List className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input placeholder="Поиск статей..." className="pl-12 h-12 border border-border" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+          <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-border">
+            <span className="text-sm font-medium">
+              Найдено статей: <span className="font-bold text-primary">{blogPosts.length}</span>
+            </span>
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Добавить историю
+            </Button>
           </div>
+
+          {view === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {blogPosts.slice(0, 3).map(post => (
+                <BlogCard key={post.id} {...post} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-8">
+              {blogPosts.map(post => (
+                <BlogCard key={post.id} {...post} />
+              ))}
+            </div>
+          )}
           
-          <div className="flex gap-2">
-            <Button variant={view === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setView('grid')} className="h-12 w-12">
-              <Grid3x3 className="h-5 w-5" />
-            </Button>
-            <Button variant={view === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setView('list')} className="h-12 w-12">
-              <List className="h-5 w-5" />
-            </Button>
-          </div>
+          {view === 'grid' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+              {blogPosts.slice(3, 4).map(post => (
+                <div key={post.id} className="lg:col-span-2">
+                  <BlogCard {...post} wide />
+                </div>
+              ))}
+              {blogPosts.slice(4).map(post => (
+                <BlogCard key={post.id} {...post} />
+              ))}
+            </div>
+          )}
+
+          {blogPosts.length === 0 && <div className="text-center py-16">
+              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Статьи не найдены</h3>
+              <p className="text-muted-foreground">Попробуйте изменить параметры поиска</p>
+            </div>}
         </div>
 
-        <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-border">
-          <span className="text-sm font-medium">
-            Найдено статей: <span className="font-bold text-primary">{blogPosts.length}</span>
-          </span>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Добавить историю
+        {/* Next Page Button */}
+        <div className={`flex justify-center py-12 transition-opacity duration-300 ${isAtEnd ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <Button variant="outline" className="gap-2 px-8 h-12">
+            Следующая страница
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-
-        {view === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.slice(0, 3).map(post => (
-              <BlogCard key={post.id} {...post} />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-8">
-            {blogPosts.map(post => (
-              <BlogCard key={post.id} {...post} />
-            ))}
-          </div>
-        )}
-        
-        {view === 'grid' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-            {blogPosts.slice(3, 4).map(post => (
-              <div key={post.id} className="lg:col-span-2">
-                <BlogCard {...post} wide />
-              </div>
-            ))}
-            {blogPosts.slice(4).map(post => (
-              <BlogCard key={post.id} {...post} />
-            ))}
-          </div>
-        )}
-
-        {blogPosts.length === 0 && <div className="text-center py-16">
-            <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="h-12 w-12 text-muted-foreground" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Статьи не найдены</h3>
-            <p className="text-muted-foreground">Попробуйте изменить параметры поиска</p>
-          </div>}
       </main>
 
       <Footer />

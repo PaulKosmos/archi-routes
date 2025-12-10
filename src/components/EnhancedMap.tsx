@@ -84,6 +84,8 @@ interface EnhancedMapProps {
   addBuildingMode?: boolean // Режим добавления объекта
   routeCreationMode?: boolean // Режим создания маршрута
   selectedBuildingsForRoute?: string[] // Выбранные здания для маршрута
+  hideLegend?: boolean // Скрыть легенду
+  compactControls?: boolean // Компактные контролы (для встроенных карт)
 }
 
 // Создание иконок для зданий
@@ -196,7 +198,9 @@ export default function EnhancedMap({
   radiusMode = 'none',
   addBuildingMode = false,
   routeCreationMode = false,
-  selectedBuildingsForRoute = []
+  selectedBuildingsForRoute = [],
+  hideLegend = false,
+  compactControls = false
 }: EnhancedMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<L.Map | null>(null)
@@ -955,15 +959,15 @@ export default function EnhancedMap({
       )}
       
       {/* Панель управления стилем карты */}
-      <div className="absolute top-28 right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+      <div className={`absolute ${compactControls ? 'top-4' : 'top-28'} right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-2`}>
         <div className="flex space-x-1">
           {Object.keys(MAP_STYLES).map(style => (
             <button
               key={style}
               onClick={() => setCurrentStyle(style)}
               className={`px-3 py-1 text-xs rounded transition-colors ${
-                currentStyle === style 
-                  ? 'bg-blue-100 text-blue-700' 
+                currentStyle === style
+                  ? 'bg-blue-100 text-blue-700'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
               title={`${style === 'light' ? 'Светлая' : style === 'dark' ? 'Тёмная' : 'Спутник'} тема карты`}
@@ -977,7 +981,8 @@ export default function EnhancedMap({
       </div>
 
       {/* Легенда */}
-      <div className="absolute bottom-4 right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-xs">
+      {!hideLegend && (
+        <div className="absolute bottom-4 right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-xs">
         <h4 className="font-semibold text-gray-900 text-sm mb-3">Легенда</h4>
         
         {showBuildings && (
@@ -1013,7 +1018,8 @@ export default function EnhancedMap({
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Карта */}
       <div 

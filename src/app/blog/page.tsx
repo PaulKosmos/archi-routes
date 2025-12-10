@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic'
 import React, { useState, useEffect, useMemo } from 'react'
 import { BlogPost } from '@/types/blog'
 import { createClient } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogFilters from '@/components/blog/BlogFilters'
 import Header from '@/components/Header'
@@ -16,6 +17,7 @@ import Link from 'next/link'
 
 export default function BlogPage() {
   const supabase = useMemo(() => createClient(), [])
+  const { user } = useAuth()
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
@@ -56,19 +58,53 @@ export default function BlogPage() {
 
   const loadPosts = async () => {
     try {
-      const { data, error } = await supabase
+      // Загружаем посты
+      const { data: postsData, error } = await supabase
         .from('blog_posts')
         .select('*')
         .eq('status', 'published')
         .order('published_at', { ascending: false })
 
       if (error) throw error
-      
+
+      if (!postsData || postsData.length === 0) {
+        setPosts([])
+        return
+      }
+
+      // Загружаем реакции для всех постов
+      const postIds = postsData.map(post => post.id)
+      const { data: reactions } = await supabase
+        .from('blog_post_reactions')
+        .select('post_id, reaction_type')
+        .in('post_id', postIds)
+
+      // Агрегируем счётчики для каждого поста
+      const reactionCounts = new Map()
+      reactions?.forEach(reaction => {
+        if (!reactionCounts.has(reaction.post_id)) {
+          reactionCounts.set(reaction.post_id, { like_count: 0, save_count: 0, share_count: 0 })
+        }
+        const counts = reactionCounts.get(reaction.post_id)
+        if (reaction.reaction_type === 'like') counts.like_count++
+        else if (reaction.reaction_type === 'save') counts.save_count++
+        else if (reaction.reaction_type === 'share') counts.share_count++
+      })
+
+      // Объединяем посты со счётчиками
+      const postsWithCounts = postsData.map(post => ({
+        ...post,
+        like_count: reactionCounts.get(post.id)?.like_count || 0,
+        save_count: reactionCounts.get(post.id)?.save_count || 0,
+        share_count: reactionCounts.get(post.id)?.share_count || 0,
+        comment_count: 0 // TODO: добавить комментарии позже
+      }))
+
       // Принудительное обновление состояния
-      const freshData = JSON.parse(JSON.stringify(data || []))
+      const freshData = JSON.parse(JSON.stringify(postsWithCounts))
       setPosts([])
       setTimeout(() => setPosts(freshData), 10)
-      
+
     } catch (error) {
       console.error('Error loading posts:', error)
     } finally {
@@ -78,13 +114,13 @@ export default function BlogPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-6 py-8">
           <div className="animate-pulse space-y-6">
-            <div className="h-12 bg-gray-200 rounded w-1/3"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="h-12 bg-muted rounded w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
+                <div key={i} className="h-64 bg-muted rounded-lg"></div>
               ))}
             </div>
           </div>
@@ -94,93 +130,77 @@ export default function BlogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header buildings={[]} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        {/* Заголовок */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-4xl font-bold text-gray-900">
-              Блог об архитектуре
-            </h1>
-            {/* Кнопка создать статью */}
-            <Link
-              href="/blog/create"
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition-colors font-medium"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              <span>Создать статью</span>
-            </Link>
-          </div>
-          <p className="text-lg text-gray-600">
-            Исследуйте архитектурные жемчужины городов мира
-          </p>
-        </div>
+      <main className="container mx-auto px-6 py-8 flex-1">
 
         {/* Поиск и фильтры */}
-        <div className="mb-8 space-y-4">
-
-          {/* Поиск */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <input
               type="text"
               placeholder="Поиск статей..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-12 h-12 border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--blog-primary))] transition-colors"
             />
           </div>
 
-          {/* Переключатель вида */}
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              Найдено статей: {filteredPosts.length}
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'grid'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                <Grid className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'list'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                <List className="w-5 h-5" />
-              </button>
-            </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-[hsl(var(--blog-primary))] text-[hsl(var(--blog-primary-foreground))]'
+                  : 'bg-background border border-border text-foreground hover:bg-muted'
+              }`}
+            >
+              <Grid className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-[hsl(var(--blog-primary))] text-[hsl(var(--blog-primary-foreground))]'
+                  : 'bg-background border border-border text-foreground hover:bg-muted'
+              }`}
+            >
+              <List className="h-5 w-5" />
+            </button>
           </div>
+        </div>
+
+        {/* Информация и кнопка создания */}
+        <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-border">
+          <span className="text-sm font-medium">
+            Найдено статей: <span className="font-bold text-[hsl(var(--blog-primary))]">{filteredPosts.length}</span>
+          </span>
+          <Link
+            href="/blog/create"
+            className="inline-flex items-center gap-2 bg-[hsl(var(--blog-primary))] text-[hsl(var(--blog-primary-foreground))] px-6 py-3 rounded-[var(--radius)] hover:opacity-90 transition-opacity font-medium"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Создать статью
+          </Link>
         </div>
 
         {/* Список статей */}
         {filteredPosts.length === 0 ? (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Статьи не найдены
-            </h3>
-            <p className="text-gray-600">
-              Попробуйте изменить поисковый запрос
-            </p>
+          <div className="text-center py-16">
+            <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="h-12 w-12 text-muted-foreground" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">Статьи не найдены</h3>
+            <p className="text-muted-foreground">Попробуйте изменить параметры поиска</p>
           </div>
         ) : (
           <div className={
             viewMode === 'grid'
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-              : 'space-y-6'
+              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'
+              : 'grid grid-cols-1 gap-8'
           }>
             {filteredPosts.map((post) => (
               <BlogCard
@@ -191,9 +211,7 @@ export default function BlogPage() {
             ))}
           </div>
         )}
-
-      </div>
-
+      </main>
       <EnhancedFooter />
     </div>
   )

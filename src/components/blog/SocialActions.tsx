@@ -215,30 +215,47 @@ export default function SocialActions({
   );
 
   return (
-    <div className="social-actions flex items-center gap-3 flex-wrap">
+    <div className="social-actions flex items-center gap-2 flex-wrap">
       {/* Кнопка "Нравится" */}
       <button
         type="button"
         onClick={toggleLike}
         disabled={isLoading}
-        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-          userReactions.hasLiked
-            ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
-            : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
+        title={userReactions.hasLiked ? 'Убрать лайк' : 'Нравится'}
+        className={`${
+          showCounts
+            ? `flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                userReactions.hasLiked
+                  ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
+                  : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
+              }`
+            : `h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-sm rounded ${
+                userReactions.hasLiked
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-white/95 hover:bg-white'
+              }`
         } disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         <Heart
-          className={`h-5 w-5 ${userReactions.hasLiked ? 'fill-current' : ''}`}
+          className={`h-5 w-5 transition-colors ${
+            userReactions.hasLiked
+              ? 'fill-white text-white'
+              : ''
+          }`}
         />
-        <span>{userReactions.hasLiked ? 'Нравится' : 'Нравится'}</span>
-        {showCounts && counts.likes > 0 && (
-          <span
-            className={`text-sm font-semibold ${
-              userReactions.hasLiked ? 'text-white' : 'text-gray-600'
-            }`}
-          >
-            {counts.likes}
-          </span>
+        {showCounts && (
+          <>
+            <span>{userReactions.hasLiked ? 'Нравится' : 'Нравится'}</span>
+            {counts.likes > 0 && (
+              <span
+                className={`text-sm font-semibold ${
+                  userReactions.hasLiked ? 'text-white' : 'text-gray-600'
+                }`}
+              >
+                {counts.likes}
+              </span>
+            )}
+          </>
         )}
       </button>
 
@@ -247,24 +264,41 @@ export default function SocialActions({
         type="button"
         onClick={toggleSave}
         disabled={isLoading}
-        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-          userReactions.hasSaved
-            ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
-            : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
+        title={userReactions.hasSaved ? 'Убрать из коллекции' : 'В коллекцию'}
+        className={`${
+          showCounts
+            ? `flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                userReactions.hasSaved
+                  ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
+                  : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
+              }`
+            : `h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-sm rounded ${
+                userReactions.hasSaved
+                  ? 'bg-[hsl(var(--blog-primary))] hover:bg-[hsl(var(--blog-primary))]/90'
+                  : 'bg-white/95 hover:bg-white'
+              }`
         } disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         <Bookmark
-          className={`h-5 w-5 ${userReactions.hasSaved ? 'fill-current' : ''}`}
+          className={`h-5 w-5 transition-colors ${
+            userReactions.hasSaved
+              ? 'fill-white text-white'
+              : ''
+          }`}
         />
-        <span>{userReactions.hasSaved ? 'Сохранено' : 'В коллекцию'}</span>
-        {showCounts && counts.saves > 0 && (
-          <span
-            className={`text-sm font-semibold ${
-              userReactions.hasSaved ? 'text-white' : 'text-gray-600'
-            }`}
-          >
-            {counts.saves}
-          </span>
+        {showCounts && (
+          <>
+            <span>{userReactions.hasSaved ? 'Сохранено' : 'В коллекцию'}</span>
+            {counts.saves > 0 && (
+              <span
+                className={`text-sm font-semibold ${
+                  userReactions.hasSaved ? 'text-white' : 'text-gray-600'
+                }`}
+              >
+                {counts.saves}
+              </span>
+            )}
+          </>
         )}
       </button>
 
@@ -273,21 +307,30 @@ export default function SocialActions({
         <button
           type="button"
           onClick={() => setShowShareMenu(!showShareMenu)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50 transition-all duration-200"
+          title="Поделиться"
+          className={`${
+            showCounts
+              ? 'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
+              : 'h-10 w-10 flex items-center justify-center bg-white/95 backdrop-blur-sm hover:bg-white shadow-sm'
+          } transition-all duration-200`}
         >
           {shareSuccess ? (
             <>
               <Check className="h-5 w-5 text-green-600" />
-              <span className="text-green-600">Скопировано!</span>
+              {showCounts && <span className="text-green-600">Скопировано!</span>}
             </>
           ) : (
             <>
               <Share2 className="h-5 w-5" />
-              <span>Поделиться</span>
-              {showCounts && counts.shares > 0 && (
-                <span className="text-sm font-semibold text-gray-600">
-                  {counts.shares}
-                </span>
+              {showCounts && (
+                <>
+                  <span>Поделиться</span>
+                  {counts.shares > 0 && (
+                    <span className="text-sm font-semibold text-gray-600">
+                      {counts.shares}
+                    </span>
+                  )}
+                </>
               )}
             </>
           )}

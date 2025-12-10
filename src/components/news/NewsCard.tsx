@@ -58,7 +58,7 @@ export default function NewsCard({
   };
 
   const getCardClasses = () => {
-    const baseClasses = "bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group cursor-pointer transform hover:-translate-y-1";
+    const baseClasses = "bg-card rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-border overflow-hidden group cursor-pointer transform hover:-translate-y-1";
 
     switch (size) {
       case 'small':
@@ -66,7 +66,7 @@ export default function NewsCard({
       case 'large':
         return `${baseClasses} flex flex-col md:flex-row max-w-4xl`;
       case 'featured':
-        return `${baseClasses} w-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-blue-200 shadow-lg`;
+        return `${baseClasses} w-full bg-gradient-to-br from-[hsl(var(--news-primary))]/10 via-[hsl(var(--news-primary))]/5 to-purple-50 border-[hsl(var(--news-primary))]/20 shadow-lg`;
       default:
         return `${baseClasses} max-w-md`;
     }
@@ -92,7 +92,7 @@ export default function NewsCard({
       case 'large':
         return "text-2xl font-bold";
       case 'featured':
-        return "text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent";
+        return "text-3xl md:text-4xl font-bold bg-gradient-to-r from-[hsl(var(--news-primary))] via-indigo-600 to-purple-600 bg-clip-text text-transparent";
       default:
         return "text-xl font-semibold";
     }
@@ -148,7 +148,7 @@ export default function NewsCard({
 
           {/* Категория поверх изображения */}
           <div className="absolute top-4 left-4">
-            <span className={`${news.featured_image_url ? 'bg-white/95' : 'bg-white'} backdrop-blur-sm px-3 py-2 rounded-full text-sm font-medium text-gray-700 flex items-center gap-2 shadow-sm`}>
+            <span className={`${news.featured_image_url ? 'bg-card/95' : 'bg-card'} backdrop-blur-sm px-3 py-2 rounded-full text-sm font-medium text-foreground flex items-center gap-2 shadow-sm border border-border`}>
               <span className="text-base">{getNewsCategoryIcon(news.category)}</span>
               <span className="hidden sm:inline">{getCategoryName(news.category)}</span>
             </span>
@@ -184,7 +184,7 @@ export default function NewsCard({
         <div className={getContentPadding()}>
           
           {/* Дата и время чтения */}
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+          <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
             <div className="flex items-center gap-4">
               {news.published_at && (
                 <div className="flex items-center gap-1">
@@ -197,7 +197,7 @@ export default function NewsCard({
                 <span>~{Math.max(1, Math.round((news.content?.length || 0) / 1000))} мин</span>
               </div>
             </div>
-            
+
             {/* Автор */}
             {news.author && (
               <div className="flex items-center gap-1">
@@ -208,15 +208,15 @@ export default function NewsCard({
           </div>
 
           {/* Заголовок */}
-          <h2 className={`${getTitleClasses()} text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors leading-tight`}>
+          <h2 className={`${getTitleClasses()} text-foreground mb-3 line-clamp-2 group-hover:text-[hsl(var(--news-primary))] transition-colors leading-tight`}>
             {news.title}
           </h2>
 
           {/* Краткое описание */}
           {showSummary && news.summary && (
-            <p className={`text-gray-600 mb-4 leading-relaxed ${
-              size === 'featured' ? 'text-lg line-clamp-3' : 
-              size === 'large' ? 'text-base line-clamp-3' : 
+            <p className={`text-muted-foreground mb-4 leading-relaxed ${
+              size === 'featured' ? 'text-lg line-clamp-3' :
+              size === 'large' ? 'text-base line-clamp-3' :
               'text-sm line-clamp-2'
             }`}>
               {news.summary}
@@ -225,7 +225,7 @@ export default function NewsCard({
 
           {/* Локация */}
           {news.city && (
-            <div className="flex items-center gap-1 text-sm text-gray-500 mb-3">
+            <div className="flex items-center gap-1 text-sm text-muted-foreground mb-3">
               <MapPin className="w-4 h-4" />
               <span>{news.city}{news.country && news.country !== news.city ? `, ${news.country}` : ''}</span>
             </div>
@@ -234,7 +234,7 @@ export default function NewsCard({
           {/* Связанные здания */}
           {showRelatedBuildings && news.buildings && news.buildings.length > 0 && (
             <div className="mb-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                 <Building2 className="w-4 h-4" />
                 <span className="font-medium">Упоминаемые здания</span>
               </div>
@@ -242,13 +242,13 @@ export default function NewsCard({
                 {news.buildings.slice(0, size === 'featured' ? 4 : 3).map((building) => (
                   <span
                     key={building.id}
-                    className="inline-flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
+                    className="inline-flex items-center bg-[hsl(var(--news-primary))]/10 text-[hsl(var(--news-primary))] px-3 py-1 rounded-lg text-sm font-medium hover:bg-[hsl(var(--news-primary))]/20 transition-colors"
                   >
                     {building.name}
                   </span>
                 ))}
                 {news.buildings.length > (size === 'featured' ? 4 : 3) && (
-                  <span className="inline-flex items-center text-gray-500 text-sm">
+                  <span className="inline-flex items-center text-muted-foreground text-sm">
                     +{news.buildings.length - (size === 'featured' ? 4 : 3)} еще
                   </span>
                 )}
@@ -263,13 +263,13 @@ export default function NewsCard({
                 {news.tags.slice(0, size === 'featured' ? 6 : 4).map((tag, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs hover:bg-gray-200 transition-colors"
+                    className="inline-flex items-center bg-muted text-muted-foreground px-2 py-1 rounded-md text-xs hover:bg-muted/80 transition-colors"
                   >
                     #{tag}
                   </span>
                 ))}
                 {news.tags.length > (size === 'featured' ? 6 : 4) && (
-                  <span className="inline-flex items-center text-gray-400 text-xs">
+                  <span className="inline-flex items-center text-muted-foreground/60 text-xs">
                     +{news.tags.length - (size === 'featured' ? 6 : 4)}
                   </span>
                 )}
@@ -279,24 +279,24 @@ export default function NewsCard({
 
           {/* Статистика и взаимодействия */}
           {showMetrics && (
-            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between pt-4 border-t border-border">
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 text-gray-500">
+                <div className="flex items-center gap-1 text-muted-foreground">
                   <Eye className="w-4 h-4" />
                   <span className="text-sm">{news.views_count || 0}</span>
                 </div>
-                <div className="flex items-center gap-1 text-gray-500">
+                <div className="flex items-center gap-1 text-muted-foreground">
                   <Heart className="w-4 h-4" />
                   <span className="text-sm">{news.likes_count || 0}</span>
                 </div>
-                <div className="flex items-center gap-1 text-gray-500">
+                <div className="flex items-center gap-1 text-muted-foreground">
                   <Share2 className="w-4 h-4" />
                   <span className="text-sm">{news.shares_count || 0}</span>
                 </div>
               </div>
-              
+
               {/* CTA */}
-              <div className="text-blue-600 text-sm font-medium group-hover:text-blue-700 transition-colors">
+              <div className="text-[hsl(var(--news-primary))] text-sm font-medium group-hover:text-[hsl(var(--news-primary))]/80 transition-colors">
                 Читать далее →
               </div>
             </div>

@@ -1,62 +1,139 @@
 @import "tailwindcss";
 @import "../styles/blog.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* =============================================================================
+   ARCHIROUTES DESIGN SYSTEM
+   Based on Lovable design with HSL color system
+   ============================================================================= */
 
-  /* New design system colors (HSL) */
-  --new-background: 0 0% 98%;
-  --new-foreground: 0 0% 8%;
-  --new-card: 0 0% 100%;
-  --new-card-foreground: 0 0% 8%;
-  --new-primary: 4 90% 58%;
-  --new-primary-foreground: 0 0% 100%;
-  --new-secondary: 0 0% 13%;
-  --new-secondary-foreground: 0 0% 98%;
-  --new-muted: 0 0% 92%;
-  --new-muted-foreground: 0 0% 40%;
-  --new-accent: 48 100% 50%;
-  --new-accent-foreground: 0 0% 8%;
-  --new-border: 0 0% 88%;
-  --new-radius: 0.75rem;
-}
-
+/* Tailwind v4 theme configuration */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-outfit: var(--font-outfit);
-  --font-sora: var(--font-sora);
+  --font-sans: var(--font-sora);
+  --font-display: var(--font-outfit);
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Design System Colors (HSL) - Light Mode */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 8%;
 
-    /* New design system dark mode */
-    --new-background: 0 0% 8%;
-    --new-foreground: 0 0% 98%;
-    --new-card: 0 0% 13%;
-    --new-card-foreground: 0 0% 98%;
-    --new-primary: 4 90% 58%;
-    --new-primary-foreground: 0 0% 100%;
-    --new-secondary: 0 0% 18%;
-    --new-secondary-foreground: 0 0% 98%;
-    --new-muted: 0 0% 18%;
-    --new-muted-foreground: 0 0% 60%;
-    --new-accent: 48 100% 50%;
-    --new-accent-foreground: 0 0% 8%;
-    --new-border: 0 0% 22%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+
+    --primary: 4 90% 58%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 48 100% 50%;
+    --accent-foreground: 0 0% 8%;
+
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 88%;
+    --input: 0 0% 100%;
+    --ring: 4 90% 58%;
+
+    /* Page-specific theme colors */
+    --blog-primary: 4 90% 58%;
+    --blog-primary-foreground: 0 0% 100%;
+
+    --news-primary: 217 91% 60%;
+    --news-primary-foreground: 0 0% 100%;
+
+    --podcast-primary: 270 70% 60%;
+    --podcast-primary-foreground: 0 0% 100%;
+
+    --map-primary: 142 71% 45%;
+    --map-primary-foreground: 0 0% 100%;
+
+    /* Sidebar colors */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 8%;
+    --sidebar-primary: 4 90% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 92%;
+    --sidebar-accent-foreground: 0 0% 8%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 4 90% 58%;
+
+    /* Border radius */
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Design System Colors (HSL) - Dark Mode */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 13%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 13%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 4 90% 58%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 48 100% 50%;
+    --accent-foreground: 0 0% 8%;
+
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 22%;
+    --input: 0 0% 18%;
+    --ring: 4 90% 58%;
+
+    /* Page-specific theme colors */
+    --blog-primary: 4 90% 58%;
+    --blog-primary-foreground: 0 0% 100%;
+
+    --news-primary: 217 91% 60%;
+    --news-primary-foreground: 0 0% 100%;
+
+    --podcast-primary: 270 70% 60%;
+    --podcast-primary-foreground: 0 0% 100%;
+
+    --map-primary: 142 71% 45%;
+    --map-primary-foreground: 0 0% 100%;
+
+    /* Sidebar colors */
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 4 90% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 18%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 22%;
+    --sidebar-ring: 4 90% 58%;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 }
 
 .building-marker {
@@ -271,20 +348,26 @@ body {
   animation: fadeIn 0.2s ease-out;
 }
 
-/* New Design System Utilities */
-.bevel-edge {
-  border-radius: var(--new-radius);
-}
+/* =============================================================================
+   DESIGN SYSTEM UTILITIES
+   ============================================================================= */
 
-.bevel-card {
-  border-radius: var(--new-radius);
-  box-shadow: 0 4px 12px -2px hsl(var(--new-foreground) / 0.08);
-}
+@layer utilities {
+  /* Bevel and geometric utilities */
+  .bevel-edge {
+    border-radius: var(--radius);
+  }
 
-.geometric-circle {
-  border-radius: 9999px;
-}
+  .bevel-card {
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px -2px hsl(var(--foreground) / 0.08);
+  }
 
-.geometric-square {
-  border-radius: var(--new-radius);
+  .geometric-circle {
+    @apply rounded-full;
+  }
+
+  .geometric-square {
+    border-radius: var(--radius);
+  }
 }

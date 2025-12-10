@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
@@ -10,15 +10,187 @@ import {
   Calendar,
   Clock,
   Eye,
-  User
+  User,
+  Heart
 } from 'lucide-react'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import EnhancedFooter from '@/components/EnhancedFooter'
 import ContentBlockRenderer from '@/components/blog/ContentBlockRenderer'
-import BlogArticleMap from '@/components/blog/BlogArticleMap'
 import BlogRouteBuilder from '@/components/blog/BlogRouteBuilder'
 import SocialActions from '@/components/blog/SocialActions'
+// Глобальный Set для отслеживания просмотренных статей в текущей сессии
+const viewedPosts = new Set<string>()
+
+// Встроенный компонент ScrollToTop с "убеганием" от курсора
+function ScrollToTopButton() {
+  const [isVisible, setIsVisible] = useState(false)
+  const [buttonBottom, setButtonBottom] = useState(32) // 32px = 2rem (default bottom-8)
+  const [buttonRight, setButtonRight] = useState(0) // смещение по горизонтали
+  const [isRunningAway, setIsRunningAway] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const escapeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Показываем кнопку после прокрутки 300px
+      setIsVisible(window.scrollY > 300)
+
+      // Проверяем положение футера
+      const footer = document.querySelector('footer')
+      if (footer) {
+        const footerRect = footer.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+        const buttonHeight = 48 // примерная высота кнопки
+        const spacing = 32 // отступ от футера (2rem)
+
+        // Если футер виден в viewport (его верх выше нижнего края окна)
+        if (footerRect.top < windowHeight) {
+          // Вычисляем, насколько нужно поднять кнопку
+          const overlap = windowHeight - footerRect.top
+          const newBottom = spacing + overlap
+          setButtonBottom(newBottom)
+        } else {
+          // Футер не виден - возвращаем к стандартному положению
+          setButtonBottom(spacing)
+        }
+      }
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Отслеживание позиции мыши для "убегания"
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!buttonRef.current) return
+
+      const button = buttonRef.current
+      const buttonRect = button.getBoundingClientRect()
+      const buttonCenterX = buttonRect.left + buttonRect.width / 2
+      const buttonCenterY = buttonRect.top + buttonRect.height / 2
+
+      // Вычисляем расстояние от курсора до центра кнопки
+      const distanceX = e.clientX - buttonCenterX
+      const distanceY = e.clientY - buttonCenterY
+      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+
+      // Если курсор ближе 100px - кнопка "убегает" (с задержкой)
+      const triggerDistance = 100
+
+      if (distance < triggerDistance) {
+        // Очищаем предыдущий таймер, если курсор двигается
+        if (escapeTimeoutRef.current) {
+          clearTimeout(escapeTimeoutRef.current)
+        }
+
+        // Задержка 200ms перед убеганием - дает шанс "поймать" кнопку быстрым движением
+        escapeTimeoutRef.current = setTimeout(() => {
+          setIsRunningAway(true)
+
+          // Вычисляем направление убегания (противоположное от курсора)
+          const angle = Math.atan2(distanceY, distanceX)
+          const escapeDistance = 80 // уменьшено для более плавного движения
+
+          const newRight = -Math.cos(angle) * escapeDistance
+          const newBottomOffset = -Math.sin(angle) * escapeDistance
+
+          // Получаем положение футера
+          const footer = document.querySelector('footer')
+          const windowHeight = window.innerHeight
+          const buttonHeight = 48
+
+          let maxBottom = buttonBottom + 150 // максимальная высота подъема
+
+          if (footer) {
+            const footerRect = footer.getBoundingClientRect()
+            // Вычисляем максимальную высоту, чтобы не заходить за футер
+            const footerTop = footerRect.top
+            const maxAllowedBottom = windowHeight - footerTop - buttonHeight - 32
+
+            if (maxAllowedBottom > 32) {
+              maxBottom = Math.min(maxBottom, maxAllowedBottom + buttonBottom)
+            }
+          }
+
+          // Ограничиваем перемещение
+          const maxRight = 200
+          const newBottomValue = buttonBottom + newBottomOffset
+
+          setButtonRight(Math.max(-maxRight, Math.min(maxRight, newRight)))
+          setButtonBottom(Math.max(32, Math.min(maxBottom, newBottomValue)))
+        }, 200) // задержка 200ms
+      } else if (distance > triggerDistance + 100) {
+        // Очищаем таймер убегания, если курсор отдалился
+        if (escapeTimeoutRef.current) {
+          clearTimeout(escapeTimeoutRef.current)
+          escapeTimeoutRef.current = null
+        }
+
+        // Возвращаем кнопку на место, когда курсор отдаляется
+        setIsRunningAway(false)
+        setButtonRight(0)
+
+        // Пересчитываем исходное положение относительно футера
+        const footer = document.querySelector('footer')
+        if (footer) {
+          const footerRect = footer.getBoundingClientRect()
+          const windowHeight = window.innerHeight
+          const spacing = 32
+
+          if (footerRect.top < windowHeight) {
+            const overlap = windowHeight - footerRect.top
+            setButtonBottom(spacing + overlap)
+          } else {
+            setButtonBottom(spacing)
+          }
+        }
+      }
+    }
+
+    if (isVisible) {
+      window.addEventListener('mousemove', handleMouseMove)
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove)
+        // Очищаем таймер при размонтировании
+        if (escapeTimeoutRef.current) {
+          clearTimeout(escapeTimeoutRef.current)
+        }
+      }
+    }
+  }, [isVisible, buttonBottom])
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
+
+  if (!isVisible) return null
+
+  return (
+    <button
+      ref={buttonRef}
+      type="button"
+      onClick={scrollToTop}
+      className="fixed z-[9999] p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 hover:scale-110"
+      style={{
+        bottom: `${buttonBottom}px`,
+        right: `calc(50% - 640px + 2rem + ${buttonRight}px)`,
+        transition: isRunningAway
+          ? 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)' // плавное убегание с пружинящим эффектом
+          : 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)', // плавный возврат
+        willChange: 'bottom, right' // оптимизация производительности
+      }}
+      aria-label="Прокрутить наверх"
+    >
+      <ArrowLeft className="h-6 w-6 rotate-90" />
+    </button>
+  )
+}
 
 export default function BlogPostPage() {
   const supabase = useMemo(() => createClient(), [])
@@ -27,7 +199,10 @@ export default function BlogPostPage() {
   const { user } = useAuth()
   const [post, setPost] = useState<BlogPost | null>(null)
   const [blocks, setBlocks] = useState<BlogContentBlock[]>([])
+  const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([])
+  const [recommendedPosts, setRecommendedPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
+  const viewCountUpdated = useRef(false)
 
   useEffect(() => {
     if (slug) {
@@ -52,36 +227,74 @@ export default function BlogPostPage() {
         return
       }
 
-      setPost(postData)
+      // Увеличиваем счетчик просмотров через безопасную функцию (только один раз за сессию)
+      if (!viewedPosts.has(postData.id)) {
+        viewedPosts.add(postData.id)
 
-      // Увеличиваем счетчик просмотров и обновляем состояние
-      const newViewCount = (postData.view_count || 0) + 1
-      console.log(`📈 Updating view count for "${postData.title}" from ${postData.view_count || 0} to ${newViewCount}`)
-      
-      const { error: updateError } = await supabase
-        .from('blog_posts')
-        .update({ view_count: newViewCount })
-        .eq('id', postData.id)
+        const newViewCount = (postData.view_count || 0) + 1
+        console.log(`📈 Updating view count for "${postData.title}" from ${postData.view_count || 0} to ${newViewCount}`)
 
-      if (updateError) {
-        console.error('❌ Error updating view count:', updateError)
-      } else {
-        console.log('✅ View count updated successfully in database')
+        const { error: updateError } = await supabase
+          .rpc('increment_blog_post_view_count', { post_id: postData.id })
+
+        if (updateError) {
+          console.error('❌ Error updating view count:', updateError)
+        } else {
+          console.log('✅ View count updated successfully in database')
+          // Обновляем локальное состояние
+          postData.view_count = newViewCount
+        }
       }
 
-      // Обновляем локальное состояние
-      setPost(prev => prev ? { ...prev, view_count: newViewCount } : null)
+      setPost(postData)
 
       // Загружаем блоки контента если это блог с блоками
       if (postData.editor_version === 'blocks') {
         const { data: blocksData } = await supabase
           .from('blog_content_blocks')
-          .select('*')
+          .select(`
+            *,
+            building:buildings(*)
+          `)
           .eq('blog_post_id', postData.id)
           .order('order_index', { ascending: true })
 
         setBlocks(blocksData || [])
       }
+
+      // Загружаем похожие статьи (той же категории)
+      console.log('🔍 Current post category:', postData.category)
+
+      // Загружаем похожие статьи только если есть категория
+      if (postData.category) {
+        const { data: relatedData, error: relatedError } = await supabase
+          .from('blog_posts')
+          .select('*')
+          .eq('status', 'published')
+          .eq('category', postData.category)
+          .neq('id', postData.id)
+          .order('published_at', { ascending: false })
+          .limit(2)
+
+        console.log('📚 Related posts found:', relatedData?.length || 0)
+        if (relatedError) console.error('❌ Error loading related posts:', relatedError)
+
+        setRelatedPosts(relatedData || [])
+      } else {
+        console.log('⚠️ No category set for this post')
+        setRelatedPosts([])
+      }
+
+      // Загружаем рекомендуемые статьи (самые популярные)
+      const { data: recommendedData } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('status', 'published')
+        .neq('id', postData.id)
+        .order('view_count', { ascending: false })
+        .limit(2)
+
+      setRecommendedPosts(recommendedData || [])
 
     } catch (error) {
       console.error('Error loading post:', error)
@@ -102,180 +315,231 @@ export default function BlogPostPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-background">
+        <Header buildings={[]} />
+        <div className="container mx-auto px-6 py-8">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
+            <div className="h-8 bg-muted rounded w-3/4"></div>
+            <div className="h-64 bg-muted rounded"></div>
             <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-              <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+              <div className="h-4 bg-muted rounded w-full"></div>
+              <div className="h-4 bg-muted rounded w-5/6"></div>
+              <div className="h-4 bg-muted rounded w-4/6"></div>
             </div>
           </div>
         </div>
+        <ScrollToTopButton />
       </div>
     )
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Статья не найдена</h1>
-          <p className="text-gray-600 mb-6">Возможно, статья была удалена или никогда не существовала</p>
-          <Link 
-            href="/blog" 
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          <h1 className="text-2xl font-bold mb-2">Статья не найдена</h1>
+          <p className="text-muted-foreground mb-6">Возможно, статья была удалена или никогда не существовала</p>
+          <Link
+            href="/blog"
+            className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
           >
             К блогу
           </Link>
         </div>
+        <ScrollToTopButton />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header buildings={[]} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        {/* Навигация */}
-        <div className="mb-8">
-          <Link
-            href="/blog"
-            className="inline-flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>К блогу</span>
-          </Link>
-        </div>
+      <main className="container mx-auto px-6 py-8">
+        {/* Back button */}
+        <Link
+          href="/blog"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Назад к статьям</span>
+        </Link>
 
-        {/* Заголовок статьи */}
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-            {post.title}
-          </h1>
-
-          {post.excerpt && (
-            <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-              {post.excerpt}
-            </p>
-          )}
-
-          {/* Мета-информация */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="font-medium text-gray-900">Автор статьи</p>
-                <div className="flex items-center text-sm text-gray-500 space-x-4">
-                  <span className="flex items-center">
-                    <Calendar className="w-3 h-3 mr-1" />
-                    {formatDate(post.published_at || post.created_at)}
-                  </span>
-                  <span className="flex items-center">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {post.reading_time_minutes} мин чтения
-                  </span>
-                  <span className="flex items-center">
-                    <Eye className="w-3 h-3 mr-1" />
-                    {post.view_count} просмотров
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Социальные действия */}
-            <SocialActions
-              blogPostId={post.id}
-              blogPostTitle={post.title}
-              blogPostUrl={typeof window !== 'undefined' ? window.location.href : undefined}
-              userId={user?.id}
-              showCounts={true}
-            />
-          </div>
-        </header>
-
-        {/* Основной контент */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-          {/* Левая колонка - контент статьи */}
-          <div className="lg:col-span-2 space-y-8">
-
-            {/* Главное изображение */}
-            {post.featured_image_url && (
-              <div>
+          {/* Main content */}
+          <article className="lg:col-span-2">
+            {/* Cover image with action buttons */}
+            {post.featured_image_url ? (
+              <div className="relative mb-8">
                 <img
                   src={post.featured_image_url}
                   alt={post.title}
-                  className="w-full h-64 sm:h-80 lg:h-96 object-cover rounded-lg"
+                  className="w-full aspect-[16/9] object-cover"
+                />
+
+                {/* Action buttons overlay */}
+                <div className="absolute top-4 right-4">
+                  <SocialActions
+                    blogPostId={post.id}
+                    blogPostTitle={post.title}
+                    blogPostUrl={typeof window !== 'undefined' ? window.location.href : undefined}
+                    userId={user?.id}
+                    showCounts={false}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="mb-8 flex justify-end">
+                <SocialActions
+                  blogPostId={post.id}
+                  blogPostTitle={post.title}
+                  blogPostUrl={typeof window !== 'undefined' ? window.location.href : undefined}
+                  userId={user?.id}
+                  showCounts={false}
                 />
               </div>
             )}
 
-            {/* Контент статьи */}
-            {post.editor_version === 'blocks' && blocks.length > 0 ? (
-              <article className="space-y-6">
-                <ContentBlockRenderer blocks={blocks} />
-              </article>
-            ) : post.content ? (
-              <article className="bg-white rounded-lg shadow-sm border p-8">
-                <div dangerouslySetInnerHTML={{ __html: post.content }} />
-              </article>
-            ) : null}
+            {/* Header section */}
+            <header className="mb-8">
+              {post.category && (
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xs font-medium uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-[var(--radius)]">
+                    {post.category}
+                  </span>
+                </div>
+              )}
 
-            {/* Карта объектов из статьи */}
-            {post.editor_version === 'blocks' && blocks.length > 0 && (
-              <BlogArticleMap
-                blocks={blocks}
-                blogPostId={post.id}
-                blogPostTitle={post.title}
-              />
-            )}
+              <h1 className="text-3xl md:text-4xl font-bold mb-6 leading-tight" style={{ fontFamily: 'var(--font-outfit)' }}>
+                {post.title}
+              </h1>
+
+              {post.excerpt && (
+                <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                  {post.excerpt}
+                </p>
+              )}
+
+              <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 font-sans">
+                <div className="flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5" />
+                  <span>Автор статьи</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>{formatDate(post.published_at || post.created_at)}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>{post.reading_time_minutes} мин чтения</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Eye className="h-3.5 w-3.5" />
+                  <span>{post.view_count}</span>
+                </div>
+              </div>
+            </header>
+
+            {/* Content */}
+            <div className="space-y-12">
+              {post.editor_version === 'blocks' && blocks.length > 0 ? (
+                <>
+                  {blocks.map((block) => (
+                    <ContentBlockRenderer key={block.id} block={block} />
+                  ))}
+                </>
+              ) : post.content ? (
+                <div
+                  className="prose prose-lg max-w-none"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                />
+              ) : null}
+            </div>
 
             {/* Построение маршрута */}
             {post.editor_version === 'blocks' && blocks.length > 0 && (
-              <BlogRouteBuilder
-                blocks={blocks}
-                blogPostId={post.id}
-                blogPostTitle={post.title}
-                user={user}
-              />
+              <div className="mt-12">
+                <BlogRouteBuilder
+                  blocks={blocks}
+                  blogPostId={post.id}
+                  blogPostTitle={post.title}
+                  user={user}
+                />
+              </div>
             )}
-          </div>
+          </article>
 
-          {/* Правая колонка - статистика */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8 space-y-6">
-
-              {/* Статистика статьи */}
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">О статье</h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Время чтения:</span>
-                    <span className="font-medium">{post.reading_time_minutes} мин</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Просмотров:</span>
-                    <span className="font-medium">{post.view_count}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Опубликовано:</span>
-                    <span className="font-medium">{formatDate(post.published_at || post.created_at)}</span>
-                  </div>
+          {/* Sidebar */}
+          <aside className="lg:col-span-1 space-y-8">
+            {/* Related posts */}
+            {relatedPosts.length > 0 && (
+              <div className="bg-card border border-border p-6">
+                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: 'var(--font-outfit)' }}>Ещё из категории</h3>
+                <div className="space-y-4">
+                  {relatedPosts.map(relatedPost => (
+                    <Link
+                      key={relatedPost.id}
+                      href={`/blog/${relatedPost.slug}`}
+                      className="flex gap-4 group"
+                    >
+                      {relatedPost.featured_image_url && (
+                        <img
+                          src={relatedPost.featured_image_url}
+                          alt={relatedPost.title}
+                          className="w-20 h-20 object-cover flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                          {relatedPost.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formatDate(relatedPost.published_at || relatedPost.created_at)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </div>
+            )}
 
-            </div>
-          </div>
+            {/* Recommended posts */}
+            {recommendedPosts.length > 0 && (
+              <div className="bg-card border border-border p-6">
+                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: 'var(--font-outfit)' }}>Рекомендуем</h3>
+                <div className="space-y-4">
+                  {recommendedPosts.map(recommendedPost => (
+                    <Link
+                      key={recommendedPost.id}
+                      href={`/blog/${recommendedPost.slug}`}
+                      className="flex gap-4 group"
+                    >
+                      {recommendedPost.featured_image_url && (
+                        <img
+                          src={recommendedPost.featured_image_url}
+                          alt={recommendedPost.title}
+                          className="w-20 h-20 object-cover flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                          {recommendedPost.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formatDate(recommendedPost.published_at || recommendedPost.created_at)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </aside>
         </div>
-      </div>
+      </main>
 
       <EnhancedFooter />
+      <ScrollToTopButton />
     </div>
   )
 }

@@ -8,13 +8,16 @@ import {
   Search, 
   Plus, 
   Settings, 
-  Newspaper
+  Newspaper,
+  ChevronRight
 } from "lucide-react";
+import { useScrollEnd } from "@/hooks/use-scroll-end";
 
 const News = () => {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [contentRef, isAtEnd] = useScrollEnd(200);
   const categories = [
     { id: 'all', label: 'ВСЕ НОВОСТИ' },
     { id: 'projects', label: 'АРХИТЕКТУРНЫЕ ПРОЕКТЫ' },
@@ -148,70 +151,80 @@ const News = () => {
       <Header onViewChange={setView} currentView={view} onSearch={setSearchQuery} />
       
       <main className="container mx-auto px-6 py-8">
-        {/* Page Header */}
-        <div className="flex items-center justify-end gap-2 mb-8">
-          <Button variant="outline" className="gap-2">
-            <Settings className="h-4 w-4" />
-            Редактировать сетку
-          </Button>
-          <Button className="gap-2 bg-news-primary hover:bg-news-primary/90 text-white">
-            <Plus className="h-4 w-4" />
-            Добавить новость
-          </Button>
-        </div>
+        <div ref={contentRef}>
+          {/* Page Header */}
+          <div className="flex items-center justify-end gap-2 mb-8">
+            <Button variant="outline" className="gap-2">
+              <Settings className="h-4 w-4" />
+              Редактировать сетку
+            </Button>
+            <Button className="gap-2 bg-news-primary hover:bg-news-primary/90 text-white">
+              <Plus className="h-4 w-4" />
+              Добавить новость
+            </Button>
+          </div>
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input 
-            placeholder="Искать новости" 
-            className="pl-12 h-12 border border-border" 
-            value={searchQuery} 
-            onChange={e => setSearchQuery(e.target.value)} 
-          />
-        </div>
+          {/* Search */}
+          <div className="relative mb-6">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input 
+              placeholder="Искать новости" 
+              className="pl-12 h-12 border border-border" 
+              value={searchQuery} 
+              onChange={e => setSearchQuery(e.target.value)} 
+            />
+          </div>
 
-        {/* Category Tabs */}
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
-          <div className="flex items-center flex-1">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`px-4 py-2 text-xs font-semibold tracking-wide rounded-none transition-colors flex-1 text-center ${
-                  activeCategory === cat.id 
-                    ? 'text-news-primary border-b-2 border-news-primary' 
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {cat.label}
-              </button>
+          {/* Category Tabs */}
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
+            <div className="flex items-center flex-1">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`px-4 py-2 text-xs font-semibold tracking-wide rounded-none transition-colors flex-1 text-center ${
+                    activeCategory === cat.id 
+                      ? 'text-news-primary border-b-2 border-news-primary' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Featured News - spans full width */}
+          <div className="mb-6">
+            <NewsCard {...featuredNews} variant="horizontal" />
+          </div>
+
+          {/* News Grid - 3 columns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {newsItems.map((news) => (
+              <NewsCard key={news.id} {...news} variant="compact" />
             ))}
           </div>
-        </div>
 
-        {/* Featured News - spans full width */}
-        <div className="mb-6">
-          <NewsCard {...featuredNews} variant="horizontal" />
-        </div>
-
-        {/* News Grid - 3 columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {newsItems.map((news) => (
-            <NewsCard key={news.id} {...news} variant="compact" />
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {newsItems.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Newspaper className="h-12 w-12 text-muted-foreground" />
+          {/* Empty State */}
+          {newsItems.length === 0 && (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Newspaper className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Новостей не найдено</h3>
+              <p className="text-muted-foreground">Попробуйте изменить фильтры или поисковый запрос</p>
             </div>
-            <h3 className="text-xl font-bold mb-2">Новостей не найдено</h3>
-            <p className="text-muted-foreground">Попробуйте изменить фильтры или поисковый запрос</p>
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Next Page Button */}
+        <div className={`flex justify-center py-12 transition-opacity duration-300 ${isAtEnd ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <Button variant="outline" className="gap-2 px-8 h-12">
+            Следующая страница
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </main>
       
       <Footer />

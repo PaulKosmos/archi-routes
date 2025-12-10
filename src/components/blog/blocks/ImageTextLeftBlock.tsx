@@ -58,11 +58,11 @@ export default function ImageTextLeftBlock({ block }: ImageTextLeftBlockProps) {
             <img
               src={image.url}
               alt={image.alt || 'Изображение'}
-              className="w-full h-auto rounded-lg shadow-lg object-cover"
+              className="w-full h-auto object-cover"
               loading="lazy"
             />
             {image.caption && (
-              <figcaption className="mt-3 text-sm text-gray-600 text-center italic">
+              <figcaption className="mt-3 text-sm text-muted-foreground text-center italic">
                 {image.caption}
               </figcaption>
             )}
@@ -71,7 +71,7 @@ export default function ImageTextLeftBlock({ block }: ImageTextLeftBlockProps) {
 
         {/* Текст справа */}
         <div
-          className={`prose prose-lg ${fontSizeClass} ${alignClass} text-gray-800`}
+          className={`prose ${fontSizeClass} ${alignClass} text-foreground/90`}
           style={{ width: `${textWidth}%` }}
         >
           <div dangerouslySetInnerHTML={{ __html: content }} />

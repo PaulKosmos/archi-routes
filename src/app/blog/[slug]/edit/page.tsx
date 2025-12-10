@@ -163,13 +163,13 @@ export default function EditBlogPage() {
       const filePath = `blog-images/${fileName}`
 
       const { error: uploadError } = await supabase.storage
-        .from('uploads')
+        .from('photos')
         .upload(filePath, file)
 
       if (uploadError) throw uploadError
 
       const { data: { publicUrl } } = supabase.storage
-        .from('uploads')
+        .from('photos')
         .getPublicUrl(filePath)
 
       return publicUrl
@@ -225,7 +225,7 @@ export default function EditBlogPage() {
       const postData = {
         title,
         slug: newSlug,
-        content: null,
+        content: '{}',
         editor_version: 'blocks' as const,
         excerpt: excerpt || null,
         featured_image_url: featuredImageUrl || null,

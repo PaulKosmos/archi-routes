@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
 import { Calendar, Clock, Eye, MessageCircle } from "lucide-react";
 
 interface BlogCardProps {
+  id: number;
   image: string;
   title: string;
   description: string;
@@ -11,10 +13,11 @@ interface BlogCardProps {
   wide?: boolean;
 }
 
-export const BlogCard = ({ image, title, description, date, views, comments, readingTime = 5, wide }: BlogCardProps) => {
+export const BlogCard = ({ id, image, title, description, date, views, comments, readingTime = 5, wide }: BlogCardProps) => {
   if (wide) {
     return (
-      <article className="bg-card overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg flex flex-col md:flex-row h-full">
+      <Link to={`/blog/${id}`} className="block">
+        <article className="bg-card overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg flex flex-col md:flex-row h-full">
         <div className="relative md:w-1/2 h-48 md:h-auto overflow-hidden">
           <img 
             src={image} 
@@ -57,11 +60,13 @@ export const BlogCard = ({ image, title, description, date, views, comments, rea
           </div>
         </div>
       </article>
+      </Link>
     );
   }
 
   return (
-    <article className="bg-card overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg h-full">
+    <Link to={`/blog/${id}`} className="block h-full">
+      <article className="bg-card overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg h-full">
       <div className="relative h-48 overflow-hidden">
         <img 
           src={image} 
@@ -102,5 +107,6 @@ export const BlogCard = ({ image, title, description, date, views, comments, rea
         </div>
       </div>
     </article>
+    </Link>
   );
 };

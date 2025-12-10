@@ -11,7 +11,7 @@ import { Suspense } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Header from '@/components/Header'
 import Link from 'next/link'
-import { User, Heart, MapPin, Building2, Settings, Edit3 } from 'lucide-react'
+import { User, Heart, MapPin, Building2, Settings, Edit3, FileText } from 'lucide-react'
 
 export default function ProfilePage() {
   const { user, profile, loading } = useAuth()
@@ -176,6 +176,21 @@ export default function ProfilePage() {
             </div>
             <p className="text-gray-600 text-sm">
               Обзоры зданий, которые вы написали
+            </p>
+          </Link>
+
+          <Link
+            href="/profile/articles"
+            className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center space-x-3 mb-3">
+              <FileText className="w-6 h-6 text-indigo-600" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                Мои статьи
+              </h3>
+            </div>
+            <p className="text-gray-600 text-sm">
+              Статьи блога, которые вы создали
             </p>
           </Link>
 

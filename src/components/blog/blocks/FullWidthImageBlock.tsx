@@ -55,7 +55,7 @@ export default function FullWidthImageBlock({ block }: FullWidthImageBlockProps)
             </div>
           </div>
           {showCaption && image.caption && (
-            <figcaption className="mt-4 text-center text-sm md:text-base text-gray-600 italic max-w-4xl mx-auto px-4">
+            <figcaption className="mt-4 text-center text-sm md:text-base text-muted-foreground italic max-w-4xl mx-auto px-4">
               {image.caption}
             </figcaption>
           )}

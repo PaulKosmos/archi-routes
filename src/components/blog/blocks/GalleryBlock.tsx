@@ -75,7 +75,7 @@ export default function GalleryBlock({ block }: GalleryBlockProps) {
             {images_data.map((image, index) => (
               <figure
                 key={index}
-                className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300"
+                className="relative group cursor-pointer overflow-hidden transition-all duration-300"
                 onClick={() => openLightbox(index)}
               >
                 <div className="relative overflow-hidden bg-gray-50">
@@ -94,7 +94,7 @@ export default function GalleryBlock({ block }: GalleryBlockProps) {
                   </div>
                 </div>
                 {showCaptions && image.caption && (
-                  <figcaption className="mt-2 px-2 text-sm text-gray-600 text-center italic">
+                  <figcaption className="mt-2 px-2 text-sm text-muted-foreground text-center italic">
                     {image.caption}
                   </figcaption>
                 )}
@@ -113,7 +113,7 @@ export default function GalleryBlock({ block }: GalleryBlockProps) {
             {images_data.map((image, index) => (
               <figure
                 key={index}
-                className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 mb-4 break-inside-avoid"
+                className="relative group cursor-pointer overflow-hidden transition-all duration-300 mb-4 break-inside-avoid"
                 onClick={() => openLightbox(index)}
               >
                 <div className="relative overflow-hidden">
@@ -129,7 +129,7 @@ export default function GalleryBlock({ block }: GalleryBlockProps) {
                   </div>
                 </div>
                 {showCaptions && image.caption && (
-                  <figcaption className="mt-2 px-2 pb-2 text-sm text-gray-600 text-center italic">
+                  <figcaption className="mt-2 px-2 pb-2 text-sm text-muted-foreground text-center italic">
                     {image.caption}
                   </figcaption>
                 )}

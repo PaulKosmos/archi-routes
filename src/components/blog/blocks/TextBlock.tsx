@@ -23,14 +23,11 @@ export default function TextBlock({ block }: TextBlockProps) {
   if (!content) return null;
 
   return (
-    <div
-      className="text-block prose prose-lg max-w-none my-6 text-gray-800"
-      dangerouslySetInnerHTML={{ __html: content }}
-      style={{
-        fontFamily: 'inherit',
-        fontSize: '1rem',
-        lineHeight: '1.75',
-      }}
-    />
+    <section className="text-block">
+      <div
+        className="text-foreground/90 leading-relaxed text-base"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
+    </section>
   );
 }
