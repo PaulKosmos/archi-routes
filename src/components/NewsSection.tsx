@@ -195,7 +195,7 @@ export default function NewsSection() {
                     {getCategoryLabel(article.category)}
                   </span>
                   {article.published_at && (
-                    <div className="flex items-center space-x-1 text-xs text-gray-500">
+                    <div className="flex items-center space-x-1 text-xs text-gray-500 font-metrics">
                       <Calendar size={12} />
                       <span>{formatDate(article.published_at)}</span>
                     </div>
@@ -215,7 +215,7 @@ export default function NewsSection() {
                 )}
 
                 {/* Метаданные внизу */}
-                <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center justify-between text-xs text-gray-500 font-metrics">
                   {article.city && (
                     <div className="flex items-center space-x-1">
                       <Tag size={12} />

@@ -42,6 +42,10 @@ All colors MUST be HSL.
     --news-primary: 217 91% 60%;
     --news-primary-foreground: 0 0% 100%;
 
+    /* Podcast page theme colors */
+    --podcast-primary: 280 70% 55%;
+    --podcast-primary-foreground: 0 0% 100%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 8%;
     --sidebar-primary: 4 90% 58%;
@@ -84,6 +88,10 @@ All colors MUST be HSL.
     /* News page theme colors */
     --news-primary: 217 91% 60%;
     --news-primary-foreground: 0 0% 100%;
+
+    /* Podcast page theme colors */
+    --podcast-primary: 280 70% 55%;
+    --podcast-primary-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 8%;
     --sidebar-foreground: 0 0% 98%;

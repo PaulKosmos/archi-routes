@@ -76,7 +76,7 @@ export default function NewsObjectsMap({
   // Если нет зданий с координатами
   if (markers.length === 0) {
     return (
-      <div className={`bg-gray-50 border border-gray-200 rounded-xl p-8 text-center ${className}`}>
+      <div className={`bg-gray-50 border border-gray-200 p-8 text-center ${className}`}>
         <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
         <p className="text-gray-500 text-sm">
           Для связанных зданий не указаны координаты
@@ -115,7 +115,7 @@ export default function NewsObjectsMap({
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-xl overflow-hidden ${className}`}>
+    <div className={`bg-white border border-gray-200 overflow-hidden ${className}`}>
       {/* Заголовок */}
       <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
         <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">

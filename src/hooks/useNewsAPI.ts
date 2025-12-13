@@ -171,10 +171,8 @@ export function useNewsAPI() {
       if (filters.tags && filters.tags.length > 0) {
         query = query.overlaps('tags', filters.tags);
       }
-      if (filters.search) {
-        const searchTerm = filters.search.toLowerCase().trim();
-        query = query.or(`slug.eq.${searchTerm},slug.ilike.%${searchTerm}%,title.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
-      }
+      // Поиск теперь выполняется на клиенте (клиентская фильтрация)
+      // if (filters.search) { ... } - удалено
 
       // Сортировка
       query = query.order(sort.field, { ascending: sort.direction === 'asc' });

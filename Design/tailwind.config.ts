@@ -65,6 +65,10 @@ export default {
           primary: "hsl(var(--news-primary))",
           "primary-foreground": "hsl(var(--news-primary-foreground))",
         },
+        podcast: {
+          primary: "hsl(var(--podcast-primary))",
+          "primary-foreground": "hsl(var(--podcast-primary-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

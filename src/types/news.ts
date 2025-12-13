@@ -185,7 +185,8 @@ export interface NewsArticle {
   views_count: number;
   likes_count: number;
   shares_count: number;
-  
+  bookmarks_count: number;
+
   // Временные метки
   created_at: string;
   updated_at: string;

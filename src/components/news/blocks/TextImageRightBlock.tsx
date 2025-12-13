@@ -54,7 +54,7 @@ export default function TextImageRightBlock({ block }: TextImageRightBlockProps)
             <img
               src={image.url}
               alt={image.alt || 'Изображение'}
-              className="w-full h-auto rounded-lg shadow-md"
+              className="w-full h-auto shadow-md"
               loading="lazy"
             />
             {image.caption && (

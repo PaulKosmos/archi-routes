@@ -44,7 +44,7 @@ export default function TwoImagesBlock({ block }: TwoImagesBlockProps) {
         <img
           src={image1.url}
           alt={image1.alt || 'Изображение 1'}
-          className="w-full h-auto rounded-lg shadow-md"
+          className="w-full h-auto shadow-md"
           loading="lazy"
         />
         {image1.caption && (
@@ -59,7 +59,7 @@ export default function TwoImagesBlock({ block }: TwoImagesBlockProps) {
         <img
           src={image2.url}
           alt={image2.alt || 'Изображение 2'}
-          className="w-full h-auto rounded-lg shadow-md"
+          className="w-full h-auto shadow-md"
           loading="lazy"
         />
         {image2.caption && (

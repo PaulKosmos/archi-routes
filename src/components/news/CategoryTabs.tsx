@@ -25,56 +25,44 @@ export default function CategoryTabs({
   className = ''
 }: CategoryTabsProps) {
 
+  const handleCategoryClick = (category?: NewsCategory) => {
+    console.log('Category clicked:', category);
+    onCategoryChange(category);
+  };
+
   return (
-    <div className={`py-4 ${className}`}>
-      <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
+    <div className={`mb-6 pb-4 border-b border-border ${className}`}>
+      <div className="flex items-center justify-between overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 
         {/* Вкладка "Все новости" */}
         <button
-          onClick={() => onCategoryChange(undefined)}
-          className={`
-            flex items-center gap-2 px-1 pb-2 font-medium text-sm transition-all whitespace-nowrap border-b-2
-            ${!selectedCategory
-              ? 'text-blue-600 border-blue-600'
-              : 'text-gray-600 border-transparent hover:text-gray-900'
-            }
-          `}
+          type="button"
+          onClick={() => handleCategoryClick(undefined)}
+          className={`px-6 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap cursor-pointer border-b-2 ${
+            !selectedCategory
+              ? 'text-[hsl(var(--news-primary))] border-[hsl(var(--news-primary))]'
+              : 'text-muted-foreground border-transparent hover:text-foreground hover:border-muted-foreground/30'
+          }`}
         >
-          <span className="text-lg">📰</span>
-          <span>Все новости</span>
+          ВСЕ НОВОСТИ
         </button>
 
         {/* Вкладки категорий */}
         {NEWS_CATEGORIES.map((category) => (
           <button
+            type="button"
             key={category.value}
-            onClick={() => onCategoryChange(
-              selectedCategory === category.value ? undefined : category.value
-            )}
-            className={`
-              flex items-center gap-2 px-1 pb-2 font-medium text-sm transition-all whitespace-nowrap border-b-2
-              ${selectedCategory === category.value
-                ? 'text-blue-600 border-blue-600'
-                : 'text-gray-600 border-transparent hover:text-gray-900'
-              }
-            `}
+            onClick={() => handleCategoryClick(category.value)}
+            className={`px-6 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap cursor-pointer border-b-2 ${
+              selectedCategory === category.value
+                ? 'text-[hsl(var(--news-primary))] border-[hsl(var(--news-primary))]'
+                : 'text-muted-foreground border-transparent hover:text-foreground hover:border-muted-foreground/30'
+            }`}
           >
-            <span className="text-lg">{category.icon}</span>
-            <span>{category.label}</span>
+            {category.label.toUpperCase()}
           </button>
         ))}
       </div>
-
-      {/* Стили для скрытия scrollbar */}
-      <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </div>
   );
 }

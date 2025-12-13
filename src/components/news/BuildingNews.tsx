@@ -191,7 +191,7 @@ export default function BuildingNews({
                   </p>
                 )}
 
-                <div className="flex items-center gap-4 text-xs text-gray-500">
+                <div className="flex items-center gap-4 text-xs text-gray-500 font-metrics">
                   {article.published_at && (
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
@@ -203,7 +203,7 @@ export default function BuildingNews({
                       </span>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center gap-1">
                     <Eye className="w-3 h-3" />
                     <span>{article.views_count || 0}</span>

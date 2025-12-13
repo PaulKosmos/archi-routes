@@ -42,18 +42,25 @@ export default function TestDesignSystemPage() {
         {/* Typography Section */}
         <section className="space-y-6">
           <h2 className="text-3xl font-bold border-b-2 border-border pb-4">Typography</h2>
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Font: Sora (default sans)</p>
-              <h1 className="text-4xl font-bold">Heading 1 - Sora Bold</h1>
-              <h2 className="text-3xl font-semibold">Heading 2 - Sora Semibold</h2>
-              <h3 className="text-2xl font-medium">Heading 3 - Sora Medium</h3>
-              <p className="text-base">Body text - Sora Regular - Откройте архитектуру города</p>
-              <p className="text-sm text-muted-foreground">Small muted text - Подзаголовок</p>
+              <p className="text-sm text-muted-foreground mb-2">Font: Rubik (основной шрифт)</p>
+              <h1 className="text-4xl font-bold">Heading 1 - Rubik Bold</h1>
+              <h2 className="text-3xl font-semibold">Heading 2 - Rubik Semibold</h2>
+              <h3 className="text-2xl font-medium">Heading 3 - Rubik Medium</h3>
+              <p className="text-base">Body text - Rubik Regular - Откройте архитектуру города</p>
+              <p className="text-sm text-muted-foreground">Small muted text - Подзаголовок для контента</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Font: Outfit (display)</p>
-              <h1 className="text-4xl font-bold font-display">ArchiRoutes Display</h1>
+              <p className="text-sm text-muted-foreground mb-2">Font: Geologica (метрики и цифры)</p>
+              <div className="space-y-2">
+                <p className="text-lg font-metrics">Geologica Regular - для метрик</p>
+                <div className="flex items-center gap-4 text-sm font-metrics text-muted-foreground">
+                  <span>👁 1,234 просмотров</span>
+                  <span>💬 56 комментариев</span>
+                  <span>❤️ 89 лайков</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -136,7 +143,7 @@ export default function TestDesignSystemPage() {
                 <p className="text-muted-foreground text-sm mb-4">
                   История модернизма: от Баухауса до современности
                 </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground font-metrics">
                   <span>👁 842</span>
                   <span>💬 12</span>
                 </div>

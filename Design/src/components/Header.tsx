@@ -1,4 +1,5 @@
-import { Search, Bell, User, Building2, MapPin, Eye, Heart, Settings, LogOut, Users, FileText, Newspaper, Sparkles, Shield, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { Search, User, Building2, MapPin, Eye, Heart, Settings, LogOut, Users, FileText, Newspaper, Sparkles, Shield, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -8,14 +9,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SearchModal } from "@/components/SearchModal";
+import { NotificationsPopover } from "@/components/NotificationsPopover";
 
 interface HeaderProps {
-  onViewChange: (view: 'grid' | 'list') => void;
-  currentView: 'grid' | 'list';
-  onSearch: (query: string) => void;
+  onViewChange?: (view: 'grid' | 'list') => void;
+  currentView?: 'grid' | 'list';
+  onSearch?: (query: string) => void;
 }
 
 export const Header = ({ onViewChange, currentView, onSearch }: HeaderProps) => {
+  const [searchOpen, setSearchOpen] = useState(false);
+  
   const userStats = {
     buildings: 4,
     routes: 19,
@@ -77,20 +82,25 @@ export const Header = ({ onViewChange, currentView, onSearch }: HeaderProps) => 
             </NavLink>
             <NavLink 
               to="/podcasts" 
-              className="font-medium hover:text-primary transition-colors"
-              activeClassName="text-primary"
+              className="font-medium hover:text-podcast-primary transition-colors"
+              activeClassName="text-podcast-primary"
             >
               Подкасты
             </NavLink>
           </nav>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="hover:bg-muted">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="hover:bg-muted"
+              onClick={() => setSearchOpen(true)}
+            >
               <Search className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="hover:bg-muted">
-              <Bell className="h-5 w-5" />
-            </Button>
+            <NotificationsPopover />
+            
+            <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

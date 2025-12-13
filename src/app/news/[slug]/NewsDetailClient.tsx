@@ -1,12 +1,186 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { NewsArticleWithDetails, getNewsCategoryIcon, ContentBlock } from '@/types/news';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase';
+
+// Глобальный Set для отслеживания просмотренных новостей в текущей сессии
+const viewedNews = new Set<string>();
+
+// Компонент ScrollToTop с "убеганием" от курсора
+function ScrollToTopButton() {
+  const [isVisible, setIsVisible] = useState(false)
+  const [buttonBottom, setButtonBottom] = useState(32) // 32px = 2rem (default bottom-8)
+  const [buttonRight, setButtonRight] = useState(0) // смещение по горизонтали
+  const [isRunningAway, setIsRunningAway] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const escapeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Показываем кнопку после прокрутки 300px
+      setIsVisible(window.scrollY > 300)
+
+      // Проверяем положение футера
+      const footer = document.querySelector('footer')
+      if (footer) {
+        const footerRect = footer.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+        const buttonHeight = 48 // примерная высота кнопки
+        const spacing = 32 // отступ от футера (2rem)
+
+        // Если футер виден в viewport (его верх выше нижнего края окна)
+        if (footerRect.top < windowHeight) {
+          // Вычисляем, насколько нужно поднять кнопку
+          const overlap = windowHeight - footerRect.top
+          const newBottom = spacing + overlap
+          setButtonBottom(newBottom)
+        } else {
+          // Футер не виден - возвращаем к стандартному положению
+          setButtonBottom(spacing)
+        }
+      }
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Отслеживание позиции мыши для "убегания"
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!buttonRef.current) return
+
+      const button = buttonRef.current
+      const buttonRect = button.getBoundingClientRect()
+      const buttonCenterX = buttonRect.left + buttonRect.width / 2
+      const buttonCenterY = buttonRect.top + buttonRect.height / 2
+
+      // Вычисляем расстояние от курсора до центра кнопки
+      const distanceX = e.clientX - buttonCenterX
+      const distanceY = e.clientY - buttonCenterY
+      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+
+      // Если курсор ближе 100px - кнопка "убегает" (с задержкой)
+      const triggerDistance = 100
+
+      if (distance < triggerDistance) {
+        // Очищаем предыдущий таймер, если курсор двигается
+        if (escapeTimeoutRef.current) {
+          clearTimeout(escapeTimeoutRef.current)
+        }
+
+        // Задержка 200ms перед убеганием - дает шанс "поймать" кнопку быстрым движением
+        escapeTimeoutRef.current = setTimeout(() => {
+          setIsRunningAway(true)
+
+          // Вычисляем направление убегания (противоположное от курсора)
+          const angle = Math.atan2(distanceY, distanceX)
+          const escapeDistance = 80 // уменьшено для более плавного движения
+
+          const newRight = -Math.cos(angle) * escapeDistance
+          const newBottomOffset = -Math.sin(angle) * escapeDistance
+
+          // Получаем положение футера
+          const footer = document.querySelector('footer')
+          const windowHeight = window.innerHeight
+          const buttonHeight = 48
+
+          let maxBottom = buttonBottom + 150 // максимальная высота подъема
+
+          if (footer) {
+            const footerRect = footer.getBoundingClientRect()
+            // Вычисляем максимальную высоту, чтобы не заходить за футер
+            const footerTop = footerRect.top
+            const maxAllowedBottom = windowHeight - footerTop - buttonHeight - 32
+
+            if (maxAllowedBottom > 32) {
+              maxBottom = Math.min(maxBottom, maxAllowedBottom + buttonBottom)
+            }
+          }
+
+          // Ограничиваем перемещение
+          const maxRight = 200
+          const newBottomValue = buttonBottom + newBottomOffset
+
+          setButtonRight(Math.max(-maxRight, Math.min(maxRight, newRight)))
+          setButtonBottom(Math.max(32, Math.min(maxBottom, newBottomValue)))
+        }, 200) // задержка 200ms
+      } else if (distance > triggerDistance + 100) {
+        // Очищаем таймер убегания, если курсор отдалился
+        if (escapeTimeoutRef.current) {
+          clearTimeout(escapeTimeoutRef.current)
+          escapeTimeoutRef.current = null
+        }
+
+        // Возвращаем кнопку на место, когда курсор отдаляется
+        setIsRunningAway(false)
+        setButtonRight(0)
+
+        // Пересчитываем исходное положение относительно футера
+        const footer = document.querySelector('footer')
+        if (footer) {
+          const footerRect = footer.getBoundingClientRect()
+          const windowHeight = window.innerHeight
+          const spacing = 32
+
+          if (footerRect.top < windowHeight) {
+            const overlap = windowHeight - footerRect.top
+            setButtonBottom(spacing + overlap)
+          } else {
+            setButtonBottom(spacing)
+          }
+        }
+      }
+    }
+
+    if (isVisible) {
+      window.addEventListener('mousemove', handleMouseMove)
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove)
+        // Очищаем таймер при размонтировании
+        if (escapeTimeoutRef.current) {
+          clearTimeout(escapeTimeoutRef.current)
+        }
+      }
+    }
+  }, [isVisible, buttonBottom])
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
+
+  if (!isVisible) return null
+
+  return (
+    <button
+      ref={buttonRef}
+      type="button"
+      onClick={scrollToTop}
+      className="fixed z-[9999] p-3 bg-[hsl(var(--news-primary))] text-white rounded-full shadow-lg hover:bg-[hsl(var(--news-primary))]/90 hover:scale-110"
+      style={{
+        bottom: `${buttonBottom}px`,
+        right: `calc(50% - 640px + 2rem + ${buttonRight}px)`,
+        transition: isRunningAway
+          ? 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)' // плавное убегание с пружинящим эффектом
+          : 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)', // плавный возврат
+        willChange: 'bottom, right' // оптимизация производительности
+      }}
+      aria-label="Прокрутить наверх"
+    >
+      <ArrowLeft className="h-6 w-6 rotate-90" />
+    </button>
+  )
+}
+
 import {
   Calendar,
   Eye,
@@ -19,13 +193,12 @@ import {
   Tag,
   Edit,
   Clock,
-  Image as ImageIcon
+  Globe,
+  Share2
 } from 'lucide-react';
 import NewsStructuredData from '@/components/news/NewsStructuredData';
 import NewsBreadcrumbs, { BreadcrumbsStructuredData } from '@/components/news/NewsBreadcrumbs';
 import ContentBlockRenderer from '@/components/news/ContentBlockRenderer';
-import ShareButton from '@/components/news/ShareButton';
-import RelatedNews from '@/components/news/RelatedNews';
 import Header from '@/components/Header';
 import EnhancedFooter from '@/components/EnhancedFooter';
 import dynamic from 'next/dynamic';
@@ -33,17 +206,28 @@ import dynamic from 'next/dynamic';
 // Динамический импорт карты (только на клиенте)
 const NewsObjectsMap = dynamic(
   () => import('@/components/news/NewsObjectsMap'),
-  { ssr: false, loading: () => <div className="h-[400px] bg-gray-100 animate-pulse rounded-xl"></div> }
+  { ssr: false, loading: () => <div className="h-[400px] bg-muted animate-pulse"></div> }
 );
 
 interface NewsDetailClientProps {
   slug: string;
 }
 
+interface RelatedNewsArticle {
+  id: string;
+  title: string;
+  slug: string;
+  featured_image_url?: string;
+  published_at: string;
+  created_at: string;
+}
+
 export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
   const supabase = useMemo(() => createClient(), []);
   const [article, setArticle] = useState<NewsArticleWithDetails | null>(null);
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([]);
+  const [relatedNews, setRelatedNews] = useState<RelatedNewsArticle[]>([]);
+  const [recommendedNews, setRecommendedNews] = useState<RelatedNewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [interactionLoading, setInteractionLoading] = useState<string | null>(null);
@@ -64,15 +248,13 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
     fetchBuildings();
   }, [supabase]);
 
-  // ✅ УЛУЧШЕННАЯ ЗАГРУЗКА С ЗДАНИЯМИ
+  // Загрузка новости с зданиями и связанными новостями
   const fetchArticleWithBuildings = async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       console.log('🔍 Loading article with buildings for slug:', slug);
-      console.log('👤 Current user:', user ? user.id : 'not authenticated');
-      console.log('💼 User role:', profile?.role || 'no role');
 
       // Шаг 1: Загружаем основную новость
       let query = supabase
@@ -83,12 +265,10 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
       // Применяем фильтры статуса в зависимости от роли
       if (!user) {
         query = query.eq('status', 'published');
-        console.log('🔒 Guest filter: only published');
       } else if (['admin', 'moderator', 'editor'].includes(profile?.role || '')) {
-        console.log('👑 Admin access: no status filter');
+        // Админы видят все
       } else {
         query = query.or(`status.eq.published,and(status.eq.draft,author_id.eq.${user.id}),and(status.eq.review,author_id.eq.${user.id})`);
-        console.log('👤 User filter: published + own drafts');
       }
 
       const { data: newsData, error: newsError } = await query.single();
@@ -105,35 +285,28 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
         throw new Error('Новость не найдена');
       }
 
-      console.log('✅ Base article loaded:', newsData.title);
-
       // Проверяем права доступа к неопубликованным статьям
       if (newsData.status !== 'published') {
         const canViewDraft = user && (
           ['admin', 'moderator', 'editor'].includes(profile?.role || '') ||
           newsData.author_id === user.id
         );
-        
+
         if (!canViewDraft) {
           throw new Error('У вас нет прав для просмотра этой новости');
         }
       }
 
       // Шаг 2: Загружаем связанные здания
-      let buildings = [];
+      let buildingsData = [];
       if (newsData.related_buildings && newsData.related_buildings.length > 0) {
-        console.log('🏢 Loading related buildings:', newsData.related_buildings);
-        
-        const { data: buildingsData, error: buildingsError } = await supabase
+        const { data: buildings, error: buildingsError } = await supabase
           .from('buildings')
-          .select('id, name, architect, year_built, city, country, latitude, longitude, image_url, architectural_style') // ✅ Added latitude, longitude for map
+          .select('id, name, architect, year_built, city, country, latitude, longitude, image_url, architectural_style')
           .in('id', newsData.related_buildings);
-        
-        if (buildingsError) {
-          console.error('❌ Error loading buildings:', buildingsError);
-        } else {
-          console.log('✅ Loaded buildings:', buildingsData?.length || 0);
-          buildings = buildingsData || [];
+
+        if (!buildingsError) {
+          buildingsData = buildings || [];
         }
       }
 
@@ -145,47 +318,89 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
           .select('id, full_name, role')
           .eq('id', newsData.author_id)
           .single();
-        
+
         if (authorData) {
           author = authorData;
-          console.log('✅ Loaded author:', authorData.full_name);
         }
       }
 
       // Шаг 4: Загружаем блоки контента
-      let blocks: ContentBlock[] = [];
-      console.log('📦 Loading content blocks for article:', newsData.id);
-
-      const { data: blocksData, error: blocksError } = await supabase
+      const { data: blocksData } = await supabase
         .from('news_content_blocks')
         .select('*')
         .eq('news_id', newsData.id)
         .order('order_index', { ascending: true });
 
-      if (blocksError) {
-        console.error('❌ Error loading content blocks:', blocksError);
-      } else {
-        console.log('✅ Loaded content blocks:', blocksData?.length || 0);
-        blocks = blocksData || [];
+      setContentBlocks(blocksData || []);
+
+      // Шаг 5: Загружаем похожие новости (из той же категории)
+      if (newsData.category) {
+        const { data: related } = await supabase
+          .from('architecture_news')
+          .select('id, title, slug, featured_image_url, published_at, created_at')
+          .eq('status', 'published')
+          .eq('category', newsData.category)
+          .neq('id', newsData.id)
+          .order('published_at', { ascending: false })
+          .limit(2);
+
+        setRelatedNews(related || []);
       }
 
-      setContentBlocks(blocks);
+      // Шаг 6: Загружаем рекомендуемые новости (самые популярные)
+      const { data: recommended } = await supabase
+        .from('architecture_news')
+        .select('id, title, slug, featured_image_url, published_at, created_at')
+        .eq('status', 'published')
+        .neq('id', newsData.id)
+        .order('views_count', { ascending: false })
+        .limit(2);
 
-      // Шаг 5: Собираем полную статью
+      setRecommendedNews(recommended || []);
+
+      // Шаг 6.5: Загружаем взаимодействия пользователя (если авторизован)
+      let userInteractions = undefined;
+      if (user) {
+        const { data: interactions } = await supabase
+          .from('news_interactions')
+          .select('interaction_type')
+          .eq('news_id', newsData.id)
+          .eq('user_id', user.id);
+
+        if (interactions) {
+          userInteractions = {
+            liked: interactions.some(i => i.interaction_type === 'like'),
+            bookmarked: interactions.some(i => i.interaction_type === 'bookmark'),
+          };
+        }
+      }
+
+      // Шаг 7: Собираем полную новость
       const fullArticle: NewsArticleWithDetails = {
         ...newsData,
-        buildings,
+        buildings: buildingsData,
         author,
-        user_interactions: undefined // Загрузим отдельно если нужно
+        user_interactions: userInteractions
       };
 
-      setArticle(fullArticle);
-      console.log('✅ Full article with buildings loaded successfully');
+      // Увеличиваем счетчик просмотров (только один раз за сессию)
+      if (!viewedNews.has(newsData.id)) {
+        viewedNews.add(newsData.id);
 
-      // Записываем просмотр
-      if (user) {
-        recordView(newsData.id);
+        const newViewCount = (newsData.views_count || 0) + 1;
+        console.log(`📈 Updating view count for "${newsData.title}" from ${newsData.views_count || 0} to ${newViewCount}`);
+
+        const { error: updateError } = await supabase
+          .rpc('increment_news_views', { news_id: newsData.id });
+
+        if (updateError) {
+          console.error('❌ Error updating view count:', updateError);
+        } else {
+          newsData.views_count = newViewCount;
+        }
       }
+
+      setArticle(fullArticle);
 
     } catch (err) {
       console.error('Error fetching article:', err);
@@ -195,77 +410,87 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
     }
   };
 
-  // Запись просмотра через клиентский метод
-  const recordView = async (articleId: string) => {
-    if (!user) return;
-    
-    try {
-      await supabase
-        .from('news_interactions')
-        .upsert({
-          news_id: articleId,
-          user_id: user.id,
-          interaction_type: 'view',
-        }, {
-          onConflict: 'news_id,user_id,interaction_type'
-        });
-      
-      console.log('✅ View recorded for article:', articleId);
-    } catch (error) {
-      console.error('❌ Error recording view:', error);
-    }
-  };
-
   // Обработка взаимодействий
   const handleInteraction = async (type: 'like' | 'bookmark' | 'share') => {
-    if (!user || !article) return;
+    if (!user || !article) {
+      alert('Войдите, чтобы взаимодействовать с новостью');
+      return;
+    }
 
     try {
       setInteractionLoading(type);
 
-      const response = await fetch('/api/news/interactions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          news_id: article.id,
-          interaction_type: type,
-          metadata: type === 'share' ? { platform: 'web' } : undefined,
-        }),
-      });
+      if (type === 'like' || type === 'bookmark') {
+        // Проверяем текущее состояние
+        const isActive = type === 'like' ? article.user_interactions?.liked : article.user_interactions?.bookmarked;
 
-      if (!response.ok) {
-        throw new Error('Ошибка взаимодействия');
+        if (isActive) {
+          // Убираем взаимодействие
+          const { error } = await supabase
+            .from('news_interactions')
+            .delete()
+            .eq('news_id', article.id)
+            .eq('user_id', user.id)
+            .eq('interaction_type', type);
+
+          if (error) throw error;
+
+          // Обновляем локальное состояние
+          setArticle(prev => prev ? {
+            ...prev,
+            user_interactions: {
+              ...prev.user_interactions,
+              ...(type === 'like' ? { liked: false } : { bookmarked: false })
+            },
+            likes_count: type === 'like' ? Math.max(0, (prev.likes_count || 0) - 1) : prev.likes_count,
+            bookmarks_count: type === 'bookmark' ? Math.max(0, (prev.bookmarks_count || 0) - 1) : prev.bookmarks_count
+          } : null);
+        } else {
+          // Добавляем взаимодействие
+          const { error } = await supabase
+            .from('news_interactions')
+            .insert({
+              news_id: article.id,
+              user_id: user.id,
+              interaction_type: type
+            });
+
+          if (error) throw error;
+
+          // Обновляем локальное состояние
+          setArticle(prev => prev ? {
+            ...prev,
+            user_interactions: {
+              ...prev.user_interactions,
+              ...(type === 'like' ? { liked: true } : { bookmarked: true })
+            },
+            likes_count: type === 'like' ? (prev.likes_count || 0) + 1 : prev.likes_count,
+            bookmarks_count: type === 'bookmark' ? (prev.bookmarks_count || 0) + 1 : prev.bookmarks_count
+          } : null);
+        }
+      } else if (type === 'share') {
+        // Добавляем взаимодействие share
+        const { error } = await supabase
+          .from('news_interactions')
+          .insert({
+            news_id: article.id,
+            user_id: user.id,
+            interaction_type: 'share'
+          });
+
+        if (error) throw error;
+
+        // Обновляем счетчик shares
+        setArticle(prev => prev ? {
+          ...prev,
+          shares_count: (prev.shares_count || 0) + 1
+        } : null);
       }
 
-      const result = await response.json();
-
-      // Обновляем состояние статьи
-      setArticle(prev => {
-        if (!prev) return prev;
-        
-        const newUserInteractions = { ...prev.user_interactions };
-        const newArticle = { ...prev };
-
-        if (type === 'like') {
-          newUserInteractions.liked = !result.removed;
-          newArticle.likes_count += result.removed ? -1 : 1;
-        } else if (type === 'bookmark') {
-          newUserInteractions.bookmarked = !result.removed;
-        } else if (type === 'share') {
-          newUserInteractions.shared = true;
-          newArticle.shares_count += 1;
-        }
-
-        return {
-          ...newArticle,
-          user_interactions: newUserInteractions,
-        };
-      });
 
     } catch (error) {
       console.error('Ошибка взаимодействия:', error);
+      alert('Произошла ошибка. Попробуйте еще раз.');
     } finally {
       setInteractionLoading(null);
     }
@@ -276,10 +501,21 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
     return new Date(dateString).toLocaleDateString('ru-RU', {
       day: 'numeric',
       month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric'
     });
+  };
+
+  // Получение названия категории
+  const getCategoryName = (category?: string) => {
+    const categories: Record<string, string> = {
+      'projects': 'Архитектурные проекты',
+      'events': 'События',
+      'personalities': 'Персоналии',
+      'trends': 'Тренды',
+      'planning': 'Городское планирование',
+      'heritage': 'Наследие'
+    };
+    return category ? categories[category] || category : '';
   };
 
   // Проверка прав на редактирование
@@ -290,56 +526,44 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
 
   useEffect(() => {
     if (initialized) {
-      console.log('🚀 Auth initialized, fetching article with buildings...');
       fetchArticleWithBuildings();
-    } else {
-      console.log('⏳ Waiting for auth initialization...');
     }
   }, [slug, initialized, user, profile]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded mb-4 w-1/4"></div>
-            <div className="h-12 bg-gray-200 rounded mb-6"></div>
-            <div className="h-64 bg-gray-200 rounded mb-6"></div>
+      <div className="min-h-screen bg-background">
+        <Header buildings={[]} />
+        <div className="container mx-auto px-6 py-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-muted w-3/4"></div>
+            <div className="h-64 bg-muted"></div>
             <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-              <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+              <div className="h-4 bg-muted w-full"></div>
+              <div className="h-4 bg-muted w-5/6"></div>
+              <div className="h-4 bg-muted w-4/6"></div>
             </div>
           </div>
         </div>
+        <ScrollToTopButton />
       </div>
     );
   }
 
   if (error || !article) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="text-center">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-              <p className="text-red-600 mb-4">{error || 'Новость не найдена'}</p>
-              <div className="space-y-2">
-                <button
-                  onClick={() => router.back()}
-                  className="block w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  Назад
-                </button>
-                <Link
-                  href="/news"
-                  className="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-center"
-                >
-                  Все новости
-                </Link>
-              </div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Новость не найдена</h1>
+          <p className="text-muted-foreground mb-6">{error || 'Возможно, новость была удалена или никогда не существовала'}</p>
+          <Link
+            href="/news"
+            className="inline-flex items-center justify-center px-6 py-3 bg-[hsl(var(--news-primary))] text-white hover:bg-[hsl(var(--news-primary))]/90 transition-colors"
+          >
+            К новостям
+          </Link>
         </div>
+        <ScrollToTopButton />
       </div>
     );
   }
@@ -350,362 +574,343 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
       <NewsStructuredData article={article} />
       <BreadcrumbsStructuredData article={article} />
 
-      <div className="min-h-screen bg-gray-50">
-        {/* Sticky Header */}
+      <div className="min-h-screen bg-background">
         <Header buildings={buildings} />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      
-      {/* Хлебные крошки */}
-        <NewsBreadcrumbs article={article} className="mb-4" />
-        
-        {/* Навигация */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+        <main className="container mx-auto px-6 py-8">
+          {/* Back button */}
+          <Link
+            href="/news"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Назад
-          </button>
+            <ArrowLeft className="h-4 w-4" />
+            <span>Назад к новостям</span>
+          </Link>
 
-          <div className="flex items-center gap-2">
-            <Link
-              href="/news"
-              className="text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              Все новости
-            </Link>
-            
-            {canEdit && (
-              <Link
-                href={`/admin/news/${article.id}/edit`}
-                className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200 transition-colors"
-              >
-                <Edit className="w-4 h-4" />
-                Редактировать
-              </Link>
-            )}
-          </div>
-        </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main content */}
+            <article className="lg:col-span-2">
+              {/* Cover image with action buttons */}
+              {article.featured_image_url ? (
+                <div className="relative mb-8">
+                  <img
+                    src={article.featured_image_url}
+                    alt={article.title}
+                    className="w-full aspect-[16/9] object-cover"
+                  />
 
-        {/* Основной контент */}
-        <article className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          
-          {/* Главное изображение */}
-          {article.featured_image_url && (
-            <div className="relative h-96 overflow-hidden">
-              <Image
-                src={article.featured_image_url}
-                alt={article.featured_image_alt || article.title}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-              />
-              
-              {/* Категория */}
-              <div className="absolute top-4 left-4">
-                <span className="bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <span className="text-lg">{getNewsCategoryIcon(article.category)}</span>
-                  {article.category === 'projects' && 'Архитектурные проекты'}
-                  {article.category === 'events' && 'События'}
-                  {article.category === 'personalities' && 'Персоналии'}
-                  {article.category === 'trends' && 'Тренды'}
-                  {article.category === 'planning' && 'Городское планирование'}
-                  {article.category === 'heritage' && 'Наследие'}
-                </span>
-              </div>
+                  {/* Featured badge */}
+                  {article.featured && (
+                    <span className="absolute top-3 left-3 bg-orange-500 text-white px-3 py-1 text-xs font-medium border-0 rounded-full">
+                      Главная новость
+                    </span>
+                  )}
 
-              {/* Featured метка */}
-              {article.featured && (
-                <div className="absolute top-4 right-4">
-                  <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-2 rounded-full text-sm font-medium">
-                    ⭐ Главная новость
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="p-8">
-            
-            {/* Заголовок */}
-            <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-              {article.title}
-            </h1>
-
-            {/* Краткое описание */}
-            {article.summary && (
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-                {article.summary}
-              </p>
-            )}
-
-            {/* Метаданные */}
-            <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-6 pb-6 border-b border-gray-200">
-              {/* Статус новости */}
-              {article.status !== 'published' && (
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    article.status === 'draft' ? 'bg-gray-100 text-gray-700' :
-                    article.status === 'review' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-red-100 text-red-700'
-                  }`}>
-                    {article.status === 'draft' && 'Черновик'}
-                    {article.status === 'review' && 'На модерации'}
-                    {article.status === 'archived' && 'Архивировано'}
-                  </span>
-                </div>
-              )}
-              
-              {article.published_at && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>{formatDate(article.published_at)}</span>
-                </div>
-              )}
-
-              {article.created_at && !article.published_at && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>Создано: {formatDate(article.created_at)}</span>
-                </div>
-              )}
-
-              {article.author && (
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  <span>{article.author.full_name}</span>
-                </div>
-              )}
-
-              {article.city && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>{article.city}</span>
-                </div>
-              )}
-
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>~{Math.max(1, Math.round(article.content.length / 1000))} мин чтения</span>
-              </div>
-            </div>
-
-            {/* Взаимодействия */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-4">
-
-                {/* Лайк */}
-                <button
-                  onClick={() => handleInteraction('like')}
-                  disabled={!user || interactionLoading === 'like'}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    article.user_interactions?.liked
-                      ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  } disabled:opacity-50`}
-                >
-                  <Heart className={`w-4 h-4 ${article.user_interactions?.liked ? 'fill-current' : ''}`} />
-                  <span>{article.likes_count || 0}</span>
-                </button>
-
-                {/* Закладка */}
-                <button
-                  onClick={() => handleInteraction('bookmark')}
-                  disabled={!user || interactionLoading === 'bookmark'}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    article.user_interactions?.bookmarked
-                      ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  } disabled:opacity-50`}
-                >
-                  <Bookmark className={`w-4 h-4 ${article.user_interactions?.bookmarked ? 'fill-current' : ''}`} />
-                  <span>В закладки</span>
-                </button>
-
-                {/* Поделиться - используем новый ShareButton */}
-                <ShareButton
-                  article={article}
-                  onShare={() => handleInteraction('share')}
-                  variant="default"
-                />
-              </div>
-
-              {/* Просмотры */}
-              <div className="flex items-center gap-2 text-gray-500">
-                <Eye className="w-4 h-4" />
-                <span>{article.views_count || 0} просмотров</span>
-              </div>
-            </div>
-
-            {/* Основной контент */}
-            {contentBlocks.length > 0 ? (
-              // Используем новую систему блоков контента
-              <div className="mb-8 space-y-6">
-                {contentBlocks.map((block) => (
-                  <ContentBlockRenderer key={block.id} block={block} />
-                ))}
-              </div>
-            ) : (
-              // Fallback на старый формат для статей без блоков
-              <>
-                <div className="prose prose-lg max-w-none mb-8">
-                  {article.content.split('\n').map((paragraph, index) => (
-                    paragraph.trim() && (
-                      <p key={index} className="mb-4 text-gray-700 leading-relaxed">
-                        {paragraph}
-                      </p>
-                    )
-                  ))}
-                </div>
-
-                {/* Галерея изображений (старый формат) */}
-                {article.gallery_images && article.gallery_images.length > 0 && (
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <ImageIcon className="w-5 h-5" />
-                      Галерея изображений
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {article.gallery_images.map((imageUrl, index) => (
-                        <div key={index} className="relative aspect-video rounded-lg overflow-hidden group cursor-pointer">
-                          <Image
-                            src={imageUrl}
-                            alt={`Изображение ${index + 1} к статье`}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            onClick={() => window.open(imageUrl, '_blank')}
-                          />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded-full p-2">
-                              <Eye className="w-5 h-5 text-gray-700" />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  {/* Action buttons overlay */}
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    <button
+                      onClick={() => handleInteraction('like')}
+                      disabled={!user || interactionLoading === 'like'}
+                      className={`p-3 rounded backdrop-blur-md transition-all ${
+                        article.user_interactions?.liked
+                          ? 'bg-[hsl(var(--news-primary))] text-white'
+                          : 'bg-white/90 text-gray-700 hover:bg-white'
+                      } disabled:opacity-50`}
+                      title="Нравится"
+                    >
+                      <Heart className={`h-5 w-5 ${article.user_interactions?.liked ? 'fill-current' : ''}`} />
+                    </button>
+                    <button
+                      onClick={() => handleInteraction('bookmark')}
+                      disabled={!user || interactionLoading === 'bookmark'}
+                      className={`p-3 rounded backdrop-blur-md transition-all ${
+                        article.user_interactions?.bookmarked
+                          ? 'bg-[hsl(var(--news-primary))] text-white'
+                          : 'bg-white/90 text-gray-700 hover:bg-white'
+                      } disabled:opacity-50`}
+                      title="В закладки"
+                    >
+                      <Bookmark className={`h-5 w-5 ${article.user_interactions?.bookmarked ? 'fill-current' : ''}`} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (navigator.share) {
+                          navigator.share({
+                            title: article.title,
+                            text: article.summary || article.title,
+                            url: window.location.href
+                          });
+                        }
+                        handleInteraction('share');
+                      }}
+                      disabled={!user || interactionLoading === 'share'}
+                      className="p-3 rounded bg-white/90 backdrop-blur-md text-gray-700 hover:bg-white transition-all disabled:opacity-50"
+                      title="Поделиться"
+                    >
+                      <Share2 className="h-5 w-5" />
+                    </button>
                   </div>
-                )}
-              </>
-            )}
+                </div>
+              ) : (
+                <div className="mb-8 flex justify-end gap-2">
+                  <button
+                    onClick={() => handleInteraction('like')}
+                    disabled={!user || interactionLoading === 'like'}
+                    className={`p-3 rounded transition-all ${
+                      article.user_interactions?.liked
+                        ? 'bg-[hsl(var(--news-primary))] text-white'
+                        : 'bg-card border border-border text-foreground hover:bg-muted'
+                    } disabled:opacity-50`}
+                  >
+                    <Heart className={`h-5 w-5 ${article.user_interactions?.liked ? 'fill-current' : ''}`} />
+                  </button>
+                  <button
+                    onClick={() => handleInteraction('bookmark')}
+                    disabled={!user || interactionLoading === 'bookmark'}
+                    className={`p-3 rounded transition-all ${
+                      article.user_interactions?.bookmarked
+                        ? 'bg-[hsl(var(--news-primary))] text-white'
+                        : 'bg-card border border-border text-foreground hover:bg-muted'
+                    } disabled:opacity-50`}
+                  >
+                    <Bookmark className={`h-5 w-5 ${article.user_interactions?.bookmarked ? 'fill-current' : ''}`} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: article.title,
+                          text: article.summary || article.title,
+                          url: window.location.href
+                        });
+                      }
+                      handleInteraction('share');
+                    }}
+                    disabled={!user || interactionLoading === 'share'}
+                    className="p-3 rounded bg-card border border-border text-foreground hover:bg-muted transition-all disabled:opacity-50"
+                  >
+                    <Share2 className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
 
-            {/* Связанные здания */}
-            {article.buildings && article.buildings.length > 0 && (
-              <div className="mb-8 space-y-6">
-                {/* Список зданий */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Building2 className="w-5 h-5" />
-                    Упоминаемые здания ({article.buildings.length})
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Header section */}
+              <header className="mb-8">
+                <div className="flex items-center gap-2 mb-4">
+                  {article.category && (
+                    <span className="text-xs font-medium uppercase tracking-wider text-[hsl(var(--news-primary))] bg-[hsl(var(--news-primary))]/10 px-3 py-1 rounded-[var(--radius)]">
+                      {getCategoryName(article.category)}
+                    </span>
+                  )}
+                  {article.featured && (
+                    <span className="text-xs font-medium uppercase tracking-wider bg-orange-500 text-white px-3 py-1 rounded-[var(--radius)]">
+                      Главная новость
+                    </span>
+                  )}
+                  {canEdit && (
+                    <Link
+                      href={`/admin/news/${article.id}/edit`}
+                      className="ml-auto flex items-center gap-1 px-3 py-1 text-xs bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors"
+                    >
+                      <Edit className="w-3 h-3" />
+                      Редактировать
+                    </Link>
+                  )}
+                </div>
+
+                <h1 className="text-3xl md:text-4xl font-bold mb-6 leading-tight font-display">
+                  {article.title}
+                </h1>
+
+                {article.summary && (
+                  <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                    {article.summary}
+                  </p>
+                )}
+
+                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground font-metrics">
+                  {article.author && (
+                    <div className="flex items-center gap-1.5">
+                      <User className="h-3.5 w-3.5" />
+                      <span>{article.author.full_name}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>{formatDate(article.published_at || article.created_at)}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>{Math.max(1, Math.round(article.content.length / 1000))} мин чтения</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Eye className="h-3.5 w-3.5" />
+                    <span>{article.views_count || 0}</span>
+                  </div>
+                  {article.city && (
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5" />
+                      <span>{article.city}{article.country && `, ${article.country}`}</span>
+                    </div>
+                  )}
+                </div>
+              </header>
+
+              {/* Content */}
+              <div className="space-y-12">
+                {contentBlocks.length > 0 ? (
+                  <>
+                    {contentBlocks.map((block) => (
+                      <ContentBlockRenderer key={block.id} block={block} />
+                    ))}
+                  </>
+                ) : article.content ? (
+                  <div className="prose prose-lg max-w-none">
+                    {article.content.split('\n').map((paragraph, index) => (
+                      paragraph.trim() && (
+                        <p key={index} className="mb-4 leading-relaxed">
+                          {paragraph}
+                        </p>
+                      )
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Связанные здания */}
+              {article.buildings && article.buildings.length > 0 && (
+                <div className="mt-12">
+                  <h3 className="text-lg font-bold mb-6 font-display">Упоминаемые здания</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {article.buildings.map((building) => (
                       <Link
                         key={building.id}
                         href={`/buildings/${building.id}`}
-                        className="flex items-start gap-4 p-4 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 group transform hover:-translate-y-1 hover:shadow-md"
+                        className="flex gap-4 bg-card border border-border p-4 group hover:bg-muted transition-colors"
                       >
                         {building.image_url && (
-                          <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                            <Image
-                              src={building.image_url}
-                              alt={building.name}
-                              fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-300"
-                              sizes="80px"
-                            />
-                          </div>
+                          <img
+                            src={building.image_url}
+                            alt={building.name}
+                            className="w-20 h-20 object-cover flex-shrink-0"
+                          />
                         )}
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm line-clamp-2 group-hover:text-[hsl(var(--news-primary))] transition-colors mb-1">
                             {building.name}
                           </h4>
                           {building.architect && (
-                            <p className="text-sm text-gray-600 mb-1">
-                              Архитектор: {building.architect}
+                            <p className="text-xs text-muted-foreground mb-1">
+                              {building.architect}
                             </p>
                           )}
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            {building.year_built && (
-                              <span>{building.year_built} г.</span>
-                            )}
-                            {building.city && (
-                              <span className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3" />
-                                {building.city}
-                              </span>
-                            )}
-                            {building.architectural_style && (
-                              <span className="bg-gray-100 px-2 py-0.5 rounded text-xs">
-                                {building.architectural_style}
-                              </span>
-                            )}
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            {building.year_built && <span>{building.year_built}</span>}
+                            {building.city && <span>{building.city}</span>}
                           </div>
                         </div>
                       </Link>
                     ))}
                   </div>
+
+                  {/* Карта со зданиями */}
+                  <NewsObjectsMap
+                    buildings={article.buildings}
+                    onBuildingClick={(buildingId) => router.push(`/buildings/${buildingId}`)}
+                  />
                 </div>
+              )}
 
-                {/* Карта со зданиями */}
-                <NewsObjectsMap
-                  buildings={article.buildings}
-                  onBuildingClick={(buildingId) => router.push(`/buildings/${buildingId}`)}
-                />
-              </div>
-            )}
-
-            {/* Теги */}
-            {article.tags && article.tags.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <Tag className="w-5 h-5" />
-                  Теги
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {article.tags.map((tag, index) => (
-                    <Link
-                      key={index}
-                      href={`/news?tags=${encodeURIComponent(tag)}`}
-                      className="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors transform hover:scale-105"
-                    >
-                      #{tag}
-                    </Link>
-                  ))}
+              {/* Теги */}
+              {article.tags && article.tags.length > 0 && (
+                <div className="mt-12">
+                  <h3 className="text-lg font-bold mb-4 font-display">Теги</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {article.tags.map((tag, index) => (
+                      <Link
+                        key={index}
+                        href={`/news?tags=${encodeURIComponent(tag)}`}
+                        className="text-xs px-3 py-1 bg-[hsl(var(--news-primary))]/10 text-[hsl(var(--news-primary))] rounded-full hover:bg-[hsl(var(--news-primary))]/20 transition-colors"
+                      >
+                        #{tag}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </article>
 
+            {/* Sidebar */}
+            <aside className="lg:col-span-1 space-y-8">
+              {/* Related news */}
+              {relatedNews.length > 0 && (
+                <div className="bg-card border border-border p-6">
+                  <h3 className="text-lg font-bold mb-4 font-display">Ещё из категории</h3>
+                  <div className="space-y-4">
+                    {relatedNews.map(news => (
+                      <Link
+                        key={news.id}
+                        href={`/news/${news.slug}`}
+                        className="flex gap-4 group"
+                      >
+                        {news.featured_image_url && (
+                          <img
+                            src={news.featured_image_url}
+                            alt={news.title}
+                            className="w-20 h-20 object-cover flex-shrink-0"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm line-clamp-2 group-hover:text-[hsl(var(--news-primary))] transition-colors">
+                            {news.title}
+                          </h4>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatDate(news.published_at || news.created_at)}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recommended news */}
+              {recommendedNews.length > 0 && (
+                <div className="bg-card border border-border p-6">
+                  <h3 className="text-lg font-bold mb-4 font-display">Рекомендуем</h3>
+                  <div className="space-y-4">
+                    {recommendedNews.map(news => (
+                      <Link
+                        key={news.id}
+                        href={`/news/${news.slug}`}
+                        className="flex gap-4 group"
+                      >
+                        {news.featured_image_url && (
+                          <img
+                            src={news.featured_image_url}
+                            alt={news.title}
+                            className="w-20 h-20 object-cover flex-shrink-0"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm line-clamp-2 group-hover:text-[hsl(var(--news-primary))] transition-colors">
+                            {news.title}
+                          </h4>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatDate(news.published_at || news.created_at)}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </aside>
           </div>
-        </article>
+        </main>
 
-        {/* Похожие новости */}
-        <div className="mt-8">
-          <RelatedNews
-            newsId={article.id}
-            limit={6}
-            title="Похожие новости"
-          />
-        </div>
-
-        {/* Навигация между статьями */}
-        <div className="mt-8 flex justify-center">
-          <Link
-            href="/news"
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Все новости
-          </Link>
-        </div>
-
-        </div>
-
-        {/* Footer */}
         <EnhancedFooter />
+        <ScrollToTopButton />
       </div>
     </>
   );

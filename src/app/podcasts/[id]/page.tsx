@@ -138,26 +138,24 @@ export default function PodcastEpisodePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 flex items-center justify-center">
-        <Loader2 className="animate-spin text-purple-600" size={40} />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="animate-spin text-[hsl(var(--podcast-primary))]" size={40} />
       </div>
     )
   }
 
   if (error || !episode) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+      <div className="min-h-screen bg-background">
         <Header buildings={buildings} />
-        <main className="py-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <Link href="/podcasts" className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8">
-              <ArrowLeft size={20} />
-              Вернуться к подкастам
-            </Link>
+        <main className="container mx-auto px-6 py-8">
+          <Link href="/podcasts" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8">
+            <ArrowLeft size={20} />
+            Вернуться к подкастам
+          </Link>
 
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-              <p className="text-red-800 font-semibold">{error || 'Эпизод не найден'}</p>
-            </div>
+          <div className="bg-destructive/10 border-2 border-destructive p-6 text-center">
+            <p className="text-destructive font-semibold">{error || 'Эпизод не найден'}</p>
           </div>
         </main>
         <EnhancedFooter />
@@ -176,34 +174,25 @@ export default function PodcastEpisodePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-background">
       <Header buildings={buildings} />
 
-      <main>
-        <article className="py-12 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            {/* Back button and Edit button */}
-            <div className="flex items-center justify-between mb-8">
-              <Link href="/podcasts" className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 group">
-                <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                Вернуться к подкастам
-              </Link>
+      <main className="container mx-auto px-6 py-8">
+        {/* Back button */}
+        <Link
+          href="/podcasts"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Назад к подкастам</span>
+        </Link>
 
-              {/* Edit button - Admin/Moderator only */}
-              {canManagePodcasts && (
-                <Link
-                  href={`/podcasts/${episodeId}/edit`}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors"
-                >
-                  <Edit size={18} />
-                  Редактировать
-                </Link>
-              )}
-            </div>
-
-            {/* Hero section with cover image */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main content */}
+          <article className="lg:col-span-2">
+            {/* Cover image */}
             <div className="mb-8">
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-purple-200 to-blue-200 shadow-xl">
+              <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-purple-200 to-blue-200">
                 {episode.cover_image_url ? (
                   <Image
                     src={getStorageUrl(episode.cover_image_url, 'podcasts')}
@@ -222,37 +211,39 @@ export default function PodcastEpisodePage() {
 
                 {/* Episode number badge */}
                 {episode.episode_number && (
-                  <div className="absolute top-4 right-4 bg-purple-600 text-white px-4 py-2 rounded-full font-bold shadow-lg">
+                  <div className="absolute top-4 right-4 bg-[hsl(var(--podcast-primary))] text-white px-4 py-2 rounded-[var(--radius)] font-bold shadow-lg">
                     Выпуск #{episode.episode_number}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Title and metadata */}
-            <div className="mb-8">
+            {/* Header section */}
+            <header className="mb-8">
               {episode.series && (
-                <Link href="/podcasts" className="text-purple-600 font-semibold text-sm uppercase tracking-wide hover:text-purple-700 mb-2">
-                  {episode.series.title}
-                </Link>
+                <div className="flex items-center gap-2 mb-4">
+                  <Link href="/podcasts" className="text-xs font-medium uppercase tracking-wider text-[hsl(var(--podcast-primary))] bg-[hsl(var(--podcast-primary))]/10 px-3 py-1 rounded-[var(--radius)] hover:bg-[hsl(var(--podcast-primary))]/20 transition-colors">
+                    {episode.series.title}
+                  </Link>
+                </div>
               )}
 
-              <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+              <h1 className="text-3xl md:text-4xl font-bold font-display mb-6 leading-tight text-foreground">
                 {episode.title}
               </h1>
 
               {/* Metadata row */}
-              <div className="flex flex-wrap gap-6 text-sm text-gray-600 mb-6">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground font-metrics">
                 {episode.published_at && (
-                  <div className="flex items-center gap-2">
-                    <Calendar size={18} className="text-purple-600" />
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5" />
                     <span>{formatDate(episode.published_at)}</span>
                   </div>
                 )}
 
                 {episode.duration_seconds && (
-                  <div className="flex items-center gap-2">
-                    <Clock size={18} className="text-purple-600" />
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5" />
                     <span>
                       {Math.floor(episode.duration_seconds / 60)}:{(episode.duration_seconds % 60).toString().padStart(2, '0')}
                     </span>
@@ -260,13 +251,13 @@ export default function PodcastEpisodePage() {
                 )}
 
                 {episode.author && (
-                  <div className="flex items-center gap-2">
-                    <User size={18} className="text-purple-600" />
+                  <div className="flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5" />
                     <span>{episode.author.full_name || episode.author.display_name}</span>
                   </div>
                 )}
               </div>
-            </div>
+            </header>
 
             {/* Audio player */}
             <div className="mb-8">
@@ -274,21 +265,20 @@ export default function PodcastEpisodePage() {
                 audioUrl={getStorageUrl(episode.audio_url, 'podcasts')}
                 title={episode.title}
                 duration={episode.duration_seconds}
-                className="lg:col-span-2"
               />
             </div>
 
             {/* Platform Links */}
-            <div className="mb-12">
+            <div className="mb-8">
               <PodcastPlatformLinks episode={episode} size={28} />
             </div>
 
             {/* Description */}
             {episode.description && (
-              <div className="mb-12 bg-white rounded-lg p-8 border border-gray-200">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Описание</h2>
+              <div className="mb-8 bg-card border border-border p-8">
+                <h2 className="text-2xl font-bold text-foreground mb-4">Описание</h2>
                 <div className="prose prose-lg max-w-none">
-                  <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
                     {episode.description}
                   </p>
                 </div>
@@ -297,14 +287,14 @@ export default function PodcastEpisodePage() {
 
             {/* Tags */}
             {episode.tags && episode.tags.length > 0 && (
-              <div className="mb-12">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Теги</h2>
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-foreground mb-4">Теги</h2>
                 <div className="flex flex-wrap gap-3">
                   {episode.tags.map(tag => (
                     <Link
                       key={tag.id}
                       href={`/podcasts?tags=${tag.slug}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-full font-medium hover:bg-purple-100 transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-[hsl(var(--podcast-primary))]/10 text-[hsl(var(--podcast-primary))] rounded-[var(--radius)] font-medium hover:bg-[hsl(var(--podcast-primary))]/20 transition-colors"
                     >
                       <Tag size={16} />
                       {tag.name}
@@ -314,45 +304,59 @@ export default function PodcastEpisodePage() {
               </div>
             )}
 
+          </article>
+
+          {/* Sidebar */}
+          <aside className="lg:col-span-1 space-y-8">
+            {/* Edit button - Admin/Moderator only */}
+            {canManagePodcasts && (
+              <div className="bg-card border border-border p-6">
+                <Link
+                  href={`/podcasts/${episodeId}/edit`}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-[hsl(var(--podcast-primary))] text-white font-semibold rounded-[var(--radius)] hover:bg-[hsl(var(--podcast-primary))]/90 transition-colors w-full"
+                >
+                  <Edit size={18} />
+                  Редактировать
+                </Link>
+              </div>
+            )}
+
             {/* Related episodes */}
             {relatedEpisodes.length > 0 && (
-              <div className="border-t border-gray-200 pt-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-8">Еще в этой серии</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-card border border-border p-6">
+                <h2 className="text-lg font-bold text-foreground mb-4">Еще в этой серии</h2>
+                <div className="space-y-4">
                   {relatedEpisodes.map(relatedEpisode => (
                     <Link
                       key={relatedEpisode.id}
                       href={`/podcasts/${relatedEpisode.id}`}
-                      className="group bg-white rounded-lg overflow-hidden hover:shadow-lg transition-all border border-gray-200"
+                      className="group flex gap-3 hover:bg-muted/50 p-2 -m-2 rounded transition-colors"
                     >
-                      <div className="relative w-full aspect-video bg-gradient-to-br from-purple-200 to-blue-200">
+                      <div className="relative w-20 h-20 flex-shrink-0 bg-gradient-to-br from-purple-200 to-blue-200">
                         {relatedEpisode.cover_image_url && (
                           <Image
                             src={getStorageUrl(relatedEpisode.cover_image_url, 'podcasts')}
                             alt={relatedEpisode.title}
                             fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="object-cover"
                           />
                         )}
                       </div>
-                      <div className="p-4">
+                      <div className="flex-1 min-w-0">
                         {relatedEpisode.episode_number && (
-                          <p className="text-xs font-bold text-purple-600 mb-2">
+                          <p className="text-xs font-bold text-[hsl(var(--podcast-primary))] mb-1">
                             EP. {relatedEpisode.episode_number}
                           </p>
                         )}
-                        <h3 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-2 mb-2">
+                        <h3 className="font-semibold text-foreground group-hover:text-[hsl(var(--podcast-primary))] transition-colors line-clamp-2 text-sm mb-1">
                           {relatedEpisode.title}
                         </h3>
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground font-metrics">
                           {relatedEpisode.duration_seconds && (
                             <div className="flex items-center gap-1">
-                              <Clock size={14} />
+                              <Clock size={12} />
                               <span>{Math.floor(relatedEpisode.duration_seconds / 60)} мин</span>
                             </div>
-                          )}
-                          {relatedEpisode.published_at && (
-                            <span>{formatDate(relatedEpisode.published_at)}</span>
                           )}
                         </div>
                       </div>
@@ -361,8 +365,23 @@ export default function PodcastEpisodePage() {
                 </div>
               </div>
             )}
-          </div>
-        </article>
+
+            {/* About this series */}
+            {episode.series && (
+              <div className="bg-card border border-border p-6">
+                <h2 className="text-lg font-bold text-foreground mb-4">О серии</h2>
+                <h3 className="font-semibold text-[hsl(var(--podcast-primary))] mb-2">
+                  {episode.series.title}
+                </h3>
+                {episode.series.description && (
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {episode.series.description}
+                  </p>
+                )}
+              </div>
+            )}
+          </aside>
+        </div>
       </main>
 
       <EnhancedFooter />

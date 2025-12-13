@@ -248,7 +248,21 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                         className="block text-foreground hover:text-primary font-medium transition-colors"
                         onClick={() => setShowMobileMenu(false)}
                       >
-                        Избранное
+                        Избранные маршруты
+                      </a>
+                      <a
+                        href="/profile/liked-blogs"
+                        className="block text-foreground hover:text-primary font-medium transition-colors"
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Избранные блоги
+                      </a>
+                      <a
+                        href="/profile/saved-blogs"
+                        className="block text-foreground hover:text-primary font-medium transition-colors"
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Сохраненные блоги
                       </a>
                     </div>
                   </div>

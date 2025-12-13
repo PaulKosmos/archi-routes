@@ -220,10 +220,9 @@ const News = () => {
 
         {/* Next Page Button */}
         <div className={`flex justify-center py-12 transition-opacity duration-300 ${isAtEnd ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <Button variant="outline" className="gap-2 px-8 h-12">
-            Следующая страница
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <button className="group w-14 h-14 border-2 border-news-primary bg-transparent hover:bg-news-primary transition-all duration-300 flex items-center justify-center">
+            <ChevronRight className="h-6 w-6 text-news-primary group-hover:text-white transition-colors duration-300" />
+          </button>
         </div>
       </main>
       

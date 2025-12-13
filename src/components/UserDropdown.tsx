@@ -26,6 +26,8 @@ interface UserStats {
   favorites_count: number
   routes_count: number
   collections_count: number
+  liked_blogs_count: number
+  saved_blogs_count: number
   pending_requests_count?: number // Для модераторов
 }
 
@@ -39,6 +41,8 @@ export default function UserDropdown() {
     favorites_count: 0,
     routes_count: 0,
     collections_count: 0,
+    liked_blogs_count: 0,
+    saved_blogs_count: 0,
     pending_requests_count: 0
   })
   const [loading, setLoading] = useState(false)
@@ -92,6 +96,52 @@ export default function UserDropdown() {
           .eq('user_id', user.id)
       ]
 
+      // Отдельно считаем реакции на блоги с фильтрацией по опубликованным постам
+      const [likedBlogsRes, savedBlogsRes] = await Promise.all([
+        // Лайки на опубликованные посты
+        (async () => {
+          const { data: reactions } = await supabase
+            .from('blog_post_reactions')
+            .select('post_id')
+            .eq('user_id', user.id)
+            .eq('reaction_type', 'like')
+
+          if (!reactions || reactions.length === 0) {
+            return { count: 0 }
+          }
+
+          const postIds = reactions.map(r => r.post_id)
+          const { count } = await supabase
+            .from('blog_posts')
+            .select('id', { count: 'exact', head: true })
+            .in('id', postIds)
+            .eq('status', 'published')
+
+          return { count }
+        })(),
+        // Сохраненные посты
+        (async () => {
+          const { data: reactions } = await supabase
+            .from('blog_post_reactions')
+            .select('post_id')
+            .eq('user_id', user.id)
+            .eq('reaction_type', 'save')
+
+          if (!reactions || reactions.length === 0) {
+            return { count: 0 }
+          }
+
+          const postIds = reactions.map(r => r.post_id)
+          const { count } = await supabase
+            .from('blog_posts')
+            .select('id', { count: 'exact', head: true })
+            .in('id', postIds)
+            .eq('status', 'published')
+
+          return { count }
+        })()
+      ])
+
       // Добавляем запрос для модераторов
       const isModerator = profile && ['moderator', 'admin'].includes(profile.role || '')
       if (isModerator) {
@@ -112,6 +162,8 @@ export default function UserDropdown() {
         favorites_count: favoritesRes.count || 0,
         routes_count: routesRes.count || 0,
         collections_count: collectionsRes.count || 0,
+        liked_blogs_count: likedBlogsRes.count || 0,
+        saved_blogs_count: savedBlogsRes.count || 0,
         pending_requests_count: isModerator ? (pendingRequestsRes?.count || 0) : undefined
       })
     } catch (error) {
@@ -347,6 +399,34 @@ export default function UserDropdown() {
               {stats.routes_count > 0 && (
                 <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
                   {stats.routes_count}
+                </span>
+              )}
+            </a>
+
+            <a
+              href="/profile/liked-blogs"
+              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              <Heart className="w-4 h-4" />
+              <span>Избранные блоги</span>
+              {stats.liked_blogs_count > 0 && (
+                <span className="ml-auto text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full">
+                  {stats.liked_blogs_count}
+                </span>
+              )}
+            </a>
+
+            <a
+              href="/profile/saved-blogs"
+              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Сохраненные блоги</span>
+              {stats.saved_blogs_count > 0 && (
+                <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                  {stats.saved_blogs_count}
                 </span>
               )}
             </a>

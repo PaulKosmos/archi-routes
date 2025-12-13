@@ -311,7 +311,7 @@ export default function SocialActions({
           className={`${
             showCounts
               ? 'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
-              : 'h-10 w-10 flex items-center justify-center bg-white/95 backdrop-blur-sm hover:bg-white shadow-sm'
+              : 'h-10 w-10 flex items-center justify-center bg-white/95 backdrop-blur-sm hover:bg-white shadow-sm rounded'
           } transition-all duration-200`}
         >
           {shareSuccess ? (

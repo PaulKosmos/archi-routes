@@ -8,8 +8,9 @@
 
 /* Tailwind v4 theme configuration */
 @theme inline {
-  --font-sans: var(--font-sora);
-  --font-display: var(--font-outfit);
+  --font-sans: var(--font-rubik);
+  --font-display: var(--font-rubik);
+  --font-metrics: var(--font-geologica);
 }
 
 @layer base {
@@ -133,6 +134,12 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+  }
+}
+
+@layer utilities {
+  .font-metrics {
+    font-family: var(--font-geologica), sans-serif;
   }
 }
 

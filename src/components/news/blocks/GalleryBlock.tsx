@@ -76,7 +76,7 @@ export default function GalleryBlock({ block }: GalleryBlockProps) {
               <img
                 src={image.url}
                 alt={image.alt || `Изображение ${index + 1}`}
-                className={`w-full h-auto rounded-lg shadow-md transition-transform ${
+                className={`w-full h-auto shadow-md transition-transform ${
                   enableLightbox ? 'group-hover:scale-105' : ''
                 }`}
                 style={{
@@ -86,7 +86,7 @@ export default function GalleryBlock({ block }: GalleryBlockProps) {
                 loading="lazy"
               />
               {enableLightbox && (
-                <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity rounded-lg flex items-center justify-center">
+                <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity flex items-center justify-center">
                   <svg
                     className="h-12 w-12 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                     fill="none"

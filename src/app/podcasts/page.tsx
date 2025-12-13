@@ -15,7 +15,7 @@ import PodcastCard from '@/components/PodcastCard'
 import PodcastFiltersComponent from '@/components/PodcastFilters'
 import PodcastMiniPlayer from '@/components/PodcastMiniPlayer'
 import { PodcastEpisode, PodcastSeries, PodcastTag, PodcastFilters } from '@/types/podcast'
-import { Headphones, Loader2, Search, ChevronDown, Plus } from 'lucide-react'
+import { Headphones, Loader2, Search, ChevronDown, Plus, Grid, List } from 'lucide-react'
 import Link from 'next/link'
 
 export default function PodcastsPage() {
@@ -151,57 +151,69 @@ export default function PodcastsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-background">
       <Suspense fallback={<div className="h-16 bg-white border-b" />}>
         <Header buildings={buildings} />
       </Suspense>
 
-      <main>
-        {/* Hero Section - Title Only */}
-        <section className="py-8 px-4 sm:px-6 lg:px-8 bg-white">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 flex items-center gap-3">
-                  <Headphones size={40} className="text-purple-600" />
-                  Подкасты
-                </h1>
-                <p className="text-gray-600 text-lg mt-2">
-                  Слушайте истории об архитектуре, путешествиях и искусстве
-                </p>
-              </div>
-
-              {/* Add Podcast Button - Admin/Moderator only */}
-              {canManagePodcasts && (
-                <Link
-                  href="/podcasts/new"
-                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-md"
-                >
-                  <Plus size={20} />
-                  Добавить подкаст
-                </Link>
-              )}
-            </div>
+      <main className="container mx-auto px-6 py-8">
+        {/* Search Bar and View Controls */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Искать эпизоды..."
+              value={filters.search || ''}
+              onChange={(e) => setFilters({...filters, search: e.target.value})}
+              disabled={loading}
+              className="w-full pl-12 h-12 border-2 border-border bg-card text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--podcast-primary))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            />
           </div>
-        </section>
 
-        {/* Search Bar Section */}
-        <section className="px-4 sm:px-6 lg:px-8 bg-gray-50 py-4">
-          <div className="max-w-7xl mx-auto">
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Искать эпизоды..."
-                value={filters.search || ''}
-                onChange={(e) => setFilters({...filters, search: e.target.value})}
-                disabled={loading}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-            </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-[hsl(var(--podcast-primary))] text-white'
+                  : 'bg-card border-2 border-border text-foreground hover:bg-muted'
+              }`}
+            >
+              <Grid className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-[hsl(var(--podcast-primary))] text-white'
+                  : 'bg-card border-2 border-border text-foreground hover:bg-muted'
+              }`}
+            >
+              <List className="h-5 w-5" />
+            </button>
           </div>
-        </section>
+        </div>
+
+        {/* Info bar with count and add button */}
+        <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-border">
+          <span className="text-sm font-medium text-foreground">
+            {loading ? 'Загрузка...' : (
+              <>
+                Найдено эпизодов: <span className="font-bold text-[hsl(var(--podcast-primary))]">{episodes.length}</span>
+              </>
+            )}
+          </span>
+          {canManagePodcasts && (
+            <Link
+              href="/podcasts/new"
+              className="flex items-center gap-2 px-6 py-3 bg-[hsl(var(--podcast-primary))] text-white font-semibold rounded-[var(--radius)] hover:bg-[hsl(var(--podcast-primary))]/90 transition-colors"
+            >
+              <Plus size={20} />
+              Добавить подкаст
+            </Link>
+          )}
+        </div>
 
         {/* Mini Player - Fixed at bottom */}
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg">
@@ -221,111 +233,79 @@ export default function PodcastsPage() {
         </div>
 
         {/* Main Content with Sidebar */}
-        <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 min-h-screen pb-32">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              {/* Left Sidebar - Filters (always expanded) */}
-              <aside className="lg:col-span-1">
-                <div className="sticky top-4 bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
-                  {/* Серии Section */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Серии</h3>
-                    <div className="space-y-2">
-                      {series.map(s => (
-                        <label key={s.id} className="flex items-center gap-3 cursor-pointer group">
-                          <input
-                            type="checkbox"
-                            checked={filters.series_id === s.id}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setFilters({...filters, series_id: s.id})
-                              } else {
-                                setFilters({...filters, series_id: undefined})
-                              }
-                            }}
-                            className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
-                          />
-                          <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">{s.title}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="border-t border-gray-200"></div>
-
-                  {/* Теги Section */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Теги</h3>
-                    <div className="space-y-2">
-                      {tags.map(tag => (
-                        <label key={tag.id} className="flex items-center gap-3 cursor-pointer group">
-                          <input
-                            type="checkbox"
-                            checked={filters.tag_ids?.includes(tag.id) || false}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setFilters({...filters, tag_ids: [...(filters.tag_ids || []), tag.id]})
-                              } else {
-                                setFilters({...filters, tag_ids: filters.tag_ids?.filter(id => id !== tag.id) || []})
-                              }
-                            }}
-                            className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
-                          />
-                          <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">{tag.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 pb-32">
+          {/* Left Sidebar - Filters */}
+          <aside className="lg:col-span-1">
+            <div className="sticky top-4 bg-card border border-border p-6 space-y-6">
+              {/* Серии Section */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Серии</h3>
+                <div className="space-y-2">
+                  {series.map(s => (
+                    <label key={s.id} className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={filters.series_id === s.id}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFilters({...filters, series_id: s.id})
+                          } else {
+                            setFilters({...filters, series_id: undefined})
+                          }
+                        }}
+                        className="w-4 h-4 rounded border-border text-[hsl(var(--podcast-primary))] focus:ring-[hsl(var(--podcast-primary))] cursor-pointer"
+                      />
+                      <span className="text-sm text-foreground group-hover:text-[hsl(var(--podcast-primary))] transition-colors">{s.title}</span>
+                    </label>
+                  ))}
                 </div>
-              </aside>
+              </div>
 
-              {/* Right Content - Episodes */}
-              <div className="lg:col-span-3">
+              {/* Divider */}
+              <div className="border-t border-border"></div>
 
-            {/* View mode toggle */}
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-gray-600">
-                {loading ? 'Загрузка...' : `Найдено ${episodes.length} эпизодов`}
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`px-4 py-2 rounded-lg transition-all ${
-                    viewMode === 'grid'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  Сетка
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`px-4 py-2 rounded-lg transition-all ${
-                    viewMode === 'list'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  Список
-                </button>
+              {/* Теги Section */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Теги</h3>
+                <div className="space-y-2">
+                  {tags.map(tag => (
+                    <label key={tag.id} className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={filters.tag_ids?.includes(tag.id) || false}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFilters({...filters, tag_ids: [...(filters.tag_ids || []), tag.id]})
+                          } else {
+                            setFilters({...filters, tag_ids: filters.tag_ids?.filter(id => id !== tag.id) || []})
+                          }
+                        }}
+                        className="w-4 h-4 rounded border-border text-[hsl(var(--podcast-primary))] focus:ring-[hsl(var(--podcast-primary))] cursor-pointer"
+                      />
+                      <span className="text-sm text-foreground group-hover:text-[hsl(var(--podcast-primary))] transition-colors">{tag.name}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
+          </aside>
 
+          {/* Right Content - Episodes */}
+          <div className="lg:col-span-3">
             {/* Episodes Grid/List */}
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 className="animate-spin text-purple-600" size={40} />
+                <Loader2 className="animate-spin text-[hsl(var(--podcast-primary))]" size={40} />
               </div>
             ) : error ? (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                <p className="text-red-800 font-semibold">{error}</p>
+              <div className="bg-destructive/10 border-2 border-destructive p-6 text-center">
+                <p className="text-destructive font-semibold">{error}</p>
               </div>
             ) : episodes.length === 0 ? (
-              <div className="bg-white rounded-lg p-12 text-center border border-gray-200">
-                <Headphones size={48} className="mx-auto text-gray-300 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Эпизодов не найдено</h3>
-                <p className="text-gray-600">Попробуйте изменить фильтры или вернитесь позже</p>
+              <div className="bg-card p-12 text-center border border-border">
+                <Headphones size={48} className="mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">Эпизодов не найдено</h3>
+                <p className="text-muted-foreground">Попробуйте изменить фильтры или вернитесь позже</p>
               </div>
             ) : viewMode === 'list' ? (
               <div className="space-y-4">
@@ -341,7 +321,7 @@ export default function PodcastsPage() {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {episodes.map(episode => (
                   <PodcastCard
                     key={episode.id}
@@ -354,10 +334,8 @@ export default function PodcastsPage() {
                 ))}
               </div>
             )}
-              </div>
-            </div>
           </div>
-        </section>
+        </div>
       </main>
 
       <EnhancedFooter />
