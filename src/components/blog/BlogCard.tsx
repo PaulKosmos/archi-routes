@@ -23,7 +23,7 @@ export default function BlogCard({ post, viewMode }: BlogCardProps) {
   if (viewMode === 'list') {
     return (
       <Link href={`/blog/${post.slug}`}>
-        <article className="bg-card overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg flex flex-col md:flex-row">
+        <article className="bg-card border border-border overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg flex flex-col md:flex-row">
           {/* Изображение */}
           {post.featured_image_url && (
             <div className="relative md:w-1/2 h-48 overflow-hidden">
@@ -86,7 +86,7 @@ export default function BlogCard({ post, viewMode }: BlogCardProps) {
   // Grid режим
   return (
     <Link href={`/blog/${post.slug}`}>
-      <article className="bg-card overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg h-full">
+      <article className="bg-card border border-border overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg h-full flex flex-col">
         {/* Изображение */}
         <div className="relative h-48 overflow-hidden">
           {post.featured_image_url ? (
@@ -103,7 +103,7 @@ export default function BlogCard({ post, viewMode }: BlogCardProps) {
         </div>
 
         {/* Контент */}
-        <div className="p-6">
+        <div className="p-6 flex flex-col justify-between flex-1">
           <h3 className="text-xl font-bold mb-3 line-clamp-2 hover:text-[hsl(var(--blog-primary))] transition-colors cursor-pointer">
             {post.title}
           </h3>

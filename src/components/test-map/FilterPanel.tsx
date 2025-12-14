@@ -106,21 +106,21 @@ export default function FilterPanel({
   }, [filters, onFilterChange])
 
   return (
-    <div className="bg-white border-b border-gray-200">
+    <div className="bg-card border-b border-border">
       {/* Кнопка показать/скрыть фильтры */}
       <div className="flex items-center justify-between p-4">
         <button
           onClick={onToggleFilters}
-          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${
-            showFilters 
-              ? 'bg-blue-50 border-blue-200 text-blue-700' 
-              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+          className={`flex items-center px-4 py-2 rounded-[var(--radius)] border transition-colors ${
+            showFilters
+              ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+              : 'bg-card border-border text-foreground hover:bg-muted'
           }`}
         >
           <Filter className="w-4 h-4 mr-2" />
           Фильтры
           {showFilters && (
-            <span className="ml-2 bg-blue-500 text-white text-xs rounded-full px-2 py-1">
+            <span className="ml-2 bg-[hsl(var(--map-primary))] text-white text-xs rounded-full px-2 py-1">
               Активны
             </span>
           )}

@@ -270,6 +270,73 @@ export function useNewsGridAPI() {
     }
   }, [user, canEdit, supabase]);
 
+  // Пакетное обновление позиций карточек (для drag & drop)
+  const updateCardPositions = useCallback(async (cardUpdates: Array<{ id: string; position: number }>): Promise<boolean> => {
+    if (!user || !canEdit) {
+      console.error('❌ updateCardPositions: Insufficient permissions', { user: !!user, canEdit });
+      throw new Error('Insufficient permissions to update card positions');
+    }
+
+    console.log('🔄 updateCardPositions: Starting batch update for', cardUpdates.length, 'cards');
+    console.log('📝 Position updates:', cardUpdates.map(u => `${u.id.slice(0, 8)}... → pos ${u.position}`));
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // ШАГ 1: Сдвигаем все карточки на временные позиции (избегаем конфликта unique constraint)
+      console.log('🔄 Step 1: Moving all cards to temporary positions');
+      for (let i = 0; i < cardUpdates.length; i++) {
+        const update = cardUpdates[i];
+        const tempPosition = 1000 + i; // Временная позиция
+
+        const { error: tempError } = await supabase
+          .from('news_grid_blocks')
+          .update({ position: tempPosition })
+          .eq('id', update.id);
+
+        if (tempError) {
+          console.error(`❌ Error setting temp position for card ${update.id}:`, tempError);
+          throw tempError;
+        }
+      }
+      console.log('✅ Step 1 complete: All cards moved to temporary positions');
+
+      // ШАГ 2: Устанавливаем правильные позиции
+      console.log('🔄 Step 2: Setting final positions');
+      let successCount = 0;
+
+      for (let i = 0; i < cardUpdates.length; i++) {
+        const update = cardUpdates[i];
+        console.log(`🔄 Setting final position ${i + 1}/${cardUpdates.length}: ${update.id.slice(0, 8)}... → position ${update.position}`);
+
+        const { data, error: updateError } = await supabase
+          .from('news_grid_blocks')
+          .update({ position: update.position })
+          .eq('id', update.id)
+          .select();
+
+        if (updateError) {
+          console.error(`❌ Error setting final position for card ${update.id}:`, updateError);
+          throw updateError;
+        } else {
+          console.log(`✅ Updated card ${update.id.slice(0, 8)}...`, data);
+          successCount++;
+        }
+      }
+
+      console.log(`✅ updateCardPositions: Batch update complete - ${successCount} cards updated successfully`);
+      return true;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update card positions';
+      setError(errorMessage);
+      console.error('❌ updateCardPositions failed:', err);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [user, canEdit, supabase]);
+
   // Деактивировать карточку (вместо удаления)
   const deactivateCard = useCallback(async (cardId: string): Promise<boolean> => {
     if (!user || !canEdit) {
@@ -345,6 +412,7 @@ export function useNewsGridAPI() {
     updateCardSize,
     deleteCard,
     reorderCard,
+    updateCardPositions,
     deactivateCard,
     activateCard,
 

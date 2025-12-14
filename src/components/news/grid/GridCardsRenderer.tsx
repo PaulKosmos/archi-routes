@@ -80,7 +80,7 @@ export default function GridCardsRenderer({
           >
             <NewsCard
               news={card.news}
-              size={card.card_size}
+              variant="compact"
               className="h-full"
             />
           </div>
@@ -125,10 +125,10 @@ function SortableCard({ card, onCardClick }: SortableCardProps) {
       {...listeners}
     >
       {/* Overlay для визуального отклика */}
-      <div className="absolute inset-0 bg-blue-600/5 rounded-xl opacity-0 hover:opacity-100 transition-opacity pointer-events-none z-10 border-2 border-blue-500/0 hover:border-blue-500"></div>
+      <div className="absolute inset-0 bg-[hsl(var(--news-primary))]/5 opacity-0 hover:opacity-100 transition-opacity pointer-events-none z-10 border-2 border-[hsl(var(--news-primary))]/0 hover:border-[hsl(var(--news-primary))]"></div>
 
       {/* Индикатор размера в режиме редактирования */}
-      <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded shadow-lg z-20">
+      <div className="absolute top-2 left-2 bg-[hsl(var(--news-primary))] text-white text-xs font-bold px-2 py-1 shadow-lg z-20">
         {card.col_span}×{card.row_span}
       </div>
 
@@ -138,7 +138,7 @@ function SortableCard({ card, onCardClick }: SortableCardProps) {
           e.stopPropagation();
           onCardClick?.(card.id);
         }}
-        className="absolute top-2 right-2 bg-white text-gray-700 text-xs font-bold px-3 py-1.5 rounded shadow-lg z-20 hover:bg-gray-100 border border-gray-300 transition-colors"
+        className="absolute top-2 right-2 bg-card border border-border text-xs font-bold px-3 py-1.5 shadow-lg z-20 hover:bg-muted transition-colors"
       >
         Изменить размер
       </button>
@@ -147,8 +147,9 @@ function SortableCard({ card, onCardClick }: SortableCardProps) {
       {card.news && (
         <NewsCard
           news={card.news}
-          size={card.card_size}
+          variant="compact"
           className="h-full"
+          disableLink={true}
         />
       )}
     </div>

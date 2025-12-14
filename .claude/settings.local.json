@@ -52,7 +52,10 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git rev-parse:*)",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "Bash(npx playwright:*)",
+      "Bash(claude mcp:*)",
+      "mcp__playwright__playwright_drag"
     ],
     "deny": [],
     "ask": []

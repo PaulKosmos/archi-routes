@@ -238,38 +238,47 @@ export default function NewsListPage() {
       <Header buildings={buildings} />
 
       <main className="container mx-auto px-6 py-8">
-        {/* Action Buttons - Admin only, right aligned */}
-        {canManageNews && (
-          <div className="flex items-center justify-end gap-2 mb-8">
-            {canEditGrid && !isEditingGrid && (
+        {/* Поиск */}
+        <div className="mb-8">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Искать новости..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-full pl-12 h-12 border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--news-primary))] transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* Информация и кнопки управления */}
+        <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-border">
+          <span className="text-sm font-medium">
+            Найдено новостей: <span className="font-bold text-[hsl(var(--news-primary))]">
+              {(filteredFeaturedNews ? 1 : 0) + filteredGridCards.length + filteredNews.length}
+            </span>
+          </span>
+          <div className="flex items-center gap-2">
+            {canManageNews && canEditGrid && !isEditingGrid && (
               <button
                 onClick={handleEditGrid}
-                className="flex items-center gap-2 px-4 py-2 border border-border bg-background text-foreground rounded-[var(--radius)] hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-2 bg-background border border-border text-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-muted transition-colors font-medium"
               >
-                <Edit2 className="h-4 w-4" />
+                <Edit2 className="w-4 h-4" />
                 Редактировать сетку
               </button>
             )}
-            <Link
-              href="/admin/news/create"
-              className="flex items-center gap-2 px-4 py-2 bg-[hsl(var(--news-primary))] hover:bg-[hsl(var(--news-primary))]/90 text-white rounded-[var(--radius)] transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              Добавить новость
-            </Link>
+            {canManageNews && (
+              <Link
+                href="/admin/news/create"
+                className="inline-flex items-center gap-2 bg-[hsl(var(--news-primary))] text-white px-6 py-3 rounded-[var(--radius)] hover:opacity-90 transition-opacity font-medium"
+              >
+                <Plus className="w-4 h-4" />
+                Добавить новость
+              </Link>
+            )}
           </div>
-        )}
-
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Искать новости"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full pl-12 h-12 border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--news-primary))] transition-colors"
-          />
         </div>
 
         {/* Category Tabs */}
@@ -301,7 +310,7 @@ export default function NewsListPage() {
               </div>
             )}
 
-            {/* News Grid - 3 columns */}
+            {/* News Grid/List */}
             {error ? (
               <div className="text-center py-12">
                 <div className="bg-destructive/10 border-2 border-destructive rounded-[var(--radius)] p-6 max-w-md mx-auto">
@@ -315,15 +324,19 @@ export default function NewsListPage() {
                 </div>
               </div>
             ) : loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {[1, 2, 3, 4, 5, 6].map(i => (
                   <div key={i} className="bg-muted rounded-lg h-64 animate-pulse" />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredNews.map((newsItem) => (
-                  <NewsCard key={newsItem.id} news={newsItem} variant="compact" />
+                  <NewsCard
+                    key={newsItem.id}
+                    news={newsItem}
+                    variant="compact"
+                  />
                 ))}
               </div>
             )}
