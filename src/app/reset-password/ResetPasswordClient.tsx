@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
-import Header from '@/components/Header'
+import Header from '@/components/HeaderWithSuspense'
 import { Lock, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react'
 
 export default function ResetPasswordClient() {

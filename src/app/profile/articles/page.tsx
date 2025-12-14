@@ -23,7 +23,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
-import Header from '@/components/Header'
+import Header from '@/components/HeaderWithSuspense'
 import Link from 'next/link'
 import type { BlogPost } from '@/types/blog'
 

@@ -7,7 +7,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { CreateBlogContentBlock, BlogTag, generateSlug } from '@/types/blog'
 import ContentBlockEditor from '@/components/blog/ContentBlockEditor'
 import BlogPreviewModal from '@/components/blog/BlogPreviewModal'
-import Header from '@/components/Header'
+import Header from '@/components/HeaderWithSuspense'
 import EnhancedFooter from '@/components/EnhancedFooter'
 import {
   Save,

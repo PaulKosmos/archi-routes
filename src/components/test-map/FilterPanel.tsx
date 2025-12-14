@@ -132,27 +132,27 @@ export default function FilterPanel({
         <div className="px-4 pb-4">
           {/* Поиск */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Поиск
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <input
                 type="text"
                 value={filters.search}
                 onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
                 placeholder="Поиск по названию, архитектору, стилю..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--map-primary))] transition-colors"
               />
             </div>
           </div>
 
           {/* Геолокация и радиус */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Местоположение
             </label>
-            
+
             {/* Кнопки выбора режима - 2 кубика в ряд, отключить снизу */}
             <div className="space-y-2 mb-3">
               {/* Два кубика в ряд */}
@@ -162,29 +162,29 @@ export default function FilterPanel({
                     onRadiusModeChange?.('location')
                     handleGeolocation()
                   }}
-                  className={`flex flex-col items-center justify-center px-3 py-3 border rounded-lg transition-colors ${
+                  className={`flex flex-col items-center justify-center px-3 py-3 border rounded-[var(--radius)] transition-colors ${
                     radiusMode === 'location'
-                      ? 'bg-blue-50 border-blue-200 text-blue-700'
-                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                      ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+                      : 'bg-card border-border text-foreground hover:bg-muted'
                   }`}
                 >
                   <Navigation className="w-5 h-5 mb-1" />
                   <span className="text-xs text-center">Моё местоположение</span>
                 </button>
-                
+
                 <button
                   onClick={() => onRadiusModeChange?.('map')}
-                  className={`flex flex-col items-center justify-center px-3 py-3 border rounded-lg transition-colors ${
+                  className={`flex flex-col items-center justify-center px-3 py-3 border rounded-[var(--radius)] transition-colors ${
                     radiusMode === 'map'
-                      ? 'bg-blue-50 border-blue-200 text-blue-700'
-                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                      ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+                      : 'bg-card border-border text-foreground hover:bg-muted'
                   }`}
                 >
                   <MapPin className="w-5 h-5 mb-1" />
                   <span className="text-xs text-center">Выбрать на карте</span>
                 </button>
               </div>
-              
+
               {/* Отключить снизу на всю ширину */}
               <button
                 onClick={() => {
@@ -194,10 +194,10 @@ export default function FilterPanel({
                     currentLocation: null
                   })
                 }}
-                className="w-full flex items-center justify-center px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                className="w-full flex items-center justify-center px-3 py-2 bg-muted border border-border rounded-[var(--radius)] hover:bg-muted/80 transition-colors"
               >
-                <X className="w-4 h-4 mr-2 text-gray-600" />
-                <span className="text-sm">Отключить</span>
+                <X className="w-4 h-4 mr-2 text-muted-foreground" />
+                <span className="text-sm text-foreground">Отключить</span>
               </button>
             </div>
             
@@ -206,7 +206,7 @@ export default function FilterPanel({
               <div className="space-y-3">
                 {/* Ввод радиуса цифрами */}
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">
+                  <label className="block text-xs text-muted-foreground mb-1">
                     Радиус поиска (км)
                   </label>
                   <input
@@ -215,17 +215,17 @@ export default function FilterPanel({
                     max="50"
                     step="0.5"
                     value={filters.radiusKm}
-                    onChange={(e) => onFilterChange({ 
-                      ...filters, 
+                    onChange={(e) => onFilterChange({
+                      ...filters,
                       radiusKm: parseFloat(e.target.value) || 0.5
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-border bg-background text-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--map-primary))] transition-colors"
                   />
                 </div>
-                
+
                 {/* Ползунок радиуса */}
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">
+                  <label className="block text-xs text-muted-foreground mb-1">
                     Радиус: {filters.radiusKm} км
                   </label>
                   <input
@@ -234,22 +234,22 @@ export default function FilterPanel({
                     max="50"
                     step="0.5"
                     value={filters.radiusKm}
-                    onChange={(e) => onFilterChange({ 
-                      ...filters, 
-                      radiusKm: parseFloat(e.target.value) 
+                    onChange={(e) => onFilterChange({
+                      ...filters,
+                      radiusKm: parseFloat(e.target.value)
                     })}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-muted rounded-[var(--radius)] appearance-none cursor-pointer accent-[hsl(var(--map-primary))]"
                   />
                 </div>
-                
+
                 {/* Подсказка */}
                 {radiusMode === 'map' && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     💡 Кликните на карту, чтобы выбрать центр поиска
                   </p>
                 )}
                 {radiusMode === 'location' && filters.currentLocation && (
-                  <p className="text-xs text-green-600">
+                  <p className="text-xs text-[hsl(var(--map-primary))]">
                     ✅ Центр установлен на вашем местоположении
                   </p>
                 )}
@@ -259,16 +259,16 @@ export default function FilterPanel({
 
           {/* Быстрые фильтры */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Быстрые фильтры
             </label>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => handleQuickFilter('rating', '4')}
                 className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                  filters.minRating >= 4 
-                    ? 'bg-yellow-100 border-yellow-300 text-yellow-800' 
-                    : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+                  filters.minRating >= 4
+                    ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+                    : 'bg-muted border-border text-foreground hover:bg-muted/80'
                 }`}
               >
                 ⭐ 4+ рейтинг
@@ -276,9 +276,9 @@ export default function FilterPanel({
               <button
                 onClick={() => handleQuickFilter('featured', 'true')}
                 className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                  filters.showOnlyFeatured 
-                    ? 'bg-purple-100 border-purple-300 text-purple-800' 
-                    : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+                  filters.showOnlyFeatured
+                    ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+                    : 'bg-muted border-border text-foreground hover:bg-muted/80'
                 }`}
               >
                 🌟 Рекомендуемые
@@ -286,9 +286,9 @@ export default function FilterPanel({
               <button
                 onClick={() => handleQuickFilter('distance', '5')}
                 className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                  filters.maxDistance <= 5 
-                    ? 'bg-green-100 border-green-300 text-green-800' 
-                    : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+                  filters.maxDistance <= 5
+                    ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+                    : 'bg-muted border-border text-foreground hover:bg-muted/80'
                 }`}
               >
                 📍 До 5 км
@@ -301,12 +301,12 @@ export default function FilterPanel({
               {/* Города */}
               {uniqueValues.cities.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Города
                   </label>
                   <div className="space-y-1 max-h-32 overflow-y-auto">
                     {uniqueValues.cities.map(city => (
-                      <label key={city} className="flex items-center">
+                      <label key={city} className="flex items-center cursor-pointer hover:bg-muted/50 rounded-[var(--radius)] px-2 py-1 transition-colors">
                         <input
                           type="checkbox"
                           checked={filters.cities.includes(city)}
@@ -323,9 +323,9 @@ export default function FilterPanel({
                               })
                             }
                           }}
-                          className="mr-2 rounded border-gray-300"
+                          className="mr-2 rounded border-border accent-[hsl(var(--map-primary))]"
                         />
-                        <span className="text-sm text-gray-700">{city}</span>
+                        <span className="text-sm text-foreground">{city}</span>
                       </label>
                     ))}
                   </div>
@@ -335,7 +335,7 @@ export default function FilterPanel({
               {/* Архитектурные стили */}
               {uniqueValues.architecturalStyles.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Архитектурные стили
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -357,8 +357,8 @@ export default function FilterPanel({
                         }}
                         className={`px-3 py-1 text-sm rounded-full border transition-colors ${
                           filters.architecturalStyles.includes(style)
-                            ? 'bg-blue-100 border-blue-300 text-blue-800'
-                            : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+                            : 'bg-muted border-border text-foreground hover:bg-muted/80'
                         }`}
                       >
                         {style}
@@ -371,12 +371,12 @@ export default function FilterPanel({
               {/* Типы зданий */}
               {uniqueValues.buildingTypes.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Типы зданий
                   </label>
                   <div className="space-y-1 max-h-32 overflow-y-auto">
                     {uniqueValues.buildingTypes.map(type => (
-                      <label key={type} className="flex items-center">
+                      <label key={type} className="flex items-center cursor-pointer hover:bg-muted/50 rounded-[var(--radius)] px-2 py-1 transition-colors">
                         <input
                           type="checkbox"
                           checked={filters.buildingTypes.includes(type)}
@@ -393,9 +393,9 @@ export default function FilterPanel({
                               })
                             }
                           }}
-                          className="mr-2 rounded border-gray-300"
+                          className="mr-2 rounded border-border accent-[hsl(var(--map-primary))]"
                         />
-                        <span className="text-sm text-gray-700">{type}</span>
+                        <span className="text-sm text-foreground">{type}</span>
                       </label>
                     ))}
                   </div>
@@ -404,7 +404,7 @@ export default function FilterPanel({
 
               {/* Фильтр аудио */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Аудио
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -415,8 +415,8 @@ export default function FilterPanel({
                     })}
                     className={`px-3 py-1 text-sm rounded-full border transition-colors ${
                       filters.hasAudio
-                        ? 'bg-green-100 border-green-300 text-green-800'
-                        : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+                        : 'bg-muted border-border text-foreground hover:bg-muted/80'
                     }`}
                   >
                     🎧 С аудио

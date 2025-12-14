@@ -12,7 +12,7 @@ import { Heart, Route as RouteIcon, MapPin, Clock, Star, Filter, Grid, List, Dow
 import { UserRouteFavorites } from '@/lib/smart-route-filtering'
 import { useAuth } from '@/hooks/useAuth'
 import { RouteWithUserData, formatDistance, formatDuration } from '@/types/route'
-import Header from '@/components/Header'
+import Header from '@/components/HeaderWithSuspense'
 import { toast } from 'react-hot-toast'
 // import { toast } from '@/lib/toast-fallback'
 import Link from 'next/link'

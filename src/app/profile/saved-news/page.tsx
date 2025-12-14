@@ -10,7 +10,7 @@ import { Bookmark, Eye, Calendar, ArrowLeft, Newspaper } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
-import Header from '@/components/Header'
+import Header from '@/components/HeaderWithSuspense'
 import Link from 'next/link'
 import type { NewsArticle } from '@/types/news'
 

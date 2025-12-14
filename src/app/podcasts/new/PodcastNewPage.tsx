@@ -8,7 +8,7 @@ import PodcastUploadForm from '@/components/PodcastUploadForm'
 import { PodcastSeries, PodcastTag } from '@/types/podcast'
 import { AlertCircle, CheckCircle, Loader2, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import Header from '@/components/Header'
+import Header from '@/components/HeaderWithSuspense'
 import EnhancedFooter from '@/components/EnhancedFooter'
 
 export default function PodcastNewPage() {

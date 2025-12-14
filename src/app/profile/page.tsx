@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 import { Suspense } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import Header from '@/components/Header'
+import Header from '@/components/HeaderWithSuspense'
 import Link from 'next/link'
 import { User, Heart, MapPin, Building2, Settings, Edit3, FileText } from 'lucide-react'
 

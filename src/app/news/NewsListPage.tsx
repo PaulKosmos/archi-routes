@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useNewsAPI } from '@/hooks/useNewsAPI';
 import { useNewsGridAPI } from '@/hooks/useNewsGridAPI';
 import { NewsArticle, NewsFilters, NewsSortOptions, NewsCategory, NewsGridCardWithNews, canEditNewsGrid } from '@/types/news';
-import Header from '@/components/Header';
+import Header from '@/components/HeaderWithSuspense';
 import EnhancedFooter from '@/components/EnhancedFooter';
 import CategoryTabs from '@/components/news/CategoryTabs';
 import NewsCard from '@/components/news/NewsCard';

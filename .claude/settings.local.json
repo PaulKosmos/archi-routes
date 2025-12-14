@@ -55,7 +55,8 @@
       "Bash(npx supabase:*)",
       "Bash(npx playwright:*)",
       "Bash(claude mcp:*)",
-      "mcp__playwright__playwright_drag"
+      "mcp__playwright__playwright_drag",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
