@@ -2,7 +2,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
-import Header from '../../../components/Header'
+import Header from '../../../components/HeaderWithSuspense'
 import BuildingDetailClient from './BuildingDetailClient'
 
 interface PageProps {

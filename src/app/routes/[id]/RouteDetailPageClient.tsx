@@ -6,7 +6,7 @@ import { useParams, useSearchParams } from 'next/navigation'
 import { notFound } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
-import Header from '../../../components/Header'
+import Header from '../../../components/HeaderWithSuspense'
 import RouteDetailClient from './RouteDetailClient'
 
 export default function RouteDetailPageClient() {
