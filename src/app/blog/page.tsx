@@ -23,21 +23,6 @@ export default function BlogPage() {
 
   useEffect(() => {
     loadPosts()
-    
-    // Периодическое обновление каждые 10 секунд
-    const interval = setInterval(loadPosts, 10000)
-    
-    // Обновление при возвращении на страницу
-    const handleFocus = () => {
-      loadPosts()
-    }
-    
-    window.addEventListener('focus', handleFocus)
-    
-    return () => {
-      clearInterval(interval)
-      window.removeEventListener('focus', handleFocus)
-    }
   }, [])
 
   useEffect(() => {
@@ -55,9 +40,11 @@ export default function BlogPage() {
 
   const loadPosts = async () => {
     try {
-      console.log('📚 Blog: Loading posts...')
+      console.log('📚 Blog: Starting to load posts...')
+      setLoading(true)
 
       // Загружаем посты с timeout защитой
+      console.log('📚 Blog: Fetching posts from database...')
       const { data: postsData, error } = await supabaseQueryWithTimeout(
         () => supabase
           .from('blog_posts')
@@ -65,20 +52,33 @@ export default function BlogPage() {
           .eq('status', 'published')
           .order('published_at', { ascending: false }),
         {
-          timeout: 10000,
+          timeout: 8000,
           errorMessage: 'Blog posts query timeout',
           fallbackValue: { data: [], error: null }
         }
       )
 
-      if (error) throw error
+      console.log('📚 Blog: Posts query completed', {
+        count: postsData?.length || 0,
+        hasError: !!error
+      })
+
+      if (error) {
+        console.error('📚 Blog: Error loading posts:', error)
+        setPosts([])
+        setLoading(false)
+        return
+      }
 
       if (!postsData || postsData.length === 0) {
+        console.log('📚 Blog: No posts found')
         setPosts([])
+        setLoading(false)
         return
       }
 
       // Загружаем реакции для всех постов с timeout защитой
+      console.log('📚 Blog: Fetching reactions...')
       const postIds = postsData.map(post => post.id)
       const { data: reactions } = await supabaseQueryWithTimeout(
         () => supabase
@@ -91,6 +91,10 @@ export default function BlogPage() {
           fallbackValue: { data: [], error: null }
         }
       )
+
+      console.log('📚 Blog: Reactions query completed', {
+        count: reactions?.length || 0
+      })
 
       // Агрегируем счётчики для каждого поста
       const reactionCounts = new Map()
@@ -110,17 +114,17 @@ export default function BlogPage() {
         like_count: reactionCounts.get(post.id)?.like_count || 0,
         save_count: reactionCounts.get(post.id)?.save_count || 0,
         share_count: reactionCounts.get(post.id)?.share_count || 0,
-        comment_count: 0 // TODO: добавить комментарии позже
+        comment_count: 0
       }))
 
-      // Принудительное обновление состояния
-      const freshData = JSON.parse(JSON.stringify(postsWithCounts))
-      setPosts([])
-      setTimeout(() => setPosts(freshData), 10)
+      console.log('📚 Blog: Setting posts state with', postsWithCounts.length, 'posts')
+      setPosts(postsWithCounts)
+      setLoading(false)
+      console.log('✅ Blog: Successfully loaded all posts')
 
     } catch (error) {
-      console.error('Error loading posts:', error)
-    } finally {
+      console.error('❌ Blog: Fatal error loading posts:', error)
+      setPosts([])
       setLoading(false)
     }
   }

@@ -28,19 +28,36 @@ export function useAuth() {
     // Получаем текущего пользователя
     const getCurrentUser = async () => {
       try {
-        // Сначала проверяем сессию с timeout защитой
-        const sessionPromise = supabase.auth.getSession()
+        console.log('🔐 Auth: Starting session check...')
+
+        // НОВЫЙ ПОДХОД: Используем getUser() вместо getSession()
+        // getUser() проверяет JWT локально, без сетевых запросов к Supabase
+        const userPromise = supabase.auth.getUser()
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Session check timeout')), 10000)
+          setTimeout(() => reject(new Error('Auth check timeout')), 5000)
         )
 
-        const { data: { session }, error: sessionError } = await Promise.race([
-          sessionPromise,
+        const { data: { user }, error: userError } = await Promise.race([
+          userPromise,
           timeoutPromise
-        ]) as Awaited<typeof sessionPromise>
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError)
+        ]) as Awaited<typeof userPromise>
+
+        console.log('🔐 Auth: User check completed', {
+          hasUser: !!user,
+          error: userError?.message
+        })
+
+        if (userError) {
+          console.error('❌ Auth: User error:', userError)
+
+          // Если ошибка - очищаем всё и форсируем logout
+          try {
+            await supabase.auth.signOut()
+            console.log('🔐 Auth: Cleared corrupted session')
+          } catch (e) {
+            console.error('Failed to clear session:', e)
+          }
+
           setAuthState({
             user: null,
             profile: null,
@@ -50,13 +67,24 @@ export function useAuth() {
           return
         }
 
-        if (session?.user) {
-          // Получаем профиль пользователя
-          const { data: profile, error: profileError } = await supabase
+        if (user) {
+          console.log('🔐 Auth: Fetching profile for user:', user.id)
+
+          // Получаем профиль пользователя с timeout
+          const profilePromise = supabase
             .from('profiles')
             .select('*')
-            .eq('id', session.user.id)
+            .eq('id', user.id)
             .single()
+
+          const profileTimeoutPromise = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+          )
+
+          const { data: profile, error: profileError } = await Promise.race([
+            profilePromise,
+            profileTimeoutPromise
+          ]) as Awaited<typeof profilePromise>
 
           if (profileError) {
             console.error('Error fetching profile:', profileError)
@@ -65,19 +93,20 @@ export function useAuth() {
               const { data: newProfile, error: createError } = await supabase
                 .from('profiles')
                 .insert({
-                  id: session.user.id,
-                  email: session.user.email,
-                  full_name: session.user.user_metadata?.full_name || null,
+                  id: user.id,
+                  email: user.email,
+                  full_name: user.user_metadata?.full_name || null,
                   role: 'explorer'
                 })
                 .select()
                 .single()
-              
+
               if (createError) {
                 console.error('Error creating profile:', createError)
               } else {
+                console.log('✅ Auth: Created new profile')
                 setAuthState({
-                  user: session.user,
+                  user: user,
                   profile: newProfile,
                   loading: false,
                   initialized: true
@@ -87,13 +116,15 @@ export function useAuth() {
             }
           }
 
+          console.log('✅ Auth: Successfully loaded user and profile')
           setAuthState({
-            user: session.user,
+            user: user,
             profile: profile || null,
             loading: false,
             initialized: true
           })
         } else {
+          console.log('🔐 Auth: No user logged in')
           setAuthState({
             user: null,
             profile: null,
@@ -102,7 +133,16 @@ export function useAuth() {
           })
         }
       } catch (error) {
-        console.error('Error in getCurrentUser:', error)
+        console.error('❌ Auth: Error in getCurrentUser:', error)
+
+        // При timeout - очищаем сессию
+        try {
+          await supabase.auth.signOut()
+          console.log('🔐 Auth: Cleared session after error')
+        } catch (e) {
+          console.error('Failed to clear session:', e)
+        }
+
         setAuthState({
           user: null,
           profile: null,
