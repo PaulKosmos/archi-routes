@@ -4,31 +4,41 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Создаем response объект
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
+
+  // Создаем Supabase клиент с правильной конфигурацией для Next.js 15
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value)
+            response.cookies.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
+
+  // ВАЖНО: Обновляем сессию для всех запросов
+  // Это предотвращает зависание в production
+  const { data: { session } } = await supabase.auth.getSession()
+
   // Защищенные маршруты
   const protectedRoutes = ['/admin', '/settings', '/profile/edit']
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
 
   if (isProtectedRoute) {
-    const response = NextResponse.next()
-
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get: (name) => request.cookies.get(name)?.value,
-          set: (name, value, options) => {
-            response.cookies.set(name, value, options)
-          },
-          remove: (name, options) => {
-            response.cookies.delete(name)
-          },
-        },
-      }
-    )
-
-    const { data: { session } } = await supabase.auth.getSession()
-
     // Если нет сессии - редирект на страницу авторизации
     if (!session) {
       const redirectUrl = new URL('/auth', request.url)
@@ -49,11 +59,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/', request.url))
       }
     }
-
-    return response
   }
 
-  return NextResponse.next()
+  return response
 }
 
 export const config = {

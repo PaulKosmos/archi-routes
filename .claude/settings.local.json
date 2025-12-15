@@ -56,7 +56,11 @@
       "Bash(npx playwright:*)",
       "Bash(claude mcp:*)",
       "mcp__playwright__playwright_drag",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebSearch",
+      "Bash(npm outdated:*)",
+      "Bash(npm uninstall:*)",
+      "WebFetch(domain:supabase.com)"
     ],
     "deny": [],
     "ask": []
