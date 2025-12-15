@@ -30,34 +30,16 @@ export function useAuth() {
       try {
         console.log('🔐 Auth: Starting session check...')
 
-        // НОВЫЙ ПОДХОД: Используем getUser() вместо getSession()
-        // getUser() проверяет JWT локально, без сетевых запросов к Supabase
-        const userPromise = supabase.auth.getUser()
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Auth check timeout')), 5000)
-        )
+        // Используем getSession() - читает из localStorage без сетевых запросов
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
-        const { data: { user }, error: userError } = await Promise.race([
-          userPromise,
-          timeoutPromise
-        ]) as Awaited<typeof userPromise>
-
-        console.log('🔐 Auth: User check completed', {
-          hasUser: !!user,
-          error: userError?.message
+        console.log('🔐 Auth: Session check completed', {
+          hasSession: !!session,
+          error: sessionError?.message
         })
 
-        if (userError) {
-          console.error('❌ Auth: User error:', userError)
-
-          // Если ошибка - очищаем всё и форсируем logout
-          try {
-            await supabase.auth.signOut()
-            console.log('🔐 Auth: Cleared corrupted session')
-          } catch (e) {
-            console.error('Failed to clear session:', e)
-          }
-
+        if (sessionError) {
+          console.error('❌ Auth: Session error:', sessionError)
           setAuthState({
             user: null,
             profile: null,
@@ -67,24 +49,15 @@ export function useAuth() {
           return
         }
 
-        if (user) {
-          console.log('🔐 Auth: Fetching profile for user:', user.id)
+        if (session?.user) {
+          console.log('🔐 Auth: Fetching profile for user:', session.user.id)
 
-          // Получаем профиль пользователя с timeout
-          const profilePromise = supabase
+          // Получаем профиль пользователя
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', user.id)
+            .eq('id', session.user.id)
             .single()
-
-          const profileTimeoutPromise = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
-          )
-
-          const { data: profile, error: profileError } = await Promise.race([
-            profilePromise,
-            profileTimeoutPromise
-          ]) as Awaited<typeof profilePromise>
 
           if (profileError) {
             console.error('Error fetching profile:', profileError)
@@ -93,9 +66,9 @@ export function useAuth() {
               const { data: newProfile, error: createError } = await supabase
                 .from('profiles')
                 .insert({
-                  id: user.id,
-                  email: user.email,
-                  full_name: user.user_metadata?.full_name || null,
+                  id: session.user.id,
+                  email: session.user.email,
+                  full_name: session.user.user_metadata?.full_name || null,
                   role: 'explorer'
                 })
                 .select()
@@ -106,7 +79,7 @@ export function useAuth() {
               } else {
                 console.log('✅ Auth: Created new profile')
                 setAuthState({
-                  user: user,
+                  user: session.user,
                   profile: newProfile,
                   loading: false,
                   initialized: true
@@ -118,7 +91,7 @@ export function useAuth() {
 
           console.log('✅ Auth: Successfully loaded user and profile')
           setAuthState({
-            user: user,
+            user: session.user,
             profile: profile || null,
             loading: false,
             initialized: true
@@ -134,15 +107,6 @@ export function useAuth() {
         }
       } catch (error) {
         console.error('❌ Auth: Error in getCurrentUser:', error)
-
-        // При timeout - очищаем сессию
-        try {
-          await supabase.auth.signOut()
-          console.log('🔐 Auth: Cleared session after error')
-        } catch (e) {
-          console.error('Failed to clear session:', e)
-        }
-
         setAuthState({
           user: null,
           profile: null,
@@ -154,23 +118,36 @@ export function useAuth() {
 
     getCurrentUser()
 
-    // Подписываемся на изменения аутентификации
+    // КРИТИЧЕСКИ ВАЖНО: НЕ ИСПОЛЬЗУЕМ async в onAuthStateChange!
+    // async внутри callback вызывает deadlock (Issue #35754)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {  // ✅ Убрали async!
+        console.log('🔐 Auth state changed:', event)
+
         if (event === 'SIGNED_IN' && session?.user) {
-          // Пользователь вошел
-          const { data: profile } = await supabase
+          // Пользователь вошел - загружаем профиль БЕЗ await
+          supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single()
-
-          setAuthState({
-            user: session.user,
-            profile: profile || null,
-            loading: false,
-            initialized: true
-          })
+            .then(({ data: profile }) => {
+              setAuthState({
+                user: session.user,
+                profile: profile || null,
+                loading: false,
+                initialized: true
+              })
+            })
+            .catch(err => {
+              console.error('Error loading profile on sign in:', err)
+              setAuthState({
+                user: session.user,
+                profile: null,
+                loading: false,
+                initialized: true
+              })
+            })
         } else if (event === 'SIGNED_OUT') {
           // Пользователь вышел
           setAuthState({
@@ -180,7 +157,7 @@ export function useAuth() {
             initialized: true
           })
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          // Токен обновлен
+          // Токен обновлен - просто обновляем user объект
           setAuthState(prev => ({
             ...prev,
             user: session.user,

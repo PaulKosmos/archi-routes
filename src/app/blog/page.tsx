@@ -4,7 +4,6 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { BlogPost } from '@/types/blog'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
-import { supabaseQueryWithTimeout } from '@/lib/query-timeout'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogFilters from '@/components/blog/BlogFilters'
 import Header from '@/components/Header'
@@ -40,61 +39,28 @@ export default function BlogPage() {
 
   const loadPosts = async () => {
     try {
-      console.log('📚 Blog: Starting to load posts...')
-      setLoading(true)
+      console.log('📚 Blog: Loading posts...')
 
-      // Загружаем посты с timeout защитой
-      console.log('📚 Blog: Fetching posts from database...')
-      const { data: postsData, error } = await supabaseQueryWithTimeout(
-        () => supabase
-          .from('blog_posts')
-          .select('*')
-          .eq('status', 'published')
-          .order('published_at', { ascending: false }),
-        {
-          timeout: 8000,
-          errorMessage: 'Blog posts query timeout',
-          fallbackValue: { data: [], error: null }
-        }
-      )
+      // Загружаем посты
+      const { data: postsData, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('status', 'published')
+        .order('published_at', { ascending: false })
 
-      console.log('📚 Blog: Posts query completed', {
-        count: postsData?.length || 0,
-        hasError: !!error
-      })
-
-      if (error) {
-        console.error('📚 Blog: Error loading posts:', error)
-        setPosts([])
-        setLoading(false)
-        return
-      }
+      if (error) throw error
 
       if (!postsData || postsData.length === 0) {
-        console.log('📚 Blog: No posts found')
         setPosts([])
-        setLoading(false)
         return
       }
 
-      // Загружаем реакции для всех постов с timeout защитой
-      console.log('📚 Blog: Fetching reactions...')
+      // Загружаем реакции для всех постов
       const postIds = postsData.map(post => post.id)
-      const { data: reactions } = await supabaseQueryWithTimeout(
-        () => supabase
-          .from('blog_post_reactions')
-          .select('post_id, reaction_type')
-          .in('post_id', postIds),
-        {
-          timeout: 5000,
-          errorMessage: 'Blog reactions query timeout',
-          fallbackValue: { data: [], error: null }
-        }
-      )
-
-      console.log('📚 Blog: Reactions query completed', {
-        count: reactions?.length || 0
-      })
+      const { data: reactions } = await supabase
+        .from('blog_post_reactions')
+        .select('post_id, reaction_type')
+        .in('post_id', postIds)
 
       // Агрегируем счётчики для каждого поста
       const reactionCounts = new Map()
@@ -117,14 +83,13 @@ export default function BlogPage() {
         comment_count: 0
       }))
 
-      console.log('📚 Blog: Setting posts state with', postsWithCounts.length, 'posts')
       setPosts(postsWithCounts)
-      setLoading(false)
-      console.log('✅ Blog: Successfully loaded all posts')
+      console.log('✅ Blog: Successfully loaded', postsWithCounts.length, 'posts')
 
     } catch (error) {
-      console.error('❌ Blog: Fatal error loading posts:', error)
+      console.error('Error loading posts:', error)
       setPosts([])
+    } finally {
       setLoading(false)
     }
   }
