@@ -28,8 +28,16 @@ export function useAuth() {
     // Получаем текущего пользователя
     const getCurrentUser = async () => {
       try {
-        // Сначала проверяем сессию
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        // Сначала проверяем сессию с timeout защитой
+        const sessionPromise = supabase.auth.getSession()
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Session check timeout')), 10000)
+        )
+
+        const { data: { session }, error: sessionError } = await Promise.race([
+          sessionPromise,
+          timeoutPromise
+        ]) as Awaited<typeof sessionPromise>
         
         if (sessionError) {
           console.error('Session error:', sessionError)

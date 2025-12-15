@@ -8,6 +8,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { BlogPost } from '@/types/blog'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
+import { supabaseQueryWithTimeout } from '@/lib/query-timeout'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogFilters from '@/components/blog/BlogFilters'
 import Header from '@/components/Header'
@@ -58,12 +59,21 @@ export default function BlogPage() {
 
   const loadPosts = async () => {
     try {
-      // Загружаем посты
-      const { data: postsData, error } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('status', 'published')
-        .order('published_at', { ascending: false })
+      console.log('📚 Blog: Loading posts...')
+
+      // Загружаем посты с timeout защитой
+      const { data: postsData, error } = await supabaseQueryWithTimeout(
+        () => supabase
+          .from('blog_posts')
+          .select('*')
+          .eq('status', 'published')
+          .order('published_at', { ascending: false }),
+        {
+          timeout: 10000,
+          errorMessage: 'Blog posts query timeout',
+          fallbackValue: { data: [], error: null }
+        }
+      )
 
       if (error) throw error
 
@@ -72,12 +82,19 @@ export default function BlogPage() {
         return
       }
 
-      // Загружаем реакции для всех постов
+      // Загружаем реакции для всех постов с timeout защитой
       const postIds = postsData.map(post => post.id)
-      const { data: reactions } = await supabase
-        .from('blog_post_reactions')
-        .select('post_id, reaction_type')
-        .in('post_id', postIds)
+      const { data: reactions } = await supabaseQueryWithTimeout(
+        () => supabase
+          .from('blog_post_reactions')
+          .select('post_id, reaction_type')
+          .in('post_id', postIds),
+        {
+          timeout: 5000,
+          errorMessage: 'Blog reactions query timeout',
+          fallbackValue: { data: [], error: null }
+        }
+      )
 
       // Агрегируем счётчики для каждого поста
       const reactionCounts = new Map()
