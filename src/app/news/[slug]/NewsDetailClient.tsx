@@ -199,7 +199,7 @@ import {
 import NewsStructuredData from '@/components/news/NewsStructuredData';
 import NewsBreadcrumbs, { BreadcrumbsStructuredData } from '@/components/news/NewsBreadcrumbs';
 import ContentBlockRenderer from '@/components/news/ContentBlockRenderer';
-import Header from '@/components/HeaderWithSuspense';
+import Header from '@/components/Header';
 import EnhancedFooter from '@/components/EnhancedFooter';
 import dynamic from 'next/dynamic';
 

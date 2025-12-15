@@ -14,7 +14,7 @@ import {
   Heart
 } from 'lucide-react'
 import Link from 'next/link'
-import Header from '@/components/HeaderWithSuspense'
+import Header from '@/components/Header'
 import EnhancedFooter from '@/components/EnhancedFooter'
 import ContentBlockRenderer from '@/components/blog/ContentBlockRenderer'
 import BlogRouteBuilder from '@/components/blog/BlogRouteBuilder'

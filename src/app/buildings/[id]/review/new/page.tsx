@@ -1,7 +1,7 @@
 // src/app/buildings/[id]/review/new/page.tsx - Страница создания обзора
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
-import Header from '../../../../../components/HeaderWithSuspense'
+import Header from '../../../../../components/Header'
 import CreateReviewClient from './CreateReviewClient'
 
 interface PageProps {

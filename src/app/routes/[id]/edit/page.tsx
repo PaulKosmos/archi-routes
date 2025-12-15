@@ -1,7 +1,7 @@
 // src/app/routes/[id]/edit/page.tsx
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
-import Header from '../../../../components/HeaderWithSuspense'
+import Header from '../../../../components/Header'
 import EditPageWrapper from '../../../../components/EditPageWrapper'
 import RouteEditClient from './RouteEditClient'
 

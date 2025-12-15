@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import RouteCreator from './RouteCreator'
 import UserDropdown from './UserDropdown'
@@ -20,7 +20,6 @@ interface HeaderProps {
 export default function Header({ buildings, onRouteCreated }: HeaderProps) {
   const { user, profile, loading } = useAuth()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const [isRouteCreatorOpen, setIsRouteCreatorOpen] = useState(false)
   const [routeCreatorMode, setRouteCreatorMode] = useState<'manual' | 'autogenerate'>('manual')
   const [showMobileMenu, setShowMobileMenu] = useState(false)
@@ -37,19 +36,21 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
 
   // Обрабатываем параметры URL для открытия RouteCreator
   useEffect(() => {
-    if (mounted && isHomePage && user) {
-      const routeCreatorParam = searchParams?.get('routeCreator')
+    if (mounted && isHomePage && user && typeof window !== 'undefined') {
+      // Используем window.location вместо useSearchParams чтобы избежать Suspense
+      const params = new URLSearchParams(window.location.search)
+      const routeCreatorParam = params.get('routeCreator')
       if (routeCreatorParam === 'manual' || routeCreatorParam === 'autogenerate') {
         setRouteCreatorMode(routeCreatorParam)
         setIsRouteCreatorOpen(true)
-        
+
         // Очищаем URL параметры
-        const url = new URL(window.location.href)
-        url.searchParams.delete('routeCreator')
-        window.history.replaceState({}, '', url.toString())
+        params.delete('routeCreator')
+        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '')
+        window.history.replaceState({}, '', newUrl)
       }
     }
-  }, [mounted, isHomePage, user, searchParams])
+  }, [mounted, isHomePage, user])
 
   const handleOpenRouteCreator = () => {
     console.log('Opening route creator with buildings:', buildings.length)

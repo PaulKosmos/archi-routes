@@ -44,7 +44,7 @@ import {
   Zap
 } from 'lucide-react'
 import MapStatsPanel from '../../components/MapStatsPanel'
-import Header from '../../components/HeaderWithSuspense'
+import Header from '../../components/Header'
 import LazyFilterPanel from '../../components/test-map/LazyFilterPanel'
 import LazyBuildingList from '../../components/test-map/LazyBuildingList'
 import LazyRouteList from '../../components/test-map/LazyRouteList'
