@@ -1029,9 +1029,9 @@ export default function TestMapPage() {
         <div className="flex-1 flex flex-col">
           {/* Контент: список объектов или карта */}
           <div className="flex-1 flex relative">
-            {/* Список объектов с плавной анимацией заезда влево (заходит ПОД панель фильтров) */}
-            <div 
-              className={`bg-white border-r border-gray-200 shadow-xl flex flex-col h-full transition-all duration-500 ease-in-out absolute left-0 top-0 bottom-0 z-10 ${
+            {/* Список объектов с плавной анимацией заезда влево (заходит ПОД панель фильтров) - ТОЛЬКО НА DESKTOP */}
+            <div
+              className={`hidden md:flex bg-white border-r border-gray-200 shadow-xl flex-col h-full transition-all duration-500 ease-in-out absolute left-0 top-0 bottom-0 z-10 ${
                 showSidebar ? 'w-[480px] translate-x-0' : 'w-[480px] -translate-x-full'
               }`}
             >
@@ -1251,8 +1251,8 @@ export default function TestMapPage() {
                 className="h-full w-full"
               />
 
-              {/* Островок с кнопками управления (как стили карты) */}
-              <div className="absolute top-4 right-4 z-40 bg-white rounded-lg shadow-lg border border-gray-200 p-3">
+              {/* Островок с кнопками управления (как стили карты) - ТОЛЬКО НА DESKTOP */}
+              <div className="hidden md:flex absolute top-4 right-4 z-40 bg-white rounded-lg shadow-lg border border-gray-200 p-3">
                 <div className="flex space-x-2">
                   {/* Кнопка Объекты */}
                   <button
@@ -1434,6 +1434,26 @@ export default function TestMapPage() {
         onClose={() => setShowMobileBuildings(false)}
         title={`Объекты (${filteredBuildings.length})`}
       >
+        {/* Кнопка добавления нового объекта */}
+        {user && (
+          <div className="mb-4 -mt-2">
+            <button
+              onClick={() => {
+                setShowMobileBuildings(false)
+                handleToggleAddBuildingMode()
+              }}
+              className={`w-full px-4 py-3 text-sm rounded-[var(--radius)] transition-all flex items-center justify-center gap-2 font-medium ${
+                addBuildingMode || showInstructionModal
+                  ? 'bg-green-600 text-white ring-2 ring-green-200'
+                  : 'bg-green-600 text-white hover:bg-green-700 active:bg-green-800'
+              }`}
+            >
+              <span className="text-lg">➕</span>
+              <span>Добавить объект на карту</span>
+            </button>
+          </div>
+        )}
+
         <LazyBuildingList
           buildings={filteredBuildings}
           selectedBuilding={selectedBuilding}
@@ -1450,6 +1470,60 @@ export default function TestMapPage() {
         onClose={() => setShowMobileRoutes(false)}
         title={`Маршруты (${filteredRoutes.length})`}
       >
+        {/* Переключатель публичных/личных маршрутов */}
+        <div className="mb-4 -mt-2">
+          <div className="flex gap-2 p-1 bg-muted rounded-[var(--radius)]">
+            <button
+              onClick={() => setRouteViewMode('public')}
+              className={`flex-1 px-4 py-2 rounded-[var(--radius)] font-medium transition-all text-sm ${
+                routeViewMode === 'public'
+                  ? 'bg-white text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Публичные
+            </button>
+            <button
+              onClick={() => setRouteViewMode('personal')}
+              className={`flex-1 px-4 py-2 rounded-[var(--radius)] font-medium transition-all text-sm ${
+                routeViewMode === 'personal'
+                  ? 'bg-white text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Личные
+            </button>
+          </div>
+        </div>
+
+        {/* Кнопка создания маршрута */}
+        {user && (
+          <div className="mb-4">
+            <button
+              onClick={() => {
+                setShowMobileRoutes(false)
+                handleRouteCreationButtonClick()
+              }}
+              className={`w-full px-4 py-3 text-sm rounded-[var(--radius)] transition-all flex items-center justify-center gap-2 font-medium ${
+                selectedBuildingsForRoute.length >= 2
+                  ? 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
+                  : routeCreationMode
+                  ? 'bg-purple-600 text-white ring-2 ring-purple-200'
+                  : 'bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800'
+              }`}
+            >
+              <span className="text-lg">✨</span>
+              <span>
+                {selectedBuildingsForRoute.length >= 2
+                  ? `Создать маршрут (${selectedBuildingsForRoute.length} объектов)`
+                  : routeCreationMode
+                  ? 'Выйти из режима создания'
+                  : 'Создать новый маршрут'}
+              </span>
+            </button>
+          </div>
+        )}
+
         <LazyRouteList
           routes={filteredRoutes}
           onRouteClick={handleRouteClick}

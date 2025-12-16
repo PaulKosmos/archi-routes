@@ -958,9 +958,10 @@ export default function EnhancedMap({
         </div>
       )}
       
-      {/* Панель управления стилем карты */}
+      {/* Панель управления стилем карты - адаптивная */}
       <div className={`absolute ${compactControls ? 'top-4' : 'top-28'} right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-2`}>
-        <div className="flex space-x-1">
+        {/* Desktop: горизонтально с текстом */}
+        <div className="hidden md:flex space-x-1">
           {Object.keys(MAP_STYLES).map(style => (
             <button
               key={style}
@@ -978,11 +979,31 @@ export default function EnhancedMap({
             </button>
           ))}
         </div>
+
+        {/* Mobile: вертикально, только иконки, справа */}
+        <div className="flex md:hidden flex-col space-y-1">
+          {Object.keys(MAP_STYLES).map(style => (
+            <button
+              key={style}
+              onClick={() => setCurrentStyle(style)}
+              className={`p-2 text-base rounded transition-colors ${
+                currentStyle === style
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+              title={`${style === 'light' ? 'Светлая' : style === 'dark' ? 'Тёмная' : 'Спутник'} тема карты`}
+            >
+              {style === 'light' ? '☀️' :
+               style === 'dark' ? '🌙' :
+               style === 'satellite' ? '🛰️' : style}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Легенда */}
+      {/* Легенда - ТОЛЬКО НА DESKTOP */}
       {!hideLegend && (
-        <div className="absolute bottom-4 right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-xs">
+        <div className="hidden md:block absolute bottom-4 right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-xs">
         <h4 className="font-semibold text-gray-900 text-sm mb-3">Легенда</h4>
         
         {showBuildings && (

@@ -25,6 +25,9 @@ export default function GridCardsRenderer({
   isEditMode = false,
   onCardClick
 }: GridCardsRendererProps) {
+  // Логируем количество карточек для отладки
+  console.log('📊 GridCardsRenderer: Rendering', cards.length, 'cards');
+
   if (!cards || cards.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
@@ -51,11 +54,13 @@ export default function GridCardsRenderer({
         gridAutoRows: 'minmax(300px, auto)'
       }}
     >
-      {cards.map((card) => {
+      {cards.map((card, index) => {
         if (!card.news) {
-          console.warn('Card has no news:', card.id);
+          console.warn('❌ Card has no news:', card.id, 'at index:', index);
           return null;
         }
+
+        console.log(`✅ Rendering card ${index}:`, card.id, 'col_span:', card.col_span, 'row_span:', card.row_span);
 
         // В режиме редактирования используем SortableCard
         if (isEditMode) {
@@ -69,14 +74,28 @@ export default function GridCardsRenderer({
         }
 
         // В обычном режиме - обычный рендер
+        // На мобильных ограничиваем col_span до 1, на планшетах/desktop используем полный span
+        const getColSpanClass = (span: number) => {
+          switch(span) {
+            case 1: return 'col-span-1'
+            case 2: return 'col-span-1 md:col-span-2 lg:col-span-2'
+            case 3: return 'col-span-1 md:col-span-2 lg:col-span-3'
+            default: return 'col-span-1'
+          }
+        }
+
+        const getRowSpanClass = (span: number) => {
+          switch(span) {
+            case 1: return 'row-span-1'
+            case 2: return 'row-span-2'
+            default: return 'row-span-1'
+          }
+        }
+
         return (
           <div
             key={card.id}
-            className="relative"
-            style={{
-              gridColumn: `span ${card.col_span}`,
-              gridRow: `span ${card.row_span}`
-            }}
+            className={`relative ${getColSpanClass(card.col_span)} ${getRowSpanClass(card.row_span)}`}
           >
             <NewsCard
               news={card.news}
@@ -108,19 +127,35 @@ function SortableCard({ card, onCardClick }: SortableCardProps) {
     isDragging,
   } = useSortable({ id: card.id });
 
+  // На мобильных col_span всегда 1
+  const getColSpanClass = (span: number) => {
+    switch(span) {
+      case 1: return 'col-span-1'
+      case 2: return 'col-span-1 md:col-span-2 lg:col-span-2'
+      case 3: return 'col-span-1 md:col-span-2 lg:col-span-3'
+      default: return 'col-span-1'
+    }
+  }
+
+  const getRowSpanClass = (span: number) => {
+    switch(span) {
+      case 1: return 'row-span-1'
+      case 2: return 'row-span-2'
+      default: return 'row-span-1'
+    }
+  }
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    gridColumn: `span ${card.col_span}`,
-    gridRow: `span ${card.row_span}`,
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="relative cursor-move"
+      className={`relative cursor-move ${getColSpanClass(card.col_span)} ${getRowSpanClass(card.row_span)}`}
       {...attributes}
       {...listeners}
     >

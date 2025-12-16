@@ -15,15 +15,16 @@ export default function MobileBottomSheet({
   title,
   children
 }: MobileBottomSheetProps) {
+  // Не рендерим sheet вообще, если он закрыт (для оптимизации и избежания проблем с z-index)
+  if (!isOpen) return null
+
   return (
     <>
       {/* Backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/70 z-[35] md:hidden"
-          onClick={onClose}
-        />
-      )}
+      <div
+        className="fixed inset-0 bg-black/70 z-[35] md:hidden"
+        onClick={onClose}
+      />
 
       {/* Sheet */}
       <div className={`
@@ -31,26 +32,31 @@ export default function MobileBottomSheet({
         bg-white border-t-2 border-border
         max-h-[80vh]
         transform transition-transform duration-300
-        ${isOpen ? 'translate-y-0' : 'translate-y-full'}
+        translate-y-0
         z-[45] md:hidden
         rounded-t-2xl
         overflow-hidden
         shadow-2xl
       `}>
-        {/* Handle bar */}
-        <div className="flex justify-center pt-2 pb-1">
-          <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
-        </div>
+        {/* Compact Header with handle bar */}
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+          {/* Handle bar (visual indicator) */}
+          <div className="flex-1 flex justify-center">
+            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+          </div>
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <h3 className="text-lg font-bold font-display">{title}</h3>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-muted rounded-[var(--radius)]"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {/* Title - compact */}
+          <h3 className="flex-1 text-center text-sm font-semibold font-display">{title}</h3>
+
+          {/* Close button */}
+          <div className="flex-1 flex justify-end">
+            <button
+              onClick={onClose}
+              className="p-1.5 hover:bg-muted rounded-[var(--radius)]"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
