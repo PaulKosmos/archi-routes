@@ -144,13 +144,16 @@
 }
 
 /* Mobile safety - prevent horizontal scroll */
+/* TEMPORARILY DISABLED FOR DEBUGGING - если новости не видны, уберите комментарии */
 @layer base {
   html {
-    @apply overflow-x-hidden;
+    /* @apply overflow-x-hidden; */
+    overflow-x: auto;
   }
 
   body {
-    @apply overflow-x-hidden;
+    /* @apply overflow-x-hidden; */
+    overflow-x: auto;
   }
 }
 

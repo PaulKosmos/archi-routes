@@ -20,7 +20,7 @@ export default function MobileBottomSheet({
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-black/70 z-[35] md:hidden"
           onClick={onClose}
         />
       )}
@@ -28,13 +28,14 @@ export default function MobileBottomSheet({
       {/* Sheet */}
       <div className={`
         fixed bottom-0 left-0 right-0
-        bg-card border-t-2 border-border
+        bg-white border-t-2 border-border
         max-h-[80vh]
         transform transition-transform duration-300
         ${isOpen ? 'translate-y-0' : 'translate-y-full'}
-        z-40 md:hidden
+        z-[45] md:hidden
         rounded-t-2xl
         overflow-hidden
+        shadow-2xl
       `}>
         {/* Handle bar */}
         <div className="flex justify-center pt-2 pb-1">

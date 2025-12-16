@@ -5,23 +5,6 @@ import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
 import { buildRoute } from '@/lib/mapbox-routing-service'
 import dynamic from 'next/dynamic'
-
-// Интерфейс фильтров
-interface Filters {
-  search: string
-  cities: string[]
-  architecturalStyles: string[]
-  buildingTypes: string[]
-  difficultyLevels: string[]
-  transportModes: string[]
-  showOnlyPublished: boolean
-  showOnlyFeatured: boolean
-  minRating: number
-  maxDistance: number
-  radiusKm: number
-  currentLocation: { lat: number; lng: number } | null
-  hasAudio: boolean
-}
 import { 
   MapPin, 
   Filter, 
@@ -78,13 +61,14 @@ import type { GeoJSON } from 'geojson'
 
 // Route импортируется из types/building.ts
 
-// Фильтры
+// Интерфейс фильтров
 interface Filters {
   search: string
   cities: string[]
   architecturalStyles: string[]
   buildingTypes: string[]
   difficultyLevels: string[]
+  transportModes: string[]
   showOnlyPublished: boolean
   showOnlyFeatured: boolean
   minRating: number
@@ -774,6 +758,13 @@ export default function TestMapPage() {
     toast.success('🗑️ Удалено из маршрута')
   }, [])
 
+  // Обработчик начала маршрута с выбранного здания
+  const handleStartRouteFromBuilding = useCallback((buildingId: string) => {
+    setSelectedBuildingsForRoute([buildingId])
+    setRouteCreationMode(true)
+    toast.success('🚀 Маршрут начат с этого здания')
+  }, [])
+
   // Обработчик изменения порядка зданий
   const handleReorderBuildings = useCallback((buildingIds: string[]) => {
     setSelectedBuildingsForRoute(buildingIds)
@@ -1400,9 +1391,21 @@ export default function TestMapPage() {
 
       {/* Mobile Control Bar */}
       <MobileControlBar
-        onShowFilters={() => setShowMobileFilters(true)}
-        onShowBuildings={() => setShowMobileBuildings(true)}
-        onShowRoutes={() => setShowMobileRoutes(true)}
+        onShowFilters={() => {
+          setShowMobileFilters(true)
+          setShowMobileBuildings(false)
+          setShowMobileRoutes(false)
+        }}
+        onShowBuildings={() => {
+          setShowMobileBuildings(true)
+          setShowMobileFilters(false)
+          setShowMobileRoutes(false)
+        }}
+        onShowRoutes={() => {
+          setShowMobileRoutes(true)
+          setShowMobileFilters(false)
+          setShowMobileBuildings(false)
+        }}
         buildingsCount={filteredBuildings.length}
         routesCount={filteredRoutes.length}
       />
@@ -1433,10 +1436,12 @@ export default function TestMapPage() {
       >
         <LazyBuildingList
           buildings={filteredBuildings}
-          onBuildingClick={handleBuildingClick}
-          onBuildingHover={handleBuildingHover}
-          selectedBuildingId={selectedBuilding?.id}
-          hoveredBuildingId={hoveredBuilding}
+          selectedBuilding={selectedBuilding}
+          currentRouteBuildings={selectedBuildingsForRoute}
+          onBuildingSelect={(building) => handleBuildingClick(building.id)}
+          onAddToRoute={handleAddBuildingToRoute}
+          onStartRouteFrom={handleStartRouteFromBuilding}
+          onRemoveFromRoute={handleRemoveBuildingFromRoute}
         />
       </MobileBottomSheet>
 
@@ -1448,9 +1453,7 @@ export default function TestMapPage() {
         <LazyRouteList
           routes={filteredRoutes}
           onRouteClick={handleRouteClick}
-          onRouteHover={handleRouteHover}
           selectedRouteId={selectedRoute?.id}
-          hoveredRouteId={hoveredRoute}
         />
       </MobileBottomSheet>
     </div>
