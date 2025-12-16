@@ -52,6 +52,8 @@ import LazyCurrentRoutePanel from '../../components/test-map/LazyCurrentRoutePan
 import BuildingModal from '../../components/BuildingModal'
 import RouteViewerModal from '../../components/RouteViewerModal'
 import RouteCreationModal from '../../components/test-map/RouteCreationModal'
+import MobileBottomSheet from '../../components/test-map/MobileBottomSheet'
+import MobileControlBar from '../../components/test-map/MobileControlBar'
 import PersonalRouteCreationModal from '../../components/test-map/PersonalRouteCreationModal'
 import RouteCreationMethodModal from '../../components/test-map/RouteCreationMethodModal'
 import RouteCreator from '../../components/RouteCreator'
@@ -113,7 +115,12 @@ export default function TestMapPage() {
   const [showRoutes, setShowRoutes] = useState(false) // Скрываем маршруты по умолчанию
   const [showBuildings, setShowBuildings] = useState(true)
   const [mapView, setMapView] = useState<'buildings' | 'routes' | null>('buildings') // Показываем только здания по умолчанию
-  
+
+  // Mobile bottom sheet states
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const [showMobileBuildings, setShowMobileBuildings] = useState(false)
+  const [showMobileRoutes, setShowMobileRoutes] = useState(false)
+
   // Состояние фильтров
   const [filters, setFilters] = useState<Filters>({
     search: '',
@@ -995,10 +1002,10 @@ export default function TestMapPage() {
       
 
       {/* Основной контент в стиле Яндекс.Путешествий */}
-      <div className="flex h-[calc(100vh-4rem)] bg-gray-50 relative">
+      <div className="flex flex-col md:flex-row h-[calc(100vh-4rem)] bg-gray-50 relative">
 
-        {/* Боковая панель фильтров - ВСЕГДА ВИДНА, высокий z-index чтобы скользящая панель заходила под неё */}
-        <div className="w-80 bg-white border-r border-gray-200 flex flex-col relative z-20 shadow-lg">
+        {/* Боковая панель фильтров - скрыта на мобильных, видна на desktop */}
+        <div className="hidden md:block md:w-64 lg:w-80 bg-white border-r border-gray-200 flex flex-col relative z-20 shadow-lg">
           {/* Заголовок фильтров */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
@@ -1390,6 +1397,62 @@ export default function TestMapPage() {
         onClose={handleCloseAddBuildingForm}
         onSave={handleSaveNewBuilding}
       />
+
+      {/* Mobile Control Bar */}
+      <MobileControlBar
+        onShowFilters={() => setShowMobileFilters(true)}
+        onShowBuildings={() => setShowMobileBuildings(true)}
+        onShowRoutes={() => setShowMobileRoutes(true)}
+        buildingsCount={filteredBuildings.length}
+        routesCount={filteredRoutes.length}
+      />
+
+      {/* Mobile Bottom Sheets */}
+      <MobileBottomSheet
+        isOpen={showMobileFilters}
+        onClose={() => setShowMobileFilters(false)}
+        title="Фильтры"
+      >
+        <LazyFilterPanel
+          filters={filters}
+          uniqueValues={uniqueValues}
+          onFilterChange={(filters) => setFilters(filters)}
+          onReset={clearFilters}
+          showFilters={true}
+          onToggleFilters={() => {}}
+          radiusMode={radiusMode}
+          onRadiusModeChange={setRadiusMode}
+          isMobile={true}
+        />
+      </MobileBottomSheet>
+
+      <MobileBottomSheet
+        isOpen={showMobileBuildings}
+        onClose={() => setShowMobileBuildings(false)}
+        title={`Объекты (${filteredBuildings.length})`}
+      >
+        <LazyBuildingList
+          buildings={filteredBuildings}
+          onBuildingClick={handleBuildingClick}
+          onBuildingHover={handleBuildingHover}
+          selectedBuildingId={selectedBuilding?.id}
+          hoveredBuildingId={hoveredBuilding}
+        />
+      </MobileBottomSheet>
+
+      <MobileBottomSheet
+        isOpen={showMobileRoutes}
+        onClose={() => setShowMobileRoutes(false)}
+        title={`Маршруты (${filteredRoutes.length})`}
+      >
+        <LazyRouteList
+          routes={filteredRoutes}
+          onRouteClick={handleRouteClick}
+          onRouteHover={handleRouteHover}
+          selectedRouteId={selectedRoute?.id}
+          hoveredRouteId={hoveredRoute}
+        />
+      </MobileBottomSheet>
     </div>
   )
 }

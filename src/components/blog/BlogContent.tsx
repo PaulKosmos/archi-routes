@@ -252,10 +252,9 @@ export default function BlogContent({
     const card = document.createElement('div')
     card.className = 'building-hover-card-popup'
     card.innerHTML = `
-      <div class="fixed z-[9999] bg-white rounded-lg shadow-xl border border-gray-200 p-5 w-96" style="
+      <div class="fixed z-[9999] bg-white rounded-lg shadow-xl border border-gray-200 p-5 w-[calc(100vw-2rem)] sm:w-96 max-w-md" style="
         left: ${x}px;
         top: ${y}px;
-        max-width: 380px;
       ">
         <div class="relative h-40 bg-gray-200 rounded-lg overflow-hidden mb-4">
           ${building.image_url 

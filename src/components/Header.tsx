@@ -73,15 +73,15 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
   return (
     <>
       <header className="sticky top-0 z-50 border-b-2 border-foreground bg-card/80 backdrop-blur-md">
-        <div className="container mx-auto px-6 py-2">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 py-2">
           <div className="flex justify-between items-center">
             {/* Логотип */}
-            <div className="flex items-center gap-3">
-              <a href="/" className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <a href="/" className="flex items-center gap-2 sm:gap-3">
                 <div className="w-10 h-10 bg-primary bevel-edge flex items-center justify-center">
                   <span className="text-primary-foreground font-bold text-xl">A</span>
                 </div>
-                <h1 className="text-2xl font-bold tracking-tight font-display">ArchiRoutes</h1>
+                <h1 className="hidden sm:block text-lg sm:text-xl lg:text-2xl font-bold tracking-tight font-display">ArchiRoutes</h1>
               </a>
             </div>
 

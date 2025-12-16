@@ -143,6 +143,28 @@
   }
 }
 
+/* Mobile safety - prevent horizontal scroll */
+@layer base {
+  html {
+    @apply overflow-x-hidden;
+  }
+
+  body {
+    @apply overflow-x-hidden;
+  }
+}
+
+/* Responsive container helpers */
+@layer utilities {
+  .container-safe {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .gap-responsive {
+    @apply gap-4 sm:gap-6 lg:gap-8;
+  }
+}
+
 .building-marker {
   background: none !important;
   border: none !important;

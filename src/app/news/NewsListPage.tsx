@@ -237,7 +237,7 @@ export default function NewsListPage() {
       {/* Header - sticky */}
       <Header buildings={buildings} />
 
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Поиск */}
         <div className="mb-8">
           <div className="relative">

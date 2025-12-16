@@ -118,7 +118,7 @@ export default function BuildingHoverCard({
           ref={cardRef}
           onMouseEnter={handleCardMouseEnter}
           onMouseLeave={handleCardMouseLeave}
-          className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 w-80 building-hover-card"
+          className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 w-[calc(100vw-2rem)] sm:w-80 max-w-sm building-hover-card"
           style={{
             left: position.x - 160, // центрируем карточку
             top: position.y

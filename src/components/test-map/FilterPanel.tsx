@@ -43,6 +43,7 @@ interface FilterPanelProps {
   onToggleFilters: () => void
   radiusMode?: 'none' | 'location' | 'map'
   onRadiusModeChange?: (mode: 'none' | 'location' | 'map') => void
+  isMobile?: boolean
 }
 
 export default function FilterPanel({
@@ -53,7 +54,8 @@ export default function FilterPanel({
   showFilters,
   onToggleFilters,
   radiusMode = 'none',
-  onRadiusModeChange
+  onRadiusModeChange,
+  isMobile = false
 }: FilterPanelProps) {
   // Убрали isExpanded - все фильтры всегда видимы
 
@@ -106,30 +108,32 @@ export default function FilterPanel({
   }, [filters, onFilterChange])
 
   return (
-    <div className="bg-card border-b border-border">
-      {/* Кнопка показать/скрыть фильтры */}
-      <div className="flex items-center justify-between p-4">
-        <button
-          onClick={onToggleFilters}
-          className={`flex items-center px-4 py-2 rounded-[var(--radius)] border transition-colors ${
-            showFilters
-              ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
-              : 'bg-card border-border text-foreground hover:bg-muted'
-          }`}
-        >
-          <Filter className="w-4 h-4 mr-2" />
-          Фильтры
-          {showFilters && (
-            <span className="ml-2 bg-[hsl(var(--map-primary))] text-white text-xs rounded-full px-2 py-1">
-              Активны
-            </span>
-          )}
-        </button>
-      </div>
+    <div className={`${isMobile ? 'bg-background' : 'bg-card border-b border-border'}`}>
+      {/* Кнопка показать/скрыть фильтры - только на desktop */}
+      {!isMobile && (
+        <div className="flex items-center justify-between p-4">
+          <button
+            onClick={onToggleFilters}
+            className={`flex items-center px-4 py-2 rounded-[var(--radius)] border transition-colors ${
+              showFilters
+                ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+                : 'bg-card border-border text-foreground hover:bg-muted'
+            }`}
+          >
+            <Filter className="w-4 h-4 mr-2" />
+            Фильтры
+            {showFilters && (
+              <span className="ml-2 bg-[hsl(var(--map-primary))] text-white text-xs rounded-full px-2 py-1">
+                Активны
+              </span>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Панель фильтров */}
-      {showFilters && (
-        <div className="px-4 pb-4">
+      {(showFilters || isMobile) && (
+        <div className={`${isMobile ? 'px-0 pb-4' : 'px-4 pb-4'}`}>
           {/* Поиск */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-foreground mb-2">
@@ -142,7 +146,7 @@ export default function FilterPanel({
                 value={filters.search}
                 onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
                 placeholder="Поиск по названию, архитектору, стилю..."
-                className="w-full pl-10 pr-4 py-2 border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--map-primary))] transition-colors"
+                className={`w-full pl-10 pr-4 ${isMobile ? 'py-3 text-base' : 'py-2 text-sm'} border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--map-primary))] transition-colors`}
               />
             </div>
           </div>

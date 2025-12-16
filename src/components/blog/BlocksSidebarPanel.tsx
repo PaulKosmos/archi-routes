@@ -88,7 +88,7 @@ export default function BlocksSidebarPanel({ onAddBlock }: BlocksSidebarPanelPro
   };
 
   return (
-    <div className="fixed top-0 right-0 h-screen w-80 bg-white border-l border-gray-200 shadow-lg overflow-y-auto z-40 pt-20">
+    <div className="hidden md:block fixed top-0 right-0 h-screen w-80 bg-white border-l border-gray-200 shadow-lg overflow-y-auto z-40 pt-20">
       {/* Заголовок панели */}
       <div className="px-6 py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
         <h3 className="font-semibold text-gray-900 text-lg">Добавить блок</h3>
