@@ -232,12 +232,13 @@ Users request publication via `RoutePublicationRequest` component.
 
 ## Common Pitfalls
 
-1. **Don't use `building.rating`** - It's deprecated. Use `building_reviews.user_rating_avg`
-2. **Don't use `order_in_route`** - Route points use `order_index`
-3. **Don't forget dynamic imports** - All map components need `ssr: false`
-4. **Don't use global supabase client** - Always use `createClient()`
-5. **Don't forget cleanup** - Realtime subscriptions must be removed in useEffect cleanup
-6. **Don't skip useMemo** - Wrap `createClient()` in `useMemo(() => createClient(), [])`
+1. **NEVER use `async` in `onAuthStateChange`** - ⚠️ CRITICAL: Using `async/await` inside `onAuthStateChange` callback causes complete Supabase deadlock in production. Use `.then()/.catch()` instead. See `TROUBLESHOOTING.md` for details.
+2. **Don't use `building.rating`** - It's deprecated. Use `building_reviews.user_rating_avg`
+3. **Don't use `order_in_route`** - Route points use `order_index`
+4. **Don't forget dynamic imports** - All map components need `ssr: false`
+5. **Don't use global supabase client** - Always use `createClient()`
+6. **Don't forget cleanup** - Realtime subscriptions must be removed in useEffect cleanup
+7. **Don't skip useMemo** - Wrap `createClient()` in `useMemo(() => createClient(), [])`
 
 ## Key Files to Read
 
@@ -263,6 +264,7 @@ When working on specific features, read these first:
 ## Documentation Files
 
 High-level system documentation:
+- `TROUBLESHOOTING.md` - **Known issues and solutions** ⚠️ READ THIS FIRST when encountering production issues
 - `ROUTE_SYSTEM_COMPLETE.md` - Complete route system documentation
 - `BUILDING_MODAL_REDESIGN_COMPLETE.md` - Building modal architecture
 - `FULL_MIGRATION_COMPLETE.md` - Supabase SSR migration details
