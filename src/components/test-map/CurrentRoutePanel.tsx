@@ -40,10 +40,10 @@ export default function CurrentRoutePanel({
 
   if (routeBuildings.length === 0) {
     return (
-      <div className="p-4">
-        <h3 className="font-medium text-gray-900 mb-3">{title}</h3>
-        <div className="text-center py-8 text-gray-500">
-          <RouteIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+      <div className="p-4 bg-card border-2 border-border rounded-[var(--radius)]">
+        <h3 className="font-medium font-display text-foreground mb-3">{title}</h3>
+        <div className="text-center py-8 text-muted-foreground">
+          <RouteIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
           <p>Маршрут пуст</p>
           <p className="text-sm">Добавьте здания для создания маршрута</p>
         </div>
@@ -52,16 +52,16 @@ export default function CurrentRoutePanel({
   }
 
   return (
-    <div className="p-4">
+    <div className="p-4 bg-card border-2 border-border rounded-[var(--radius)]">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-medium text-gray-900">{title}</h3>
+        <h3 className="font-medium font-display text-foreground">{title}</h3>
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">
+          <span className="text-sm font-metrics text-muted-foreground">
             {routeBuildings.length} зданий
           </span>
           <button
             onClick={handleClear}
-            className="flex items-center px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+            className="flex items-center px-2 py-1 text-xs text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded-[var(--radius)] transition-colors"
             title="Очистить маршрут"
           >
             <Trash2 className="w-3 h-3 mr-1" />
@@ -71,23 +71,23 @@ export default function CurrentRoutePanel({
       </div>
 
       {/* Список зданий в маршруте */}
-      <div className="space-y-2 max-h-48 overflow-y-auto mb-4">
+      <div className="space-y-2 max-h-48 overflow-y-auto mb-4 bg-background rounded-[var(--radius)] p-2">
         {routeBuildingsData.map((building, index) => (
-          <div 
+          <div
             key={building.id}
-            className="flex items-center p-2 bg-gray-50 rounded-lg border border-gray-200"
+            className="flex items-center p-2 bg-card rounded-[var(--radius)] border border-border border-l-2 border-l-[hsl(var(--map-primary))]"
           >
             {/* Порядковый номер */}
-            <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white text-xs font-medium rounded-full flex items-center justify-center mr-3">
+            <div className="flex-shrink-0 w-6 h-6 bg-[hsl(var(--map-primary))] text-white text-xs font-medium rounded-full flex items-center justify-center mr-3">
               {index + 1}
             </div>
 
             {/* Информация о здании */}
             <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-gray-900 text-sm truncate">
+              <h4 className="font-medium font-display text-foreground text-sm truncate">
                 {building.name}
               </h4>
-              <div className="text-xs text-gray-600 flex items-center">
+              <div className="text-xs text-muted-foreground flex items-center font-metrics">
                 <MapPin className="w-3 h-3 mr-1" />
                 <span className="truncate">{building.city}</span>
               </div>
@@ -96,7 +96,7 @@ export default function CurrentRoutePanel({
             {/* Кнопка удаления */}
             <button
               onClick={(e) => handleRemove(e, building.id)}
-              className="flex-shrink-0 w-6 h-6 bg-red-100 hover:bg-red-200 text-red-600 rounded-full flex items-center justify-center transition-colors"
+              className="flex-shrink-0 w-6 h-6 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-full flex items-center justify-center transition-colors"
               title="Удалить из маршрута"
             >
               <X className="w-3 h-3" />
@@ -109,14 +109,14 @@ export default function CurrentRoutePanel({
       <div className="space-y-2">
         <button
           onClick={onCreateRoute}
-          className="w-full flex items-center justify-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
+          className="w-full flex items-center justify-center px-4 py-3 bg-[hsl(var(--map-primary))] hover:bg-[hsl(var(--map-primary))]/90 text-white rounded-[var(--radius)] transition-colors font-medium"
         >
           <RouteIcon className="w-4 h-4 mr-2" />
           Создать маршрут
         </button>
 
         {/* Дополнительная информация */}
-        <div className="text-xs text-gray-500 text-center">
+        <div className="text-xs text-muted-foreground text-center font-metrics">
           <p>Маршрут будет создан с учетом реальных дорог</p>
           <p>и оптимального порядка посещения зданий</p>
         </div>
@@ -124,17 +124,17 @@ export default function CurrentRoutePanel({
 
       {/* Статистика маршрута */}
       {routeBuildingsData.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-gray-200">
+        <div className="mt-4 pt-3 border-t border-border">
           <div className="grid grid-cols-2 gap-4 text-xs">
             <div>
-              <span className="text-gray-500">Города:</span>
-              <div className="font-medium text-gray-900">
+              <span className="text-muted-foreground">Города:</span>
+              <div className="font-medium font-metrics text-foreground">
                 {[...new Set(routeBuildingsData.map(b => b.city))].length}
               </div>
             </div>
             <div>
-              <span className="text-gray-500">Стили:</span>
-              <div className="font-medium text-gray-900">
+              <span className="text-muted-foreground">Стили:</span>
+              <div className="font-medium font-metrics text-foreground">
                 {[...new Set(routeBuildingsData.map(b => b.architectural_style).filter(Boolean))].length}
               </div>
             </div>

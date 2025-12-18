@@ -1190,7 +1190,7 @@ export default function TestMapPage() {
                               {route.distance_km && (
                                 <span>{route.distance_km} км</span>
                               )}
-                              {route.rating && (
+                              {route.rating > 0 && (
                         <div className="flex items-center">
                                   <Star className="w-3 h-3 text-yellow-400 mr-1" />
                                   {route.rating.toFixed(1)}
@@ -1477,8 +1477,8 @@ export default function TestMapPage() {
               onClick={() => setRouteViewMode('public')}
               className={`flex-1 px-4 py-2 rounded-[var(--radius)] font-medium transition-all text-sm ${
                 routeViewMode === 'public'
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-white text-foreground shadow-sm border-2 border-gray-400'
+                  : 'text-muted-foreground hover:text-foreground border-2 border-gray-300'
               }`}
             >
               Публичные
@@ -1487,8 +1487,8 @@ export default function TestMapPage() {
               onClick={() => setRouteViewMode('personal')}
               className={`flex-1 px-4 py-2 rounded-[var(--radius)] font-medium transition-all text-sm ${
                 routeViewMode === 'personal'
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-white text-foreground shadow-sm border-2 border-gray-400'
+                  : 'text-muted-foreground hover:text-foreground border-2 border-gray-300'
               }`}
             >
               Личные
@@ -1512,7 +1512,6 @@ export default function TestMapPage() {
                   : 'bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800'
               }`}
             >
-              <span className="text-lg">✨</span>
               <span>
                 {selectedBuildingsForRoute.length >= 2
                   ? `Создать маршрут (${selectedBuildingsForRoute.length} объектов)`
@@ -1527,7 +1526,9 @@ export default function TestMapPage() {
         <LazyRouteList
           routes={filteredRoutes}
           onRouteClick={handleRouteClick}
+          onRouteDetails={handleRouteDetails}
           selectedRouteId={selectedRoute?.id}
+          title=""
         />
       </MobileBottomSheet>
     </div>

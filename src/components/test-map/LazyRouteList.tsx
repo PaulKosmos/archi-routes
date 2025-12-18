@@ -9,8 +9,11 @@ const RouteList = lazy(() => import('./RouteList'))
 
 interface LazyRouteListProps {
   routes: Route[]
-  selectedRoute: Route | null
-  onRouteSelect: (route: Route) => void
+  selectedRoute?: Route | null
+  selectedRouteId?: string
+  onRouteSelect?: (route: Route) => void
+  onRouteClick?: (route: Route) => void
+  onRouteDetails?: (route: Route) => void
   title?: string
   maxHeight?: string
 }
@@ -50,9 +53,24 @@ function LoadingSkeleton({ title = "🛤️ Маршруты" }: { title?: strin
 }
 
 export default function LazyRouteList(props: LazyRouteListProps) {
+  const { routes, selectedRoute, selectedRouteId, onRouteSelect, onRouteClick, onRouteDetails, title, maxHeight } = props
+
+  // Определяем выбранный маршрут
+  const selected = selectedRoute || (selectedRouteId ? routes.find(r => r.id === selectedRouteId) : null) || null
+
+  // Определяем обработчик выбора
+  const handleSelect = onRouteSelect || onRouteClick || (() => {})
+
   return (
-    <Suspense fallback={<LoadingSkeleton title={props.title} />}>
-      <RouteList {...props} />
+    <Suspense fallback={<LoadingSkeleton title={title} />}>
+      <RouteList
+        routes={routes}
+        selectedRoute={selected}
+        onRouteSelect={handleSelect}
+        onRouteDetails={onRouteDetails}
+        title={title}
+        maxHeight={maxHeight}
+      />
     </Suspense>
   )
 }
