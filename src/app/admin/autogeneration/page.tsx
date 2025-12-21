@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
 import { useAuth } from '../../../hooks/useAuth'
+import Header from '@/components/Header'
 
 export default function AutogenerationPage() {
   const { user } = useAuth()
@@ -82,11 +83,13 @@ export default function AutogenerationPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          🤖 Автогенерация контента
-        </h1>
+    <>
+      <Header buildings={[]} />
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            🤖 Автогенерация контента
+          </h1>
         <p className="text-gray-600">
           Автоматическое создание архитектурных маршрутов с помощью ИИ
         </p>
@@ -267,7 +270,8 @@ export default function AutogenerationPage() {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

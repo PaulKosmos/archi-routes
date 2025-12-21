@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { ArrowLeft, Info } from 'lucide-react'
+import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 
 export default function CreateRoutePage() {
   const { user, loading: authLoading } = useAuth()
@@ -34,7 +36,9 @@ export default function CreateRoutePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         <div className="mb-8">
@@ -82,6 +86,8 @@ export default function CreateRoutePage() {
         </div>
 
       </div>
-    </div>
+      </div>
+      <EnhancedFooter />
+    </>
   )
 }

@@ -24,6 +24,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
 import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 import Link from 'next/link'
 import type { BlogPost } from '@/types/blog'
 
@@ -379,6 +380,7 @@ export default function ProfileArticlesPage() {
           </div>
         )}
       </div>
+      <EnhancedFooter />
     </div>
   )
 }

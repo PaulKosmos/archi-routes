@@ -216,34 +216,23 @@ export default function UserDropdown() {
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-3 text-left p-2 rounded-lg hover:bg-gray-50 transition-colors"
+        className="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors"
+        title={displayName}
       >
         {/* Аватар */}
-        <div className="w-8 h-8 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center">
+        <div className="w-6 h-6 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center">
           {avatar ? (
-            <img 
-              src={avatar} 
+            <img
+              src={avatar}
               alt={displayName}
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-white font-medium text-sm">
+            <span className="text-white font-medium text-xs">
               {displayName.charAt(0).toUpperCase()}
             </span>
           )}
         </div>
-
-        {/* Информация о пользователе (только на десктопе) */}
-        <div className="hidden sm:block">
-          <div className="text-sm font-medium text-gray-900 truncate max-w-32">
-            {displayName}
-          </div>
-          <div className={`text-xs capitalize ${getRoleColor(profile.role || 'explorer')}`}>
-            {getRoleDisplayName(profile.role || 'explorer')}
-          </div>
-        </div>
-
-        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Dropdown Menu */}

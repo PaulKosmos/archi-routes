@@ -3,11 +3,11 @@
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { useState, useEffect, useMemo } from 'react'
-import { 
-  Heart, 
-  ArrowLeft, 
-  Star, 
-  Eye, 
+import {
+  Heart,
+  ArrowLeft,
+  Star,
+  Eye,
   Calendar,
   MapPin,
   Filter,
@@ -22,6 +22,7 @@ import {
 import Link from 'next/link'
 import AddToCollectionButton from '@/components/collections/AddToCollectionButton'
 import CollectionIndicator from '@/components/collections/CollectionIndicator'
+import EnhancedFooter from '@/components/EnhancedFooter'
 
 interface FavoriteBuilding {
   id: string
@@ -561,6 +562,7 @@ export default function ProfileFavoritesPage() {
           </div>
         )}
       </div>
+      <EnhancedFooter />
     </div>
   )
 }

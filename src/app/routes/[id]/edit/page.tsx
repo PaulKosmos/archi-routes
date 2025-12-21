@@ -2,6 +2,7 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import Header from '../../../../components/Header'
+import EnhancedFooter from '../../../../components/EnhancedFooter'
 import EditPageWrapper from '../../../../components/EditPageWrapper'
 import RouteEditClient from './RouteEditClient'
 
@@ -85,10 +86,11 @@ export default async function RouteEditPage({ params }: PageProps) {
   return (
     <EditPageWrapper contentType="route" contentId={resolvedParams.id}>
       <Header buildings={[]} />
-      <RouteEditClient 
+      <RouteEditClient
         route={route}
         buildings={allBuildings || []}
       />
+      <EnhancedFooter />
     </EditPageWrapper>
   )
 }

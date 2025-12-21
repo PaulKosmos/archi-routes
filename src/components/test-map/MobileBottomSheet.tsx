@@ -38,12 +38,10 @@ export default function MobileBottomSheet({
         overflow-hidden
         shadow-2xl
       `}>
-        {/* Compact Header with handle bar */}
+        {/* Compact Header */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-          {/* Handle bar (visual indicator) */}
-          <div className="flex-1 flex justify-center">
-            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
-          </div>
+          {/* Empty space for balance */}
+          <div className="flex-1"></div>
 
           {/* Title - compact */}
           <h3 className="flex-1 text-center text-sm font-semibold font-display">{title}</h3>

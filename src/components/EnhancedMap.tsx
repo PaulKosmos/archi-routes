@@ -287,29 +287,30 @@ export default function EnhancedMap({
       // Преобразуем image_url в полный URL Supabase Storage
       const imageUrl = building.image_url ? getStorageUrl(building.image_url, 'photos') : null
 
-      // Создаем базовый popup для hover (маленький)
+      // Создаем базовый popup для hover
       const hoverPopupContent = `
-        <div class="building-hover-popup" style="min-width: 150px;">
-          <div class="flex items-center space-x-2">
+        <div class="building-hover-popup" style="width: 200px; max-width: 88vw;">
+          <div style="display: flex; align-items: center; gap: 10px;">
             ${imageUrl ? `
-              <img src="${imageUrl}" alt="${building.name}" 
-                   style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;"
+              <img src="${imageUrl}" alt="${building.name}"
+                   style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px; flex-shrink: 0;"
                    loading="lazy">
             ` : `
-              <div style="width: 40px; height: 40px; background: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+              <div style="width: 44px; height: 44px; background: #F3F4F6; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
                 🏛️
               </div>
             `}
-            <div class="flex-1">
-              <h4 class="font-semibold text-gray-900 text-sm mb-1">${building.name}</h4>
-              <div class="text-xs text-gray-600">
-                ${building.architect ? `${building.architect}` : ''}
-                ${building.year_built ? ` • ${building.year_built}` : ''}
+            <div style="flex: 1; min-width: 0;">
+              <h4 style="font-size: 13px; font-weight: 600; color: #111827; margin: 0 0 4px 0; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                ${building.name}
+              </h4>
+              <div style="font-size: 11px; color: #6B7280; line-height: 1.3; margin-bottom: 3px;">
+                ${building.architect || building.year_built ? `${building.architect || ''}${building.architect && building.year_built ? ' • ' : ''}${building.year_built || ''}` : building.city || ''}
               </div>
               ${building.rating ? `
-                <div class="flex items-center mt-1">
-                  <span class="text-yellow-400 text-xs">★</span>
-                  <span class="text-xs text-gray-600 ml-1">${building.rating.toFixed(1)}</span>
+                <div style="display: flex; align-items: center;">
+                  <span style="color: #FBBF24; font-size: 12px;">★</span>
+                  <span style="font-size: 11px; color: #6B7280; margin-left: 3px; font-weight: 500;">${building.rating.toFixed(1)}</span>
                 </div>
               ` : ''}
             </div>
@@ -317,92 +318,103 @@ export default function EnhancedMap({
         </div>
       `
 
-      // Создаем развернутый popup для клика
+      // Создаем развернутый popup для клика - компактная улучшенная версия
       const detailedPopupContent = `
-        <div class="building-detailed-popup" style="min-width: 280px; max-width: 320px;">
+        <div class="building-detailed-popup" style="width: 270px; max-width: 90vw;">
           ${imageUrl ? `
-            <div class="mb-3">
-              <img src="${imageUrl}" alt="${building.name}" 
-                   style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;"
+            <div style="margin-bottom: 8px;">
+              <img src="${imageUrl}" alt="${building.name}"
+                   style="width: 100%; height: 110px; object-fit: cover; border-radius: 8px;"
                    loading="lazy">
             </div>
           ` : ''}
-          
-          <div class="flex items-start justify-between mb-2">
-            <div class="flex-1 mr-2">
-              <h3 class="font-semibold text-gray-900 text-lg mb-1">${building.name}</h3>
-              ${building.moderation_status === 'pending' ? `
-                <span class="inline-block px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full">
-                  На модерации
-                </span>
-              ` : ''}
-              ${building.moderation_status === 'rejected' ? `
-                <span class="inline-block px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full">
-                  Отклонено
-                </span>
+
+          <div style="margin-bottom: 8px;">
+            <div style="display: flex; align-items: start; justify-content: space-between; gap: 8px;">
+              <h3 style="font-size: 15px; font-weight: 600; color: #111827; margin: 0; line-height: 1.3; flex: 1;">
+                ${building.name}
+              </h3>
+              ${building.rating ? `
+                <div style="display: flex; align-items: center; flex-shrink: 0;">
+                  <span style="color: #FBBF24; font-size: 15px;">★</span>
+                  <span style="font-size: 13px; color: #6B7280; margin-left: 2px; font-weight: 600;">${building.rating.toFixed(1)}</span>
+                </div>
               ` : ''}
             </div>
-            ${building.rating ? `
-              <div class="flex items-center flex-shrink-0">
-                <span class="text-yellow-400 text-lg">★</span>
-                <span class="text-sm text-gray-600 ml-1">${building.rating.toFixed(1)}</span>
+
+            ${building.moderation_status === 'pending' || building.moderation_status === 'rejected' ? `
+              <span style="display: inline-block; margin-top: 4px; padding: 2px 6px; background: ${building.moderation_status === 'pending' ? '#FEF3C7' : '#FEE2E2'}; color: ${building.moderation_status === 'pending' ? '#92400E' : '#991B1B'}; font-size: 10px; border-radius: 9999px; font-weight: 500;">
+                ${building.moderation_status === 'pending' ? 'На модерации' : 'Отклонено'}
+              </span>
+            ` : ''}
+          </div>
+
+          <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px; line-height: 1.4;">
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+              <svg style="width: 14px; height: 14px; flex-shrink: 0; color: #9CA3AF;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>${building.city}${building.country ? ', ' + building.country : ''}</span>
+            </div>
+            ${building.architect ? `
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                <svg style="width: 14px; height: 14px; flex-shrink: 0; color: #9CA3AF;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>${building.architect}</span>
+              </div>
+            ` : ''}
+            ${building.year_built ? `
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                <svg style="width: 14px; height: 14px; flex-shrink: 0; color: #9CA3AF;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>${building.year_built}</span>
+              </div>
+            ` : ''}
+            ${building.architectural_style ? `
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                <svg style="width: 14px; height: 14px; flex-shrink: 0; color: #9CA3AF;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>
+                <span>${building.architectural_style}</span>
               </div>
             ` : ''}
           </div>
-          
-          <div class="text-sm text-gray-600 mb-3">
-            <div class="flex items-center mb-2">
-              <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-              ${building.city}, ${building.country}
-            </div>
-            ${building.architect ? `
-              <div class="mb-1"><strong>Архитектор:</strong> ${building.architect}</div>
-            ` : ''}
-            ${building.year_built ? `
-              <div class="mb-1"><strong>Год постройки:</strong> ${building.year_built}</div>
-            ` : ''}
-            ${building.architectural_style ? `
-              <div class="mb-1"><strong>Стиль:</strong> ${building.architectural_style}</div>
-            ` : ''}
-            ${building.building_type ? `
-              <div class="mb-1"><strong>Тип:</strong> ${building.building_type}</div>
-            ` : ''}
-          </div>
-          
+
           ${building.description ? `
-            <p class="text-sm text-gray-700 mb-3 line-clamp-3">${building.description}</p>
+            <p style="font-size: 11px; color: #6B7280; margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+              ${building.description}
+            </p>
           ` : ''}
-          
-          <div class="flex items-center justify-between text-sm mb-3">
-            <div class="flex items-center space-x-4">
+
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: ${routeCreationMode ? '8px' : '0'};">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: #9CA3AF;">
               ${building.view_count ? `
-                <span class="flex items-center text-gray-500">
-                  <span class="mr-1">👁️</span>
+                <span style="display: flex; align-items: center; gap: 3px;">
+                  <svg style="width: 13px; height: 13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   ${building.view_count}
                 </span>
               ` : ''}
               ${building.review_count ? `
-                <span class="flex items-center text-gray-500">
-                  <span class="mr-1">💬</span>
+                <span style="display: flex; align-items: center; gap: 3px;">
+                  <svg style="width: 13px; height: 13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                   ${building.review_count}
                 </span>
               ` : ''}
             </div>
-            <button 
+            <button
               onclick="window.buildingDetailsHandler && window.buildingDetailsHandler('${building.id}')"
-              class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+              style="background: #3B82F6; color: white; padding: 5px 12px; border-radius: 6px; font-size: 11px; border: none; cursor: pointer; font-weight: 500; transition: background 0.2s; white-space: nowrap;"
+              onmouseover="this.style.background='#2563EB'"
+              onmouseout="this.style.background='#3B82F6'"
             >
               Подробнее →
             </button>
           </div>
-          
+
           ${routeCreationMode ? `
-            <button 
-              class="add-to-route-btn w-full bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition-colors font-medium ${selectedBuildingsForRoute.includes(building.id) ? 'opacity-50 cursor-not-allowed' : ''}"
+            <button
+              class="add-to-route-btn"
+              style="width: 100%; background: ${selectedBuildingsForRoute.includes(building.id) ? '#9333EA80' : '#9333EA'}; color: white; padding: 7px 12px; border-radius: 6px; font-size: 11px; border: none; cursor: ${selectedBuildingsForRoute.includes(building.id) ? 'not-allowed' : 'pointer'}; font-weight: 500; transition: background 0.2s;"
               data-building-id="${building.id}"
               ${selectedBuildingsForRoute.includes(building.id) ? 'disabled' : ''}
+              onmouseover="if(!this.disabled) this.style.background='#7C3AED'"
+              onmouseout="if(!this.disabled) this.style.background='#9333EA'"
             >
-              ${selectedBuildingsForRoute.includes(building.id) ? '✅ Уже добавлено' : '➕ Добавить в маршрут'}
+              ${selectedBuildingsForRoute.includes(building.id) ? '✅ Добавлено' : '➕ В маршрут'}
             </button>
           ` : ''}
         </div>
@@ -410,7 +422,7 @@ export default function EnhancedMap({
 
       // Привязываем hover popup
       marker.bindPopup(hoverPopupContent, {
-        maxWidth: 200,
+        maxWidth: 210,
         className: 'building-hover-popup-container',
         closeOnClick: false,
         autoClose: false,
@@ -453,7 +465,7 @@ export default function EnhancedMap({
         
         // Создаем и показываем детальный popup
         const detailedPopup = L.popup({
-          maxWidth: 350,
+          maxWidth: 280,
           className: 'building-detailed-popup-container',
           autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
         })

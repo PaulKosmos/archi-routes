@@ -6,7 +6,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { NewsStats } from '@/types/news';
-import { 
+import Header from '@/components/Header';
+import {
   ArrowLeft,
   TrendingUp,
   Eye,
@@ -73,8 +74,10 @@ export default function NewsStatsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
         
         {/* Header */}
         <div className="mb-8">
@@ -300,7 +303,8 @@ export default function NewsStatsPage() {
           </div>
         ) : null}
 
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -32,6 +32,34 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Fix Jest worker issues in Next.js 15
+  webpack: (config, { isServer, dev }) => {
+    // In development mode, disable parallelism completely to prevent Jest worker errors
+    if (dev) {
+      config.parallelism = 1
+
+      // Disable all worker threads
+      config.optimization = {
+        ...config.optimization,
+        minimize: false,
+      }
+
+      // Remove thread-loader from all rules
+      if (config.module && config.module.rules) {
+        config.module.rules = config.module.rules.map((rule: any) => {
+          if (rule.use && Array.isArray(rule.use)) {
+            rule.use = rule.use.filter((use: any) => {
+              // Remove thread-loader completely in development
+              return typeof use !== 'object' || use.loader !== 'thread-loader'
+            })
+          }
+          return rule
+        })
+      }
+    }
+
+    return config
+  },
 };
 
 export default withBundleAnalyzer(nextConfig);

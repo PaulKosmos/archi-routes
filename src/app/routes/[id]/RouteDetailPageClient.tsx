@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import Header from '../../../components/Header'
+import EnhancedFooter from '../../../components/EnhancedFooter'
 import RouteDetailClient from './RouteDetailClient'
 
 export default function RouteDetailPageClient() {
@@ -259,6 +260,7 @@ export default function RouteDetailPageClient() {
     <div className="min-h-screen bg-gray-50">
       {!shouldHideHeader && <Header buildings={buildings} />}
       <RouteDetailClient route={route} />
+      {!shouldHideHeader && <EnhancedFooter />}
     </div>
   )
 }

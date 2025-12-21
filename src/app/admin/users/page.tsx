@@ -9,9 +9,10 @@ import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
 import Link from 'next/link'
-import { 
-  Users, 
-  Search, 
+import Header from '@/components/Header'
+import {
+  Users,
+  Search,
   Filter,
   Crown,
   Shield,
@@ -304,13 +305,15 @@ export default function UsersManagementPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      {/* Заголовок */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <Users className="w-8 h-8 text-blue-600" />
-          Управление пользователями
-        </h1>
+    <>
+      <Header buildings={[]} />
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Заголовок */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <Users className="w-8 h-8 text-blue-600" />
+            Управление пользователями
+          </h1>
         <p className="text-gray-600 mt-2">
           Управление ролями и правами пользователей платформы
         </p>
@@ -550,7 +553,8 @@ export default function UsersManagementPage() {
             </div>
           </div>
         </div>
+        </div>
       )}
-    </div>
+    </>
   )
 }

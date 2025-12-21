@@ -3,14 +3,14 @@
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { useState, useEffect, useMemo } from 'react'
-import { 
-  Building2, 
-  ArrowLeft, 
-  Plus, 
-  Edit3, 
-  Trash2, 
-  Star, 
-  Eye, 
+import {
+  Building2,
+  ArrowLeft,
+  Plus,
+  Edit3,
+  Trash2,
+  Star,
+  Eye,
   Calendar,
   MapPin,
   Filter,
@@ -21,6 +21,8 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { Building } from '@/types/building'
+import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 
 interface BuildingWithStats extends Building {
   view_count: number
@@ -168,9 +170,11 @@ export default function ProfileBuildingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Заголовок */}
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Заголовок */}
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-4">
             <Link
@@ -571,7 +575,9 @@ export default function ProfileBuildingsPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+      <EnhancedFooter />
+    </>
   )
 }

@@ -15,6 +15,7 @@ import { RoutePublicationSystem } from '@/lib/smart-route-filtering'
 import { toast } from 'react-hot-toast'
 // import { toast } from '@/lib/toast-fallback'
 import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 import RoutePublicationRequest from '@/components/RoutePublicationRequest'
 import Link from 'next/link'
 import type { Route, RoutePublicationRequest as PublicationRequest } from '@/types/route'
@@ -322,6 +323,7 @@ export default function ProfileRoutesPage() {
           onSuccess={handlePublicationSuccess}
         />
       )}
+      <EnhancedFooter />
     </div>
   )
 }

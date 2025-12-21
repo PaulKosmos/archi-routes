@@ -62,27 +62,29 @@ export default function FilterPanel({
   const handleQuickFilter = useCallback((filter: string, value: string) => {
     switch (filter) {
       case 'rating':
+        const newRating = parseFloat(value)
         onFilterChange({
           ...filters,
-          minRating: parseFloat(value)
+          minRating: filters.minRating >= newRating ? 0 : newRating
         })
         break
       case 'distance':
+        const newDistance = parseFloat(value)
         onFilterChange({
           ...filters,
-          maxDistance: parseFloat(value)
+          maxDistance: filters.maxDistance <= newDistance ? 50 : newDistance
         })
         break
       case 'featured':
         onFilterChange({
           ...filters,
-          showOnlyFeatured: value === 'true'
+          showOnlyFeatured: !filters.showOnlyFeatured
         })
         break
       case 'published':
         onFilterChange({
           ...filters,
-          showOnlyPublished: value === 'true'
+          showOnlyPublished: !filters.showOnlyPublished
         })
         break
     }
@@ -109,28 +111,6 @@ export default function FilterPanel({
 
   return (
     <div className={`${isMobile ? 'bg-background' : 'bg-card border-b border-border'}`}>
-      {/* Кнопка показать/скрыть фильтры - только на desktop */}
-      {!isMobile && (
-        <div className="flex items-center justify-between p-4">
-          <button
-            onClick={onToggleFilters}
-            className={`flex items-center px-4 py-2 rounded-[var(--radius)] border transition-colors ${
-              showFilters
-                ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
-                : 'bg-card border-border text-foreground hover:bg-muted'
-            }`}
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            Фильтры
-            {showFilters && (
-              <span className="ml-2 bg-[hsl(var(--map-primary))] text-white text-xs rounded-full px-2 py-1">
-                Активны
-              </span>
-            )}
-          </button>
-        </div>
-      )}
-
       {/* Панель фильтров */}
       {(showFilters || isMobile) && (
         <div className={`${isMobile ? 'px-0 pb-4' : 'px-4 pb-4'}`}>
@@ -275,7 +255,7 @@ export default function FilterPanel({
                     : 'bg-muted border-border text-foreground hover:bg-muted/80'
                 }`}
               >
-                ⭐ 4+ рейтинг
+                4+ рейтинг
               </button>
               <button
                 onClick={() => handleQuickFilter('featured', 'true')}
@@ -285,7 +265,7 @@ export default function FilterPanel({
                     : 'bg-muted border-border text-foreground hover:bg-muted/80'
                 }`}
               >
-                🌟 Рекомендуемые
+                Рекомендуемые
               </button>
               <button
                 onClick={() => handleQuickFilter('distance', '5')}
@@ -295,47 +275,13 @@ export default function FilterPanel({
                     : 'bg-muted border-border text-foreground hover:bg-muted/80'
                 }`}
               >
-                📍 До 5 км
+                До 5 км
               </button>
             </div>
           </div>
 
           {/* Расширенные фильтры */}
           <div className="space-y-4">
-              {/* Города */}
-              {uniqueValues.cities.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Города
-                  </label>
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
-                    {uniqueValues.cities.map(city => (
-                      <label key={city} className="flex items-center cursor-pointer hover:bg-muted/50 rounded-[var(--radius)] px-2 py-1 transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={filters.cities.includes(city)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              onFilterChange({
-                                ...filters,
-                                cities: [...filters.cities, city]
-                              })
-                            } else {
-                              onFilterChange({
-                                ...filters,
-                                cities: filters.cities.filter(c => c !== city)
-                              })
-                            }
-                          }}
-                          className="mr-2 rounded border-border accent-[hsl(var(--map-primary))]"
-                        />
-                        <span className="text-sm text-foreground">{city}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Архитектурные стили */}
               {uniqueValues.architecturalStyles.length > 0 && (
                 <div>

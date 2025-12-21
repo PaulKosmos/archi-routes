@@ -21,9 +21,11 @@ export default function RouteViewerMiniMap({
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
   const markersLayerRef = useRef<L.LayerGroup | null>(null)
+  const routeLayerRef = useRef<L.LayerGroup | null>(null)
   const routeLineRef = useRef<L.Polyline | null>(null)
   const userLocationMarkerRef = useRef<L.Marker | null>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [isMapReady, setIsMapReady] = useState(false)
 
   // Геолокация
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function RouteViewerMiniMap({
         const map = L.map(mapRef.current, {
           zoomControl: true,
           attributionControl: false,
-          preferCanvas: true
+          preferCanvas: false
         })
 
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -79,6 +81,7 @@ export default function RouteViewerMiniMap({
         }).addTo(map)
 
         mapInstanceRef.current = map
+        routeLayerRef.current = L.layerGroup().addTo(map)
         markersLayerRef.current = L.layerGroup().addTo(map)
 
         // Установка начального вида
@@ -95,6 +98,8 @@ export default function RouteViewerMiniMap({
         // Небольшая задержка перед invalidateSize
         setTimeout(() => {
           map.invalidateSize()
+          // Карта готова к использованию
+          setIsMapReady(true)
         }, 100)
       } catch (error) {
         console.error('Error initializing mini map:', error)
@@ -103,6 +108,7 @@ export default function RouteViewerMiniMap({
 
     return () => {
       clearTimeout(timer)
+      setIsMapReady(false)
       if (mapInstanceRef.current) {
         try {
           mapInstanceRef.current.remove()
@@ -116,19 +122,16 @@ export default function RouteViewerMiniMap({
 
   // Обновление маршрута и маркеров
   useEffect(() => {
-    if (!mapInstanceRef.current || !markersLayerRef.current) return
-    if (routePoints.length === 0) return // Ждем пока точки загрузятся
+    if (!isMapReady || !mapInstanceRef.current || !markersLayerRef.current || !routeLayerRef.current) return
+    if (routePoints.length === 0) return
 
     try {
-      // Очищаем слой
+      // Очищаем слои
       markersLayerRef.current.clearLayers()
+      routeLayerRef.current.clearLayers()
 
       // Рисуем линию маршрута
       if (route.route_geometry && route.route_geometry.coordinates) {
-        if (routeLineRef.current) {
-          routeLineRef.current.remove()
-        }
-
         const latLngs = route.route_geometry.coordinates.map(
           (coord: [number, number]) => [coord[1], coord[0]] as [number, number]
         )
@@ -137,7 +140,7 @@ export default function RouteViewerMiniMap({
           color: '#3B82F6',
           weight: 4,
           opacity: 0.7
-        }).addTo(mapInstanceRef.current)
+        }).addTo(routeLayerRef.current)
       }
 
       // Добавляем маркеры точек
@@ -196,7 +199,7 @@ export default function RouteViewerMiniMap({
     } catch (error) {
       console.error('Error updating mini map:', error)
     }
-  }, [route, routePoints, currentPointIndex])
+  }, [route, routePoints, currentPointIndex, isMapReady])
 
   // Отображение местоположения пользователя
   useEffect(() => {

@@ -10,6 +10,7 @@ export const dynamic = 'force-dynamic'
 import { Suspense } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 import Link from 'next/link'
 import { User, Heart, MapPin, Building2, Settings, Edit3, FileText } from 'lucide-react'
 
@@ -210,6 +211,7 @@ export default function ProfilePage() {
           </Link>
         </div>
       </div>
+      <EnhancedFooter />
     </div>
   )
 }

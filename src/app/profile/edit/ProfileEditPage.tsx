@@ -3,19 +3,21 @@
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { useState, useRef, useMemo } from 'react'
-import { 
-  Save, 
-  X, 
-  Upload, 
-  User, 
-  MapPin, 
-  FileText, 
+import {
+  Save,
+  X,
+  Upload,
+  User,
+  MapPin,
+  FileText,
   Camera,
   Loader2,
   ArrowLeft
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 
 interface FormData {
   display_name: string
@@ -223,9 +225,11 @@ export default function ProfileEditPage() {
   const currentAvatar = avatarPreview || formData.avatar_url || user.user_metadata?.avatar_url
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Заголовок */}
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Заголовок */}
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-4">
             <Link
@@ -458,7 +462,9 @@ export default function ProfileEditPage() {
             </button>
           </div>
         </form>
+        </div>
       </div>
-    </div>
+      <EnhancedFooter />
+    </>
   )
 }

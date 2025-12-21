@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
 import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 import Link from 'next/link'
 import type { NewsArticle } from '@/types/news'
 
@@ -241,6 +242,7 @@ export default function SavedNewsPage() {
           </div>
         )}
       </div>
+      <EnhancedFooter />
     </div>
   )
 }

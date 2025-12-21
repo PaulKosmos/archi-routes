@@ -11,6 +11,8 @@ import Link from 'next/link'
 import { ArrowLeft, Upload, Globe, Lock, Save } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import { validateCollection } from '@/utils/collectionsUtils'
+import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 
 export default function CreateCollectionPage() {
   const supabase = useMemo(() => createClient(), [])
@@ -86,7 +88,9 @@ export default function CreateCollectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Навигация */}
@@ -289,6 +293,8 @@ export default function CreateCollectionPage() {
           </form>
         </div>
       </div>
-    </div>
+      </div>
+      <EnhancedFooter />
+    </>
   )
 }

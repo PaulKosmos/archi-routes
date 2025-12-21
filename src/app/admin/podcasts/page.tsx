@@ -8,6 +8,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
+import Header from '@/components/Header'
 import AdminLayout from '@/app/admin/layout'
 import { PodcastEpisode } from '@/types/podcast'
 import { Loader2, Plus, Trash2, Edit, Eye, MoreVertical } from 'lucide-react'
@@ -122,9 +123,11 @@ export default function AdminPodcastsPage() {
   }
 
   return (
-    <AdminLayout>
-      <div className="p-8">
-        <div className="flex items-center justify-between mb-8">
+    <>
+      <Header buildings={[]} />
+      <AdminLayout>
+        <div className="p-8">
+          <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Управление подкастами</h1>
             <p className="text-gray-600">Администрирование эпизодов и серий</p>
@@ -253,7 +256,8 @@ export default function AdminPodcastsPage() {
             </table>
           </div>
         )}
-      </div>
-    </AdminLayout>
+        </div>
+      </AdminLayout>
+    </>
   )
 }

@@ -3,13 +3,13 @@
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { useState, useEffect, useMemo } from 'react'
-import { 
-  MessageSquare, 
-  ArrowLeft, 
-  Star, 
-  Edit3, 
-  Trash2, 
-  Eye, 
+import {
+  MessageSquare,
+  ArrowLeft,
+  Star,
+  Edit3,
+  Trash2,
+  Eye,
   Calendar,
   Building2,
   Filter,
@@ -20,6 +20,8 @@ import {
   Image
 } from 'lucide-react'
 import Link from 'next/link'
+import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 
 interface ReviewWithBuilding {
   id: string
@@ -207,9 +209,11 @@ export default function ProfileReviewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
           <div className="flex items-center space-x-4 mb-4">
             <Link
               href="/profile"
@@ -451,7 +455,9 @@ export default function ProfileReviewsPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+      <EnhancedFooter />
+    </>
   )
 }

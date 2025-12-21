@@ -6,10 +6,11 @@ export const dynamic = 'force-dynamic'
 
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
-import { 
-  Users, 
-  Shield, 
-  FileText, 
+import Header from '@/components/Header'
+import {
+  Users,
+  Shield,
+  FileText,
   Building2,
   MessageSquare,
   Route,
@@ -119,8 +120,10 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      {/* Заголовок */}
+    <>
+      <Header buildings={[]} />
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Заголовок */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
           Панель администратора
@@ -238,6 +241,7 @@ export default function AdminDashboard() {
           })}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

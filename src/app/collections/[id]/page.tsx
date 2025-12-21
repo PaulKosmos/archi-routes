@@ -20,6 +20,8 @@ searchInCollection,
 CollectionSortOption 
 } from '@/utils/collectionsUtils'
 import { exportCollectionToPDF, generateCollectionShareLink, generateSocialShareText } from '@/utils/pdfExport'
+import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 
 interface CollectionWithBuildings extends Collection {
   buildings: (CollectionBuilding & {
@@ -483,7 +485,9 @@ ${
   const stats = getCollectionStats(collection)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Навигация */}
@@ -775,6 +779,8 @@ ${
           </div>
         )}
       </div>
-    </div>
+      </div>
+      <EnhancedFooter />
+    </>
   )
 }

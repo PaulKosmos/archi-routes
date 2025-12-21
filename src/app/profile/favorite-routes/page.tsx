@@ -13,6 +13,7 @@ import { UserRouteFavorites } from '@/lib/smart-route-filtering'
 import { useAuth } from '@/hooks/useAuth'
 import { RouteWithUserData, formatDistance, formatDuration } from '@/types/route'
 import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 import { toast } from 'react-hot-toast'
 // import { toast } from '@/lib/toast-fallback'
 import Link from 'next/link'
@@ -370,6 +371,7 @@ export default function FavoriteRoutesPage() {
           </div>
         </div>
       )}
+      <EnhancedFooter />
     </div>
   )
 }

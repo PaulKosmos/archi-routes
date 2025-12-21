@@ -72,11 +72,11 @@ export default function BuildingList({
               className={`p-2 md:p-3 rounded-[var(--radius)] border transition-all duration-200 bg-card ${
                 isSelected
                   ? 'border-[hsl(var(--map-primary))] bg-[hsl(var(--map-primary))]/5 shadow-md'
-                  : 'border-border hover:border-[hsl(var(--map-primary))]/50 hover:bg-muted hover:-translate-y-0.5 hover:shadow-md'
-              } ${isInRoute ? 'ring-2 ring-[hsl(var(--map-primary))]/30' : ''}`}
+                  : 'border-border hover:bg-muted hover:-translate-y-0.5 hover:shadow-md'
+              } ${isInRoute ? 'ring-2 ring-border' : ''}`}
             >
               <div className="flex items-start justify-between" onClick={() => onBuildingSelect(building)}>
-                <div className="flex-1 min-w-0 cursor-pointer">
+                <div className="flex-1 min-w-0 cursor-pointer pr-2">
                   <h4 className="font-medium font-display text-foreground text-sm md:text-base mb-1 truncate">
                     {building.name}
                   </h4>
@@ -88,14 +88,14 @@ export default function BuildingList({
                         <span className="ml-1">{building.architectural_style}</span>
                       </div>
                     )}
-                    
+
                     {building.architect && (
                       <div className="flex items-center">
                         <span className="font-medium">Архитектор:</span>
                         <span className="ml-1 truncate">{building.architect}</span>
                       </div>
                     )}
-                    
+
                     <div className="flex items-center">
                       <MapPin className="w-3 h-3 mr-1" />
                       <span>{building.city}, {building.country}</span>
@@ -104,82 +104,82 @@ export default function BuildingList({
 
                   {/* Статистика */}
                   <div className="flex items-center space-x-4 text-xs text-muted-foreground font-metrics">
-                    {building.rating && (
+                    {building.rating > 0 && (
                       <div className="flex items-center">
                         <Star className="w-3 h-3 mr-1 fill-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]" />
                         <span>{building.rating.toFixed(1)}</span>
-                        {building.review_count && (
+                        {building.review_count && building.review_count > 0 && (
                           <span className="ml-1">({building.review_count})</span>
                         )}
                       </div>
                     )}
 
-                    {building.view_count && (
+                    {building.view_count > 0 && (
                       <div className="flex items-center">
                         <Eye className="w-3 h-3 mr-1" />
                         <span>{building.view_count}</span>
                       </div>
                     )}
                   </div>
+
+                  {/* Индикатор в маршруте */}
+                  {isInRoute && (
+                    <div className="mt-2 pt-2 border-t border-border">
+                      <div className="flex items-center text-xs text-[hsl(var(--map-primary))] font-metrics">
+                        <div className="w-2 h-2 bg-[hsl(var(--map-primary))] rounded-full mr-2"></div>
+                        <span>В маршруте</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Действия */}
-                <div className="flex flex-col space-y-1 ml-2">
-                  {!isInRoute ? (
-                    <>
-                      <button
-                        onClick={(e) => handleAddToRoute(e, building.id)}
-                        className="flex items-center justify-center w-8 h-8 bg-[hsl(var(--map-primary))]/10 hover:bg-[hsl(var(--map-primary))]/20 text-[hsl(var(--map-primary))] rounded-full transition-colors"
-                        title="Добавить в маршрут"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
+                {/* Правая колонка: Действия и кнопка "Подробнее" */}
+                <div className="flex flex-col justify-between items-end ml-2 self-stretch">
+                  {/* Кнопки действий */}
+                  <div className="flex flex-col space-y-1">
+                    {!isInRoute ? (
+                      <>
+                        <button
+                          onClick={(e) => handleAddToRoute(e, building.id)}
+                          className="flex items-center justify-center w-8 h-8 bg-[hsl(var(--map-primary))]/10 hover:bg-[hsl(var(--map-primary))]/20 text-[hsl(var(--map-primary))] rounded-full transition-colors"
+                          title="Добавить в маршрут"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
 
+                        <button
+                          onClick={(e) => handleStartRouteFrom(e, building.id)}
+                          className="flex items-center justify-center w-8 h-8 bg-[hsl(var(--map-primary))]/10 hover:bg-[hsl(var(--map-primary))]/20 text-[hsl(var(--map-primary))] rounded-full transition-colors"
+                          title="Начать маршрут с этого здания"
+                        >
+                          <Play className="w-4 h-4" />
+                        </button>
+                      </>
+                    ) : (
                       <button
-                        onClick={(e) => handleStartRouteFrom(e, building.id)}
-                        className="flex items-center justify-center w-8 h-8 bg-[hsl(var(--map-primary))]/10 hover:bg-[hsl(var(--map-primary))]/20 text-[hsl(var(--map-primary))] rounded-full transition-colors"
-                        title="Начать маршрут с этого здания"
+                        onClick={(e) => handleRemoveFromRoute(e, building.id)}
+                        className="flex items-center justify-center w-8 h-8 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-full transition-colors"
+                        title="Удалить из маршрута"
                       >
-                        <Play className="w-4 h-4" />
+                        <span className="text-xs font-bold">×</span>
                       </button>
-                    </>
-                  ) : (
+                    )}
+                  </div>
+
+                  {/* Кнопка "Подробнее" внизу */}
+                  {onBuildingDetails && (
                     <button
-                      onClick={(e) => handleRemoveFromRoute(e, building.id)}
-                      className="flex items-center justify-center w-8 h-8 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-full transition-colors"
-                      title="Удалить из маршрута"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onBuildingDetails(building)
+                      }}
+                      className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex-shrink-0"
                     >
-                      <span className="text-xs font-bold">×</span>
+                      Подробнее
                     </button>
                   )}
                 </div>
               </div>
-
-              {/* Индикатор в маршруте */}
-              {isInRoute && (
-                <div className="mt-2 pt-2 border-t border-border">
-                  <div className="flex items-center text-xs text-[hsl(var(--map-primary))] font-metrics">
-                    <div className="w-2 h-2 bg-[hsl(var(--map-primary))] rounded-full mr-2"></div>
-                    <span>В маршруте</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Кнопка "Подробнее" */}
-              {onBuildingDetails && (
-                <div className="mt-2 pt-2 border-t border-border">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onBuildingDetails(building)
-                    }}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[hsl(var(--map-primary))] hover:bg-[hsl(var(--map-primary))]/5 rounded-[var(--radius)] transition-colors"
-                  >
-                    Подробнее
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
             </div>
           )
         })}

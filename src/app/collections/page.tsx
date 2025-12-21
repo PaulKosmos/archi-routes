@@ -10,6 +10,8 @@ import { createClient } from '@/lib/supabase'
 import { Plus, Search, Grid, List, BookOpen, Star, MapPin, Calendar, Users, Share2, Download, Trash2, Eye, Lock, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 
 interface Collection {
   id: string
@@ -322,28 +324,34 @@ export default function CollectionsPage() {
   // Если пользователь не авторизован
   if (!authLoading && !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Войдите в систему</h2>
-          <p className="text-gray-600 mb-4">Чтобы просматривать и создавать коллекции</p>
-          <Link
-            href="/auth/signin"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Войти
-          </Link>
+      <>
+        <Header buildings={[]} />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Войдите в систему</h2>
+            <p className="text-gray-600 mb-4">Чтобы просматривать и создавать коллекции</p>
+            <Link
+              href="/auth/signin"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Войти
+            </Link>
+          </div>
         </div>
-      </div>
+        <EnhancedFooter />
+      </>
     )
   }
 
   // Загрузка
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse">
+      <>
+        <Header buildings={[]} />
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="animate-pulse">
             {/* Скелетон заголовка */}
             <div className="flex justify-between items-center mb-8">
               <div>
@@ -373,12 +381,15 @@ export default function CollectionsPage() {
             </div>
           </div>
         </div>
-      </div>
+        <EnhancedFooter />
+      </>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Навигация */}
         <div className="mb-8">
@@ -567,6 +578,8 @@ export default function CollectionsPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+      <EnhancedFooter />
+    </>
   )
 }

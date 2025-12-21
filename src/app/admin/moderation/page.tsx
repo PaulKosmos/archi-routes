@@ -7,12 +7,13 @@ export const dynamic = 'force-dynamic'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { useState, useEffect, useMemo } from 'react'
-import { 
-  Shield, 
-  ArrowLeft, 
-  CheckCircle, 
-  XCircle, 
-  Eye, 
+import Header from '@/components/Header'
+import {
+  Shield,
+  ArrowLeft,
+  CheckCircle,
+  XCircle,
+  Eye,
   Clock,
   User,
   MapPin,
@@ -207,9 +208,11 @@ export default function ModerationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Заголовок */}
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Заголовок */}
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-4">
             <Link
@@ -554,7 +557,8 @@ export default function ModerationPage() {
             </div>
           </div>
         </div>
+        </div>
       )}
-    </div>
+    </>
   )
 }

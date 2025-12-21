@@ -6,19 +6,20 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useNewsAPI } from '@/hooks/useNewsAPI';
-import { 
-  NewsArticleWithDetails, 
-  NewsFilters, 
+import Header from '@/components/Header';
+import {
+  NewsArticleWithDetails,
+  NewsFilters,
   NewsSortOptions,
   NEWS_CATEGORIES,
   NEWS_STATUSES,
-  NewsArticle 
+  NewsArticle
 } from '@/types/news';
-import { 
-  PlusCircle, 
-  Edit, 
-  Trash2, 
-  Eye, 
+import {
+  PlusCircle,
+  Edit,
+  Trash2,
+  Eye,
   Search,
   Filter,
   Calendar,
@@ -185,8 +186,10 @@ export default function NewsAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
         
         {/* Header */}
         <div className="mb-8">
@@ -595,7 +598,8 @@ export default function NewsAdminPage() {
           </div>
         )}
 
+        </div>
       </div>
-    </div>
+    </>
   );
 }

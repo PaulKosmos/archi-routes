@@ -217,6 +217,9 @@ export default function TestMapPage() {
     let filteredB = buildings
     let filteredR = routes
 
+    // Исключаем здание "Знания"
+    filteredB = filteredB.filter(b => b.name !== 'Знания')
+
     // Фильтр по поиску
     if (filters.search) {
       const searchLower = filters.search.toLowerCase()
@@ -1436,7 +1439,7 @@ export default function TestMapPage() {
       >
         {/* Кнопка добавления нового объекта */}
         {user && (
-          <div className="mb-4 -mt-2">
+          <div className="mb-2 -mt-2">
             <button
               onClick={() => {
                 setShowMobileBuildings(false)
@@ -1459,9 +1462,11 @@ export default function TestMapPage() {
           selectedBuilding={selectedBuilding}
           currentRouteBuildings={selectedBuildingsForRoute}
           onBuildingSelect={(building) => handleBuildingClick(building.id)}
+          onBuildingDetails={handleBuildingDetails}
           onAddToRoute={handleAddBuildingToRoute}
           onStartRouteFrom={handleStartRouteFromBuilding}
           onRemoveFromRoute={handleRemoveBuildingFromRoute}
+          title=""
         />
       </MobileBottomSheet>
 

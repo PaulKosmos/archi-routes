@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase'
 import { uploadImage, getStorageUrl } from '@/lib/storage'
+import { useAuth } from '@/hooks/useAuth'
 // Убрал импорт PhotoGallery пока не найдем компонент
 
 interface Building {
@@ -38,24 +39,22 @@ interface Building {
 
 interface EditBuildingClientProps {
   building: Building
-  currentUser: any
-  isOwner: boolean
-  isAdmin: boolean
-  isModerator?: boolean
 }
 
-export default function EditBuildingClient({ 
-  building, 
-  currentUser, 
-  isOwner, 
-  isAdmin,
-  isModerator = false
+export default function EditBuildingClient({
+  building
 }: EditBuildingClientProps) {
   const supabase = useMemo(() => createClient(), [])
   const router = useRouter()
+  const { user, profile, loading: authLoading } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const galleryFileInputRef = useRef<HTMLInputElement>(null)
-  
+
+  // Определяем права пользователя
+  const isOwner = user?.id === building.created_by
+  const isAdmin = profile?.role === 'admin'
+  const isModerator = profile?.role === 'moderator'
+
   const [formData, setFormData] = useState({
     name: building.name || '',
     description: building.description || '',
@@ -98,15 +97,15 @@ export default function EditBuildingClient({
 
   const handleMainImageUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (!file) return
+    if (!file || !user?.id) return
 
     try {
       setUploadingMain(true)
       console.log('📸 Uploading main image:', file.name)
 
-      const result = await uploadImage(file, 'buildings/main', currentUser.id)
+      const result = await uploadImage(file, 'buildings/main', user.id)
       setMainImage(result.url)
-      
+
       console.log('📸 Main image uploaded successfully:', result.url)
     } catch (error) {
       console.error('📸 Main image upload error:', error)
@@ -117,23 +116,23 @@ export default function EditBuildingClient({
         fileInputRef.current.value = ''
       }
     }
-  }, [currentUser.id])
+  }, [user?.id])
 
   const handleGalleryUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
-    if (files.length === 0) return
+    if (files.length === 0 || !user?.id) return
 
     try {
       setUploadingGallery(true)
       console.log('🖼️ Uploading gallery images:', files.length)
 
-      const uploadPromises = files.map(file => 
-        uploadImage(file, 'buildings/gallery', currentUser.id)
+      const uploadPromises = files.map(file =>
+        uploadImage(file, 'buildings/gallery', user.id)
       )
-      
+
       const results = await Promise.all(uploadPromises)
       const newUrls = results.map(r => r.url)
-      
+
       setGalleryImages(prev => [...prev, ...newUrls])
       console.log('🖼️ Gallery images uploaded successfully:', newUrls)
     } catch (error) {
@@ -145,7 +144,7 @@ export default function EditBuildingClient({
         galleryFileInputRef.current.value = ''
       }
     }
-  }, [currentUser.id])
+  }, [user?.id])
 
   const removeGalleryImage = (indexToRemove: number) => {
     setGalleryImages(prev => prev.filter((_, index) => index !== indexToRemove))
@@ -193,7 +192,12 @@ export default function EditBuildingClient({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
+    if (!user?.id) {
+      alert('Необходимо войти в систему')
+      return
+    }
+
     try {
       setLoading(true)
       console.log('💾 Updating building:', building.id)
@@ -219,7 +223,7 @@ export default function EditBuildingClient({
         image_url: mainImage,
         image_urls: galleryImages,
         updated_at: new Date().toISOString(),
-        updated_by: currentUser.id
+        updated_by: user.id
       }
 
       console.log('💾 Update data to send:', updateData)
@@ -262,6 +266,18 @@ export default function EditBuildingClient({
     } finally {
       setLoading(false)
     }
+  }
+
+  // Показываем загрузку, пока проверяем авторизацию
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Загрузка...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

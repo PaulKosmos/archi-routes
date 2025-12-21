@@ -51,7 +51,20 @@ export default function RouteViewerModal({
     profile?.role === 'admin' ||
     profile?.role === 'moderator'
   )
-  
+
+  // Отладка прав
+  useEffect(() => {
+    if (route) {
+      console.log('🔐 RouteViewerModal - права редактирования:', {
+        user: !!user,
+        userId: user?.id,
+        routeCreatedBy: route.created_by,
+        profileRole: profile?.role,
+        canEdit
+      })
+    }
+  }, [route, user, profile, canEdit])
+
   // Обзоры для текущей точки
   const [reviews, setReviews] = useState<BuildingReview[]>([])
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
@@ -393,143 +406,148 @@ export default function RouteViewerModal({
   if (!isOpen || !route) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 md:p-4">
       {/* Модальное окно - компактное */}
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
+      <div className="bg-card rounded-[var(--radius)] md:rounded-2xl shadow-2xl w-full max-w-5xl h-[95vh] md:h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
+        <div className="flex items-center justify-between p-3 md:p-6 border-b-2 border-border bg-card">
           <div className="flex-1 min-w-0">
-            <h2 className="text-2xl font-semibold text-gray-900 truncate">
+            <h2 className="text-lg md:text-2xl font-semibold font-display text-foreground truncate">
               {route.title}
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-xs md:text-sm text-muted-foreground mt-1 font-metrics">
               {route.city}, {route.country}
             </p>
           </div>
           
           {/* Геолокация и экспорт */}
-          <div className="flex items-center space-x-4 ml-4">
-            {/* Экспорт маршрута */}
+          <div className="flex items-center space-x-2 md:space-x-4 ml-2 md:ml-4">
+            {/* Экспорт маршрута - теперь видим на мобильных */}
             <div className="relative">
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
-                className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg font-medium text-sm"
+                className="flex items-center px-2 md:px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-all shadow-md hover:shadow-lg font-medium text-xs md:text-sm"
+                title="Экспорт маршрута"
               >
-                <Navigation className="w-4 h-4 mr-2" />
-                Экспорт маршрута
+                <Navigation className="w-4 h-4 md:mr-2" />
+                <span className="hidden md:inline">Экспорт маршрута</span>
               </button>
-              
+
               {/* Dropdown меню */}
               {showExportMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-10">
+                <div className="absolute right-0 mt-2 w-40 md:w-48 bg-card rounded-[var(--radius)] shadow-xl border-2 border-border py-2 z-[60]">
                   <a
                     href={exportUrls.google}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors"
+                    className="flex items-center px-3 md:px-4 py-2 hover:bg-muted transition-colors"
                     onClick={() => setShowExportMenu(false)}
                   >
-                    <span className="text-lg mr-3">🗺️</span>
-                    <span className="text-sm font-medium text-gray-700">Google Maps</span>
+                    <span className="text-base md:text-lg mr-2 md:mr-3">🗺️</span>
+                    <span className="text-xs md:text-sm font-medium text-foreground">Google Maps</span>
                   </a>
                   <a
                     href={exportUrls.apple}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors"
+                    className="flex items-center px-3 md:px-4 py-2 hover:bg-muted transition-colors"
                     onClick={() => setShowExportMenu(false)}
                   >
-                    <span className="text-lg mr-3">🍎</span>
-                    <span className="text-sm font-medium text-gray-700">Apple Maps</span>
+                    <span className="text-base md:text-lg mr-2 md:mr-3">🍎</span>
+                    <span className="text-xs md:text-sm font-medium text-foreground">Apple Maps</span>
                   </a>
                 </div>
               )}
             </div>
-            
-            {/* Геолокация */}
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600">Геолокация:</span>
+
+            {/* Геолокация - теперь видима на мобильных */}
+            <div className="flex items-center space-x-1 md:space-x-2">
+              <span className="hidden md:inline text-xs md:text-sm text-muted-foreground">Геолокация:</span>
               <button
                 onClick={() => setGeolocationEnabled(!geolocationEnabled)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  geolocationEnabled ? 'bg-blue-600' : 'bg-gray-300'
+                className={`relative inline-flex h-5 w-9 md:h-6 md:w-11 items-center rounded-full transition-colors ${
+                  geolocationEnabled ? 'bg-primary' : 'bg-muted'
                 }`}
+                title={geolocationEnabled ? 'Геолокация включена' : 'Геолокация выключена'}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    geolocationEnabled ? 'translate-x-6' : 'translate-x-1'
+                  className={`inline-block h-3 w-3 md:h-4 md:w-4 transform rounded-full bg-white transition-transform ${
+                    geolocationEnabled ? 'translate-x-5 md:translate-x-6' : 'translate-x-1'
                   }`}
                 />
               </button>
             </div>
-            
+
             {/* Кнопка редактирования (для создателя/админа/модератора) */}
             {canEdit && (
               <button
-                onClick={() => window.open(`/routes/${route.id}/edit`, '_blank')}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                onClick={() => {
+                  console.log('🔧 Открытие редактирования маршрута:', route.id)
+                  window.open(`/routes/${route.id}/edit`, '_blank')
+                }}
+                className="p-1.5 md:p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
                 title="Редактировать маршрут"
               >
-                <Pencil className="w-5 h-5 text-blue-600" />
+                <Pencil className="w-4 h-4 md:w-5 md:h-5 text-primary" />
               </button>
             )}
-            
+
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-1.5 md:p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
             >
-              <X className="w-6 h-6 text-gray-500" />
+              <X className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
             </button>
           </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Левая панель: Список точек */}
-          <div className="w-64 border-r border-gray-200 bg-gray-50 overflow-y-auto flex-shrink-0">
+          {/* Левая панель: Список точек - скрыта на мобильных */}
+          <div className="hidden md:block w-64 border-r-2 border-border bg-background overflow-y-auto flex-shrink-0">
             <div className="p-4">
               {/* Прогресс */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">Прогресс</span>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm font-medium font-display text-foreground">Прогресс</span>
+                  <span className="text-sm text-muted-foreground font-metrics">
                     {currentPointIndex + 1} / {routePoints.length}
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-2">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
               </div>
 
               {/* Статистика маршрута */}
-              <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
-                <h3 className="font-semibold text-gray-900 mb-3">Маршрут</h3>
+              <div className="bg-card rounded-[var(--radius)] border-2 border-border p-4 mb-4 shadow-sm">
+                <h3 className="font-semibold font-display text-foreground mb-3">Маршрут</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Точек:</span>
-                    <span className="font-medium">{routePoints.length}</span>
+                    <span className="text-muted-foreground">Точек:</span>
+                    <span className="font-medium font-metrics text-foreground">{routePoints.length}</span>
                   </div>
                   {route.distance_km && (
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Расстояние:</span>
-                      <span className="font-medium">{route.distance_km.toFixed(1)} км</span>
+                      <span className="text-muted-foreground">Расстояние:</span>
+                      <span className="font-medium font-metrics text-foreground">{route.distance_km.toFixed(1)} км</span>
                     </div>
                   )}
                   {route.estimated_duration_minutes && (
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Время:</span>
-                      <span className="font-medium">
+                      <span className="text-muted-foreground">Время:</span>
+                      <span className="font-medium font-metrics text-foreground">
                         {Math.floor(route.estimated_duration_minutes / 60)}ч {route.estimated_duration_minutes % 60}м
                       </span>
                     </div>
                   )}
                   {route.transport_mode && (
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Тип:</span>
-                      <span className="font-medium capitalize">{route.transport_mode}</span>
+                      <span className="text-muted-foreground">Тип:</span>
+                      <span className="font-medium text-foreground capitalize">{route.transport_mode}</span>
                     </div>
                   )}
                 </div>
@@ -537,59 +555,59 @@ export default function RouteViewerModal({
 
               {/* Список точек */}
               <div className="space-y-2">
-                <h3 className="font-semibold text-gray-900 mb-3">Точки маршрута</h3>
+                <h3 className="font-semibold font-display text-foreground mb-3">Точки маршрута</h3>
                 {loading ? (
                   <div className="space-y-2">
                     {[1, 2, 3].map(i => (
-                      <div key={i} className="h-16 bg-gray-200 rounded-lg animate-pulse"></div>
+                      <div key={i} className="h-16 bg-muted rounded-[var(--radius)] animate-pulse"></div>
                     ))}
                   </div>
                 ) : (
                   routePoints.map((point, index) => {
                     const isCurrent = index === currentPointIndex
                     const isPassed = index < currentPointIndex
-                    
+
                     return (
                       <button
                         key={point.id}
                         onClick={() => setCurrentPointIndex(index)}
-                        className={`w-full p-3 rounded-lg border-2 transition-all text-left ${
+                        className={`w-full p-3 rounded-[var(--radius)] border-2 transition-all text-left ${
                           isCurrent
-                            ? 'border-blue-500 bg-blue-50'
+                            ? 'border-primary bg-primary/5'
                             : isPassed
-                            ? 'border-green-200 bg-green-50'
-                            : 'border-gray-200 bg-white hover:border-gray-300'
+                            ? 'border-border bg-muted'
+                            : 'border-border bg-card hover:border-primary/50'
                         }`}
                       >
                         <div className="flex items-center space-x-3">
                           {/* Номер/Статус */}
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 font-metrics ${
                             isCurrent
-                              ? 'bg-blue-600 text-white'
+                              ? 'bg-primary text-primary-foreground'
                               : isPassed
-                              ? 'bg-green-600 text-white'
-                              : 'bg-gray-200 text-gray-600'
+                              ? 'bg-primary/60 text-primary-foreground'
+                              : 'bg-muted text-muted-foreground'
                           }`}>
                             {isPassed ? <Check className="w-4 h-4" /> : index + 1}
                           </div>
-                          
+
                           {/* Информация */}
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-gray-900 truncate text-sm">
+                            <div className="font-medium text-foreground truncate text-sm">
                               {point.title}
                             </div>
                             {point.estimated_time_minutes && (
-                              <div className="text-xs text-gray-500 flex items-center mt-1">
+                              <div className="text-xs text-muted-foreground flex items-center mt-1 font-metrics">
                                 <Clock className="w-3 h-3 mr-1" />
                                 {point.estimated_time_minutes} мин
                               </div>
                             )}
                           </div>
-                          
+
                           {/* Индикатор текущей */}
                           {isCurrent && (
                             <div className="flex-shrink-0">
-                              <Navigation className="w-4 h-4 text-blue-600" />
+                              <Navigation className="w-4 h-4 text-primary" />
                             </div>
                           )}
                         </div>
@@ -602,63 +620,63 @@ export default function RouteViewerModal({
           </div>
 
           {/* Правая панель: Детали текущей точки */}
-          <div className="flex-1 overflow-y-auto bg-white">
+          <div className="flex-1 overflow-y-auto bg-card">
             {loading ? (
-              <div className="p-8 space-y-4">
-                <div className="h-8 bg-gray-200 rounded animate-pulse w-1/3"></div>
-                <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-32 bg-gray-200 rounded animate-pulse"></div>
+              <div className="p-4 md:p-8 space-y-4">
+                <div className="h-6 md:h-8 bg-muted rounded animate-pulse w-1/3"></div>
+                <div className="h-48 md:h-64 bg-muted rounded animate-pulse"></div>
+                <div className="h-24 md:h-32 bg-muted rounded animate-pulse"></div>
               </div>
             ) : currentPoint ? (
-              <div className="p-8">
+              <div className="p-4 md:p-8">
                 {/* Галерея фото здания */}
                 {currentPointPhotos.length > 0 && (
-                  <div className="mb-6 relative rounded-xl overflow-hidden shadow-lg group">
+                  <div className="mb-4 md:mb-6 relative rounded-[var(--radius)] overflow-hidden shadow-lg group">
                     <img
                       src={getStorageUrl(currentPointPhotos[currentPhotoIndex], 'photos')}
                       alt={`${currentPoint.title} - фото ${currentPhotoIndex + 1}`}
-                      className="w-full h-80 object-cover"
+                      className="w-full h-48 md:h-80 object-cover"
                     />
-                    
+
                     {/* Счетчик фото */}
                     {currentPointPhotos.length > 1 && (
-                      <div className="absolute top-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      <div className="absolute top-2 md:top-4 right-2 md:right-4 bg-black/60 text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium font-metrics">
                         {currentPhotoIndex + 1} / {currentPointPhotos.length}
                       </div>
                     )}
-                    
+
                     {/* Стрелочки навигации */}
                     {currentPointPhotos.length > 1 && (
                       <>
                         <button
-                          onClick={() => setCurrentPhotoIndex(prev => 
+                          onClick={() => setCurrentPhotoIndex(prev =>
                             prev === 0 ? currentPointPhotos.length - 1 : prev - 1
                           )}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-card/90 hover:bg-card text-foreground rounded-full p-2 md:p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <ChevronLeft className="w-6 h-6" />
+                          <ChevronLeft className="w-4 h-4 md:w-6 md:h-6" />
                         </button>
                         <button
-                          onClick={() => setCurrentPhotoIndex(prev => 
+                          onClick={() => setCurrentPhotoIndex(prev =>
                             prev === currentPointPhotos.length - 1 ? 0 : prev + 1
                           )}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-card/90 hover:bg-card text-foreground rounded-full p-2 md:p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <ChevronRight className="w-6 h-6" />
+                          <ChevronRight className="w-4 h-4 md:w-6 md:h-6" />
                         </button>
                       </>
                     )}
-                    
+
                     {/* Точки-индикаторы */}
                     {currentPointPhotos.length > 1 && currentPointPhotos.length <= 10 && (
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-2">
+                      <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-1.5 md:space-x-2">
                         {currentPointPhotos.map((_, index) => (
                           <button
                             key={index}
                             onClick={() => setCurrentPhotoIndex(index)}
-                            className={`w-2 h-2 rounded-full transition-all ${
+                            className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${
                               index === currentPhotoIndex
-                                ? 'bg-white w-8'
+                                ? 'bg-white w-6 md:w-8'
                                 : 'bg-white/60 hover:bg-white/80'
                             }`}
                           />
@@ -669,28 +687,28 @@ export default function RouteViewerModal({
                 )}
 
                 {/* Информация о точке */}
-                <div className="mb-6">
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                <div className="mb-4 md:mb-6">
+                  <h3 className="text-xl md:text-3xl font-bold font-display text-foreground mb-2">
                     {currentPoint.title}
                   </h3>
-                  
+
                   {currentPoint.buildings && (
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                    <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm text-muted-foreground mb-3 md:mb-4">
                       {currentPoint.buildings.address && (
                         <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-1" />
+                          <MapPin className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                           {currentPoint.buildings.address}
                         </div>
                       )}
                       {currentPoint.estimated_time_minutes && (
-                        <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
+                        <div className="flex items-center font-metrics">
+                          <Clock className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                           {currentPoint.estimated_time_minutes} мин
                         </div>
                       )}
                       {currentPoint.buildings.rating && (
-                        <div className="flex items-center">
-                          <Star className="w-4 h-4 mr-1 text-yellow-400" />
+                        <div className="flex items-center font-metrics">
+                          <Star className="w-3 h-3 md:w-4 md:h-4 mr-1 text-yellow-400" />
                           {currentPoint.buildings.rating.toFixed(1)}
                         </div>
                       )}
@@ -700,13 +718,13 @@ export default function RouteViewerModal({
                   {/* Текст обзора (если выбран) или описание здания */}
                   {selectedReview && selectedReview.content ? (
                     <div className="prose max-w-none mb-4">
-                      <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                      <p className="text-sm md:text-base text-foreground leading-relaxed whitespace-pre-line">
                         {selectedReview.content}
                       </p>
                       {selectedReview.tags && selectedReview.tags.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-3">
                           {selectedReview.tags.map((tag, idx) => (
-                            <span key={idx} className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                            <span key={idx} className="bg-muted text-foreground px-2 py-1 rounded-full text-xs">
                               #{tag}
                             </span>
                           ))}
@@ -715,7 +733,7 @@ export default function RouteViewerModal({
                     </div>
                   ) : currentPoint.description && (
                     <div className="prose max-w-none mb-4">
-                      <p className="text-gray-700 leading-relaxed">
+                      <p className="text-sm md:text-base text-foreground leading-relaxed">
                         {currentPoint.description}
                       </p>
                     </div>
@@ -723,131 +741,131 @@ export default function RouteViewerModal({
                 </div>
 
                 {/* Секция обзоров */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-xl font-semibold text-gray-900">
+                <div className="mb-4 md:mb-6">
+                  <div className="flex items-center justify-between mb-3 md:mb-4">
+                    <h4 className="text-lg md:text-xl font-semibold font-display text-foreground">
                       📝 Обзоры {reviews.length > 0 && `(${reviews.length})`}
                     </h4>
                     {reviews.length > 0 && (
-                      <div className="text-sm text-gray-500">
+                      <div className="text-xs md:text-sm text-muted-foreground font-metrics">
                         {reviews.filter(r => r.audio_url).length} с аудио
                       </div>
                     )}
                   </div>
 
                   {loadingReviews ? (
-                    <div className="space-y-3">
+                    <div className="space-y-2 md:space-y-3">
                       {[1, 2].map(i => (
-                        <div key={i} className="h-24 bg-gray-100 rounded-lg animate-pulse"></div>
+                        <div key={i} className="h-20 md:h-24 bg-muted rounded-[var(--radius)] animate-pulse"></div>
                       ))}
                     </div>
                   ) : reviews.length === 0 ? (
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                      <p className="text-gray-600">
+                    <div className="bg-muted border-2 border-border rounded-[var(--radius)] p-4 md:p-6 text-center">
+                      <p className="text-sm md:text-base text-muted-foreground">
                         📭 Пока нет обзоров для этого объекта
                       </p>
                     </div>
                   ) : (
                     <>
-                      <div className="space-y-3">
+                      <div className="space-y-2 md:space-y-3">
                         {(showAllReviews ? reviews : reviews.slice(0, 3)).map((review) => {
                         const isSelected = review.id === selectedReviewId
-                        
+
                         // Проверка на "Полный обзор"
                         const isFullReview = !!(
                           review.content && review.content.length >= 200 &&
                           review.photos && review.photos.length >= 2 &&
                           review.audio_url
                         )
-                        
+
                         return (
                           <div
                             key={review.id}
                             onClick={() => !isSelected && handleSelectReview(review.id)}
-                            className={`border-2 rounded-lg p-4 transition-all ${
+                            className={`border-2 rounded-[var(--radius)] p-3 md:p-4 transition-all ${
                               isSelected
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md cursor-pointer'
+                                ? 'border-primary bg-primary/5'
+                                : 'border-border bg-card hover:border-primary/50 hover:shadow-md cursor-pointer'
                             }`}
                           >
                             {/* Header */}
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-center flex-wrap gap-2">
+                            <div className="flex items-start justify-between mb-2 md:mb-3">
+                              <div className="flex items-center flex-wrap gap-1.5 md:gap-2">
                                 {/* Рейтинг от пользователей */}
                                 {review.user_rating_count > 0 && (
-                                  <div className="flex items-center bg-yellow-50 px-2 py-1 rounded">
-                                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1" />
-                                    <span className="text-sm font-semibold text-gray-900">
+                                  <div className="flex items-center bg-yellow-50 px-1.5 md:px-2 py-0.5 md:py-1 rounded">
+                                    <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 fill-yellow-400 mr-0.5 md:mr-1" />
+                                    <span className="text-xs md:text-sm font-semibold text-foreground font-metrics">
                                       {review.user_rating_avg.toFixed(1)}
                                     </span>
-                                    <span className="text-xs text-gray-600 ml-1">
+                                    <span className="text-xs text-muted-foreground ml-1 font-metrics">
                                       ({review.user_rating_count})
                                     </span>
                                   </div>
                                 )}
-                                
+
                                 {/* Полный обзор - ГЛАВНЫЙ бейдж */}
                                 {isFullReview && (
-                                  <span className="flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold border border-yellow-300">
+                                  <span className="flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-bold border border-yellow-300">
                                     ⭐ ПОЛНЫЙ
                                   </span>
                                 )}
-                                
+
                                 {/* Остальные бейджи */}
                                 {review.audio_url && (
-                                  <span className="flex items-center bg-purple-50 text-purple-700 px-2 py-1 rounded text-xs font-medium">
-                                    <Headphones className="w-3 h-3 mr-1" />
-                                    Аудио
+                                  <span className="flex items-center bg-purple-50 text-purple-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                    <Headphones className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+                                    <span className="hidden md:inline">Аудио</span>
                                   </span>
                                 )}
                                 {review.is_verified && (
-                                  <span className="flex items-center bg-green-50 text-green-700 px-2 py-1 rounded text-xs font-medium">
-                                    <CheckCircle className="w-3 h-3 mr-1" />
-                                    Проверено
+                                  <span className="flex items-center bg-green-50 text-green-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                    <CheckCircle className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+                                    <span className="hidden md:inline">Проверено</span>
                                   </span>
                                 )}
                                 {review.is_featured && (
-                                  <span className="flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium">
-                                    <Award className="w-3 h-3 mr-1" />
-                                    Рекомендовано
+                                  <span className="flex items-center bg-primary/10 text-primary px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                    <Award className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+                                    <span className="hidden md:inline">Рекомендовано</span>
                                   </span>
                                 )}
                                 {review.review_type === 'expert' && (
-                                  <span className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs font-medium">
-                                    👨‍🎓 Эксперт
+                                  <span className="bg-indigo-50 text-indigo-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                    👨‍🎓 <span className="hidden md:inline">Эксперт</span>
                                   </span>
                                 )}
                                 {review.review_type === 'historical' && (
-                                  <span className="bg-amber-50 text-amber-700 px-2 py-1 rounded text-xs font-medium">
-                                    📜 Исторический
+                                  <span className="bg-amber-50 text-amber-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                    📜 <span className="hidden md:inline">Исторический</span>
                                   </span>
                                 )}
                               </div>
-                              
+
                               {isSelected && (
-                                <span className="flex items-center text-blue-600 text-sm font-medium">
-                                  <Check className="w-4 h-4 mr-1" />
-                                  Выбран
+                                <span className="flex items-center text-primary text-xs md:text-sm font-medium">
+                                  <Check className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                                  <span className="hidden md:inline">Выбран</span>
                                 </span>
                               )}
                             </div>
 
                             {/* Заголовок */}
                             {review.title && (
-                              <h5 className="font-semibold text-gray-900 mb-2">
+                              <h5 className="font-semibold font-display text-foreground mb-1 md:mb-2 text-sm md:text-base">
                                 {review.title}
                               </h5>
                             )}
 
                             {/* Превью текста */}
                             {review.content && (
-                              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                              <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3 line-clamp-2">
                                 {review.content}
                               </p>
                             )}
 
                             {/* Метаданные */}
-                            <div className="flex items-center space-x-3 text-xs text-gray-500 mb-3">
+                            <div className="flex items-center space-x-2 md:space-x-3 text-xs text-muted-foreground mb-2 md:mb-3 font-metrics">
                               {review.audio_duration_seconds && (
                                 <span className="flex items-center">
                                   <Headphones className="w-3 h-3 mr-1" />
@@ -862,15 +880,15 @@ export default function RouteViewerModal({
                             </div>
 
                             {/* Оценка обзора */}
-                            <div className="border-t border-gray-100 pt-3 flex items-center justify-between flex-wrap gap-3">
+                            <div className="border-t border-border pt-2 md:pt-3 flex items-center justify-between flex-wrap gap-2 md:gap-3">
                               {/* Звезды для оценки */}
                               <div onClick={(e) => e.stopPropagation()}>
-                                <p className="text-xs text-gray-600 mb-1">Оцените обзор:</p>
-                                <div className="flex items-center space-x-1">
+                                <p className="text-xs text-muted-foreground mb-1 hidden md:block">Оцените обзор:</p>
+                                <div className="flex items-center space-x-0.5 md:space-x-1">
                                   {[1, 2, 3, 4, 5].map(star => {
                                     const userRating = userRatings.get(review.id) || 0
                                     const isActive = userRating >= star || (hoveredRating?.reviewId === review.id && hoveredRating.rating >= star)
-                                    
+
                                     return (
                                       <button
                                         key={star}
@@ -883,10 +901,10 @@ export default function RouteViewerModal({
                                         className="p-0.5 transition-transform hover:scale-110"
                                       >
                                         <Star
-                                          className={`w-4 h-4 transition-colors ${
+                                          className={`w-3 h-3 md:w-4 md:h-4 transition-colors ${
                                             isActive
                                               ? 'fill-yellow-400 text-yellow-400'
-                                              : 'text-gray-300'
+                                              : 'text-muted-foreground/30'
                                           }`}
                                         />
                                       </button>
@@ -903,26 +921,26 @@ export default function RouteViewerModal({
                                 }}
                                 className={`flex items-center px-2 py-1 rounded transition-all ${
                                   helpfulVotes.has(review.id)
-                                    ? 'bg-blue-100 text-blue-700 font-medium'
-                                    : 'hover:bg-gray-100 text-gray-600'
+                                    ? 'bg-primary/10 text-primary font-medium'
+                                    : 'hover:bg-muted text-muted-foreground'
                                 }`}
                                 title={helpfulVotes.has(review.id) ? 'Отменить оценку' : 'Отметить как полезный'}
                               >
                                 <span className="mr-1">{helpfulVotes.has(review.id) ? '👍' : '👍🏻'}</span>
-                                <span className="text-xs">{review.helpful_count}</span>
+                                <span className="text-xs font-metrics">{review.helpful_count}</span>
                               </button>
                             </div>
                           </div>
                         )
                       })}
                       </div>
-                      
+
                       {/* Кнопка показать еще обзоры */}
                       {reviews.length > 3 && (
-                        <div className="text-center mt-4">
+                        <div className="text-center mt-3 md:mt-4">
                           <button
                             onClick={() => setShowAllReviews(!showAllReviews)}
-                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
+                            className="px-3 md:px-4 py-1.5 md:py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors font-medium text-xs md:text-sm"
                           >
                             {showAllReviews ? (
                               <>↑ Свернуть обзоры</>
@@ -938,8 +956,8 @@ export default function RouteViewerModal({
 
                 {/* Аудио плеер (если выбран обзор с аудио) */}
                 {selectedReview && selectedReview.audio_url && (
-                  <div className="mb-6">
-                    <h4 className="text-xl font-semibold text-gray-900 mb-4">
+                  <div className="mb-4 md:mb-6">
+                    <h4 className="text-lg md:text-xl font-semibold font-display text-foreground mb-3 md:mb-4">
                       🎧 Аудио обзор
                     </h4>
                     <AudioPlayer
@@ -965,11 +983,11 @@ export default function RouteViewerModal({
                 )}
 
                 {/* Мини-карта */}
-                <div className="mb-6">
-                  <h4 className="text-xl font-semibold text-gray-900 mb-4">
+                <div className="mb-4 md:mb-6">
+                  <h4 className="text-lg md:text-xl font-semibold font-display text-foreground mb-3 md:mb-4">
                     🗺️ Карта
                   </h4>
-                  <div className="h-64 rounded-lg overflow-hidden border border-gray-200">
+                  <div className="h-48 md:h-64 rounded-[var(--radius)] overflow-hidden border-2 border-border">
                     <DynamicMiniMap
                       route={route}
                       routePoints={routePoints}
@@ -980,30 +998,105 @@ export default function RouteViewerModal({
                 </div>
               </div>
             ) : (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-4 md:p-8 text-center text-muted-foreground">
                 Выберите точку маршрута
               </div>
             )}
           </div>
         </div>
 
+        {/* Превью маршрута для мобильной версии */}
+        <div className="md:hidden border-t-2 border-border bg-background p-3">
+          <h4 className="text-sm font-semibold font-display text-foreground mb-2">
+            Маршрут ({routePoints.length} точек)
+          </h4>
+          <div className="flex space-x-2 overflow-x-auto pb-2 -mx-3 px-3 scrollbar-hide">
+            {routePoints.map((point, index) => {
+              const isCurrent = index === currentPointIndex
+              const isPassed = index < currentPointIndex
+
+              return (
+                <button
+                  key={point.id}
+                  onClick={() => setCurrentPointIndex(index)}
+                  className={`flex-shrink-0 w-20 transition-all ${
+                    isCurrent ? 'scale-105' : isPassed ? 'opacity-40' : ''
+                  }`}
+                >
+                  <div className={`relative rounded-[var(--radius)] border-2 overflow-hidden ${
+                    isCurrent
+                      ? 'border-primary shadow-md'
+                      : isPassed
+                      ? 'border-border bg-muted'
+                      : 'border-border'
+                  }`}>
+                    {/* Миниатюра или placeholder */}
+                    {point.buildings?.image_url ? (
+                      <img
+                        src={getStorageUrl(point.buildings.image_url, 'photos')}
+                        alt={point.title}
+                        className={`w-full h-16 object-cover ${isPassed ? 'grayscale' : ''}`}
+                      />
+                    ) : (
+                      <div className={`w-full h-16 bg-muted flex items-center justify-center ${
+                        isPassed ? 'opacity-50' : ''
+                      }`}>
+                        <MapPin className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                    )}
+
+                    {/* Номер точки */}
+                    <div className={`absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold font-metrics ${
+                      isCurrent
+                        ? 'bg-primary text-primary-foreground'
+                        : isPassed
+                        ? 'bg-muted-foreground/60 text-white'
+                        : 'bg-card text-foreground border border-border'
+                    }`}>
+                      {isPassed ? <Check className="w-3 h-3" /> : index + 1}
+                    </div>
+
+                    {/* Индикатор текущей */}
+                    {isCurrent && (
+                      <div className="absolute top-1 right-1">
+                        <Navigation className="w-4 h-4 text-primary" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Название точки */}
+                  <div className={`mt-1 text-xs font-medium text-center truncate ${
+                    isCurrent
+                      ? 'text-primary'
+                      : isPassed
+                      ? 'text-muted-foreground'
+                      : 'text-foreground'
+                  }`}>
+                    {point.title}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         {/* Footer: Навигация */}
-        <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-white">
+        <div className="flex items-center justify-between p-3 md:p-6 border-t-2 border-border bg-card">
           <button
             onClick={goToPrevious}
             disabled={currentPointIndex === 0}
-            className="flex items-center space-x-2 px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center space-x-1 md:space-x-2 px-3 md:px-6 py-2 md:py-3 bg-card border-2 border-border text-foreground rounded-[var(--radius)] font-medium hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
           >
-            <ChevronLeft className="w-5 h-5" />
-            <span>Предыдущая</span>
+            <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden md:inline">Предыдущая</span>
           </button>
 
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">
-              {currentPointIndex + 1} <span className="text-gray-400">из</span> {routePoints.length}
+            <div className="text-lg md:text-2xl font-bold font-display text-foreground">
+              {currentPointIndex + 1} <span className="text-muted-foreground">из</span> {routePoints.length}
             </div>
             {currentPoint && (
-              <div className="text-sm text-gray-600 mt-1">
+              <div className="text-xs md:text-sm text-muted-foreground mt-1 truncate max-w-[120px] md:max-w-none">
                 {currentPoint.title}
               </div>
             )}
@@ -1012,10 +1105,10 @@ export default function RouteViewerModal({
           <button
             onClick={goToNext}
             disabled={currentPointIndex === routePoints.length - 1}
-            className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center space-x-1 md:space-x-2 px-3 md:px-6 py-2 md:py-3 bg-primary text-primary-foreground rounded-[var(--radius)] font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
           >
-            <span>Следующая</span>
-            <ChevronRight className="w-5 h-5" />
+            <span className="hidden md:inline">Следующая</span>
+            <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
       </div>

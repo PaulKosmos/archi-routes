@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useNewsAPI } from '@/hooks/useNewsAPI';
+import Header from '@/components/Header';
 import NewsEditor from '@/components/news/NewsEditor';
 import ContentBlockEditor from '@/components/news/ContentBlockEditor';
 import NewsPreview from '@/components/news/NewsPreview'; // ✅ Добавили импорт превью
@@ -292,8 +293,10 @@ export default function CreateNewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <>
+      <Header buildings={[]} />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 py-8">
         
         {/* Header - Sticky */}
         <div className="sticky top-0 z-10 bg-gray-50 py-4 mb-4 flex items-center justify-between border-b border-gray-200">
@@ -798,6 +801,7 @@ export default function CreateNewsPage() {
           updated_at: new Date().toISOString(),
         }))}
       />
-    </div>
+        </div>
+    </>
   );
 }

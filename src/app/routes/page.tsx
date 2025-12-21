@@ -12,6 +12,8 @@ import { MapPin, Plus, Home, ArrowLeft } from 'lucide-react'
 import RouteCreator from '@/components/RouteCreator'
 import { SmartRouteFilter } from '@/lib/smart-route-filtering'
 import type { RouteWithUserData } from '@/types/route'
+import Header from '@/components/Header'
+import EnhancedFooter from '@/components/EnhancedFooter'
 
 interface SimpleRoute {
   id: string
@@ -202,6 +204,7 @@ export default function RoutesPage() {
 
   return (
     <>
+      <Header buildings={buildings} />
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
@@ -337,6 +340,7 @@ export default function RoutesPage() {
         buildings={buildings}
       />
     )}
+    <EnhancedFooter />
   </>
   )
 }

@@ -76,7 +76,7 @@ export default function RouteList({
               className={`p-2 md:p-3 rounded-[var(--radius)] border transition-all duration-200 bg-card relative ${
                 isSelected
                   ? 'border-[hsl(var(--map-primary))] bg-[hsl(var(--map-primary))]/5 shadow-md'
-                  : 'border-border hover:border-[hsl(var(--map-primary))]/50 hover:bg-muted hover:-translate-y-0.5 hover:shadow-md'
+                  : 'border-border hover:bg-muted hover:-translate-y-0.5 hover:shadow-md'
               }`}
             >
               <div className="flex items-start justify-between" onClick={() => onRouteSelect(route)}>

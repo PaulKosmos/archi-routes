@@ -184,18 +184,18 @@ export default function AddToCollectionButton({
   function getSizeClasses(size: string) {
     switch (size) {
       case 'sm':
-        return 'px-2 py-1 text-xs'
+        return variant === 'icon' ? 'p-1.5 md:p-2' : 'p-1.5 md:px-2 md:py-1 text-xs'
       case 'lg':
-        return 'px-6 py-3 text-base'
+        return 'px-4 py-2 md:px-6 md:py-3 text-base'
       default:
-        return 'px-3 py-2 text-sm'
+        return 'px-2 py-1.5 md:px-3 md:py-2 text-sm'
     }
   }
 
   function getIconSize(size: string) {
     switch (size) {
       case 'sm':
-        return 'w-3 h-3'
+        return variant === 'icon' ? 'w-4 h-4 md:w-5 md:h-5' : 'w-4 h-4 md:w-3 md:h-3'
       case 'lg':
         return 'w-5 h-5'
       default:
@@ -209,20 +209,25 @@ export default function AddToCollectionButton({
       <button
         onClick={() => setShowDropdown(!showDropdown)}
         className={`inline-flex items-center gap-2 ${getSizeClasses(size)} ${
-          collectionsCount > 0
-            ? 'bg-blue-50 text-blue-700 border-blue-200'
-            : 'text-gray-700 border-gray-300 hover:bg-gray-50'
-        } border rounded-lg transition-colors`}
+          variant === 'icon'
+            ? 'hover:bg-gray-100 rounded-lg transition-colors'
+            : `${
+                collectionsCount > 0
+                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                  : 'text-gray-700 border-gray-300 hover:bg-gray-50'
+              } border rounded-lg transition-colors`
+        }`}
+        title={variant === 'icon' ? (collectionsCount > 0 ? `В ${collectionsCount} коллекциях` : 'В коллекцию') : undefined}
       >
         {collectionsCount > 0 ? (
-          <BookmarkCheck className={getIconSize(size)} />
+          <BookmarkCheck className={`${getIconSize(size)} ${variant === 'icon' ? 'text-blue-600' : ''}`} />
         ) : (
-          <BookmarkPlus className={getIconSize(size)} />
+          <BookmarkPlus className={`${getIconSize(size)} ${variant === 'icon' ? 'text-gray-600' : ''}`} />
         )}
-        
+
         {variant !== 'icon' && (
-          <span>
-            {collectionsCount > 0 
+          <span className="hidden md:inline">
+            {collectionsCount > 0
               ? `В ${collectionsCount} коллекциях`
               : 'В коллекцию'
             }
@@ -234,13 +239,13 @@ export default function AddToCollectionButton({
       {showDropdown && (
         <>
           {/* Overlay для закрытия */}
-          <div 
-            className="fixed inset-0 z-10"
+          <div
+            className="fixed inset-0 z-[60]"
             onClick={() => setShowDropdown(false)}
           />
-          
+
           {/* Меню */}
-          <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+          <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-[70]">
             <div className="p-4">
               {/* Заголовок */}
               <div className="flex items-center justify-between mb-3">
