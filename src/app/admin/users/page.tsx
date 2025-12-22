@@ -553,7 +553,6 @@ export default function UsersManagementPage() {
             </div>
           </div>
         </div>
-        </div>
       )}
     </>
   )
