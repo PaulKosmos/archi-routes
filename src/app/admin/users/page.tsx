@@ -310,18 +310,18 @@ export default function UsersManagementPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto p-6">
           {/* Заголовок */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Users className="w-8 h-8 text-blue-600" />
-            Управление пользователями
-          </h1>
-        <p className="text-gray-600 mt-2">
-          Управление ролями и правами пользователей платформы
-        </p>
-      </div>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <Users className="w-8 h-8 text-blue-600" />
+              Управление пользователями
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Управление ролями и правами пользователей платформы
+            </p>
+          </div>
 
-      {/* Статистика */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          {/* Статистика */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow-sm p-4">
           <div className="flex items-center gap-3">
             <Users className="w-8 h-8 text-blue-600" />
@@ -506,7 +506,8 @@ export default function UsersManagementPage() {
             <p className="text-gray-500">Пользователи не найдены</p>
           </div>
         )}
-        </div>
+      </div>
+      </div>
       </div>
 
       {/* Модальное окно изменения роли */}
