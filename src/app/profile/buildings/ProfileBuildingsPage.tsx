@@ -142,54 +142,62 @@ export default function ProfileBuildingsPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка...</p>
-        </div>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header buildings={[]} />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Загрузка...</p>
+          </div>
+        </main>
+        <EnhancedFooter />
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Вход необходим</h1>
-          <p className="text-gray-600 mb-6">Для просмотра ваших зданий необходимо войти в систему</p>
-          <Link 
-            href="/auth" 
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Войти
-          </Link>
-        </div>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header buildings={[]} />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+            <h1 className="text-2xl font-heading font-bold mb-2">Вход необходим</h1>
+            <p className="text-muted-foreground mb-6">Для просмотра ваших зданий необходимо войти в систему</p>
+            <Link
+              href="/auth"
+              className="bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
+            >
+              Войти
+            </Link>
+          </div>
+        </main>
+        <EnhancedFooter />
       </div>
     )
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-background flex flex-col">
       <Header buildings={[]} />
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-8 pt-10">
           {/* Заголовок */}
         <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
+          <div className="flex items-center gap-4 mb-4">
             <Link
               href="/profile"
-              className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+              className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
             </Link>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                <Building2 className="w-6 h-6 mr-2" />
+              <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
+                <Building2 className="w-6 h-6" />
                 Объекты
               </h1>
-              <div className="flex items-center space-x-4 text-sm mt-1">
-                <span className="text-gray-600">
+              <div className="flex items-center gap-4 text-sm mt-1">
+                <span className="text-muted-foreground">
                   {buildings.length} {buildings.length === 1 ? 'объект' : buildings.length < 5 ? 'объекта' : 'объектов'}
                 </span>
                 {buildings.filter(b => b.moderation_status === 'pending').length > 0 && (
@@ -211,7 +219,7 @@ export default function ProfileBuildingsPage() {
             </div>
             <Link
               href="/buildings/new"
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              className="bg-primary text-primary-foreground px-4 py-2 rounded-[var(--radius)] hover:bg-primary/90 transition-colors flex items-center gap-2 font-medium"
             >
               <Plus className="w-4 h-4" />
               <span>Добавить здание</span>
@@ -343,9 +351,9 @@ export default function ProfileBuildingsPage() {
           /* Сетка зданий */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredBuildings.map((building) => (
-              <div key={building.id} className="bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
+              <div key={building.id} className="bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-md transition-shadow">
                 {/* Изображение */}
-                <div className="relative h-48 bg-gray-200">
+                <div className="relative h-48 bg-muted">
                   {building.image_url ? (
                     <img
                       src={building.image_url}
@@ -576,8 +584,8 @@ export default function ProfileBuildingsPage() {
           </div>
         )}
         </div>
-      </div>
+      </main>
       <EnhancedFooter />
-    </>
+    </div>
   )
 }

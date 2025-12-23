@@ -195,29 +195,37 @@ export default function ProfileEditPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка...</p>
-        </div>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header buildings={[]} />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Загрузка...</p>
+          </div>
+        </main>
+        <EnhancedFooter />
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Вход необходим</h1>
-          <p className="text-gray-600 mb-6">Для редактирования профиля необходимо войти в систему</p>
-          <Link 
-            href="/auth" 
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Войти
-          </Link>
-        </div>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header buildings={[]} />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <User className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+            <h1 className="text-2xl font-heading font-bold mb-2">Вход необходим</h1>
+            <p className="text-muted-foreground mb-6">Для редактирования профиля необходимо войти в систему</p>
+            <Link
+              href="/auth"
+              className="bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
+            >
+              Войти
+            </Link>
+          </div>
+        </main>
+        <EnhancedFooter />
       </div>
     )
   }
@@ -225,246 +233,246 @@ export default function ProfileEditPage() {
   const currentAvatar = avatarPreview || formData.avatar_url || user.user_metadata?.avatar_url
 
   return (
-    <>
+    <div className="min-h-screen bg-background flex flex-col">
       <Header buildings={[]} />
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-8 pt-10 max-w-4xl">
           {/* Заголовок */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <Link
-              href="/profile"
-              className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Редактировать профиль</h1>
-              <p className="text-gray-600">Обновите информацию о себе</p>
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-4">
+              <Link
+                href="/profile"
+                className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+              </Link>
+              <div className="flex-1">
+                <h1 className="text-3xl font-heading font-bold">Редактировать профиль</h1>
+                <p className="text-muted-foreground mt-1">Обновите информацию о себе</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Сообщения */}
-        {message && (
-          <div className={`mb-6 p-4 rounded-lg ${
-            message.type === 'success' 
-              ? 'bg-green-50 border border-green-200 text-green-800' 
-              : 'bg-red-50 border border-red-200 text-red-800'
-          }`}>
-            {message.text}
-          </div>
-        )}
+          {/* Сообщения */}
+          {message && (
+            <div className={`mb-6 p-4 rounded-[var(--radius)] border ${
+              message.type === 'success'
+                ? 'bg-green-50 border-green-200 text-green-800'
+                : 'bg-red-50 border-red-200 text-red-800'
+            }`}>
+              {message.text}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Аватар */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Camera className="w-5 h-5 mr-2" />
-              Аватар
-            </h2>
-            
-            <div className="flex items-center space-x-6">
-              <div className="w-20 h-20 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center flex-shrink-0">
-                {currentAvatar ? (
-                  <img 
-                    src={currentAvatar} 
-                    alt="Аватар"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-white font-bold text-2xl">
-                    {formData.display_name ? formData.display_name.charAt(0).toUpperCase() : 'U'}
-                  </span>
-                )}
-              </div>
-              
-              <div>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingAvatar}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                >
-                  {uploadingAvatar ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Загрузка...</span>
-                    </>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Аватар */}
+            <div className="bg-card border border-border rounded-[var(--radius)] p-6">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Camera className="w-5 h-5" />
+                Аватар
+              </h2>
+
+              <div className="flex items-center gap-6">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-primary flex items-center justify-center flex-shrink-0">
+                  {currentAvatar ? (
+                    <img
+                      src={currentAvatar}
+                      alt="Аватар"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <>
-                      <Upload className="w-4 h-4" />
-                      <span>Загрузить новый</span>
-                    </>
+                    <span className="text-primary-foreground font-bold text-2xl">
+                      {formData.display_name ? formData.display_name.charAt(0).toUpperCase() : 'U'}
+                    </span>
                   )}
-                </button>
-                <p className="text-sm text-gray-500 mt-2">
-                  JPG, PNG или WebP. Максимум 2MB.
-                </p>
-              </div>
-            </div>
-            
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </div>
-
-          {/* Основная информация */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-              <FileText className="w-5 h-5 mr-2" />
-              Основная информация
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Имя */}
-              <div>
-                <label htmlFor="display_name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Имя *
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    id="display_name"
-                    value={formData.display_name}
-                    onChange={(e) => handleInputChange('display_name', e.target.value)}
-                    className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.display_name ? 'border-red-300' : 'border-gray-300'
-                    }`}
-                    placeholder={profile?.display_name || profile?.full_name || "Ваше имя"}
-                    maxLength={50}
-                  />
                 </div>
-                {errors.display_name && (
-                  <p className="text-red-600 text-sm mt-1">{errors.display_name}</p>
-                )}
-                <p className="text-gray-500 text-sm mt-1">
-                  {formData.display_name.length}/50 символов
-                </p>
-              </div>
 
-              {/* Город */}
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-                  Город
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    id="city"
-                    value={formData.city}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
-                    className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.city ? 'border-red-300' : 'border-gray-300'
-                    }`}
-                    placeholder={profile?.city || "Ваш город"}
-                    maxLength={100}
-                  />
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                    className="bg-primary text-primary-foreground px-4 py-2 rounded-[var(--radius)] hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {uploadingAvatar ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Загрузка...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4" />
+                        <span>Загрузить новый</span>
+                      </>
+                    )}
+                  </button>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    JPG, PNG или WebP. Максимум 2MB.
+                  </p>
                 </div>
-                {errors.city && (
-                  <p className="text-red-600 text-sm mt-1">{errors.city}</p>
-                )}
-                <p className="text-gray-500 text-sm mt-1">
-                  {formData.city.length}/100 символов
-                </p>
               </div>
-            </div>
 
-            {/* О себе */}
-            <div className="mt-6">
-              <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
-                О себе
-              </label>
-              <textarea
-                id="bio"
-                value={formData.bio}
-                onChange={(e) => handleInputChange('bio', e.target.value)}
-                rows={4}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
-                  errors.bio ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder={profile?.bio || "Расскажите о себе, своих интересах в архитектуре..."}
-                maxLength={500}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleFileSelect}
+                className="hidden"
               />
-              {errors.bio && (
-                <p className="text-red-600 text-sm mt-1">{errors.bio}</p>
-              )}
-              <p className="text-gray-500 text-sm mt-1">
-                {formData.bio.length}/500 символов
-              </p>
             </div>
-          </div>
 
-          {/* Настройки приватности */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Приватность
-            </h2>
-            
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  id="hide_email"
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="hide_email" className="text-sm text-gray-700">
-                  Скрыть email от других пользователей
-                </label>
+            {/* Основная информация */}
+            <div className="bg-card border border-border rounded-[var(--radius)] p-6">
+              <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Основная информация
+              </h2>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Имя */}
+                <div>
+                  <label htmlFor="display_name" className="block text-sm font-medium mb-2">
+                    Имя *
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      id="display_name"
+                      value={formData.display_name}
+                      onChange={(e) => handleInputChange('display_name', e.target.value)}
+                      className={`w-full pl-10 pr-4 py-2 text-sm border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent ${
+                        errors.display_name ? 'border-red-300' : 'border-border'
+                      }`}
+                      placeholder={profile?.display_name || profile?.full_name || "Ваше имя"}
+                      maxLength={50}
+                    />
+                  </div>
+                  {errors.display_name && (
+                    <p className="text-destructive text-xs mt-1">{errors.display_name}</p>
+                  )}
+                  <p className="text-muted-foreground text-xs mt-1">
+                    {formData.display_name.length}/50 символов
+                  </p>
+                </div>
+
+                {/* Город */}
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium mb-2">
+                    Город
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      id="city"
+                      value={formData.city}
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      className={`w-full pl-10 pr-4 py-2 text-sm border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent ${
+                        errors.city ? 'border-red-300' : 'border-border'
+                      }`}
+                      placeholder={profile?.city || "Ваш город"}
+                      maxLength={100}
+                    />
+                  </div>
+                  {errors.city && (
+                    <p className="text-destructive text-xs mt-1">{errors.city}</p>
+                  )}
+                  <p className="text-muted-foreground text-xs mt-1">
+                    {formData.city.length}/100 символов
+                  </p>
+                </div>
               </div>
-              
-              <div className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  id="hide_buildings"
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="hide_buildings" className="text-sm text-gray-700">
-                  Скрыть список моих зданий
+
+              {/* О себе */}
+              <div className="mt-6">
+                <label htmlFor="bio" className="block text-sm font-medium mb-2">
+                  О себе
                 </label>
+                <textarea
+                  id="bio"
+                  value={formData.bio}
+                  onChange={(e) => handleInputChange('bio', e.target.value)}
+                  rows={4}
+                  className={`w-full px-4 py-2 text-sm border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent resize-none ${
+                    errors.bio ? 'border-red-300' : 'border-border'
+                  }`}
+                  placeholder={profile?.bio || "Расскажите о себе, своих интересах в архитектуре..."}
+                  maxLength={500}
+                />
+                {errors.bio && (
+                  <p className="text-destructive text-xs mt-1">{errors.bio}</p>
+                )}
+                <p className="text-muted-foreground text-xs mt-1">
+                  {formData.bio.length}/500 символов
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* Кнопки действий */}
-          <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2"
-            >
-              <X className="w-4 h-4" />
-              <span>Отменить</span>
-            </button>
-            
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Сохранение...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  <span>Сохранить изменения</span>
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+            {/* Настройки приватности */}
+            <div className="bg-card border border-border rounded-[var(--radius)] p-6">
+              <h2 className="text-lg font-semibold mb-4">
+                Приватность
+              </h2>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="hide_email"
+                    className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
+                  />
+                  <label htmlFor="hide_email" className="text-sm">
+                    Скрыть email от других пользователей
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="hide_buildings"
+                    className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
+                  />
+                  <label htmlFor="hide_buildings" className="text-sm">
+                    Скрыть список моих зданий
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Кнопки действий */}
+            <div className="flex flex-col sm:flex-row justify-end gap-4">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-6 py-2 border border-border rounded-[var(--radius)] hover:bg-accent transition-colors flex items-center justify-center gap-2"
+              >
+                <X className="w-4 h-4" />
+                <span>Отменить</span>
+              </button>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Сохранение...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Сохранить изменения</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </div>
-      </div>
+      </main>
       <EnhancedFooter />
-    </>
+    </div>
   )
 }

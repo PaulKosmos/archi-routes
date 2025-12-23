@@ -63,7 +63,11 @@
       "WebFetch(domain:supabase.com)",
       "WebFetch(domain:github.com)",
       "Bash(ls:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(Select-Object -Last 30)",
+      "Bash(for file in buildings/ProfileBuildingsPage.tsx routes/page.tsx reviews/ProfileReviewsPage.tsx articles/page.tsx edit/ProfileEditPage.tsx settings/ProfileSettingsPage.tsx)",
+      "Bash(do powershell -Command \"\\(Get-Content ''$file''\\) -replace ''pt-20'', ''pt-10'' | Set-Content ''$file''\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

@@ -26,8 +26,7 @@ interface UserStats {
   favorites_count: number
   routes_count: number
   collections_count: number
-  liked_blogs_count: number
-  saved_blogs_count: number
+  articles_count: number
   pending_requests_count?: number // Для модераторов
 }
 
@@ -41,8 +40,7 @@ export default function UserDropdown() {
     favorites_count: 0,
     routes_count: 0,
     collections_count: 0,
-    liked_blogs_count: 0,
-    saved_blogs_count: 0,
+    articles_count: 0,
     pending_requests_count: 0
   })
   const [loading, setLoading] = useState(false)
@@ -69,7 +67,7 @@ export default function UserDropdown() {
 
   const loadUserStats = async () => {
     if (!user) return
-    
+
     setLoading(true)
     try {
       // Основные параллельные запросы для статистики
@@ -83,64 +81,46 @@ export default function UserDropdown() {
           .select('id', { count: 'exact' })
           .eq('user_id', user.id),
         supabase
-          .from('user_route_favorites')
-          .select('id', { count: 'exact' })
-          .eq('user_id', user.id),
-        supabase
           .from('routes')
           .select('id', { count: 'exact' })
           .eq('created_by', user.id),
         supabase
-          .from('collections')
+          .from('user_collections')
           .select('id', { count: 'exact' })
-          .eq('user_id', user.id)
+          .eq('user_id', user.id),
+        supabase
+          .from('blog_posts')
+          .select('id', { count: 'exact' })
+          .eq('author_id', user.id)
       ]
 
-      // Отдельно считаем реакции на блоги с фильтрацией по опубликованным постам
-      const [likedBlogsRes, savedBlogsRes] = await Promise.all([
-        // Лайки на опубликованные посты
-        (async () => {
-          const { data: reactions } = await supabase
-            .from('blog_post_reactions')
-            .select('post_id')
-            .eq('user_id', user.id)
-            .eq('reaction_type', 'like')
-
-          if (!reactions || reactions.length === 0) {
-            return { count: 0 }
-          }
-
-          const postIds = reactions.map(r => r.post_id)
-          const { count } = await supabase
-            .from('blog_posts')
-            .select('id', { count: 'exact', head: true })
-            .in('id', postIds)
-            .eq('status', 'published')
-
-          return { count }
-        })(),
-        // Сохраненные посты
-        (async () => {
-          const { data: reactions } = await supabase
-            .from('blog_post_reactions')
-            .select('post_id')
-            .eq('user_id', user.id)
-            .eq('reaction_type', 'save')
-
-          if (!reactions || reactions.length === 0) {
-            return { count: 0 }
-          }
-
-          const postIds = reactions.map(r => r.post_id)
-          const { count } = await supabase
-            .from('blog_posts')
-            .select('id', { count: 'exact', head: true })
-            .in('id', postIds)
-            .eq('status', 'published')
-
-          return { count }
-        })()
+      // Считаем общее избранное (лайки из всех источников)
+      const [blogLikesRes, newsLikesRes, routeFavoritesRes, buildingFavoritesRes] = await Promise.all([
+        supabase
+          .from('blog_post_reactions')
+          .select('id', { count: 'exact' })
+          .eq('user_id', user.id)
+          .eq('reaction_type', 'like'),
+        supabase
+          .from('news_reactions')
+          .select('id', { count: 'exact' })
+          .eq('user_id', user.id)
+          .eq('reaction_type', 'like'),
+        supabase
+          .from('user_route_favorites')
+          .select('id', { count: 'exact' })
+          .eq('user_id', user.id),
+        supabase
+          .from('building_favorites')
+          .select('id', { count: 'exact' })
+          .eq('user_id', user.id)
       ])
+
+      const totalFavorites =
+        (blogLikesRes.count || 0) +
+        (newsLikesRes.count || 0) +
+        (routeFavoritesRes.count || 0) +
+        (buildingFavoritesRes.count || 0)
 
       // Добавляем запрос для модераторов
       const isModerator = profile && ['moderator', 'admin'].includes(profile.role || '')
@@ -154,16 +134,15 @@ export default function UserDropdown() {
       }
 
       const results = await Promise.all(basicRequests)
-      const [buildingsRes, reviewsRes, favoritesRes, routesRes, collectionsRes, pendingRequestsRes] = results
+      const [buildingsRes, reviewsRes, routesRes, collectionsRes, articlesRes, pendingRequestsRes] = results
 
       setStats({
         buildings_count: buildingsRes.count || 0,
         reviews_count: reviewsRes.count || 0,
-        favorites_count: favoritesRes.count || 0,
+        favorites_count: totalFavorites,
         routes_count: routesRes.count || 0,
         collections_count: collectionsRes.count || 0,
-        liked_blogs_count: likedBlogsRes.count || 0,
-        saved_blogs_count: savedBlogsRes.count || 0,
+        articles_count: articlesRes.count || 0,
         pending_requests_count: isModerator ? (pendingRequestsRes?.count || 0) : undefined
       })
     } catch (error) {
@@ -351,12 +330,40 @@ export default function UserDropdown() {
             </a>
 
             <a
-              href="/profile/favorite-routes"
+              href="/profile/routes"
+              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              <MapPin className="w-4 h-4" />
+              <span>Мои маршруты</span>
+              {stats.routes_count > 0 && (
+                <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                  {stats.routes_count}
+                </span>
+              )}
+            </a>
+
+            <a
+              href="/profile/articles"
+              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Мои статьи</span>
+              {stats.articles_count > 0 && (
+                <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                  {stats.articles_count}
+                </span>
+              )}
+            </a>
+
+            <a
+              href="/profile/favorites"
               className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               onClick={() => setIsOpen(false)}
             >
               <Heart className="w-4 h-4" />
-              <span>Избранные маршруты</span>
+              <span>Избранное</span>
               {stats.favorites_count > 0 && (
                 <span className="ml-auto text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full">
                   {stats.favorites_count}
@@ -374,48 +381,6 @@ export default function UserDropdown() {
               {stats.collections_count > 0 && (
                 <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
                   {stats.collections_count}
-                </span>
-              )}
-            </a>
-
-            <a
-              href="/profile/routes"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              <MapPin className="w-4 h-4" />
-              <span>Мои маршруты</span>
-              {stats.routes_count > 0 && (
-                <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                  {stats.routes_count}
-                </span>
-              )}
-            </a>
-
-            <a
-              href="/profile/liked-blogs"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              <Heart className="w-4 h-4" />
-              <span>Избранные блоги</span>
-              {stats.liked_blogs_count > 0 && (
-                <span className="ml-auto text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full">
-                  {stats.liked_blogs_count}
-                </span>
-              )}
-            </a>
-
-            <a
-              href="/profile/saved-blogs"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>Сохраненные блоги</span>
-              {stats.saved_blogs_count > 0 && (
-                <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                  {stats.saved_blogs_count}
                 </span>
               )}
             </a>

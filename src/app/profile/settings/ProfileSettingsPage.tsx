@@ -188,88 +188,84 @@ export default function ProfileSettingsPage() {
 
   if (!user) {
     return (
-      <>
+      <div className="min-h-screen bg-background flex flex-col">
         <Header buildings={[]} />
-        <div className="min-h-screen bg-gray-50">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-              <h2 className="text-xl font-semibold text-yellow-800 mb-2">
-                Необходима авторизация
-              </h2>
-              <p className="text-yellow-700 mb-4">
-                Для доступа к настройкам необходимо войти в систему
-              </p>
-              <Link
-                href="/"
-                className="inline-block px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                На главную
-              </Link>
-            </div>
+        <main className="flex-1 flex items-center justify-center">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-[var(--radius)] p-6 text-center max-w-md">
+            <h2 className="text-xl font-semibold text-yellow-800 mb-2">
+              Необходима авторизация
+            </h2>
+            <p className="text-yellow-700 mb-4">
+              Для доступа к настройкам необходимо войти в систему
+            </p>
+            <Link
+              href="/"
+              className="inline-block px-6 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
+            >
+              На главную
+            </Link>
           </div>
-        </div>
+        </main>
         <EnhancedFooter />
-      </>
+      </div>
     )
   }
 
   if (loading) {
     return (
-      <>
+      <div className="min-h-screen bg-background flex flex-col">
         <Header buildings={[]} />
-        <div className="min-h-screen bg-gray-50">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <span className="ml-2 text-gray-600">Загрузка настроек...</span>
-            </div>
+        <main className="flex-1 flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <span className="text-muted-foreground">Загрузка настроек...</span>
           </div>
-        </div>
+        </main>
         <EnhancedFooter />
-      </>
+      </div>
     )
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-background flex flex-col">
       <Header buildings={[]} />
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-8 pt-10 max-w-4xl">
           {/* Заголовок */}
           <div className="mb-8">
-        <div className="flex items-center space-x-4 mb-4">
-          <Link 
-            href="/profile"
-            className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <Settings className="h-8 w-8 mr-3 text-blue-600" />
-              Настройки
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Управление вашим аккаунтом и персональными настройками
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-6">
-        {/* Уведомления */}
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <h2 className="text-lg font-semibold mb-4 flex items-center">
-            <Bell className="h-5 w-5 mr-2 text-blue-600" />
-            Уведомления
-          </h2>
-          
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium text-gray-900">Email уведомления</h3>
-                <p className="text-sm text-gray-500">Получать важные уведомления на email</p>
+            <div className="flex items-center gap-4 mb-4">
+              <Link
+                href="/profile"
+                className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
+              >
+                <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+              </Link>
+              <div className="flex-1">
+                <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
+                  <Settings className="h-6 w-6" />
+                  Настройки
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Управление вашим аккаунтом и персональными настройками
+                </p>
               </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {/* Уведомления */}
+            <div className="bg-card border border-border rounded-[var(--radius)] p-6">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Bell className="h-5 w-5" />
+                Уведомления
+              </h2>
+          
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">Email уведомления</h3>
+                    <p className="text-sm text-muted-foreground">Получать важные уведомления на email</p>
+                  </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -551,12 +547,12 @@ export default function ProfileSettingsPage() {
                 Сохранить изменения
               </>
             )}
-          </button>
+            </button>
+            </div>
           </div>
         </div>
-        </div>
-      </div>
+      </main>
       <EnhancedFooter />
-    </>
+    </div>
   )
 }
