@@ -12,7 +12,7 @@ import { useAuth } from '@/hooks/useAuth'
 import Header from '@/components/Header'
 import EnhancedFooter from '@/components/EnhancedFooter'
 import Link from 'next/link'
-import { User, Heart, MapPin, Building2, Settings, Edit3, FileText } from 'lucide-react'
+import { User, Heart, MapPin, Building2, Settings, Edit3, FileText, Folder } from 'lucide-react'
 
 export default function ProfilePage() {
   const { user, profile, loading } = useAuth()
@@ -167,6 +167,21 @@ export default function ProfilePage() {
             </div>
             <p className="text-muted-foreground text-sm">
               Блоги, новости, маршруты и объекты, которые вам понравились
+            </p>
+          </Link>
+
+          <Link
+            href="/profile/collections"
+            className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <Folder className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                Коллекции
+              </h3>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Организуйте избранное в тематические коллекции
             </p>
           </Link>
 

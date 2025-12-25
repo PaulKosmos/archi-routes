@@ -15,13 +15,16 @@ import {
   MessageCircle,
   Clock,
   MapPin,
-  User as UserIcon
+  User as UserIcon,
+  FolderPlus
 } from 'lucide-react'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import EnhancedFooter from '@/components/EnhancedFooter'
 import BlogCard from '@/components/blog/BlogCard'
 import NewsCard from '@/components/news/NewsCard'
+import AddToCollectionModal from '@/components/AddToCollectionModal'
+import CollectionsBadgeDropdown from '@/components/CollectionsBadgeDropdown'
 import { BlogPost } from '@/types/blog'
 import { NewsArticleWithDetails } from '@/types/news'
 
@@ -92,6 +95,23 @@ export default function ProfileFavoritesPage() {
   const [favoritedRoutes, setFavoritedRoutes] = useState<FavoritedRoute[]>([])
   const [favoritedBuildings, setFavoritedBuildings] = useState<FavoritedBuilding[]>([])
 
+  // Состояние для модалки добавления в коллекцию
+  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<{ id: string; type: 'blog' | 'news' | 'route' | 'building'; title: string } | null>(null)
+
+  // Состояние для хранения информации о коллекциях каждого элемента
+  const [itemCollections, setItemCollections] = useState<Map<string, Array<{ id: string; name: string }>>>(new Map())
+
+  const handleAddToCollection = (id: string, type: 'blog' | 'news' | 'route' | 'building', title: string) => {
+    setSelectedItem({ id, type, title })
+    setIsCollectionModalOpen(true)
+  }
+
+  const handleCloseCollectionModal = () => {
+    setIsCollectionModalOpen(false)
+    setSelectedItem(null)
+  }
+
   /**
    * Загружает все избранное пользователя
    */
@@ -100,6 +120,15 @@ export default function ProfileFavoritesPage() {
       loadAllFavorites()
     }
   }, [user])
+
+  /**
+   * Загружает информацию о коллекциях когда избранные элементы изменяются
+   */
+  useEffect(() => {
+    if (user && !loading) {
+      loadItemCollections()
+    }
+  }, [favoritedBlogs, favoritedNews, favoritedRoutes, favoritedBuildings, user, loading])
 
   const loadAllFavorites = async () => {
     if (!user) return
@@ -116,6 +145,58 @@ export default function ProfileFavoritesPage() {
       console.error('Error loading favorites:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  /**
+   * Загружает информацию о том, в каких коллекциях находятся избранные элементы
+   */
+  const loadItemCollections = async () => {
+    if (!user) return
+
+    try {
+      // Собираем все ID избранных элементов
+      const allItemIds: string[] = [
+        ...favoritedBlogs.map(b => b.id),
+        ...favoritedNews.map(n => n.id),
+        ...favoritedRoutes.map(r => r.route.id),
+        ...favoritedBuildings.map(b => b.building.id)
+      ]
+
+      if (allItemIds.length === 0) return
+
+      // Загружаем все коллекции пользователя с их элементами
+      const { data: collections, error } = await supabase
+        .from('user_collections')
+        .select(`
+          id,
+          name,
+          collection_items!inner (
+            item_id
+          )
+        `)
+        .eq('user_id', user.id)
+
+      if (error) throw error
+
+      // Создаем Map для быстрого поиска коллекций по item_id
+      const collectionsMap = new Map<string, Array<{ id: string; name: string }>>()
+
+      collections?.forEach(collection => {
+        collection.collection_items?.forEach((item: any) => {
+          if (!collectionsMap.has(item.item_id)) {
+            collectionsMap.set(item.item_id, [])
+          }
+          collectionsMap.get(item.item_id)!.push({
+            id: collection.id,
+            name: collection.name
+          })
+        })
+      })
+
+      setItemCollections(collectionsMap)
+    } catch (error) {
+      console.error('Error loading item collections:', error)
     }
   }
 
@@ -480,9 +561,33 @@ export default function ProfileFavoritesPage() {
                   </h2>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {favoritedBlogs.map((blog) => (
-                    <BlogCard key={blog.id} post={blog} viewMode="grid" userId={user.id} />
-                  ))}
+                  {favoritedBlogs.map((blog) => {
+                    const collections = itemCollections.get(blog.id) || []
+                    return (
+                      <div key={blog.id} className="relative group">
+                        <BlogCard post={blog} viewMode="grid" userId={user.id} />
+
+                        {/* Индикатор коллекций */}
+                        {collections.length > 0 && (
+                          <div className="absolute top-3 left-3 z-10">
+                            <CollectionsBadgeDropdown collections={collections} />
+                          </div>
+                        )}
+
+                        {/* Кнопка добавления в коллекцию */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleAddToCollection(blog.id, 'blog', blog.title)
+                          }}
+                          className="absolute top-3 right-3 p-2 bg-background/90 border border-border rounded-[var(--radius)] hover:bg-primary hover:text-primary-foreground transition-colors opacity-0 group-hover:opacity-100 z-10 shadow-md"
+                          title="Добавить в коллекцию"
+                        >
+                          <FolderPlus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -497,9 +602,33 @@ export default function ProfileFavoritesPage() {
                   </h2>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {favoritedNews.map((news) => (
-                    <NewsCard key={news.id} news={news} variant="compact" />
-                  ))}
+                  {favoritedNews.map((news) => {
+                    const collections = itemCollections.get(news.id) || []
+                    return (
+                      <div key={news.id} className="relative group">
+                        <NewsCard news={news} variant="compact" />
+
+                        {/* Индикатор коллекций */}
+                        {collections.length > 0 && (
+                          <div className="absolute top-3 left-3 z-10">
+                            <CollectionsBadgeDropdown collections={collections} />
+                          </div>
+                        )}
+
+                        {/* Кнопка добавления в коллекцию */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleAddToCollection(news.id, 'news', news.title)
+                          }}
+                          className="absolute top-3 right-3 p-2 bg-background/90 border border-border rounded-[var(--radius)] hover:bg-primary hover:text-primary-foreground transition-colors opacity-0 group-hover:opacity-100 z-10 shadow-md"
+                          title="Добавить в коллекцию"
+                        >
+                          <FolderPlus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -514,48 +643,71 @@ export default function ProfileFavoritesPage() {
                   </h2>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {favoritedRoutes.map((item) => (
-                    <Link
-                      key={item.id}
-                      href={`/routes/${item.route.id}`}
-                      className="group bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-lg transition-shadow"
-                    >
-                      <div className="relative h-48 bg-muted">
-                        {item.route.thumbnail_url ? (
-                          <img
-                            src={item.route.thumbnail_url}
-                            alt={item.route.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Route className="w-12 h-12 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-[hsl(var(--route-primary))] transition-colors">
-                          {item.route.title}
-                        </h3>
-                        {item.route.description && (
-                          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                            {item.route.description}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground border-t border-border pt-3">
-                          {item.route.city && (
-                            <div className="flex items-center gap-1">
-                              <MapPin className="w-3.5 h-3.5" />
-                              <span>{item.route.city}</span>
+                  {favoritedRoutes.map((item) => {
+                    const collections = itemCollections.get(item.route.id) || []
+                    return (
+                      <div key={item.id} className="relative group/wrapper">
+                        <Link
+                          href={`/routes/${item.route.id}`}
+                          className="group bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-lg transition-shadow block"
+                        >
+                        <div className="relative h-48 bg-muted">
+                          {item.route.thumbnail_url ? (
+                            <img
+                              src={item.route.thumbnail_url}
+                              alt={item.route.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Route className="w-12 h-12 text-muted-foreground" />
                             </div>
                           )}
-                          {item.route.distance_km && (
-                            <span>{item.route.distance_km.toFixed(1)} км</span>
-                          )}
                         </div>
+                        <div className="p-4">
+                          <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-[hsl(var(--route-primary))] transition-colors">
+                            {item.route.title}
+                          </h3>
+                          {item.route.description && (
+                            <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                              {item.route.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground border-t border-border pt-3">
+                            {item.route.city && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5" />
+                                <span>{item.route.city}</span>
+                              </div>
+                            )}
+                            {item.route.distance_km && (
+                              <span>{item.route.distance_km.toFixed(1)} км</span>
+                            )}
+                          </div>
+                        </div>
+                        </Link>
+
+                        {/* Индикатор коллекций */}
+                        {collections.length > 0 && (
+                          <div className="absolute top-3 left-3 z-10">
+                            <CollectionsBadgeDropdown collections={collections} />
+                          </div>
+                        )}
+
+                        {/* Кнопка добавления в коллекцию */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleAddToCollection(item.route.id, 'route', item.route.title)
+                          }}
+                          className="absolute top-3 right-3 p-2 bg-background/90 border border-border rounded-[var(--radius)] hover:bg-primary hover:text-primary-foreground transition-colors opacity-0 group-hover/wrapper:opacity-100 z-10 shadow-md"
+                          title="Добавить в коллекцию"
+                        >
+                          <FolderPlus className="w-4 h-4" />
+                        </button>
                       </div>
-                    </Link>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -570,42 +722,81 @@ export default function ProfileFavoritesPage() {
                   </h2>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {favoritedBuildings.map((item) => (
-                    <Link
-                      key={item.id}
-                      href={`/buildings/${item.building.id}`}
-                      className="group bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-lg transition-shadow"
-                    >
-                      <div className="relative h-48 bg-muted">
-                        {item.building.image_url ? (
-                          <img
-                            src={item.building.image_url}
-                            alt={item.building.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Building2 className="w-12 h-12 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                          {item.building.name}
-                        </h3>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                          {item.building.architect && (
-                            <p>Архитектор: {item.building.architect}</p>
+                  {favoritedBuildings.map((item) => {
+                    const collections = itemCollections.get(item.building.id) || []
+                    return (
+                      <div key={item.id} className="relative group/wrapper">
+                        <Link
+                          href={`/buildings/${item.building.id}`}
+                          className="group bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-lg transition-shadow block"
+                        >
+                        <div className="relative h-48 bg-muted">
+                          {item.building.image_url ? (
+                            <img
+                              src={item.building.image_url}
+                              alt={item.building.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Building2 className="w-12 h-12 text-muted-foreground" />
+                            </div>
                           )}
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" />
-                            <span>{item.building.city}</span>
-                            {item.building.year_built && <span>• {item.building.year_built}</span>}
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                            {item.building.name}
+                          </h3>
+                          <div className="space-y-1 text-sm text-muted-foreground">
+                            {item.building.architect && (
+                              <p>Архитектор: {item.building.architect}</p>
+                            )}
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" />
+                              <span>{item.building.city}</span>
+                              {item.building.year_built && <span>• {item.building.year_built}</span>}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+
+                      {/* Индикаторы коллекций */}
+                      {collections.length > 0 && (
+                        <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-1 max-w-[60%]">
+                          {collections.slice(0, 2).map((collection) => (
+                            <Link
+                              key={collection.id}
+                              href={`/collections/${collection.id}`}
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-500 text-white text-xs rounded-full hover:bg-indigo-600 transition-colors shadow-sm"
+                              title={collection.name}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Folder className="w-3 h-3" />
+                              <span className="max-w-[80px] truncate">{collection.name}</span>
+                            </Link>
+                          ))}
+                          {collections.length > 2 && (
+                            <span className="inline-flex items-center px-2 py-1 bg-indigo-500 text-white text-xs rounded-full shadow-sm">
+                              +{collections.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Кнопка добавления в коллекцию */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handleAddToCollection(item.building.id, 'building', item.building.name)
+                        }}
+                        className="absolute top-3 right-3 p-2 bg-background/90 border border-border rounded-[var(--radius)] hover:bg-primary hover:text-primary-foreground transition-colors opacity-0 group-hover/wrapper:opacity-100 z-10 shadow-md"
+                        title="Добавить в коллекцию"
+                      >
+                        <FolderPlus className="w-4 h-4" />
+                      </button>
+                    </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -614,6 +805,17 @@ export default function ProfileFavoritesPage() {
         </div>
       </main>
       <EnhancedFooter />
+
+      {/* Модалка добавления в коллекцию */}
+      {selectedItem && (
+        <AddToCollectionModal
+          isOpen={isCollectionModalOpen}
+          onClose={handleCloseCollectionModal}
+          itemId={selectedItem.id}
+          itemType={selectedItem.type}
+          itemTitle={selectedItem.title}
+        />
+      )}
     </div>
   )
 }

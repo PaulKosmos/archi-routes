@@ -98,7 +98,7 @@ export default function TestMapPage() {
   const [hoveredBuilding, setHoveredBuilding] = useState<string | null>(null)
   const [showRoutes, setShowRoutes] = useState(false) // Скрываем маршруты по умолчанию
   const [showBuildings, setShowBuildings] = useState(true)
-  const [mapView, setMapView] = useState<'buildings' | 'routes' | null>('buildings') // Показываем только здания по умолчанию
+  const [mapView, setMapView] = useState<'buildings' | 'routes' | null>(null) // Панель закрыта по умолчанию
 
   // Mobile bottom sheet states
   const [showMobileFilters, setShowMobileFilters] = useState(false)
@@ -999,7 +999,7 @@ export default function TestMapPage() {
       <div className="flex flex-col md:flex-row h-[calc(100vh-4rem)] bg-gray-50 relative">
 
         {/* Боковая панель фильтров - скрыта на мобильных, видна на desktop */}
-        <div className="hidden md:block md:w-64 lg:w-80 bg-white border-r border-gray-200 flex flex-col relative z-20 shadow-lg">
+        <div className="hidden md:block md:w-80 bg-white border-r border-gray-200 flex flex-col relative z-20 shadow-lg">
           {/* Заголовок фильтров */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
@@ -1035,7 +1035,7 @@ export default function TestMapPage() {
             {/* Список объектов с плавной анимацией заезда влево (заходит ПОД панель фильтров) - ТОЛЬКО НА DESKTOP */}
             <div
               className={`hidden md:flex bg-white border-r border-gray-200 shadow-xl flex-col h-full transition-all duration-500 ease-in-out absolute left-0 top-0 bottom-0 z-10 ${
-                showSidebar ? 'w-[480px] translate-x-0' : 'w-[480px] -translate-x-full'
+                showSidebar ? 'w-[360px] lg:w-[420px] xl:w-[480px] translate-x-0' : 'w-[360px] lg:w-[420px] xl:w-[480px] -translate-x-full'
               }`}
             >
                 <div className="flex-1 overflow-y-auto p-4 max-h-[calc(100vh-8rem)]">
@@ -1044,7 +1044,7 @@ export default function TestMapPage() {
                     {filteredBuildings.map((building) => (
                            <div
                              key={building.id}
-                             className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                             className={`border rounded-lg p-2 sm:p-3 lg:p-4 cursor-pointer transition-all ${
                                selectedBuilding?.id === building.id
                                  ? 'border-blue-500 bg-blue-50'
                                  : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
@@ -1060,9 +1060,9 @@ export default function TestMapPage() {
                                setHoveredBuilding(null);
                              }}
                            >
-                        <div className="flex space-x-4">
+                        <div className="flex gap-2 sm:gap-3 lg:gap-4">
                           {/* Изображение */}
-                          <div className="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                          <div className="w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                             {building.image_url ? (
                               <img
                                 src={getStorageUrl(building.image_url, 'photos')}
@@ -1078,44 +1078,49 @@ export default function TestMapPage() {
                   
                           {/* Информация */}
                           <div className="flex-1 min-w-0 flex flex-col">
-                            <div className="flex items-center space-x-2">
-                            <h3 className="font-semibold text-gray-900 truncate">{building.name}</h3>
-                              {building.moderation_status === 'pending' && (
-                                <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full whitespace-nowrap">
-                                  На модерации
-                                </span>
-                              )}
-                              {building.moderation_status === 'rejected' && (
-                                <span className="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full whitespace-nowrap">
-                                  Отклонено
-                                </span>
+                            {/* Заголовок и бейджи */}
+                            <div className="flex flex-col gap-1">
+                              <h3 className="font-semibold text-gray-900 text-sm lg:text-base truncate">{building.name}</h3>
+                              {(building.moderation_status === 'pending' || building.moderation_status === 'rejected') && (
+                                <div className="flex items-center gap-1">
+                                  {building.moderation_status === 'pending' && (
+                                    <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full whitespace-nowrap">
+                                      На модерации
+                                    </span>
+                                  )}
+                                  {building.moderation_status === 'rejected' && (
+                                    <span className="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full whitespace-nowrap">
+                                      Отклонено
+                                    </span>
+                                  )}
+                                </div>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{building.description}</p>
-                            <div className="flex items-center justify-between mt-auto pt-2">
-                              <div className="flex items-center space-x-3 text-xs text-gray-500">
-                              <span>{building.city}</span>
-                              {building.architectural_style && (
-                                  <span className="truncate max-w-[80px]">{building.architectural_style}</span>
-                              )}
-                              {building.rating && (
-                        <div className="flex items-center">
-                                  <Star className="w-3 h-3 text-yellow-400 mr-1" />
-                                  {building.rating.toFixed(1)}
-                        </div>
-                      )}
+                            <p className="text-xs lg:text-sm text-gray-600 mt-1 line-clamp-2">{building.description}</p>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-auto pt-2">
+                              <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
+                                <span className="whitespace-nowrap">{building.city}</span>
+                                {building.architectural_style && (
+                                  <span className="truncate max-w-[120px]">{building.architectural_style}</span>
+                                )}
+                                {building.rating && (
+                                  <div className="flex items-center whitespace-nowrap">
+                                    <Star className="w-3 h-3 text-yellow-400 mr-1" />
+                                    {building.rating.toFixed(1)}
+                                  </div>
+                                )}
                               </div>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   handleBuildingDetails(building)
                                 }}
-                                className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex-shrink-0"
+                                className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex-shrink-0 self-start sm:self-auto"
                               >
                                 Подробнее
                               </button>
-                    </div>
-                  </div>
+                            </div>
+                          </div>
                 </div>
                       </div>
                     ))}
@@ -1243,7 +1248,7 @@ export default function TestMapPage() {
                     handleMapClickForBuilding(lat, lng)
                   }
                 }}
-                radiusCenter={radiusCenter}
+                radiusCenter={filters.currentLocation || radiusCenter}
                 radiusKm={filters.radiusKm}
                 showBuildings={true}
                 showRoutes={true}

@@ -3,21 +3,18 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
-import { 
-  User, 
-  Edit3, 
-  MapPin, 
-  Star, 
-  Heart, 
-  Settings, 
-  LogOut, 
+import {
+  User,
+  Edit3,
+  MapPin,
+  Heart,
+  Settings,
+  LogOut,
   Building2,
   MessageSquare,
-  ChevronDown,
   BookOpen,
-  Bot,
-  Users,
-  Shield
+  Shield,
+  Folder
 } from 'lucide-react'
 
 interface UserStats {
@@ -195,11 +192,11 @@ export default function UserDropdown() {
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors"
+        className="flex items-center p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
         title={displayName}
       >
         {/* Аватар */}
-        <div className="w-6 h-6 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full overflow-hidden bg-primary flex items-center justify-center ring-2 ring-border">
           {avatar ? (
             <img
               src={avatar}
@@ -207,7 +204,7 @@ export default function UserDropdown() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-white font-medium text-xs">
+            <span className="text-primary-foreground font-medium text-sm">
               {displayName.charAt(0).toUpperCase()}
             </span>
           )}
@@ -216,31 +213,31 @@ export default function UserDropdown() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+        <div className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-[var(--radius)] shadow-lg py-2 z-50">
           {/* Заголовок профиля */}
-          <div className="px-4 py-3 border-b border-gray-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center">
+          <div className="px-4 py-3 border-b border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-primary flex items-center justify-center ring-2 ring-border/50">
                 {avatar ? (
-                  <img 
-                    src={avatar} 
+                  <img
+                    src={avatar}
                     alt={displayName}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-white font-medium">
+                  <span className="text-primary-foreground font-medium text-lg">
                     {displayName.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
-              <div className="flex-1">
-                <div className="font-medium text-gray-900 truncate">
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-foreground truncate">
                   {displayName}
                 </div>
-                <div className="text-sm text-gray-500 truncate">
+                <div className="text-sm text-muted-foreground truncate">
                   {user.email}
                 </div>
-                <div className={`text-xs capitalize font-medium ${getRoleColor(profile.role || 'explorer')}`}>
+                <div className="text-xs text-primary font-medium mt-0.5">
                   {getRoleDisplayName(profile.role || 'explorer')}
                 </div>
               </div>
@@ -248,33 +245,33 @@ export default function UserDropdown() {
           </div>
 
           {/* Статистика */}
-          <div className="px-4 py-3 border-b border-gray-100">
+          <div className="px-4 py-3 border-b border-border bg-muted/30">
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex items-center space-x-2">
-                <Building2 className="w-4 h-4 text-green-600" />
-                <span className="text-gray-600">Зданий:</span>
-                <span className="font-medium">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-primary" />
+                <span className="text-muted-foreground">Объекты:</span>
+                <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.buildings_count}
                 </span>
               </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="w-4 h-4 text-blue-600" />
-                <span className="text-gray-600">Маршрутов:</span>
-                <span className="font-medium">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-primary" />
+                <span className="text-muted-foreground">Маршруты:</span>
+                <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.routes_count}
                 </span>
               </div>
-              <div className="flex items-center space-x-2">
-                <MessageSquare className="w-4 h-4 text-purple-600" />
-                <span className="text-gray-600">Обзоров:</span>
-                <span className="font-medium">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-primary" />
+                <span className="text-muted-foreground">Отзывы:</span>
+                <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.reviews_count}
                 </span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Heart className="w-4 h-4 text-red-600" />
-                <span className="text-gray-600">Избранное:</span>
-                <span className="font-medium">
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-primary" />
+                <span className="text-muted-foreground">Избранное:</span>
+                <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.favorites_count}
                 </span>
               </div>
@@ -282,185 +279,154 @@ export default function UserDropdown() {
           </div>
 
           {/* Навигационное меню */}
-          <div className="py-2">
+          <div className="py-1">
+            {/* Основные действия */}
             <a
               href="/profile"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <User className="w-4 h-4" />
+              <User className="w-4 h-4 text-muted-foreground" />
               <span>Мой профиль</span>
-            </a>
-            
-            <a
-              href="/profile/edit"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              <Edit3 className="w-4 h-4" />
-              <span>Редактировать профиль</span>
             </a>
 
             <a
-              href="/profile/buildings"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              href="/profile/edit"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <Building2 className="w-4 h-4" />
-              <span>Объекты</span>
+              <Edit3 className="w-4 h-4 text-muted-foreground" />
+              <span>Редактировать профиль</span>
+            </a>
+
+            {/* Разделитель */}
+            <div className="my-1 border-t border-border" />
+
+            {/* Мой контент */}
+            <a
+              href="/profile/buildings"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
+              onClick={() => setIsOpen(false)}
+            >
+              <Building2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="flex-1">Мои объекты</span>
               {stats.buildings_count > 0 && (
-                <span className="ml-auto text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-metrics text-muted-foreground">
                   {stats.buildings_count}
                 </span>
               )}
             </a>
 
             <a
-              href="/profile/reviews"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              <Star className="w-4 h-4" />
-              <span>Мои обзоры</span>
-              {stats.reviews_count > 0 && (
-                <span className="ml-auto text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
-                  {stats.reviews_count}
-                </span>
-              )}
-            </a>
-
-            <a
               href="/profile/routes"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <MapPin className="w-4 h-4" />
-              <span>Мои маршруты</span>
+              <MapPin className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="flex-1">Мои маршруты</span>
               {stats.routes_count > 0 && (
-                <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-metrics text-muted-foreground">
                   {stats.routes_count}
                 </span>
               )}
             </a>
 
             <a
-              href="/profile/articles"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              href="/profile/reviews"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <BookOpen className="w-4 h-4" />
-              <span>Мои статьи</span>
-              {stats.articles_count > 0 && (
-                <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                  {stats.articles_count}
+              <MessageSquare className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="flex-1">Мои отзывы</span>
+              {stats.reviews_count > 0 && (
+                <span className="text-xs font-metrics text-muted-foreground">
+                  {stats.reviews_count}
                 </span>
               )}
             </a>
 
             <a
-              href="/profile/favorites"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              href="/profile/articles"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <Heart className="w-4 h-4" />
-              <span>Избранное</span>
+              <BookOpen className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="flex-1">Мои блоги</span>
+              {stats.articles_count > 0 && (
+                <span className="text-xs font-metrics text-muted-foreground">
+                  {stats.articles_count}
+                </span>
+              )}
+            </a>
+
+            {/* Разделитель */}
+            <div className="my-1 border-t border-border" />
+
+            {/* Избранное и коллекции */}
+            <a
+              href="/profile/favorites"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
+              onClick={() => setIsOpen(false)}
+            >
+              <Heart className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="flex-1">Избранное</span>
               {stats.favorites_count > 0 && (
-                <span className="ml-auto text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-metrics text-muted-foreground">
                   {stats.favorites_count}
                 </span>
               )}
             </a>
 
             <a
-              href="/collections"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              href="/profile/collections"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <BookOpen className="w-4 h-4" />
-              <span>Мои коллекции</span>
+              <Folder className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="flex-1">Коллекции</span>
               {stats.collections_count > 0 && (
-                <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-metrics text-muted-foreground">
                   {stats.collections_count}
                 </span>
               )}
             </a>
 
+            {/* Разделитель */}
+            <div className="my-1 border-t border-border" />
+
+            {/* Настройки */}
             <a
               href="/profile/settings"
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-4 h-4 text-muted-foreground" />
               <span>Настройки</span>
             </a>
-            
-            {/* Модерация для модераторов и админов */}
+
+            {/* Админ панель для модераторов и админов */}
             {profile && ['moderator', 'admin'].includes(profile.role || '') && (
-              <>
-                <a
-                  href="/admin/moderation"
-                  className="flex items-center space-x-3 px-4 py-2 text-sm text-purple-700 hover:bg-purple-50 transition-colors border-t"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Settings className="w-4 h-4" />
-                  <span>Модерация</span>
-                  {(stats.pending_requests_count || 0) > 0 && (
-                    <span className="ml-auto text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-medium">
-                      {loading ? '...' : stats.pending_requests_count}
-                    </span>
-                  )}
-                </a>
-                <a
-                  href="/admin/autogeneration"
-                  className="flex items-center space-x-3 px-4 py-2 text-sm text-purple-700 hover:bg-purple-50 transition-colors"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Bot className="w-4 h-4" />
-                  <span>Автогенерация</span>
-                </a>
-                {profile.role === 'admin' && (
-                  <a
-                    href="/admin/users"
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-purple-700 hover:bg-purple-50 transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Users className="w-4 h-4" />
-                    <span>Управление пользователями</span>
-                  </a>
-                )}
-                
-                {/* Панель модерации для модераторов и админов */}
-                {(profile.role === 'moderator' || profile.role === 'admin') && (
-                  <a
-                    href="/admin/moderation"
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Shield className="w-4 h-4" />
-                    <span>Модерация контента</span>
-                  </a>
-                )}
-              </>
-            )}
-            
-            {/* Управление контентом для авторов и выше */}
-            {profile && ['author', 'guide', 'expert', 'editor', 'moderator', 'admin'].includes(profile.role || '') && (
               <a
-                href="/admin/news"
-                className="flex items-center space-x-3 px-4 py-2 text-sm text-indigo-700 hover:bg-indigo-50 transition-colors"
+                href="/admin"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                <MessageSquare className="w-4 h-4" />
-                <span>Управление новостями</span>
+                <Shield className="w-4 h-4 text-muted-foreground" />
+                <span>Админ панель</span>
+                {(stats.pending_requests_count || 0) > 0 && (
+                  <span className="ml-auto text-xs bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded-full font-medium">
+                    {loading ? '...' : stats.pending_requests_count}
+                  </span>
+                )}
               </a>
             )}
           </div>
 
           {/* Кнопка выхода */}
-          <div className="border-t border-gray-100 pt-2">
+          <div className="border-t border-border pt-1 mt-1">
             <button
               onClick={handleSignOut}
-              className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors w-full text-left rounded-[var(--radius)]"
             >
               <LogOut className="w-4 h-4" />
               <span>Выйти</span>

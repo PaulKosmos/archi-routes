@@ -67,7 +67,8 @@
       "Bash(Select-Object -Last 30)",
       "Bash(for file in buildings/ProfileBuildingsPage.tsx routes/page.tsx reviews/ProfileReviewsPage.tsx articles/page.tsx edit/ProfileEditPage.tsx settings/ProfileSettingsPage.tsx)",
       "Bash(do powershell -Command \"\\(Get-Content ''$file''\\) -replace ''pt-20'', ''pt-10'' | Set-Content ''$file''\")",
-      "Bash(done)"
+      "Bash(done)",
+      "mcp__playwright__playwright_hover"
     ],
     "deny": [],
     "ask": []
