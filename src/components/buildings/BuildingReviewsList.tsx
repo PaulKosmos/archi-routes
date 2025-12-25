@@ -167,14 +167,24 @@ export default function BuildingReviewsList({
     )
   }
 
+  const handleAddReviewClick = () => {
+    if (!user) {
+      toast.error('Войдите, чтобы добавить обзор')
+      return
+    }
+    onOpenAddReview?.()
+  }
+
   if (reviews.length === 0) {
     return (
       <div className="text-center py-8 md:py-12">
         <p className="text-gray-500 mb-4 text-sm md:text-base">📭 Пока нет обзоров</p>
         {onOpenAddReview && (
           <button
-            onClick={onOpenAddReview}
-            className="px-4 py-2 md:px-6 md:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm md:text-base"
+            onClick={handleAddReviewClick}
+            className="px-4 py-2 md:px-6 md:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!user}
+            title={!user ? 'Войдите, чтобы добавить обзор' : ''}
           >
             ✍️ Написать первый обзор
           </button>
@@ -396,8 +406,10 @@ export default function BuildingReviewsList({
       {/* Кнопка добавить обзор внизу */}
       {onOpenAddReview && (
         <button
-          onClick={onOpenAddReview}
-          className="w-full py-2 md:py-3 border-2 border-dashed border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm md:text-base"
+          onClick={handleAddReviewClick}
+          className="w-full py-2 md:py-3 border-2 border-dashed border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+          disabled={!user}
+          title={!user ? 'Войдите, чтобы добавить обзор' : ''}
         >
           ✍️ Добавить обзор
         </button>

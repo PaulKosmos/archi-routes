@@ -3,7 +3,7 @@
 import { BlogPost } from '@/types/blog'
 import Link from 'next/link'
 import { Calendar, Clock, Eye, Heart, MessageCircle } from 'lucide-react'
-import SocialActions from './SocialActions'
+import LikeButton from '@/components/LikeButton'
 
 interface BlogCardProps {
   post: BlogPost
@@ -67,10 +67,13 @@ export default function BlogCard({ post, viewMode }: BlogCardProps) {
                   <Eye className="h-3.5 w-3.5" />
                   <span>{post.view_count || 0}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Heart className="h-3.5 w-3.5" />
-                  <span>{post.like_count || 0}</span>
-                </div>
+                <LikeButton
+                  type="blog"
+                  itemId={post.id}
+                  initialCount={post.like_count || 0}
+                  variant="compact"
+                  showCount={true}
+                />
                 <div className="flex items-center gap-1">
                   <MessageCircle className="h-3.5 w-3.5" />
                   <span>{post.comment_count || 0}</span>
@@ -132,10 +135,13 @@ export default function BlogCard({ post, viewMode }: BlogCardProps) {
                 <Eye className="h-3.5 w-3.5" />
                 <span>{post.view_count || 0}</span>
               </div>
-              <div className="flex items-center gap-1">
-                <Heart className="h-3.5 w-3.5" />
-                <span>{post.like_count || 0}</span>
-              </div>
+              <LikeButton
+                type="blog"
+                itemId={post.id}
+                initialCount={post.like_count || 0}
+                variant="compact"
+                showCount={true}
+              />
               <div className="flex items-center gap-1">
                 <MessageCircle className="h-3.5 w-3.5" />
                 <span>{post.comment_count || 0}</span>

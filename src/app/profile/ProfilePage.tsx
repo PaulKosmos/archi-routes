@@ -3,20 +3,20 @@
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { useState, useEffect, useMemo } from 'react'
-import { 
-  User, 
-  MapPin, 
-  Calendar, 
-  Edit3, 
-  Building2, 
-  MessageSquare, 
-  Heart, 
+import {
+  User,
+  MapPin,
+  Calendar,
+  Edit3,
+  Building2,
+  MessageSquare,
+  Heart,
   Star,
   Clock,
   TrendingUp,
   Award,
   ArrowLeft,
-  BookOpen
+  Folder
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -100,7 +100,7 @@ export default function ProfilePage() {
           .select('id, completion_count', { count: 'exact' })
           .eq('created_by', user.id),
         supabase
-          .from('collections')
+          .from('user_collections')
           .select('id', { count: 'exact' })
           .eq('user_id', user.id)
       ])
@@ -417,7 +417,7 @@ export default function ProfilePage() {
           <div className="bg-white rounded-lg shadow-sm border p-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-indigo-600" />
+                <Folder className="w-5 h-5 text-indigo-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">
@@ -578,11 +578,11 @@ export default function ProfilePage() {
                 </Link>
 
                 <Link
-                  href="/collections"
+                  href="/profile/collections"
                   className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center space-x-3">
-                    <BookOpen className="w-5 h-5 text-indigo-600" />
+                    <Folder className="w-5 h-5 text-indigo-600" />
                     <span className="font-medium text-gray-900">Коллекции</span>
                   </div>
                   <span className="text-sm text-gray-500">{stats.collections_count}</span>

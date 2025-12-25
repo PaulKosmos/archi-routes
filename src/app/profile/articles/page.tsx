@@ -32,7 +32,7 @@ type TabType = 'all' | 'draft' | 'published' | 'archived'
 
 export default function ProfileArticlesPage() {
   const supabase = useMemo(() => createClient(), [])
-  const { user, loading } = useAuth()
+  const { user, profile, loading } = useAuth()
   const [articles, setArticles] = useState<BlogPost[]>([])
   const [filteredArticles, setFilteredArticles] = useState<BlogPost[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -164,6 +164,12 @@ export default function ProfileArticlesPage() {
   }
 
   const handleArchiveArticle = async (articleId: string) => {
+    // Только админы могут архивировать
+    if (profile?.role !== 'admin') {
+      toast.error('Только админы могут архивировать статьи')
+      return
+    }
+
     try {
       const { error } = await supabase
         .from('blog_posts')
@@ -177,6 +183,23 @@ export default function ProfileArticlesPage() {
     } catch (error) {
       console.error('Error archiving article:', error)
       toast.error('Ошибка при архивировании статьи')
+    }
+  }
+
+  const handleUnarchiveArticle = async (articleId: string) => {
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .update({ status: 'draft' })
+        .eq('id', articleId)
+
+      if (error) throw error
+
+      toast.success('Статья восстановлена в черновики')
+      loadUserArticles()
+    } catch (error) {
+      console.error('Error unarchiving article:', error)
+      toast.error('Ошибка при восстановлении статьи')
     }
   }
 
@@ -201,151 +224,144 @@ export default function ProfileArticlesPage() {
 
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Suspense fallback={<div className="h-16 bg-card border-b border-border" />}>
           <Header buildings={[]} />
         </Suspense>
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="bg-white rounded-lg p-4 space-y-3">
-                  <div className="h-32 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
-                  <div className="h-3 bg-gray-200 rounded animate-pulse w-full" />
-                </div>
-              ))}
-            </div>
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Загрузка...</p>
           </div>
-        </div>
+        </main>
+        <EnhancedFooter />
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Suspense fallback={<div className="h-16 bg-card border-b border-border" />}>
           <Header buildings={[]} />
         </Suspense>
-        <div className="max-w-4xl mx-auto p-6 text-center">
-          <div className="bg-white rounded-lg shadow-sm p-12">
-            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+            <h1 className="text-2xl font-heading font-bold mb-2">
               Войдите в систему
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               Для просмотра статей необходимо войти в свою учетную запись
             </p>
             <Link
               href="/auth/login"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
             >
               Войти в систему
             </Link>
           </div>
-        </div>
+        </main>
+        <EnhancedFooter />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+    <div className="min-h-screen bg-background flex flex-col">
+      <Suspense fallback={<div className="h-16 bg-card border-b border-border" />}>
         <Header buildings={[]} />
       </Suspense>
 
-      <div className="max-w-6xl mx-auto p-6">
-        {/* Заголовок и кнопка создания */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <Link
-              href="/profile"
-              className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <FileText className="w-8 h-8 text-blue-600" />
-                Мои статьи
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Управляйте своими статьями в блоге
-              </p>
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-8 pt-10">
+          {/* Заголовок и кнопка создания */}
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-4">
+              <Link
+                href="/profile"
+                className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+              </Link>
+              <div className="flex-1">
+                <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
+                  <FileText className="w-6 h-6" />
+                  Мои блоги
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Управляйте своими блогами
+                </p>
+              </div>
+              <Link
+                href="/blog/create"
+                className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Создать статью
+              </Link>
             </div>
           </div>
 
-          <Link
-            href="/blog/create"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Создать статью
-          </Link>
-        </div>
-
-        {/* Поиск и сортировка */}
-        <div className="bg-white rounded-lg shadow-sm mb-6 p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Поиск по названию или описанию..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+          {/* Поиск и сортировка */}
+          <div className="bg-card border border-border rounded-[var(--radius)] p-4 mb-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Поиск по названию или описанию..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                className="text-sm border border-border rounded-[var(--radius)] px-4 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
+              >
+                <option value="created_at">По дате создания</option>
+                <option value="published_at">По дате публикации</option>
+                <option value="view_count">По просмотрам</option>
+              </select>
             </div>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="created_at">По дате создания</option>
-              <option value="published_at">По дате публикации</option>
-              <option value="view_count">По просмотрам</option>
-            </select>
           </div>
-        </div>
 
-        {/* Табы */}
-        <div className="bg-white rounded-lg shadow-sm mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
-              {[
-                { key: 'all', label: 'Все статьи', count: counts.all },
-                { key: 'draft', label: 'Черновики', count: counts.draft },
-                { key: 'published', label: 'Опубликованные', count: counts.published },
-                { key: 'archived', label: 'Архивные', count: counts.archived }
-              ].map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key as TabType)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === tab.key
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  {tab.label} ({tab.count})
-                </button>
-              ))}
-            </nav>
+          {/* Табы */}
+          <div className="bg-card border border-border rounded-[var(--radius)] mb-6">
+            <div className="border-b border-border">
+              <nav className="flex gap-8 px-6">
+                {[
+                  { key: 'all', label: 'Все статьи', count: counts.all },
+                  { key: 'draft', label: 'Черновики', count: counts.draft },
+                  { key: 'published', label: 'Опубликованные', count: counts.published },
+                  { key: 'archived', label: 'Архивные', count: counts.archived }
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key as TabType)}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === tab.key
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                    }`}
+                  >
+                    {tab.label} ({tab.count})
+                  </button>
+                ))}
+              </nav>
+            </div>
           </div>
-        </div>
 
-        {/* Список статей */}
-        {filteredArticles.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="bg-white rounded-lg shadow-sm p-12">
-              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+          {/* Список статей */}
+          {filteredArticles.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">
                 {articles.length === 0 ? 'Нет созданных статей' : 'Нет статей в этой категории'}
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-muted-foreground mb-6">
                 {articles.length === 0
                   ? 'Создайте свою первую статью, чтобы поделиться знаниями'
                   : searchQuery
@@ -356,30 +372,32 @@ export default function ProfileArticlesPage() {
               {articles.length === 0 && (
                 <Link
                   href="/blog/create"
-                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Создать первую статью
                 </Link>
               )}
             </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredArticles.map((article) => (
-              <ArticleCard
-                key={article.id}
-                article={article}
-                onEdit={() => window.open(`/blog/${article.slug}/edit`, '_blank')}
-                onDelete={() => handleDeleteArticle(article.id)}
-                onPublish={() => handlePublishArticle(article)}
-                onArchive={() => handleArchiveArticle(article.id)}
-                formatDate={formatDate}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredArticles.map((article) => (
+                <ArticleCard
+                  key={article.id}
+                  article={article}
+                  isAdmin={profile?.role === 'admin'}
+                  onEdit={() => window.open(`/blog/${article.slug}/edit`, '_blank')}
+                  onDelete={() => handleDeleteArticle(article.id)}
+                  onPublish={() => handlePublishArticle(article)}
+                  onArchive={() => handleArchiveArticle(article.id)}
+                  onUnarchive={() => handleUnarchiveArticle(article.id)}
+                  formatDate={formatDate}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
       <EnhancedFooter />
     </div>
   )
@@ -388,17 +406,21 @@ export default function ProfileArticlesPage() {
 // Компонент карточки статьи
 function ArticleCard({
   article,
+  isAdmin,
   onEdit,
   onDelete,
   onPublish,
   onArchive,
+  onUnarchive,
   formatDate
 }: {
   article: BlogPost
+  isAdmin: boolean
   onEdit: () => void
   onDelete: () => void
   onPublish: () => void
   onArchive: () => void
+  onUnarchive: () => void
   formatDate: (date: string) => string
 }) {
   const getStatusColor = (status: string) => {
@@ -420,10 +442,10 @@ function ArticleCard({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow overflow-hidden">
+    <div className="bg-card border border-border rounded-[var(--radius)] hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col">
       {/* Превью изображение */}
       {article.featured_image_url && (
-        <div className="relative h-40 overflow-hidden bg-gray-200">
+        <div className="relative h-32 overflow-hidden bg-muted">
           <img
             src={article.featured_image_url}
             alt={article.title}
@@ -432,61 +454,61 @@ function ArticleCard({
         </div>
       )}
 
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
+      <div className="p-4 flex flex-col flex-1">
+        <div className="flex items-start justify-between gap-2 mb-2">
           <Link
             href={article.status === 'published' ? `/blog/${article.slug}` : `/blog/${article.slug}/edit`}
-            className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 flex-1"
+            className="text-base font-semibold hover:text-primary transition-colors line-clamp-1 flex-1"
           >
             {article.title}
           </Link>
 
-          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2 ${getStatusColor(article.status)}`}>
+          <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${getStatusColor(article.status)}`}>
             {getStatusText(article.status)}
           </div>
         </div>
 
         {article.excerpt && (
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+          <p className="text-muted-foreground text-xs mb-3 line-clamp-2 h-8">
             {article.excerpt}
           </p>
         )}
 
-        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3 h-4">
           <div className="flex items-center gap-1">
-            <Calendar className="w-4 h-4" />
-            <span>{formatDate(article.created_at)}</span>
+            <Calendar className="w-3 h-3" />
+            <span className="truncate">{formatDate(article.created_at)}</span>
           </div>
 
           {article.reading_time_minutes && (
             <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
+              <Clock className="w-3 h-3" />
               <span>{article.reading_time_minutes} мин</span>
             </div>
           )}
 
           <div className="flex items-center gap-1">
-            <Eye className="w-4 h-4" />
+            <Eye className="w-3 h-3" />
             <span>{article.view_count || 0}</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2 pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between gap-2 pt-3 border-t border-border mt-auto">
           <div className="flex items-center gap-2">
             {article.status === 'published' ? (
               <Link
                 href={`/blog/${article.slug}`}
-                className="inline-flex items-center px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center px-3 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
               >
-                <Eye className="w-4 h-4 mr-1" />
+                <Eye className="w-3 h-3 mr-1" />
                 Открыть
               </Link>
             ) : (
               <Link
                 href={`/blog/${article.slug}/edit`}
-                className="inline-flex items-center px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center px-3 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
               >
-                <Edit className="w-4 h-4 mr-1" />
+                <Edit className="w-3 h-3 mr-1" />
                 Редактировать
               </Link>
             )}
@@ -496,29 +518,39 @@ function ArticleCard({
             {article.status === 'draft' && (
               <button
                 onClick={onPublish}
-                className="inline-flex items-center px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center p-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
                 title="Опубликовать"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-3 h-3" />
               </button>
             )}
 
-            {article.status === 'published' && (
+            {article.status === 'published' && isAdmin && (
               <button
                 onClick={onArchive}
-                className="inline-flex items-center px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                title="Архивировать"
+                className="inline-flex items-center p-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
+                title="Архивировать (только для админов)"
               >
-                <Archive className="w-4 h-4" />
+                <Archive className="w-3 h-3" />
+              </button>
+            )}
+
+            {article.status === 'archived' && (
+              <button
+                onClick={onUnarchive}
+                className="inline-flex items-center p-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
+                title="Разархивировать"
+              >
+                <Archive className="w-3 h-3" />
               </button>
             )}
 
             <button
               onClick={onDelete}
-              className="inline-flex items-center px-3 py-2 text-sm border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+              className="inline-flex items-center p-1.5 text-xs border border-destructive/50 text-destructive rounded-[var(--radius)] hover:bg-destructive/10 transition-colors"
               title="Удалить"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3 h-3" />
             </button>
           </div>
         </div>

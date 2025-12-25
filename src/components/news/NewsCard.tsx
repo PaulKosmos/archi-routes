@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { NewsArticleWithDetails } from '@/types/news';
 import { Calendar, Eye, Heart, Clock, MessageCircle } from 'lucide-react';
+import LikeButton from '@/components/LikeButton';
 
 interface NewsCardProps {
   news: NewsArticleWithDetails;
@@ -118,10 +119,13 @@ export default function NewsCard({
                     <Eye className="h-3 w-3" />
                     {news.views_count || 0}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Heart className="h-3 w-3" />
-                    {news.likes_count || 0}
-                  </span>
+                  <LikeButton
+                    type="news"
+                    itemId={news.id}
+                    initialCount={news.likes_count || 0}
+                    variant="compact"
+                    showCount={true}
+                  />
                   <span className="flex items-center gap-1">
                     <MessageCircle className="h-3 w-3" />
                     {news.comments_count || 0}
@@ -185,10 +189,13 @@ export default function NewsCard({
                 <Eye className="h-3 w-3" />
                 {news.views_count || 0}
               </span>
-              <span className="flex items-center gap-1">
-                <Heart className="h-3 w-3" />
-                {news.likes_count || 0}
-              </span>
+              <LikeButton
+                type="news"
+                itemId={news.id}
+                initialCount={news.likes_count || 0}
+                variant="compact"
+                showCount={true}
+              />
               <span className="flex items-center gap-1">
                 <MessageCircle className="h-3 w-3" />
                 {news.comments_count || 0}

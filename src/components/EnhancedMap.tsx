@@ -210,6 +210,7 @@ export default function EnhancedMap({
   const routeMarkersRef = useRef<{ [key: string]: L.Marker }>({})
   const routeLinesRef = useRef<{ [key: string]: L.Polyline }>({})
   const radiusCircleRef = useRef<L.Circle | null>(null)
+  const locationMarkerRef = useRef<L.Marker | null>(null)
   
   const [currentStyle, setCurrentStyle] = useState('light')
   const [mapInitialized, setMapInitialized] = useState(false)
@@ -462,18 +463,19 @@ export default function EnhancedMap({
       marker.on('click', () => {
         // Закрываем hover popup
         marker.closePopup()
-        
+
         // Создаем и показываем детальный popup
         const detailedPopup = L.popup({
           maxWidth: 280,
           className: 'building-detailed-popup-container',
-          autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
+          autoPan: true,  // Включаем автоматическое смещение чтобы попап был виден
+          autoPanPadding: [50, 50]  // Отступ от краев экрана
         })
         .setContent(detailedPopupContent)
         .setLatLng(marker.getLatLng())
-        
+
         detailedPopup.openOn(mapInstance.current!)
-        
+
         // Вызываем callback если есть
         if (onBuildingClick) {
           onBuildingClick(building.id)
@@ -551,6 +553,57 @@ export default function EnhancedMap({
       }).addTo(mapInstance.current)
     }
   }, [radiusCenter, radiusKm, mapInitialized])
+
+  // Визуализация местоположения пользователя
+  useEffect(() => {
+    if (!mapInitialized || !mapInstance.current) return
+
+    // Удаляем предыдущий маркер
+    if (locationMarkerRef.current) {
+      mapInstance.current.removeLayer(locationMarkerRef.current)
+      locationMarkerRef.current = null
+    }
+
+    // Добавляем маркер местоположения если есть центр и режим геолокации
+    if (radiusCenter && radiusMode === 'location') {
+      const locationIcon = L.divIcon({
+        className: 'user-location-marker',
+        html: `
+          <div style="
+            width: 20px;
+            height: 20px;
+            background: #3B82F6;
+            border: 4px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 2px 8px rgba(0,0,0,0.3);
+            animation: pulse-location 2s infinite;
+          "></div>
+        `,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+        popupAnchor: [0, -10]
+      })
+
+      locationMarkerRef.current = L.marker([radiusCenter.lat, radiusCenter.lng], {
+        icon: locationIcon
+      }).addTo(mapInstance.current)
+
+      // Добавляем popup с информацией о местоположении
+      locationMarkerRef.current.bindPopup(`
+        <div style="text-align: center; padding: 8px;">
+          <div style="font-size: 20px; margin-bottom: 4px;">📍</div>
+          <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">Ваше местоположение</div>
+          <div style="font-size: 11px; color: #6B7280;">
+            Широта: ${radiusCenter.lat.toFixed(6)}<br>
+            Долгота: ${radiusCenter.lng.toFixed(6)}
+          </div>
+        </div>
+      `, {
+        maxWidth: 200,
+        className: 'user-location-popup'
+      })
+    }
+  }, [radiusCenter, radiusMode, mapInitialized])
 
   // Управление курсором для выбора радиуса и добавления объекта
   useEffect(() => {
@@ -754,18 +807,19 @@ export default function EnhancedMap({
         polyline.on('click', () => {
           // Закрываем hover popup
           polyline.closePopup()
-          
+
           // Создаем и показываем детальный popup
           const detailedPopup = L.popup({
             maxWidth: 350,
             className: 'route-detailed-popup-container',
-            autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
+            autoPan: true,  // Включаем автоматическое смещение чтобы попап был виден
+            autoPanPadding: [50, 50]  // Отступ от краев экрана
           })
           .setContent(detailedPopupContent)
           .setLatLng(polyline.getCenter())
-          
+
           detailedPopup.openOn(mapInstance.current!)
-          
+
           // Вызываем callback если есть
           if (onRouteClick) {
             onRouteClick(route.id)
@@ -1229,6 +1283,23 @@ export default function EnhancedMap({
           -webkit-line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
+        }
+
+        /* Анимация пульсации для маркера местоположения пользователя */
+        @keyframes pulse-location {
+          0% {
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7), 0 2px 8px rgba(0,0,0,0.3);
+          }
+          50% {
+            box-shadow: 0 0 0 8px rgba(59, 130, 246, 0), 0 2px 8px rgba(0,0,0,0.3);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0), 0 2px 8px rgba(0,0,0,0.3);
+          }
+        }
+
+        .user-location-marker {
+          z-index: 1000 !important;
         }
       `}</style>
     </div>

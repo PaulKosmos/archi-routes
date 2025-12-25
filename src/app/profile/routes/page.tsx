@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 
 import { useState, useEffect, useMemo, Suspense } from 'react'
-import { Route as RouteIcon, Globe, Lock, Clock, MapPin, Users, Star, Eye, Edit, Trash2, FileText, Send, Plus } from 'lucide-react'
+import { Route as RouteIcon, Globe, Lock, Clock, MapPin, Users, Star, Eye, Edit, Trash2, FileText, Send, Plus, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { RoutePublicationSystem } from '@/lib/smart-route-filtering'
@@ -167,87 +167,100 @@ export default function ProfileRoutesPage() {
 
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Suspense fallback={<div className="h-16 bg-card border-b border-border" />}>
           <Header buildings={[]} />
         </Suspense>
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="bg-white rounded-lg p-4 space-y-3">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-full"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              ))}
+        <main className="flex-1">
+          <div className="container mx-auto px-4 py-8 pt-10">
+            <div className="animate-pulse space-y-6">
+              <div className="h-8 bg-muted rounded-[var(--radius)] w-1/3"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="bg-card border border-border rounded-[var(--radius)] p-6 space-y-3">
+                    <div className="h-4 bg-muted rounded w-3/4"></div>
+                    <div className="h-3 bg-muted rounded w-full"></div>
+                    <div className="h-3 bg-muted rounded w-1/2"></div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </main>
+        <EnhancedFooter />
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Suspense fallback={<div className="h-16 bg-card border-b border-border" />}>
           <Header buildings={[]} />
         </Suspense>
-        <div className="max-w-4xl mx-auto p-6 text-center">
-          <div className="bg-white rounded-lg shadow-sm p-12">
-            <RouteIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <main className="flex-1 flex items-center justify-center">
+          <div className="bg-card border border-border rounded-[var(--radius)] p-12 max-w-md mx-auto">
+            <RouteIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+            <h1 className="text-2xl font-heading font-bold mb-2">
               Войдите в систему
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               Для просмотра маршрутов необходимо войти в свою учетную запись
             </p>
             <Link
               href="/auth/login"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
             >
               Войти в систему
             </Link>
           </div>
-        </div>
+        </main>
+        <EnhancedFooter />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+    <div className="min-h-screen bg-background flex flex-col">
+      <Suspense fallback={<div className="h-16 bg-card border-b border-border" />}>
         <Header buildings={[]} />
       </Suspense>
-      
-      <div className="max-w-6xl mx-auto p-6">
-        {/* Заголовок и кнопка создания */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <RouteIcon className="w-8 h-8 text-blue-600" />
-              Мои маршруты
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Управляйте своими маршрутами и заявками на публикацию
-            </p>
+
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-8 pt-10">
+          {/* Заголовок и кнопка создания */}
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-4">
+              <Link
+                href="/profile"
+                className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+              </Link>
+              <div className="flex-1">
+                <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
+                  <RouteIcon className="w-6 h-6" />
+                  Мои маршруты
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Управляйте своими маршрутами и заявками на публикацию
+                </p>
+              </div>
+
+              <Link
+                href="/"
+                className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Создать маршрут
+              </Link>
+            </div>
           </div>
 
-          <Link
-            href="/"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Создать маршрут
-          </Link>
-        </div>
-
         {/* Табы */}
-        <div className="bg-white rounded-lg shadow-sm mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
+        <div className="bg-card border border-border rounded-[var(--radius)] mb-6">
+          <div className="border-b border-border">
+            <nav className="flex gap-8 px-6">
               {[
                 { key: 'all', label: 'Все маршруты', count: counts.all },
                 { key: 'private', label: 'Личные', count: counts.private },
@@ -259,8 +272,8 @@ export default function ProfileRoutesPage() {
                   onClick={() => setActiveTab(tab.key as TabType)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === tab.key
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground'
                   }`}
                 >
                   {tab.label} ({tab.count})
@@ -309,7 +322,8 @@ export default function ProfileRoutesPage() {
             ))}
           </div>
         )}
-      </div>
+        </div>
+      </main>
 
       {/* Модальное окно заявки на публикацию */}
       {showPublicationModal && selectedRoute && (
@@ -384,105 +398,100 @@ function RouteCard({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
-          <Link 
+    <div className="bg-card border border-border rounded-[var(--radius)] hover:shadow-md transition-shadow h-full flex flex-col">
+      <div className="p-4 flex flex-col h-full">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <Link
             href={`/routes/${route.id}`}
-            className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+            className="text-base font-semibold hover:text-primary transition-colors line-clamp-1 flex-1"
           >
             {route.title}
           </Link>
-          
-          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-            publicationRequest?.status === 'approved' || route.publication_status === 'published' 
+
+          <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
+            publicationRequest?.status === 'approved' || route.publication_status === 'published'
               ? 'bg-green-100 text-green-800'
               : publicationRequest?.status === 'rejected'
-              ? 'bg-red-100 text-red-800' 
+              ? 'bg-red-100 text-red-800'
               : publicationRequest?.status === 'pending' || route.publication_status === 'pending'
               ? 'bg-yellow-100 text-yellow-800'
-              : 'bg-gray-100 text-gray-800'
+              : 'bg-muted text-muted-foreground'
           }`}>
             {getStatusIcon(publicationRequest?.status || route.publication_status)}
             <span className="ml-1">{getStatusText(route, publicationRequest)}</span>
           </div>
         </div>
 
-        {route.description && (
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-            {route.description}
-          </p>
-        )}
+        <p className="text-muted-foreground text-xs mb-2 line-clamp-2 h-8">
+          {route.description || 'Без описания'}
+        </p>
 
-        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2 h-4">
           <div className="flex items-center gap-1">
-            <MapPin className="w-4 h-4" />
-            <span>{route.city}</span>
+            <MapPin className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate">{route.city}</span>
           </div>
-          
-          <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
+
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Clock className="w-3 h-3" />
             <span>{route.estimated_duration_minutes || 0} мин</span>
           </div>
-          
-          <div className="flex items-center gap-1">
-            <Users className="w-4 h-4" />
-            <span>{route.points_count || 0} точек</span>
+
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Users className="w-3 h-3" />
+            <span>{route.points_count || 0}</span>
           </div>
         </div>
 
-        {publicationRequest && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-2 text-sm">
-              <FileText className="w-4 h-4 text-blue-600" />
-              <span className="font-medium text-blue-900">
-                Заявка на публикацию: {
-                  publicationRequest.status === 'pending' ? 'рассматривается' : 
-                  publicationRequest.status === 'approved' ? 'одобрена' :
-                  publicationRequest.status === 'rejected' ? 'отклонена' : publicationRequest.status
-                }
-              </span>
+        <div className="mb-2 h-8">
+          {publicationRequest && (
+            <div className="p-2 bg-blue-50 border border-blue-200 rounded-[var(--radius)]">
+              <div className="flex items-center gap-1 text-xs">
+                <FileText className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                <span className="font-medium text-blue-900 truncate">
+                  {publicationRequest.status === 'pending' ? 'На рассмотрении' :
+                   publicationRequest.status === 'approved' ? 'Одобрена' :
+                   publicationRequest.status === 'rejected' ? 'Отклонена' : publicationRequest.status}
+                </span>
+              </div>
             </div>
-            {publicationRequest.review_notes && (
-              <p className="text-xs text-blue-700 mt-1">{publicationRequest.review_notes}</p>
-            )}
-          </div>
-        )}
+          )}
+        </div>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="mt-auto pt-3 border-t border-border flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1">
             <Link
               href={`/routes/${route.id}`}
-              className="inline-flex items-center px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center px-2 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
             >
-              <Eye className="w-4 h-4 mr-1" />
+              <Eye className="w-3 h-3 mr-1" />
               Открыть
             </Link>
-            
+
             <button
               onClick={onEdit}
-              className="inline-flex items-center px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center px-2 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
             >
-              <Edit className="w-4 h-4 mr-1" />
+              <Edit className="w-3 h-3 mr-1" />
               Изменить
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {canRequestPublication(route, publicationRequest) ? (
               <button
                 onClick={onRequestPublication}
-                className="inline-flex items-center px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center px-2 py-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
               >
-                <Send className="w-4 h-4 mr-1" />
+                <Send className="w-3 h-3 mr-1" />
                 Опубликовать
               </button>
             ) : (
               <button
                 onClick={onDelete}
-                className="inline-flex items-center px-3 py-2 text-sm border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                className="inline-flex items-center px-2 py-1.5 text-xs border border-red-300 text-red-600 rounded-[var(--radius)] hover:bg-red-50 transition-colors"
               >
-                <Trash2 className="w-4 h-4 mr-1" />
+                <Trash2 className="w-3 h-3 mr-1" />
                 Удалить
               </button>
             )}

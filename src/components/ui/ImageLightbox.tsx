@@ -41,11 +41,11 @@ export default function ImageLightbox({ images, initialIndex, isOpen, onClose }:
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center">
       {/* Кнопка закрытия */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-[10000]"
       >
         <X className="w-6 h-6 text-white" />
       </button>
