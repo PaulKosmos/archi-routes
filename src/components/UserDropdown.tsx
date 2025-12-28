@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import {
@@ -56,13 +56,7 @@ export default function UserDropdown() {
   }, [])
 
   // Загрузка статистики пользователя
-  useEffect(() => {
-    if (user && isOpen) {
-      loadUserStats()
-    }
-  }, [user, isOpen])
-
-  const loadUserStats = async () => {
+  const loadUserStats = useCallback(async () => {
     if (!user) return
 
     setLoading(true)
@@ -147,7 +141,13 @@ export default function UserDropdown() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, profile, supabase])
+
+  useEffect(() => {
+    if (user && isOpen) {
+      loadUserStats()
+    }
+  }, [user, isOpen, loadUserStats])
 
   const handleSignOut = async () => {
     try {
@@ -166,7 +166,7 @@ export default function UserDropdown() {
   const getRoleDisplayName = (role: string) => {
     const roleNames = {
       'guest': 'Гость',
-      'explorer': 'Исследователь', 
+      'explorer': 'Исследователь',
       'guide': 'Гид',
       'expert': 'Эксперт',
       'moderator': 'Модератор',
@@ -175,24 +175,12 @@ export default function UserDropdown() {
     return roleNames[role as keyof typeof roleNames] || 'Исследователь'
   }
 
-  const getRoleColor = (role: string) => {
-    const roleColors = {
-      'guest': 'text-gray-500',
-      'explorer': 'text-blue-600',
-      'guide': 'text-green-600', 
-      'expert': 'text-purple-600',
-      'moderator': 'text-red-600',
-      'admin': 'text-red-800 font-bold'
-    }
-    return roleColors[role as keyof typeof roleColors] || 'text-blue-600'
-  }
-
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
+        className="flex items-center p-2 rounded-[var(--radius)] hover:bg-muted transition-colors"
         title={displayName}
       >
         {/* Аватар */}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, SkipBack, SkipForward, X, Volume2, VolumeX, ChevronUp } from 'lucide-react'
+import { Play, Pause, SkipBack, SkipForward, X, Volume2, VolumeX, ChevronDown } from 'lucide-react'
 import { PodcastEpisode } from '@/types/podcast'
 import { getStorageUrl } from '@/lib/storage'
 import { SupabaseClient } from '@supabase/supabase-js'
@@ -37,23 +37,12 @@ export default function PodcastMiniPlayer({
   // Reset player when episode changes
   useEffect(() => {
     if (audioRef.current) {
-      const wasPlaying = isPlaying
       audioRef.current.pause()
       audioRef.current.currentTime = 0
       setCurrentTime(0)
       audioRef.current.load()
-
-      // Auto-start new episode if it was playing before
-      if (wasPlaying) {
-        const timer = setTimeout(() => {
-          if (audioRef.current) {
-            audioRef.current.play().catch(err => console.error('Auto-play error:', err))
-          }
-        }, 100)
-        return () => clearTimeout(timer)
-      }
     }
-  }, [episode?.id, isPlaying])
+  }, [episode?.id])
 
   // Auto play/pause when isPlaying changes
   useEffect(() => {
@@ -74,19 +63,12 @@ export default function PodcastMiniPlayer({
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  // Rewind 15 seconds
-  const rewind = () => {
+  // Skip function
+  const skip = (seconds: number) => {
     if (audioRef.current) {
-      audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 15)
-      setCurrentTime(audioRef.current.currentTime)
-    }
-  }
-
-  // Fast forward 15 seconds
-  const fastForward = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = Math.min(duration, audioRef.current.currentTime + 15)
-      setCurrentTime(audioRef.current.currentTime)
+      const newTime = Math.max(0, Math.min(audioRef.current.currentTime + seconds, duration))
+      audioRef.current.currentTime = newTime
+      setCurrentTime(newTime)
     }
   }
 
@@ -104,7 +86,7 @@ export default function PodcastMiniPlayer({
   }
 
   // Change playback speed
-  const selectPlaybackRate = (rate: number) => {
+  const setSpeed = (rate: number) => {
     setPlaybackRate(rate)
     if (audioRef.current) {
       audioRef.current.playbackRate = rate
@@ -113,21 +95,24 @@ export default function PodcastMiniPlayer({
   }
 
   // Volume control
-  const handleVolumeChange = (newVolume: number) => {
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(e.target.value)
     setVolume(newVolume)
     if (audioRef.current) {
       audioRef.current.volume = newVolume
     }
-    if (newVolume > 0) {
-      setIsMuted(false)
-    }
+    setIsMuted(newVolume === 0)
   }
 
   const toggleMute = () => {
+    const audio = audioRef.current
+    if (!audio) return
+
     if (isMuted) {
-      handleVolumeChange(volume || 0.5)
+      audio.volume = volume || 0.5
+      setIsMuted(false)
     } else {
-      handleVolumeChange(0)
+      audio.volume = 0
       setIsMuted(true)
     }
   }
@@ -150,35 +135,37 @@ export default function PodcastMiniPlayer({
 
   // Fallback duration from episode
   const episodeDuration = duration || (episode?.duration_seconds || 0)
+  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0
+  const speedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2]
 
   // Don't render if no episode
   if (!episode) {
     return (
-      <div className="py-2 text-center text-sm text-gray-500">
+      <div className="py-2 text-center text-sm text-muted-foreground">
         Выберите подкаст для прослушивания
       </div>
     )
   }
 
   return (
-    <div className="py-4">
-      <div className="flex items-center gap-4">
+    <div className="py-2">
+      <div className="flex items-center gap-2">
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="flex-shrink-0 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex-shrink-0 p-1 hover:bg-muted rounded-[var(--radius)] transition-colors"
             title="Close player"
           >
-            <X size={20} className="text-gray-600" />
+            <X size={16} className="text-muted-foreground" />
           </button>
 
           {/* Episode Info */}
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
+            <h3 className="text-xs font-semibold text-foreground line-clamp-1">
               {episode.title}
             </h3>
             {episode.series && (
-              <p className="text-xs text-gray-500">{episode.series.title}</p>
+              <p className="text-[10px] text-muted-foreground">{episode.series.title}</p>
             )}
           </div>
 
@@ -186,46 +173,44 @@ export default function PodcastMiniPlayer({
           <div className="flex items-center gap-2">
             {/* Rewind */}
             <button
-              onClick={rewind}
-              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={() => skip(-15)}
+              className="p-1 hover:bg-muted rounded-[var(--radius)] transition-colors"
               title="Rewind 15 seconds"
             >
-              <SkipBack size={16} className="text-gray-700" />
-              <span className="text-xs font-semibold text-gray-700">15s</span>
+              <SkipBack size={14} className="text-muted-foreground" />
             </button>
 
             {/* Play/Pause */}
             <button
               onClick={onPlayPause}
-              className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+              className="p-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-[var(--radius)] transition-colors"
               title={isPlaying ? 'Pause' : 'Play'}
             >
               {isPlaying ? (
-                <Pause size={18} />
+                <Pause size={16} />
               ) : (
-                <Play size={18} className="ml-0.5" />
+                <Play size={16} className="ml-0.5" />
               )}
             </button>
 
             {/* Fast Forward */}
             <button
-              onClick={fastForward}
-              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={() => skip(15)}
+              className="p-1 hover:bg-muted rounded-[var(--radius)] transition-colors"
               title="Fast forward 15 seconds"
             >
-              <span className="text-xs font-semibold text-gray-700">15s</span>
-              <SkipForward size={16} className="text-gray-700" />
+              <SkipForward size={14} className="text-muted-foreground" />
             </button>
 
             {/* Playback Speed Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-                className="px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors text-xs font-semibold text-gray-700 flex items-center gap-1"
+                className="flex items-center gap-0.5 px-1.5 py-0.5 bg-muted border border-border rounded-[var(--radius)] text-[10px] font-medium text-foreground hover:bg-muted/80 transition-colors"
                 title="Change playback speed"
               >
-                {playbackRate}x
-                <ChevronUp size={14} className={`transition-transform ${showSpeedMenu ? '' : 'rotate-180'}`} />
+                <span>{playbackRate}x</span>
+                <ChevronDown size={10} />
               </button>
 
               {/* Speed menu popup */}
@@ -235,13 +220,13 @@ export default function PodcastMiniPlayer({
                     className="fixed inset-0 z-40"
                     onClick={() => setShowSpeedMenu(false)}
                   />
-                  <div className="absolute bottom-full mb-1 right-0 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 min-w-[80px]">
-                    {[1, 1.25, 1.5].map(rate => (
+                  <div className="absolute bottom-full mb-1 right-0 bg-card border border-border rounded-[var(--radius)] shadow-lg py-1 z-50 min-w-[80px]">
+                    {speedOptions.map(rate => (
                       <button
                         key={rate}
-                        onClick={() => selectPlaybackRate(rate)}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
-                          playbackRate === rate ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                        onClick={() => setSpeed(rate)}
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors ${
+                          playbackRate === rate ? 'bg-muted font-semibold text-primary' : 'text-foreground'
                         }`}
                       >
                         {rate}x
@@ -253,52 +238,60 @@ export default function PodcastMiniPlayer({
             </div>
 
             {/* Time Display */}
-            <div className="text-xs text-gray-600 font-medium w-20 text-right">
+            <div className="text-[10px] text-muted-foreground font-medium w-20 text-right">
               {formatTime(currentTime)} / {formatTime(episodeDuration)}
             </div>
           </div>
 
           {/* Progress Bar */}
           <div className="flex-1 max-w-xs hidden sm:block">
-            <input
-              type="range"
-              min="0"
-              max={duration || 0}
-              value={currentTime}
-              onChange={handleSeek}
-              className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
-              style={{
-                background: `linear-gradient(to right, rgb(147, 51, 234) 0%, rgb(147, 51, 234) ${
-                  duration ? (currentTime / duration) * 100 : 0
-                }%, rgb(229, 231, 235) ${
-                  duration ? (currentTime / duration) * 100 : 0
-                }%, rgb(229, 231, 235) 100%)`
-              }}
-            />
+            <div className="relative w-full h-1 bg-muted rounded-full">
+              {/* Заполненная часть прогресс-бара */}
+              <div
+                className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
+                style={{ width: `${progressPercentage}%` }}
+              />
+              <input
+                type="range"
+                min="0"
+                max={duration || 0}
+                value={currentTime}
+                onChange={handleSeek}
+                className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+            </div>
           </div>
 
           {/* Volume Control */}
           <div className="flex items-center gap-2">
             <button
               onClick={toggleMute}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-gray-700"
+              className="p-1.5 hover:bg-muted rounded-[var(--radius)] transition-colors"
               title={isMuted ? 'Unmute' : 'Mute'}
             >
-              {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+              {isMuted || volume === 0 ? (
+                <VolumeX size={16} className="text-muted-foreground" />
+              ) : (
+                <Volume2 size={16} className="text-muted-foreground" />
+              )}
             </button>
             <div className="w-20 hidden sm:flex items-center">
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={isMuted ? 0 : volume}
-                onChange={e => handleVolumeChange(parseFloat(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #9333ea 0%, #9333ea ${(isMuted ? 0 : volume) * 100}%, #e5e7eb ${(isMuted ? 0 : volume) * 100}%, #e5e7eb 100%)`
-                }}
-              />
+              <div className="relative w-full h-1 bg-muted rounded-full">
+                {/* Заполненная часть громкости */}
+                <div
+                  className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
+                  style={{ width: `${(isMuted ? 0 : volume) * 100}%` }}
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={isMuted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+              </div>
             </div>
           </div>
         </div>

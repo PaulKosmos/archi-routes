@@ -73,7 +73,7 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
   return (
     <>
       <header className="sticky top-0 z-50 border-b-2 border-foreground bg-card/80 backdrop-blur-md">
-        <div className="container mx-auto px-3 sm:px-4 md:px-6 py-2">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 py-1">
           <div className="flex justify-between items-center">
             {/* Логотип */}
             <div className="flex items-center gap-2 sm:gap-3">
@@ -242,28 +242,21 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                         className="block text-foreground hover:text-primary font-medium transition-colors"
                         onClick={() => setShowMobileMenu(false)}
                       >
-                        Объекты
+                        Мои объекты
                       </a>
                       <a
-                        href="/profile/favorite-routes"
+                        href="/profile/favorites"
                         className="block text-foreground hover:text-primary font-medium transition-colors"
                         onClick={() => setShowMobileMenu(false)}
                       >
-                        Избранные маршруты
+                        Избранное
                       </a>
                       <a
-                        href="/profile/liked-blogs"
+                        href="/profile/collections"
                         className="block text-foreground hover:text-primary font-medium transition-colors"
                         onClick={() => setShowMobileMenu(false)}
                       >
-                        Избранные блоги
-                      </a>
-                      <a
-                        href="/profile/saved-blogs"
-                        className="block text-foreground hover:text-primary font-medium transition-colors"
-                        onClick={() => setShowMobileMenu(false)}
-                      >
-                        Сохраненные блоги
+                        Коллекции
                       </a>
                     </div>
                   </div>

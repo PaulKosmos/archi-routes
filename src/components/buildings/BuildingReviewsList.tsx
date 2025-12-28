@@ -336,11 +336,11 @@ export default function BuildingReviewsList({
               </div>
             )}
 
-            {/* Аудио плеер */}
-            {review.audio_url && isExpanded && (
+            {/* Аудио плеер - показываем всегда если есть аудио */}
+            {review.audio_url && (
               <div className="mb-4">
                 <AudioPlayer
-                  audioUrl={review.audio_url}
+                  audioUrl={getStorageUrl(review.audio_url, 'audio')}
                   duration={review.audio_duration_seconds}
                 />
               </div>
