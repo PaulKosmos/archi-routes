@@ -20,7 +20,7 @@ import BlogPostsSection from '@/components/homepage/BlogPostsSection'
 import NewsSection from '@/components/homepage/NewsSection'
 import PodcastsSection from '@/components/homepage/PodcastsSection'
 
-export default function HomePage() {
+export default function MainTestPage() {
   const supabase = useMemo(() => createClient(), [])
   const [buildings, setBuildings] = useState<Building[]>([])
   const [routes, setRoutes] = useState<Route[]>([])
@@ -114,7 +114,7 @@ export default function HomePage() {
         {/* COMMUNITY INSIGHTS */}
         <CommunityInsights reviews={reviews} loading={loading} />
 
-        {/* Blog, News, Podcasts sections */}
+        {/* Существующие секции - временно */}
         <BlogPostsSection />
         <NewsSection />
         <PodcastsSection />

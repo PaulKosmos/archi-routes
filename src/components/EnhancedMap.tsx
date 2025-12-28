@@ -211,7 +211,8 @@ export default function EnhancedMap({
   const routeLinesRef = useRef<{ [key: string]: L.Polyline }>({})
   const radiusCircleRef = useRef<L.Circle | null>(null)
   const locationMarkerRef = useRef<L.Marker | null>(null)
-  
+  const isFirstBuildingsLoad = useRef(true) // Флаг для первой загрузки зданий
+
   const [currentStyle, setCurrentStyle] = useState('light')
   const [mapInitialized, setMapInitialized] = useState(false)
   // Убрали всю сложную логику счетчиков попапов
@@ -485,11 +486,12 @@ export default function EnhancedMap({
       buildingMarkersRef.current[building.id] = marker
     })
 
-    // Автоматическое определение границ карты
-    if (buildings.length > 0) {
+    // Автоматическое определение границ карты только при первой загрузке
+    if (buildings.length > 0 && isFirstBuildingsLoad.current) {
       const group = L.featureGroup(Object.values(buildingMarkersRef.current))
       if (mapInstance.current) {
         mapInstance.current.fitBounds(group.getBounds().pad(0.1))
+        isFirstBuildingsLoad.current = false // Больше не вызываем fitBounds
       }
     }
 

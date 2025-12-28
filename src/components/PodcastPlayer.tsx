@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, ChevronUp } from 'lucide-react'
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, ChevronDown, Headphones } from 'lucide-react'
 
 interface AudioPlayerProps {
   audioUrl: string
@@ -87,34 +87,34 @@ export default function PodcastPlayer({
     }
   }
 
-  const handleVolumeChange = (newVolume: number) => {
+  const skip = (seconds: number) => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const newTime = Math.max(0, Math.min(audio.currentTime + seconds, totalDuration))
+    audio.currentTime = newTime
+    setCurrentTime(newTime)
+  }
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(e.target.value)
     setVolume(newVolume)
     if (audioRef.current) {
       audioRef.current.volume = newVolume
     }
-    if (newVolume > 0) {
-      setIsMuted(false)
-    }
+    setIsMuted(newVolume === 0)
   }
 
   const toggleMute = () => {
+    const audio = audioRef.current
+    if (!audio) return
+
     if (isMuted) {
-      handleVolumeChange(volume || 0.5)
+      audio.volume = volume || 0.5
+      setIsMuted(false)
     } else {
-      handleVolumeChange(0)
+      audio.volume = 0
       setIsMuted(true)
-    }
-  }
-
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const percentage = x / rect.width
-    const newTime = percentage * totalDuration
-
-    if (audioRef.current) {
-      audioRef.current.currentTime = newTime
-      setCurrentTime(newTime)
     }
   }
 
@@ -138,7 +138,7 @@ export default function PodcastPlayer({
     return `${minutes}:${secs.toString().padStart(2, '0')}`
   }
 
-  const selectPlaybackRate = (rate: number) => {
+  const setSpeed = (rate: number) => {
     setPlaybackRate(rate)
     if (audioRef.current) {
       audioRef.current.playbackRate = rate
@@ -147,10 +147,11 @@ export default function PodcastPlayer({
   }
 
   const progressPercentage = totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0
+  const speedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2]
 
   return (
-    <div className={`bg-gray-50 rounded-xl p-5 border border-gray-200 ${className}`}>
-      {/* Hidden audio element with WAV support */}
+    <div className={`bg-card border border-border rounded-[var(--radius)] p-6 shadow-sm ${className}`}>
+      {/* Hidden audio element with multi-format support */}
       <audio ref={audioRef} crossOrigin="anonymous">
         <source src={audioUrl} type="audio/mpeg" />
         <source src={audioUrl} type="audio/wav" />
@@ -158,124 +159,128 @@ export default function PodcastPlayer({
         Your browser does not support the audio element.
       </audio>
 
-      {/* Title */}
+      {/* Заголовок */}
       <div className="mb-4">
-        <p className="text-sm font-semibold text-gray-900 line-clamp-2">
+        <h5 className="font-semibold text-foreground flex items-center">
+          <Headphones className="w-5 h-5 mr-2 text-muted-foreground" />
           {title}
-        </p>
+        </h5>
       </div>
 
-      {/* Main controls */}
-      <div className="flex items-center justify-center space-x-4 mb-6">
-        <button
-          onClick={() => {
-            if (audioRef.current) {
-              audioRef.current.currentTime = Math.max(0, currentTime - 15)
-            }
-          }}
-          className="flex flex-col items-center text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
-          title="Rewind 15s"
-        >
-          <SkipBack size={20} />
-          <span className="text-xs font-semibold mt-0.5">15s</span>
-        </button>
-
-        <button
-          onClick={togglePlay}
-          className="w-14 h-14 flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-          aria-label={isPlaying ? 'Pause' : 'Play'}
-        >
-          {isPlaying ? <Pause size={24} /> : <Play size={24} className="ml-1" />}
-        </button>
-
-        <button
-          onClick={() => {
-            if (audioRef.current) {
-              audioRef.current.currentTime = Math.min(totalDuration, currentTime + 15)
-            }
-          }}
-          className="flex flex-col items-center text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
-          title="Forward 15s"
-        >
-          <SkipForward size={20} />
-          <span className="text-xs font-semibold mt-0.5">15s</span>
-        </button>
-      </div>
-
-      {/* Progress bar with timeline */}
+      {/* Прогресс бар с заполнением */}
       <div className="mb-4">
-        <div
-          className="h-2 bg-gray-200 rounded-full cursor-pointer relative overflow-hidden group mb-2"
-          onClick={handleProgressClick}
-        >
+        <div className="relative w-full h-2 bg-muted rounded-full">
+          {/* Заполненная часть прогресс-бара */}
           <div
-            className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full transition-all duration-150"
+            className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
             style={{ width: `${progressPercentage}%` }}
           />
-          <div
-            className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{ left: `calc(${progressPercentage}% - 8px)` }}
+          {/* Прозрачный range input поверх */}
+          <input
+            type="range"
+            min="0"
+            max={totalDuration || 0}
+            value={currentTime}
+            onChange={handleSeek}
+            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
         </div>
-
-        {/* Time display */}
-        <div className="flex justify-between text-xs text-gray-500">
+        <div className="flex justify-between text-xs text-muted-foreground mt-1">
           <span>{formatTime(currentTime)}</span>
           <span>{formatTime(totalDuration)}</span>
         </div>
       </div>
 
-      {/* Volume and extras */}
+      {/* Управление */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+        {/* Основные кнопки */}
+        <div className="flex items-center gap-2">
           <button
-            onClick={toggleMute}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
+            onClick={() => skip(-15)}
+            className="flex flex-col items-center p-2 hover:bg-muted rounded-[var(--radius)] transition-colors group"
+            title="Назад 15 сек"
           >
-            {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            <SkipBack className="w-5 h-5 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground mt-0.5">15 сек</span>
           </button>
-          <div className="w-24 flex items-center">
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={isMuted ? 0 : volume}
-              onChange={e => handleVolumeChange(parseFloat(e.target.value))}
-              className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, #a855f7 0%, #a855f7 ${(isMuted ? 0 : volume) * 100}%, #e5e7eb ${(isMuted ? 0 : volume) * 100}%, #e5e7eb 100%)`
-              }}
-            />
-          </div>
+
+          <button
+            onClick={togglePlay}
+            className="p-3 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors shadow-md"
+          >
+            {isPlaying ? (
+              <Pause className="w-6 h-6" />
+            ) : (
+              <Play className="w-6 h-6 ml-0.5" />
+            )}
+          </button>
+
+          <button
+            onClick={() => skip(15)}
+            className="flex flex-col items-center p-2 hover:bg-muted rounded-[var(--radius)] transition-colors group"
+            title="Вперед 15 сек"
+          >
+            <SkipForward className="w-5 h-5 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground mt-0.5">15 сек</span>
+          </button>
         </div>
 
-        <div className="flex items-center space-x-2">
-          {/* Playback Speed Dropdown */}
+        {/* Громкость и скорость */}
+        <div className="flex items-center space-x-4">
+          {/* Громкость */}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={toggleMute}
+              className="p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
+            >
+              {isMuted ? (
+                <VolumeX className="w-5 h-5 text-muted-foreground" />
+              ) : (
+                <Volume2 className="w-5 h-5 text-muted-foreground" />
+              )}
+            </button>
+            <div className="relative w-20 h-1 bg-muted rounded-full">
+              {/* Заполненная часть громкости */}
+              <div
+                className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
+                style={{ width: `${(isMuted ? 0 : volume) * 100}%` }}
+              />
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                value={isMuted ? 0 : volume}
+                onChange={handleVolumeChange}
+                className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+            </div>
+          </div>
+
+          {/* Скорость с dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-              className="text-gray-700 hover:text-gray-900 font-semibold px-3 py-1 hover:bg-gray-100 rounded-full transition-colors flex items-center gap-1"
-              title="Change playback speed"
+              className="flex items-center gap-1 px-3 py-1.5 bg-muted border border-border rounded-[var(--radius)] text-sm font-medium text-foreground hover:bg-muted/80 transition-colors"
+              title="Скорость воспроизведения"
             >
-              {playbackRate}x
-              <ChevronUp size={16} className={`transition-transform ${showSpeedMenu ? '' : 'rotate-180'}`} />
+              <span>{playbackRate}x</span>
+              <ChevronDown className="w-3 h-3" />
             </button>
 
-            {/* Speed menu popup */}
             {showSpeedMenu && (
               <>
                 <div
                   className="fixed inset-0 z-40"
                   onClick={() => setShowSpeedMenu(false)}
                 />
-                <div className="absolute bottom-full mb-2 right-0 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-50 min-w-[90px]">
-                  {[1, 1.25, 1.5].map(rate => (
+                <div className="absolute bottom-full right-0 mb-2 bg-card border border-border rounded-[var(--radius)] shadow-lg py-1 min-w-[80px] z-50">
+                  {speedOptions.map(rate => (
                     <button
                       key={rate}
-                      onClick={() => selectPlaybackRate(rate)}
-                      className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
-                        playbackRate === rate ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                      onClick={() => setSpeed(rate)}
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-muted transition-colors ${
+                        playbackRate === rate ? 'bg-muted font-semibold text-primary' : 'text-foreground'
                       }`}
                     >
                       {rate}x

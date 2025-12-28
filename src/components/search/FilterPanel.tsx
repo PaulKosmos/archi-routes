@@ -151,61 +151,75 @@ export function FilterPanel({
           className={`transition-colors ${
             star <= rating
               ? 'text-yellow-400 hover:text-yellow-500'
-              : 'text-gray-300 hover:text-gray-400'
+              : 'text-muted-foreground/30 hover:text-muted-foreground/50'
           }`}
         >
           <Star className="w-5 h-5 fill-current" />
         </button>
       ))}
-      <span className="ml-2 text-sm text-gray-600">
+      <span className="ml-2 text-sm text-muted-foreground font-metrics">
         {rating > 0 ? `от ${rating} звезд` : 'Любой рейтинг'}
       </span>
     </div>
   )
 
-  // Компонент двойного слайдера для диапазона лет
+  // Компонент текстовых полей для диапазона лет
   const YearRangeSlider = () => {
     const [minYear, maxYear] = metadata.yearRange
     const [currentMin, currentMax] = filters.yearRange
-    
+
+    const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value
+      if (value === '') {
+        handleYearRangeChange([minYear, currentMax])
+        return
+      }
+      const newMin = parseInt(value)
+      if (!isNaN(newMin) && newMin >= minYear && newMin <= (currentMax === 3000 ? maxYear : currentMax)) {
+        handleYearRangeChange([newMin, currentMax])
+      }
+    }
+
+    const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value
+      if (value === '') {
+        handleYearRangeChange([currentMin, maxYear])
+        return
+      }
+      const newMax = parseInt(value)
+      if (!isNaN(newMax) && newMax <= maxYear && newMax >= (currentMin === 0 ? minYear : currentMin)) {
+        handleYearRangeChange([currentMin, newMax])
+      }
+    }
+
     return (
-      <div className="space-y-4">
-        <div className="flex justify-between text-sm text-gray-600">
-          <span>{currentMin === 0 ? `до ${maxYear}` : currentMin}</span>
-          <span>{currentMax === 3000 ? `с ${minYear}` : currentMax}</span>
-        </div>
-        
-        <div className="relative">
-          <input
-            type="range"
-            min={minYear}
-            max={maxYear}
-            value={currentMin === 0 ? minYear : currentMin}
-            onChange={(e) => {
-              const newMin = parseInt(e.target.value)
-              if (newMin <= (currentMax === 3000 ? maxYear : currentMax)) {
-                handleYearRangeChange([newMin, currentMax])
-              }
-            }}
-            className="absolute w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-          />
-          <input
-            type="range"
-            min={minYear}
-            max={maxYear}
-            value={currentMax === 3000 ? maxYear : currentMax}
-            onChange={(e) => {
-              const newMax = parseInt(e.target.value)
-              if (newMax >= (currentMin === 0 ? minYear : currentMin)) {
-                handleYearRangeChange([currentMin, newMax])
-              }
-            }}
-            className="absolute w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-          />
-        </div>
-        
-        <div className="text-center text-sm text-gray-600">
-          {formatYearRange([currentMin, currentMax])}
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <label className="block text-xs text-muted-foreground mb-1 font-metrics">От</label>
+            <input
+              type="number"
+              min={minYear}
+              max={currentMax === 3000 ? maxYear : currentMax}
+              value={currentMin === 0 ? '' : currentMin}
+              onChange={handleMinChange}
+              placeholder={minYear.toString()}
+              className="w-full px-3 py-2 border border-border bg-background text-foreground text-sm font-metrics focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+          <span className="text-muted-foreground mt-5">—</span>
+          <div className="flex-1">
+            <label className="block text-xs text-muted-foreground mb-1 font-metrics">До</label>
+            <input
+              type="number"
+              min={currentMin === 0 ? minYear : currentMin}
+              max={maxYear}
+              value={currentMax === 3000 ? '' : currentMax}
+              onChange={handleMaxChange}
+              placeholder={maxYear.toString()}
+              className="w-full px-3 py-2 border border-border bg-background text-foreground text-sm font-metrics focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
         </div>
       </div>
     )
@@ -227,29 +241,29 @@ export function FilterPanel({
     count?: number
     badge?: string
   }) => (
-    <div className="border-b border-gray-200 last:border-b-0">
+    <div className="border-b border-border last:border-b-0">
       <button
         onClick={() => toggleSection(id)}
-        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center justify-between p-4 hover:bg-muted transition-colors"
       >
         <div className="flex items-center gap-3">
-          <Icon className="w-5 h-5 text-gray-400" />
-          <span className="font-medium text-gray-900">{title}</span>
+          <Icon className="w-5 h-5 text-muted-foreground" />
+          <span className="font-medium text-foreground">{title}</span>
           {count !== undefined && count > 0 && (
-            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
+            <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full font-metrics">
               {count}
             </span>
           )}
           {badge && (
-            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
+            <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">
               {badge}
             </span>
           )}
         </div>
         {isExpanded(id) ? (
-          <ChevronUp className="w-4 h-4 text-gray-400" />
+          <ChevronUp className="w-4 h-4 text-muted-foreground" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
         )}
       </button>
       
@@ -326,7 +340,6 @@ export function FilterPanel({
                       onChange={() => handleSortChange(option.value)}
                       className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                     />
-                    <span className="text-lg">{option.icon}</span>
                     <span className="flex-1 text-sm text-gray-700">{option.label}</span>
                     {option.value === 'distance' && !filters.nearMe && (
                       <span className="text-xs text-gray-400">(включите геолокацию)</span>
@@ -506,7 +519,6 @@ export function FilterPanel({
                       onChange={() => handleAccessibilityToggle(option.value)}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
-                    <span className="text-lg">{option.icon}</span>
                     <span className="flex-1 text-sm text-gray-700">{option.label}</span>
                   </label>
                 ))}

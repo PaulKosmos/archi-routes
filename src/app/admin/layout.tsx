@@ -7,9 +7,7 @@ import Link from 'next/link'
 import {
   Shield,
   Users,
-  FileText,
   Home,
-  Building2,
   Newspaper,
   LayoutDashboard,
   Bot,

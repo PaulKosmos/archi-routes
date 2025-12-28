@@ -7,7 +7,6 @@ import Link from 'next/link'
 import {
   Users,
   Shield,
-  FileText,
   Building2,
   MessageSquare,
   Route,
@@ -17,7 +16,7 @@ import {
   Podcast,
   Bot
 } from 'lucide-react'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 
 interface AdminStats {
@@ -37,13 +36,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    if (user && profile && ['admin', 'moderator'].includes(profile.role || '')) {
-      loadStats()
-    }
-  }, [user, profile])
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       setIsLoading(true)
       
@@ -74,7 +67,13 @@ export default function AdminDashboard() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    if (user && profile && ['admin', 'moderator'].includes(profile.role || '')) {
+      loadStats()
+    }
+  }, [user, profile, loadStats])
 
   if (loading || isLoading) {
     return (

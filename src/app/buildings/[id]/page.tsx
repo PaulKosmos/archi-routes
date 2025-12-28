@@ -136,7 +136,7 @@ export default async function BuildingDetailPage({ params, searchParams }: PageP
   console.log('🏢 [DEBUG] Should hide header:', shouldHideHeader)
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {!shouldHideHeader && <Header buildings={allBuildings || []} />}
       <BuildingDetailClient building={building} />
     </div>

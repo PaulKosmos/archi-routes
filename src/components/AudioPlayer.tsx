@@ -1,28 +1,31 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Headphones } from 'lucide-react'
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Headphones, ChevronDown } from 'lucide-react'
 
 interface AudioPlayerProps {
   audioUrl: string
   title?: string
   onPositionChange?: (position: number) => void
   initialPosition?: number
+  duration?: number
 }
 
 export default function AudioPlayer({
   audioUrl,
   title,
   onPositionChange,
-  initialPosition = 0
+  initialPosition = 0,
+  duration: propDuration
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(initialPosition)
-  const [duration, setDuration] = useState(0)
+  const [duration, setDuration] = useState(propDuration || 0)
   const [volume, setVolume] = useState(1)
   const [isMuted, setIsMuted] = useState(false)
   const [playbackRate, setPlaybackRate] = useState(1)
+  const [showSpeedMenu, setShowSpeedMenu] = useState(false)
 
   // Инициализация аудио
   useEffect(() => {
@@ -120,16 +123,13 @@ export default function AudioPlayer({
   }
 
   // Изменение скорости
-  const togglePlaybackRate = () => {
+  const setSpeed = (rate: number) => {
     const audio = audioRef.current
     if (!audio) return
 
-    const rates = [0.5, 0.75, 1, 1.25, 1.5, 2]
-    const currentIndex = rates.indexOf(playbackRate)
-    const nextRate = rates[(currentIndex + 1) % rates.length]
-    
-    audio.playbackRate = nextRate
-    setPlaybackRate(nextRate)
+    audio.playbackRate = rate
+    setPlaybackRate(rate)
+    setShowSpeedMenu(false)
   }
 
   // Форматирование времени
@@ -139,31 +139,43 @@ export default function AudioPlayer({
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
+  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0
+
+  const speedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2]
+
   return (
-    <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-6 shadow-sm">
+    <div className="bg-card border border-border rounded-[var(--radius)] p-6 shadow-sm">
       <audio ref={audioRef} src={audioUrl} preload="metadata" />
-      
+
       {/* Заголовок */}
       {title && (
         <div className="mb-4">
-          <h5 className="font-semibold text-gray-900 flex items-center">
-            <Headphones className="w-5 h-5 mr-2 text-purple-600" />
+          <h5 className="font-semibold text-foreground flex items-center">
+            <Headphones className="w-5 h-5 mr-2 text-muted-foreground" />
             {title}
           </h5>
         </div>
       )}
 
-      {/* Прогресс бар */}
+      {/* Прогресс бар с заполнением */}
       <div className="mb-4">
-        <input
-          type="range"
-          min="0"
-          max={duration || 0}
-          value={currentTime}
-          onChange={handleSeek}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
-        />
-        <div className="flex justify-between text-xs text-gray-600 mt-1">
+        <div className="relative w-full h-2 bg-muted rounded-full">
+          {/* Заполненная часть прогресс-бара */}
+          <div
+            className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
+            style={{ width: `${progressPercentage}%` }}
+          />
+          {/* Прозрачный range input поверх */}
+          <input
+            type="range"
+            min="0"
+            max={duration || 0}
+            value={currentTime}
+            onChange={handleSeek}
+            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+          />
+        </div>
+        <div className="flex justify-between text-xs text-muted-foreground mt-1">
           <span>{formatTime(currentTime)}</span>
           <span>{formatTime(duration)}</span>
         </div>
@@ -172,18 +184,19 @@ export default function AudioPlayer({
       {/* Управление */}
       <div className="flex items-center justify-between">
         {/* Основные кнопки */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => skip(-15)}
-            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+            className="flex flex-col items-center p-2 hover:bg-muted rounded-[var(--radius)] transition-colors group"
             title="Назад 15 сек"
           >
-            <SkipBack className="w-5 h-5 text-gray-700" />
+            <SkipBack className="w-5 h-5 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground mt-0.5">15 сек</span>
           </button>
-          
+
           <button
             onClick={togglePlay}
-            className="p-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors shadow-md"
+            className="p-3 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors shadow-md"
           >
             {isPlaying ? (
               <Pause className="w-6 h-6" />
@@ -191,13 +204,14 @@ export default function AudioPlayer({
               <Play className="w-6 h-6 ml-0.5" />
             )}
           </button>
-          
+
           <button
             onClick={() => skip(15)}
-            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+            className="flex flex-col items-center p-2 hover:bg-muted rounded-[var(--radius)] transition-colors group"
             title="Вперед 15 сек"
           >
-            <SkipForward className="w-5 h-5 text-gray-700" />
+            <SkipForward className="w-5 h-5 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground mt-0.5">15 сек</span>
           </button>
         </div>
 
@@ -207,33 +221,59 @@ export default function AudioPlayer({
           <div className="flex items-center space-x-2">
             <button
               onClick={toggleMute}
-              className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+              className="p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
             >
               {isMuted ? (
-                <VolumeX className="w-5 h-5 text-gray-700" />
+                <VolumeX className="w-5 h-5 text-muted-foreground" />
               ) : (
-                <Volume2 className="w-5 h-5 text-gray-700" />
+                <Volume2 className="w-5 h-5 text-muted-foreground" />
               )}
             </button>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={isMuted ? 0 : volume}
-              onChange={handleVolumeChange}
-              className="w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
-            />
+            <div className="relative w-20 h-1 bg-muted rounded-full">
+              {/* Заполненная часть громкости */}
+              <div
+                className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
+                style={{ width: `${(isMuted ? 0 : volume) * 100}%` }}
+              />
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                value={isMuted ? 0 : volume}
+                onChange={handleVolumeChange}
+                className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+            </div>
           </div>
 
-          {/* Скорость */}
-          <button
-            onClick={togglePlaybackRate}
-            className="px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            title="Скорость воспроизведения"
-          >
-            {playbackRate}x
-          </button>
+          {/* Скорость с dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowSpeedMenu(!showSpeedMenu)}
+              className="flex items-center gap-1 px-3 py-1.5 bg-muted border border-border rounded-[var(--radius)] text-sm font-medium text-foreground hover:bg-muted/80 transition-colors"
+              title="Скорость воспроизведения"
+            >
+              <span>{playbackRate}x</span>
+              <ChevronDown className="w-3 h-3" />
+            </button>
+
+            {showSpeedMenu && (
+              <div className="absolute bottom-full right-0 mb-2 bg-card border border-border rounded-[var(--radius)] shadow-lg py-1 min-w-[80px] z-50">
+                {speedOptions.map(rate => (
+                  <button
+                    key={rate}
+                    onClick={() => setSpeed(rate)}
+                    className={`w-full px-3 py-2 text-sm text-left hover:bg-muted transition-colors ${
+                      playbackRate === rate ? 'bg-muted font-semibold text-primary' : 'text-foreground'
+                    }`}
+                  >
+                    {rate}x
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

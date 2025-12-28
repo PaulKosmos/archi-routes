@@ -18,8 +18,8 @@ const geologica = Geologica({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com'),
   title: {
-    default: 'Archi-Routes - Архитектурные маршруты с аудиогидами',
-    template: '%s | Archi-Routes'
+    default: 'Archiroutes - Discover cities and their stories',
+    template: '%s | Archiroutes'
   },
   description: 'Откройте для себя архитектурные шедевры мира через интерактивные маршруты с профессиональными аудиогидами. Исследуйте здания, создавайте собственные маршруты, делитесь впечатлениями.',
   keywords: ['архитектура', 'аудиогиды', 'маршруты', 'здания', 'путешествия', 'культура', 'architecture', 'audio guides', 'routes', 'buildings'],
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     locale: 'ru_RU',
     url: '/',
     siteName: 'Archi-Routes',
-    title: 'Archi-Routes - Архитектурные маршруты с аудиогидами',
+    title: 'Archiroutes - Discover cities and their stories',
     description: 'Откройте для себя архитектурные шедевры мира через интерактивные маршруты с профессиональными аудиогидами',
     images: [
       {
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Archi-Routes - Архитектурные маршруты с аудиогидами',
+    title: 'Archiroutes - Discover cities and their stories',
     description: 'Откройте для себя архитектурные шедевры мира через интерактивные маршруты с профессиональными аудиогидами',
     images: ['/og-image.jpg'],
   },

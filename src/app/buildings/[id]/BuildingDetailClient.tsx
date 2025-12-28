@@ -17,8 +17,8 @@ import BuildingNews from '@/components/news/BuildingNews'
 // Динамический импорт для компонента с Leaflet (избегаем SSR)
 const BuildingMap = dynamic(() => import('@/components/buildings/BuildingMap'), {
   ssr: false,
-  loading: () => <div className="w-full h-96 bg-gray-100 animate-pulse flex items-center justify-center">
-    <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+  loading: () => <div className="w-full h-96 bg-muted animate-pulse flex items-center justify-center rounded-[var(--radius)]">
+    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
   </div>
 })
 
@@ -214,8 +214,8 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Загрузка данных здания...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Загрузка данных здания...</p>
         </div>
       </div>
     )
@@ -225,11 +225,11 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Ошибка загрузки</h1>
-          <p className="text-gray-600">Не удалось загрузить данные о здании</p>
-          <button 
+          <h1 className="text-2xl font-display font-bold text-foreground mb-2">Ошибка загрузки</h1>
+          <p className="text-muted-foreground">Не удалось загрузить данные о здании</p>
+          <button
             onClick={fetchBuildingData}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="mt-4 bg-primary text-primary-foreground px-4 py-2 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
           >
             Попробовать снова
           </button>
@@ -241,35 +241,35 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
   const { reviews, relatedBlogPosts, relatedRoutes, userFavorite } = data
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Hero секция с основной информацией */}
-      <BuildingHeader 
-        building={building} 
+      <BuildingHeader
+        building={building}
         userFavorite={userFavorite}
         onFavoriteUpdate={fetchBuildingData}
       />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Основной контент */}
           <div className="lg:col-span-2 space-y-8">
-            
+
             {/* Описание здания */}
             {building.description && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Описание</h2>
-                <p className="text-gray-700 leading-relaxed">{building.description}</p>
+              <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm p-6">
+                <h2 className="text-xl font-display font-bold mb-4 text-foreground">Описание</h2>
+                <p className="text-foreground leading-relaxed">{building.description}</p>
               </div>
             )}
 
             {/* Дополнительные изображения */}
             {building.image_urls && building.image_urls.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Галерея</h2>
+              <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm p-6">
+                <h2 className="text-xl font-display font-bold mb-4 text-foreground">Галерея</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {building.image_urls.map((imageUrl, index) => (
-                    <div key={index} className="aspect-square overflow-hidden rounded-lg">
+                    <div key={index} className="aspect-square overflow-hidden rounded-[var(--radius)] group">
                       <img
                         src={getStorageUrl(imageUrl, 'photos')}
                         alt={`${building.name} - фото ${index + 1}`}
@@ -291,12 +291,12 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
             {/* Историческая значимость */}
             {building.historical_significance && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm p-6">
+                <h2 className="text-xl font-display font-bold mb-4 flex items-center text-foreground">
                   <BuildingIcon className="h-5 w-5 mr-2 text-amber-600" />
                   Историческая значимость
                 </h2>
-                <p className="text-gray-700 leading-relaxed">{building.historical_significance}</p>
+                <p className="text-foreground leading-relaxed">{building.historical_significance}</p>
               </div>
             )}
 
@@ -311,15 +311,15 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
             {/* Связанные маршруты */}
             {relatedRoutes.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm p-6">
                 <div className="flex items-center mb-4">
-                  <Navigation className="h-5 w-5 text-green-600 mr-2" />
-                  <h3 className="text-lg font-semibold">Маршруты с этим зданием</h3>
+                  <Navigation className="h-5 w-5 text-[hsl(var(--map-primary))] mr-2" />
+                  <h3 className="text-lg font-display font-bold text-foreground">Маршруты с этим зданием</h3>
                 </div>
-                
+
                 <div className="grid gap-4 md:grid-cols-2">
                   {relatedRoutes.map((route, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                    <div key={index} className="border border-border rounded-[var(--radius)] p-4 hover:border-[hsl(var(--map-primary))] hover:-translate-y-1 transition-all duration-300 bg-card">
                       <Link href={`/routes/${route.id}`} className="block">
                         
                         {/* Изображение маршрута */}
@@ -327,24 +327,24 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
                           <img
                             src={route.thumbnail_url}
                             alt={route.title}
-                            className="w-full h-32 object-cover rounded-lg mb-3"
+                            className="w-full h-32 object-cover rounded-[var(--radius)] mb-3"
                           />
                         )}
-                        
+
                         {/* Заголовок и описание */}
-                        <h4 className="font-medium text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+                        <h4 className="font-semibold text-foreground mb-2 hover:text-[hsl(var(--map-primary))] transition-colors">
                           {route.title}
                         </h4>
-                        
+
                         {route.description && (
-                          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
                             {route.description}
                           </p>
                         )}
                         
                         {/* Метаинформация маршрута */}
                         <div className="space-y-2">
-                          <div className="flex items-center text-xs text-gray-500">
+                          <div className="flex items-center text-xs text-muted-foreground font-metrics">
                             <MapPin className="h-3 w-3 mr-1" />
                             <span className="mr-3">{route.city}, {route.country}</span>
                             <Clock className="h-3 w-3 mr-1" />
