@@ -167,14 +167,36 @@ export default function NotificationBell() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
+      // Здания
       case 'moderation_approved':
         return '✅'
       case 'moderation_rejected':
         return '❌'
       case 'moderation_pending':
         return '🟡'
+
+      // Обзоры
+      case 'review_approved':
+        return '✅'
+      case 'review_rejected':
+        return '❌'
+      case 'review_pending':
+        return '🟡'
       case 'new_review':
         return '⭐'
+
+      // Блоги
+      case 'blog_approved':
+        return '✅'
+      case 'blog_rejected':
+        return '❌'
+      case 'blog_pending':
+        return '🟡'
+
+      // Модерация (для модераторов)
+      case 'new_moderation_task':
+        return '🔔'
+
       default:
         return '📢'
     }

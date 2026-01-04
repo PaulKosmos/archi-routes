@@ -79,21 +79,21 @@ export default function BuildingNews({
 
   if (loading) {
     return (
-      <div className={`bg-white rounded-xl shadow-sm border border-gray-200 p-6 ${className}`}>
+      <div className={`bg-card rounded-[var(--radius)] border border-border p-6 ${className}`}>
         {showTitle && (
           <div className="flex items-center gap-2 mb-4">
-            <Building2 className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Новости об этом здании</h3>
+            <Building2 className="w-5 h-5 text-primary" />
+            <h3 className="text-lg font-semibold font-display text-foreground">Новости об этом здании</h3>
           </div>
         )}
         <div className="animate-pulse space-y-4">
           {[1, 2, 3].map(i => (
             <div key={i} className="flex gap-4">
-              <div className="w-20 h-20 bg-gray-200 rounded-lg"></div>
+              <div className="w-20 h-20 bg-muted rounded-[var(--radius)]"></div>
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                <div className="h-4 bg-muted rounded w-3/4"></div>
+                <div className="h-3 bg-muted rounded w-1/2"></div>
+                <div className="h-3 bg-muted rounded w-1/4"></div>
               </div>
             </div>
           ))}
@@ -104,22 +104,22 @@ export default function BuildingNews({
 
   if (error) {
     return (
-      <div className={`bg-red-50 border border-red-200 rounded-xl p-6 ${className}`}>
-        <p className="text-red-600 text-sm">{error}</p>
+      <div className={`bg-destructive/10 border border-destructive rounded-[var(--radius)] p-6 ${className}`}>
+        <p className="text-destructive text-sm">{error}</p>
       </div>
     );
   }
 
   if (news.length === 0) {
     return (
-      <div className={`bg-gray-50 border border-gray-200 rounded-xl p-6 text-center ${className}`}>
-        <Building2 className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-        <p className="text-gray-600 text-sm">
+      <div className={`bg-muted border border-border rounded-[var(--radius)] p-6 text-center ${className}`}>
+        <Building2 className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+        <p className="text-muted-foreground text-sm">
           Пока нет новостей об этом здании
         </p>
         <Link
           href="/news"
-          className="inline-block mt-2 text-blue-600 hover:text-blue-800 text-sm transition-colors"
+          className="inline-block mt-2 text-primary hover:text-primary/80 text-sm transition-colors"
         >
           Смотреть все новости
         </Link>
@@ -128,26 +128,26 @@ export default function BuildingNews({
   }
 
   return (
-    <div className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden ${className}`}>
-      
+    <div className={`bg-card rounded-[var(--radius)] border border-border overflow-hidden ${className}`}>
+
       {/* Заголовок */}
       {showTitle && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+        <div className="bg-muted/30 px-6 py-4 border-b border-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">
+              <Building2 className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold font-display text-foreground">
                 Новости об этом здании
               </h3>
-              <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+              <span className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium font-metrics">
                 {totalCount}
               </span>
             </div>
-            
+
             {totalCount > limit && (
               <Link
                 href={`/news?building=${buildingId}`}
-                className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+                className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium transition-colors"
               >
                 Все новости
                 <ChevronRight className="w-4 h-4" />
@@ -164,11 +164,11 @@ export default function BuildingNews({
             <Link
               key={article.id}
               href={`/news/${article.slug}`}
-              className="flex gap-4 p-4 rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-all duration-300 group"
+              className="flex gap-4 p-4 rounded-[var(--radius)] border border-border hover:border-primary/50 hover:bg-muted/50 transition-all duration-300 group"
             >
               {/* Изображение */}
               {article.featured_image_url && (
-                <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                <div className="relative w-20 h-20 rounded-[var(--radius)] overflow-hidden flex-shrink-0">
                   <Image
                     src={article.featured_image_url}
                     alt={article.featured_image_alt || article.title}
@@ -181,17 +181,17 @@ export default function BuildingNews({
 
               {/* Контент */}
               <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1 line-clamp-2">
+                <h4 className="font-semibold font-display text-foreground group-hover:text-primary transition-colors mb-1 line-clamp-2">
                   {article.title}
                 </h4>
-                
+
                 {article.summary && (
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                  <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
                     {article.summary}
                   </p>
                 )}
 
-                <div className="flex items-center gap-4 text-xs text-gray-500 font-metrics">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground font-metrics">
                   {article.published_at && (
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
@@ -210,7 +210,7 @@ export default function BuildingNews({
                   </div>
 
                   {article.category && (
-                    <span className="bg-gray-100 px-2 py-0.5 rounded text-xs">
+                    <span className="bg-muted px-2 py-0.5 rounded text-xs">
                       {article.category === 'projects' && 'Проекты'}
                       {article.category === 'events' && 'События'}
                       {article.category === 'personalities' && 'Персоналии'}
@@ -223,7 +223,7 @@ export default function BuildingNews({
               </div>
 
               {/* Стрелка */}
-              <div className="flex items-center text-gray-400 group-hover:text-blue-600 transition-colors">
+              <div className="flex items-center text-muted-foreground group-hover:text-primary transition-colors">
                 <ChevronRight className="w-5 h-5" />
               </div>
             </Link>
@@ -232,10 +232,10 @@ export default function BuildingNews({
 
         {/* Ссылка на все новости */}
         {totalCount > limit && (
-          <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+          <div className="mt-6 pt-4 border-t border-border text-center">
             <Link
               href={`/news?building=${buildingId}`}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
             >
               Посмотреть все {totalCount} новостей
               <ChevronRight className="w-4 h-4" />

@@ -130,13 +130,13 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
             </nav>
 
             {/* Пользователь */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 min-w-[140px] justify-end">
               {!mounted ? (
                 <div className="w-8 h-8 bg-muted rounded-full animate-pulse"></div>
               ) : loading ? (
                 <div className="w-8 h-8 bg-muted rounded-full animate-pulse"></div>
               ) : user ? (
-                <div className="flex items-center gap-2">
+                <>
                   <a
                     href="/search"
                     className="p-2 text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -146,7 +146,7 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                   </a>
                   <NotificationBell />
                   <UserDropdown />
-                </div>
+                </>
               ) : (
                 <>
                   <a

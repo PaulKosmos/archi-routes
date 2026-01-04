@@ -482,25 +482,31 @@ export function getUserLocation(): Promise<{ latitude: number; longitude: number
         })
       },
       (error) => {
+        // Проверяем наличие кода ошибки (некоторые расширения браузера могут не предоставлять code)
+        if (!error.code) {
+          reject(new Error('Геолокация недоступна. Проверьте настройки браузера или отключите расширения, блокирующие геолокацию'))
+          return
+        }
+
         switch (error.code) {
-          case error.PERMISSION_DENIED:
-            reject(new Error('Доступ к геолокации запрещен'))
+          case 1: // PERMISSION_DENIED
+            reject(new Error('Доступ к геолокации заблокирован.\n\nОбнаружено расширение Location Guard или подобное.\nРешения:\n• Откройте сайт в режиме инкогнито (Ctrl+Shift+N)\n• ИЛИ отключите расширение блокировки геолокации\n• ИЛИ добавьте сайт в исключения расширения'))
             break
-          case error.POSITION_UNAVAILABLE:
+          case 2: // POSITION_UNAVAILABLE
             reject(new Error('Информация о местоположении недоступна'))
             break
-          case error.TIMEOUT:
-            reject(new Error('Время ожидания геолокации истекло'))
+          case 3: // TIMEOUT
+            reject(new Error('Время ожидания геолокации истекло. Попробуйте ещё раз'))
             break
           default:
-            reject(new Error('Произошла неизвестная ошибка геолокации'))
+            reject(new Error(`Ошибка геолокации (код ${error.code}). ${error.message || 'Проверьте настройки браузера'}`))
             break
         }
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000 // 5 минут
+        enableHighAccuracy: false, // Используем менее точную, но более быструю геолокацию
+        timeout: 5000, // Уменьшаем timeout до 5 секунд
+        maximumAge: 60000 // Кэш на 1 минуту
       }
     )
   })

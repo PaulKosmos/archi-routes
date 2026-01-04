@@ -180,19 +180,19 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
   }
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4 mt-4">
-      <audio 
-        ref={audioRef} 
-        src={fullAudioUrl} 
+    <div className="bg-muted rounded-[var(--radius)] p-4 mt-4">
+      <audio
+        ref={audioRef}
+        src={fullAudioUrl}
         preload="metadata"
         crossOrigin="anonymous"
         style={{ display: 'none' }}
       />
-      
+
       {/* Заголовок с информацией о длительности */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-gray-700">Аудио комментарий</span>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm font-medium text-foreground">Аудио комментарий</span>
+        <span className="text-sm text-muted-foreground font-metrics">
           {isLoading ? 'Загрузка...' : formatTime(totalDuration)}
         </span>
       </div>
@@ -202,7 +202,7 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
         <button
           onClick={togglePlayPause}
           disabled={isLoading || hasError}
-          className="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-shrink-0 w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -217,7 +217,7 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
         <div className="flex-1">
           {/* Время и прогресс-бар */}
           <div className="flex items-center space-x-2 mb-1">
-            <span className="text-sm text-gray-500 min-w-[3rem] font-mono">
+            <span className="text-sm text-muted-foreground min-w-[3rem] font-metrics">
               {formatTime(currentTime)}
             </span>
             <div className="flex-1 relative">
@@ -228,22 +228,22 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
                 value={progressPercentage}
                 onChange={handleSeek}
                 disabled={isLoading || totalDuration === 0}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed slider"
+                className="w-full h-2 bg-muted-foreground/20 rounded-[var(--radius)] appearance-none cursor-pointer disabled:cursor-not-allowed slider"
                 style={{
-                  background: totalDuration > 0 ? 
-                    `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${progressPercentage}%, #E5E7EB ${progressPercentage}%, #E5E7EB 100%)` :
-                    '#E5E7EB'
+                  background: totalDuration > 0 ?
+                    `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${progressPercentage}%, hsl(var(--muted-foreground) / 0.2) ${progressPercentage}%, hsl(var(--muted-foreground) / 0.2) 100%)` :
+                    'hsl(var(--muted-foreground) / 0.2)'
                 }}
               />
             </div>
-            <span className="text-sm text-gray-500 min-w-[3rem] font-mono">
+            <span className="text-sm text-muted-foreground min-w-[3rem] font-metrics">
               {formatTime(totalDuration)}
             </span>
           </div>
-          
+
           {/* Процент прогресса (для отладки) */}
           {totalDuration > 0 && (
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-muted-foreground/60 font-metrics">
               Прогресс: {progressPercentage.toFixed(1)}%
             </div>
           )}
@@ -253,7 +253,7 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
         <div className="flex items-center space-x-2">
           <button
             onClick={toggleMute}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             {isMuted || volume === 0 ? (
               <VolumeX className="h-5 w-5" />
@@ -267,7 +267,7 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
             max="100"
             value={isMuted ? 0 : volume * 100}
             onChange={handleVolumeChange}
-            className="w-20 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            className="w-20 h-2 bg-muted-foreground/20 rounded-[var(--radius)] appearance-none cursor-pointer"
           />
         </div>
       </div>
@@ -320,7 +320,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
 
   return (
     <div className={`transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-card border border-border rounded-[var(--radius)] p-6">
         
         {/* Заголовок обзора */}
         <div className="flex items-start justify-between mb-4">
@@ -337,7 +337,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
             </div>
             
             {review.title && (
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold font-display text-foreground mb-2">
                 {review.title}
               </h3>
             )}
@@ -355,7 +355,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
                 />
               ))}
             </div>
-            <span className="ml-1 text-sm font-medium text-gray-700">
+            <span className="ml-1 text-sm font-medium font-metrics text-foreground">
               {review.rating}/5
             </span>
           </div>
@@ -371,15 +371,15 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
                 className="w-8 h-8 rounded-full mr-3"
               />
             ) : (
-              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                <User className="h-4 w-4 text-gray-500" />
+              <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center mr-3">
+                <User className="h-4 w-4 text-muted-foreground" />
               </div>
             )}
             <div>
               <p className="font-medium text-sm">
                 {review.profiles?.full_name || review.profiles?.username || 'Анонимный пользователь'}
               </p>
-              <div className="flex items-center text-xs text-gray-500">
+              <div className="flex items-center text-xs text-muted-foreground font-metrics">
                 <Calendar className="h-3 w-3 mr-1" />
                 {new Date(review.created_at).toLocaleDateString('ru-RU')}
                 {review.profiles?.role === 'expert' && (
@@ -404,7 +404,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
         {/* Текст обзора */}
         {review.content && (
           <div className="mt-4">
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+            <p className="text-foreground leading-relaxed whitespace-pre-wrap">
               {review.content}
             </p>
           </div>
@@ -427,7 +427,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
             {review.tags.map((tag, index) => (
               <span
                 key={index}
-                className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs"
+                className="bg-muted text-foreground px-2 py-1 rounded-full text-xs"
               >
                 #{tag}
               </span>
@@ -437,24 +437,24 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
 
         {/* Практическая информация */}
         {(review.opening_hours || review.entry_fee) && (
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <h4 className="text-sm font-semibold text-blue-900 mb-2">Практическая информация</h4>
+          <div className="mt-4 p-4 bg-primary/5 rounded-[var(--radius)] border border-primary/10">
+            <h4 className="text-sm font-semibold font-display text-foreground mb-2">Практическая информация</h4>
             <div className="space-y-2 text-sm">
               {review.opening_hours && (
                 <div className="flex items-start">
-                  <span className="text-blue-700 font-medium mr-2">🕐</span>
+                  <span className="text-foreground font-medium mr-2">🕐</span>
                   <div>
-                    <span className="text-blue-800 font-medium">Часы работы:</span>
-                    <span className="text-blue-700 ml-2">{review.opening_hours}</span>
+                    <span className="text-foreground font-medium">Часы работы:</span>
+                    <span className="text-muted-foreground ml-2">{review.opening_hours}</span>
                   </div>
                 </div>
               )}
               {review.entry_fee && (
                 <div className="flex items-start">
-                  <span className="text-blue-700 font-medium mr-2">💰</span>
+                  <span className="text-foreground font-medium mr-2">💰</span>
                   <div>
-                    <span className="text-blue-800 font-medium">Стоимость:</span>
-                    <span className="text-blue-700 ml-2">{review.entry_fee}</span>
+                    <span className="text-foreground font-medium">Стоимость:</span>
+                    <span className="text-muted-foreground ml-2">{review.entry_fee}</span>
                   </div>
                 </div>
               )}
@@ -463,15 +463,15 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
         )}
 
         {/* Полезность */}
-        <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="mt-4 pt-4 border-t border-border">
           <div className="flex items-center justify-between">
-            <button className="flex items-center text-gray-500 hover:text-gray-700 text-sm">
+            <button className="flex items-center text-muted-foreground hover:text-foreground text-sm">
               <MessageSquare className="h-4 w-4 mr-1" />
               Полезно ({review.helpful_count})
             </button>
-            
+
             {review.visit_date && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-muted-foreground font-metrics">
                 Посещение: {new Date(review.visit_date).toLocaleDateString('ru-RU')}
               </span>
             )}
@@ -493,18 +493,18 @@ export default function BuildingReviews({
   
   if (reviews.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-        <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+      <div className="bg-card border border-border rounded-[var(--radius)] p-8 text-center">
+        <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-medium font-display text-foreground mb-2">
           Пока нет обзоров
         </h3>
-        <p className="text-gray-600 mb-4">
+        <p className="text-muted-foreground mb-4">
           Станьте первым, кто поделится впечатлениями об этом здании
         </p>
         {onOpenAddReview ? (
           <button
             onClick={onOpenAddReview}
-            className="inline-flex items-center bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+            className="inline-flex items-center bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
           >
             <Star className="h-4 w-4 mr-2" />
             Добавить обзор
@@ -512,7 +512,7 @@ export default function BuildingReviews({
         ) : (
           <Link
             href={`/buildings/${buildingId}/review/new`}
-            className="inline-flex items-center bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+            className="inline-flex items-center bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
           >
             <Star className="h-4 w-4 mr-2" />
             Добавить обзор
@@ -527,13 +527,13 @@ export default function BuildingReviews({
       
       {/* Заголовок и переключатели */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-xl font-semibold font-display text-foreground">
           Обзоры ({reviews.length})
         </h2>
-        
+
         {reviews.length > 1 && (
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-muted-foreground font-metrics">
               {activeIndex + 1} из {reviews.length}
             </span>
             <div className="flex space-x-1">
@@ -542,7 +542,7 @@ export default function BuildingReviews({
                   key={index}
                   onClick={() => onActiveIndexChange(index)}
                   className={`w-2 h-2 rounded-full transition-colors ${
-                    index === activeIndex ? 'bg-blue-600' : 'bg-gray-300'
+                    index === activeIndex ? 'bg-primary' : 'bg-muted-foreground/30'
                   }`}
                 />
               ))}
@@ -563,7 +563,7 @@ export default function BuildingReviews({
                   const firstIndexOfType = reviews.findIndex(r => r.review_type === type)
                   onActiveIndexChange(firstIndexOfType)
                 }}
-                className="px-3 py-1 rounded-full text-sm border border-gray-300 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                className="px-3 py-1 rounded-full text-sm border border-border hover:border-primary hover:text-primary transition-colors"
               >
                 {type === 'expert' && 'Экспертные'}
                 {type === 'historical' && 'Исторические'}
@@ -588,14 +588,14 @@ export default function BuildingReviews({
           <button
             onClick={() => onActiveIndexChange(Math.max(0, activeIndex - 1))}
             disabled={activeIndex === 0}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Предыдущий
           </button>
           <button
             onClick={() => onActiveIndexChange(Math.min(reviews.length - 1, activeIndex + 1))}
             disabled={activeIndex === reviews.length - 1}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Следующий
           </button>
@@ -603,11 +603,11 @@ export default function BuildingReviews({
       )}
 
       {/* Кнопка добавить обзор */}
-      <div className="text-center pt-6 border-t border-gray-100">
+      <div className="text-center pt-6 border-t border-border">
         {onOpenAddReview ? (
           <button
             onClick={onOpenAddReview}
-            className="inline-flex items-center bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-md hover:shadow-lg"
+            className="inline-flex items-center bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
           >
             <Star className="h-5 w-5 mr-2" />
             Добавить обзор
@@ -615,7 +615,7 @@ export default function BuildingReviews({
         ) : (
           <Link
             href={`/buildings/${buildingId}/review/new`}
-            className="inline-flex items-center bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-md hover:shadow-lg"
+            className="inline-flex items-center bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
           >
             <Star className="h-5 w-5 mr-2" />
             Добавить обзор

@@ -9,7 +9,6 @@ import { Heart, Share2, Camera, MapPin, Calendar, User, Award, ChevronLeft, Chev
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { getStorageUrl } from '@/lib/storage'
-import AddToCollectionButton from '@/components/collections/AddToCollectionButton'
 
 interface BuildingHeaderProps {
   building: Building
@@ -117,13 +116,13 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
   }
 
   return (
-    <div className="bg-white">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="bg-card">
+      <div className="container mx-auto px-6 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          
+
           {/* Изображение - теперь в колонке, не на весь экран */}
           <div className="lg:w-1/2">
-            <div className="relative h-80 lg:h-96 overflow-hidden rounded-lg">
+            <div className="relative h-80 lg:h-96 overflow-hidden rounded-[var(--radius)]">
               {images.length > 0 ? (
                 <>
                   <img
@@ -172,10 +171,10 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                   )}
                 </>
               ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-lg">
+                <div className="w-full h-full bg-muted flex items-center justify-center rounded-[var(--radius)]">
                   <div className="text-center">
-                    <Camera className="h-16 w-16 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500 text-sm">Фото недоступно</p>
+                    <Camera className="h-16 w-16 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-muted-foreground text-sm">Фото недоступно</p>
                   </div>
                 </div>
               )}
@@ -185,28 +184,28 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                 {canEdit && (
                   <Link
                     href={`/buildings/${building.id}/edit`}
-                    className="p-3 bg-white/90 text-gray-700 rounded-full backdrop-blur-sm hover:bg-white transition-colors"
+                    className="p-3 bg-card/90 text-foreground rounded-full backdrop-blur-sm hover:bg-card transition-colors"
                     title="Редактировать здание"
                   >
                     <Edit className="h-5 w-5" />
                   </Link>
                 )}
-                
+
                 <button
                   onClick={handleFavoriteToggle}
                   disabled={favoriteLoading}
                   className={`p-3 rounded-full backdrop-blur-sm transition-colors ${
-                    userFavorite 
-                      ? 'bg-red-500 text-white' 
-                      : 'bg-white/90 text-gray-700 hover:bg-white'
+                    userFavorite
+                      ? 'bg-destructive text-destructive-foreground'
+                      : 'bg-card/90 text-foreground hover:bg-card'
                   } ${favoriteLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <Heart className={`h-5 w-5 ${userFavorite ? 'fill-current' : ''}`} />
                 </button>
-                
+
                 <button
                   onClick={handleShare}
-                  className="p-3 bg-white/90 text-gray-700 rounded-full backdrop-blur-sm hover:bg-white transition-colors"
+                  className="p-3 bg-card/90 text-foreground rounded-full backdrop-blur-sm hover:bg-card transition-colors"
                 >
                   <Share2 className="h-5 w-5" />
                 </button>
@@ -229,16 +228,16 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
             
             {/* Основная информация */}
             <div className="flex-1">
-              <div className="flex items-center text-sm text-gray-500 mb-2">
+              <div className="flex items-center text-sm text-muted-foreground mb-2">
                 <MapPin className="h-4 w-4 mr-1" />
                 <span>{building.city}, {building.country}</span>
               </div>
-              
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+
+              <h1 className="text-3xl lg:text-4xl font-bold font-display text-foreground mb-4">
                 {building.name}
               </h1>
-              
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
+
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
                 {building.architect && (
                   <div className="flex items-center">
                     <User className="h-4 w-4 mr-1" />
@@ -254,18 +253,11 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                 )}
                 
                 {building.architectural_style && (
-                  <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                  <div className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium">
                     {building.architectural_style}
                   </div>
                 )}
               </div>
-
-              {/* Описание */}
-              {building.description && (
-                <div className="mb-6">
-                  <p className="text-gray-700 leading-relaxed">{building.description}</p>
-                </div>
-              )}
             </div>
 
             {/* Рейтинг и действия */}
@@ -287,26 +279,20 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                       </svg>
                     ))}
                   </div>
-                  <span className="ml-2 text-lg font-semibold text-gray-900">
+                  <span className="ml-2 text-lg font-semibold font-metrics text-foreground">
                     {(building.rating || 0).toFixed(1)}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground font-metrics">
                   {building.review_count || 0} {building.review_count === 1 ? 'отзыв' : 'отзывов'}
                 </p>
               </div>
 
-              {/* Кнопки действий */}
-              <div className="flex items-center gap-3">
-                <AddToCollectionButton
-                  buildingId={building.id}
-                  buildingName={building.name}
-                  size="md"
-                />
-                
+              {/* Кнопка написать обзор */}
+              <div>
                 <Link
                   href={`/buildings/${building.id}/review/new`}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  className="inline-block bg-primary text-primary-foreground px-6 py-2 rounded-[var(--radius)] font-medium hover:bg-primary/90 transition-colors"
                 >
                   Написать обзор
                 </Link>
