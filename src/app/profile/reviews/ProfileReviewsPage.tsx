@@ -43,6 +43,8 @@ interface ReviewWithBuilding {
   is_featured: boolean
   language: string
   source_type: 'user' | 'import' | 'ai'
+  moderation_status: 'pending' | 'approved' | 'rejected'
+  rejection_reason: string | null
   buildings: {
     id: string
     name: string
@@ -159,6 +161,24 @@ export default function ProfileReviewsPage() {
       'amateur': 'bg-green-100 text-green-800'
     }
     return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800'
+  }
+
+  const getModerationStatusLabel = (status: string) => {
+    const labels = {
+      'pending': 'На рассмотрении',
+      'approved': 'Опубликовано',
+      'rejected': 'Не прошло модерацию'
+    }
+    return labels[status as keyof typeof labels] || status
+  }
+
+  const getModerationStatusColor = (status: string) => {
+    const colors = {
+      'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'approved': 'bg-green-100 text-green-800 border-green-200',
+      'rejected': 'bg-red-100 text-red-800 border-red-200'
+    }
+    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200'
   }
 
   const renderStars = (rating: number) => {
@@ -378,14 +398,20 @@ export default function ProfileReviewsPage() {
                     )}
                   </div>
                   <div className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1">
-                        {renderStars(review.rating)}
-                      </div>
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      {renderStars(review.rating)}
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getReviewTypeColor(review.review_type)}`}>
                         {getReviewTypeDisplayName(review.review_type)}
                       </span>
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium border ${getModerationStatusColor(review.moderation_status)}`}>
+                        {getModerationStatusLabel(review.moderation_status)}
+                      </span>
                     </div>
+                    {review.moderation_status === 'rejected' && review.rejection_reason && (
+                      <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
+                        <span className="font-medium">Причина:</span> {review.rejection_reason}
+                      </div>
+                    )}
                     <h3 className="font-semibold mb-2 line-clamp-1">
                       {review.title || 'Обзор без названия'}
                     </h3>
@@ -413,6 +439,15 @@ export default function ProfileReviewsPage() {
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </Link>
+                        {(review.moderation_status === 'pending' || review.moderation_status === 'rejected') && (
+                          <Link
+                            href={`/buildings/${review.buildings.id}/review/${review.id}/edit`}
+                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-[var(--radius)] transition-colors"
+                            title="Редактировать"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </Link>
+                        )}
                         <button
                           onClick={() => handleDeleteReview(review.id)}
                           className="p-1.5 text-destructive hover:bg-destructive/10 rounded-[var(--radius)] transition-colors"
@@ -449,14 +484,23 @@ export default function ProfileReviewsPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
                               <h3 className="text-base font-semibold line-clamp-1">
                                 {review.title || 'Обзор без названия'}
                               </h3>
                               <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${getReviewTypeColor(review.review_type)}`}>
                                 {getReviewTypeDisplayName(review.review_type)}
                               </span>
+                              <span className={`px-2 py-0.5 rounded text-xs font-medium border flex-shrink-0 ${getModerationStatusColor(review.moderation_status)}`}>
+                                {getModerationStatusLabel(review.moderation_status)}
+                              </span>
                             </div>
+
+                            {review.moderation_status === 'rejected' && review.rejection_reason && (
+                              <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
+                                <span className="font-medium">Причина отклонения:</span> {review.rejection_reason}
+                              </div>
+                            )}
 
                             <p className="text-xs text-muted-foreground mb-2">
                               Обзор на <Link
@@ -512,6 +556,15 @@ export default function ProfileReviewsPage() {
                               >
                                 <Eye className="w-4 h-4" />
                               </Link>
+                              {(review.moderation_status === 'pending' || review.moderation_status === 'rejected') && (
+                                <Link
+                                  href={`/buildings/${review.buildings.id}/review/${review.id}/edit`}
+                                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-[var(--radius)] transition-colors"
+                                  title="Редактировать"
+                                >
+                                  <Edit3 className="w-4 h-4" />
+                                </Link>
+                              )}
                               <button
                                 onClick={() => handleDeleteReview(review.id)}
                                 className="p-2 text-destructive hover:bg-destructive/10 rounded-[var(--radius)] transition-colors"

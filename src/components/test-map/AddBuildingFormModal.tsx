@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, MapPin, Building as BuildingIcon, User, Calendar, Palette, Loader2, Globe, Camera } from 'lucide-react'
+import { X, MapPin, Building as BuildingIcon, User, Calendar, Palette, Loader2, Globe, Camera, AlertTriangle } from 'lucide-react'
 import { reverseGeocode, type GeocodingResult } from '@/utils/geocoding'
+import { useDuplicateCheck } from '@/hooks/useDuplicateCheck'
+import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
 interface AddBuildingFormModalProps {
@@ -68,12 +70,13 @@ const BUILDING_TYPES = [
   'Другое'
 ]
 
-export default function AddBuildingFormModal({ 
-  isOpen, 
-  location, 
-  onClose, 
-  onSave 
+export default function AddBuildingFormModal({
+  isOpen,
+  location,
+  onClose,
+  onSave
 }: AddBuildingFormModalProps) {
+  const router = useRouter()
   const [formData, setFormData] = useState<BuildingFormData>({
     name: '',
     latitude: 0,
@@ -91,6 +94,23 @@ export default function AddBuildingFormModal({
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isExpanded, setIsExpanded] = useState(false) // Состояние расширения формы
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false)
+  const [userConfirmedDuplicate, setUserConfirmedDuplicate] = useState(false)
+
+  // Проверка дубликатов
+  const {
+    hasDuplicates,
+    hasHighConfidenceDuplicates,
+    quickResults,
+    fullCheckResult,
+    checking
+  } = useDuplicateCheck({
+    name: formData.name,
+    city: formData.city,
+    latitude: formData.latitude,
+    longitude: formData.longitude,
+    debounceMs: 800
+  })
   
   // Данные обзора
   const [reviewData, setReviewData] = useState({
@@ -154,8 +174,23 @@ export default function AddBuildingFormModal({
     }
   }
 
+  // Показываем предупреждение о дубликатах
+  useEffect(() => {
+    if (hasDuplicates && !userConfirmedDuplicate) {
+      setShowDuplicateWarning(true)
+    } else {
+      setShowDuplicateWarning(false)
+    }
+  }, [hasDuplicates, userConfirmedDuplicate])
+
   const handleInputChange = (field: keyof BuildingFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+
+    // Сбрасываем подтверждение дубликата при изменении названия
+    if (field === 'name') {
+      setUserConfirmedDuplicate(false)
+    }
+
     // Очищаем ошибку при вводе
     if (errors[field]) {
       setErrors(prev => {
@@ -425,19 +460,119 @@ export default function AddBuildingFormModal({
                 <BuildingIcon className="w-4 h-4 mr-2 text-green-600" />
                 Название здания *
               </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                  errors.name ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Например: Рейхстаг"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                    errors.name ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Например: Рейхстаг"
+                />
+                {checking && (
+                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
+                )}
+              </div>
               {errors.name && (
                 <p className="text-red-500 text-xs mt-1">{errors.name}</p>
               )}
             </div>
+
+            {/* Предупреждение о дубликатах */}
+            {showDuplicateWarning && (quickResults.length > 0 || fullCheckResult?.duplicates.length) && (
+              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg animate-slideDown">
+                <div className="flex items-start">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-yellow-900 mb-2">
+                      {hasHighConfidenceDuplicates
+                        ? '⚠️ Возможно, это здание уже добавлено!'
+                        : '📋 Найдены похожие здания'}
+                    </h3>
+                    <p className="text-sm text-yellow-800 mb-3">
+                      {hasHighConfidenceDuplicates
+                        ? 'Мы обнаружили здания с очень похожими характеристиками. Пожалуйста, проверьте перед добавлением.'
+                        : 'Найдены здания с похожими названиями в этом городе.'}
+                    </p>
+
+                    {/* Список дубликатов */}
+                    <div className="space-y-2 mb-3">
+                      {(fullCheckResult?.duplicates || quickResults).slice(0, 3).map((duplicate, idx) => (
+                        <div key={idx} className="bg-white p-3 rounded border border-yellow-200">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-900">{duplicate.name}</p>
+                              <p className="text-xs text-gray-600 mt-1">{duplicate.address || 'Адрес не указан'}</p>
+                              {duplicate.distance_meters && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  📍 {Math.round(duplicate.distance_meters)}м от выбранной точки
+                                </p>
+                              )}
+                              {duplicate.confidence && (
+                                <span className={`inline-block px-2 py-0.5 rounded text-xs mt-1 ${
+                                  duplicate.confidence === 'high'
+                                    ? 'bg-red-100 text-red-800'
+                                    : duplicate.confidence === 'medium'
+                                    ? 'bg-orange-100 text-orange-800'
+                                    : 'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  Совпадение: {
+                                    duplicate.confidence === 'high' ? 'Высокое' :
+                                    duplicate.confidence === 'medium' ? 'Среднее' : 'Низкое'
+                                  }
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                router.push(`/buildings/${duplicate.id}`)
+                                onClose()
+                              }}
+                              className="ml-3 text-blue-600 hover:text-blue-800 text-sm font-medium whitespace-nowrap"
+                            >
+                              Открыть →
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Подтверждение */}
+                    {!userConfirmedDuplicate ? (
+                      <div className="flex items-center justify-between pt-2 border-t border-yellow-300">
+                        <p className="text-sm text-yellow-800">
+                          {hasHighConfidenceDuplicates
+                            ? 'Убедитесь, что это другое здание'
+                            : 'Проверьте список выше'}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setUserConfirmedDuplicate(true)}
+                          className="px-3 py-1.5 bg-yellow-600 text-white text-sm font-medium rounded hover:bg-yellow-700 transition-colors"
+                        >
+                          Это другое здание, продолжить
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between pt-2 border-t border-yellow-300">
+                        <p className="text-sm text-green-700 font-medium">
+                          ✓ Подтверждено: это новое здание
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setUserConfirmedDuplicate(false)}
+                          className="text-sm text-yellow-700 hover:text-yellow-900 underline"
+                        >
+                          Отменить
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Город и Страна */}
             <div className="grid grid-cols-2 gap-4">

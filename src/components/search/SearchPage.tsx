@@ -137,6 +137,7 @@ export function SearchPage({
                 onHistorySelect={handleHistorySelect}
                 size="lg"
                 autoFocus
+                showFiltersButton={false}
                 className="w-full"
               />
             </div>

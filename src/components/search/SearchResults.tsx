@@ -50,14 +50,14 @@ export function SearchResults({
     return (
       <Link href={`/buildings/${building.id}`} className="group block">
         <div className={`
-          bg-card border border-border overflow-hidden h-full flex flex-col
+          bg-card border border-border overflow-hidden flex
           hover:shadow-lg hover:-translate-y-1 transition-all duration-300
-          ${viewMode === 'list' ? 'flex-row' : ''}
+          ${viewMode === 'list' ? 'flex-row h-[200px]' : 'flex-col h-full'}
         `}>
           {/* Изображение */}
           <div className={`
             relative bg-muted
-            ${viewMode === 'grid' ? 'h-48' : 'w-48 h-32 flex-shrink-0'}
+            ${viewMode === 'grid' ? 'h-48' : 'w-48 h-full flex-shrink-0'}
           `}>
             {hasImages ? (
               <OptimizedImage
@@ -91,7 +91,7 @@ export function SearchResults({
           </div>
 
           {/* Информация */}
-          <div className={`p-4 ${viewMode === 'list' ? 'flex-1' : ''}`}>
+          <div className={`p-4 ${viewMode === 'list' ? 'flex-1 flex flex-col justify-between' : ''}`}>
             <div className="space-y-2">
               {/* Название */}
               <h3
@@ -125,30 +125,30 @@ export function SearchResults({
                   <span className="truncate">{building.address}</span>
                 </div>
               )}
+            </div>
 
-              {/* Статистика */}
-              <div className="flex items-center justify-between pt-2 border-t border-border">
-                <div className="flex items-center gap-4 text-xs text-muted-foreground font-metrics">
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" />
-                    <span>{building.view_count || 0}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3" />
-                    <span>{building.review_count || 0}</span>
-                  </div>
+            {/* Статистика */}
+            <div className="flex items-center justify-between pt-2 border-t border-border mt-2">
+              <div className="flex items-center gap-4 text-xs text-muted-foreground font-metrics">
+                <div className="flex items-center gap-1">
+                  <Eye className="w-3 h-3" />
+                  <span>{building.view_count || 0}</span>
                 </div>
-
-
-                {hasImages && (
-                  <div className="text-xs text-muted-foreground/60">
-                    {Array.isArray(building.image_urls)
-                      ? `${building.image_urls.length} фото`
-                      : '1 фото'
-                    }
-                  </div>
-                )}
+                <div className="flex items-center gap-1">
+                  <MessageSquare className="w-3 h-3" />
+                  <span>{building.review_count || 0}</span>
+                </div>
               </div>
+
+
+              {hasImages && (
+                <div className="text-xs text-muted-foreground/60">
+                  {Array.isArray(building.image_urls)
+                    ? `${building.image_urls.length} фото`
+                    : '1 фото'
+                  }
+                </div>
+              )}
             </div>
           </div>
         </div>

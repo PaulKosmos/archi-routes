@@ -93,6 +93,7 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
             )
           `)
           .eq('building_id', building.id)
+          .eq('moderation_status', 'approved')
           .order('created_at', { ascending: false })
         
         if (reviewsError) {

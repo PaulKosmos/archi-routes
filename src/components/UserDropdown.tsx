@@ -251,7 +251,7 @@ export default function UserDropdown() {
               </div>
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-primary" />
-                <span className="text-muted-foreground">Отзывы:</span>
+                <span className="text-muted-foreground">Обзоры:</span>
                 <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.reviews_count}
                 </span>
@@ -325,7 +325,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <MessageSquare className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="flex-1">Мои отзывы</span>
+              <span className="flex-1">Мои обзоры</span>
               {stats.reviews_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
                   {stats.reviews_count}

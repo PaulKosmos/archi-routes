@@ -303,6 +303,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
             )
           `)
           .eq('building_id', building.id)
+          .eq('moderation_status', 'approved')
           .order('created_at', { ascending: false })
 
         setReviews(data || [])

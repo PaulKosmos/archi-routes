@@ -369,7 +369,7 @@ export default function ProfileFavoritesPage() {
 
     try {
       const { data, error } = await supabase
-        .from('building_favorites')
+        .from('user_building_favorites')
         .select(`
           id,
           created_at,

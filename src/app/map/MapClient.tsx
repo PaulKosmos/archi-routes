@@ -143,17 +143,17 @@ export default function TestMapPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalRoute, setModalRoute] = useState<any | null>(null)
   const [isRouteModalOpen, setIsRouteModalOpen] = useState(false)
-  
+
   // Состояние модального окна выбора способа создания маршрута
   const [isRouteMethodModalOpen, setIsRouteMethodModalOpen] = useState(false)
-  
+
   // Состояние модального окна создания маршрута
   const [isRouteCreationModalOpen, setIsRouteCreationModalOpen] = useState(false)
-  
+
   // Состояние RouteCreator (как в Header)
   const [isRouteCreatorOpen, setIsRouteCreatorOpen] = useState(false)
   const [routeCreatorMode, setRouteCreatorMode] = useState<'manual' | 'autogenerate'>('manual')
-  
+
   // Состояние режима добавления объекта
   const [addBuildingMode, setAddBuildingMode] = useState(false)
   const [showInstructionModal, setShowInstructionModal] = useState(false)
@@ -182,7 +182,7 @@ export default function TestMapPage() {
   const loadData = async () => {
     try {
       setLoading(true)
-      
+
       // Загружаем здания
       const { data: buildingsData, error: buildingsError } = await supabase
         .from('buildings')
@@ -191,18 +191,51 @@ export default function TestMapPage() {
 
       if (buildingsError) throw buildingsError
 
-      // Загружаем маршруты с геометрией
+      // Загружаем маршруты
       const { data: routesData, error: routesError } = await supabase
         .from('routes')
-        .select(`
-          *
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (routesError) throw routesError
 
-      setBuildings(buildingsData || [])
-      setRoutes(routesData || [])
+      // Загружаем ID зданий с аудио (для фильтра)
+      const { data: buildingsWithAudio, error: audioError1 } = await supabase
+        .from('building_reviews')
+        .select('building_id')
+        .not('audio_url', 'eq', null)
+
+      if (audioError1) console.error('Error loading buildings with audio:', audioError1)
+
+      // Загружаем ID маршрутов с аудио (для фильтра)
+      const { data: routesWithAudio, error: audioError2 } = await supabase
+        .from('route_points')
+        .select('route_id')
+        .not('audio_url', 'eq', null)
+
+      if (audioError2) console.error('Error loading routes with audio:', audioError2)
+
+      // Создаем Set для быстрой проверки
+      const buildingIdsWithAudio = new Set(
+        buildingsWithAudio?.map(r => r.building_id) || []
+      )
+      const routeIdsWithAudio = new Set(
+        routesWithAudio?.map(p => p.route_id) || []
+      )
+
+      // Добавляем флаг has_audio к зданиям и маршрутам
+      const buildingsWithFlags = buildingsData?.map(b => ({
+        ...b,
+        has_audio: buildingIdsWithAudio.has(b.id)
+      })) || []
+
+      const routesWithFlags = routesData?.map(r => ({
+        ...r,
+        has_audio: routeIdsWithAudio.has(r.id)
+      })) || []
+
+      setBuildings(buildingsWithFlags)
+      setRoutes(routesWithFlags)
 
       // Данные уже обрабатываются через useMemo для uniqueValues
 
@@ -272,9 +305,9 @@ export default function TestMapPage() {
 
     // Фильтр по аудио
     if (filters.hasAudio) {
-      filteredR = filteredR.filter(r => 
-        r.route_geometry && r.route_geometry.coordinates && r.route_geometry.coordinates.length > 0
-      )
+      filteredB = filteredB.filter(b => (b as any).has_audio === true)
+      filteredR = filteredR.filter(r => (r as any).has_audio === true)
+      console.log('🎵 Фильтр "С Аудио": найдено', filteredB.length, 'зданий и', filteredR.length, 'маршрутов с аудио')
     }
 
     // Фильтр по сложности

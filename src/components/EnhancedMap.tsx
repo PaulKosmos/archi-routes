@@ -223,7 +223,6 @@ export default function EnhancedMap({
 
     console.log('🗺️ Инициализация улучшенной карты...')
 
-    // Создаем карту
     mapInstance.current = L.map(mapRef.current, {
       center: [52.5200, 13.4050], // Берлин по умолчанию
       zoom: 13,
@@ -489,7 +488,7 @@ export default function EnhancedMap({
     // Автоматическое определение границ карты только при первой загрузке
     if (buildings.length > 0 && isFirstBuildingsLoad.current) {
       const group = L.featureGroup(Object.values(buildingMarkersRef.current))
-      if (mapInstance.current) {
+      if (mapInstance.current && group.getBounds().isValid()) {
         mapInstance.current.fitBounds(group.getBounds().pad(0.1))
         isFirstBuildingsLoad.current = false // Больше не вызываем fitBounds
       }

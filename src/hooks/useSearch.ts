@@ -222,17 +222,38 @@ export function useSearch(options: UseSearchOptions = {}) {
       if (searchQuery.trim()) {
         const escapedQuery = searchQuery.trim().replace(/'/g, "''")
 
-        // Используем RPC для получения нормализованного названия города
-        const { data: normalizedCity } = await supabase.rpc('normalize_city_name', {
-          city_name: escapedQuery
-        })
+        // Если включен поиск в обзорах, сначала найдем ID зданий с подходящими обзорами
+        if (searchFilters.searchInReviews) {
+          const { data: reviewsData } = await supabase
+            .from('building_reviews')
+            .select('building_id')
+            .ilike('review_text', `%${escapedQuery}%`)
 
-        // Ищем по имени, архитектору, адресу и стилю с ILIKE, а для городов используем нормализацию
-        if (normalizedCity) {
-          baseQuery = baseQuery.or(`name.ilike.%${escapedQuery}%,architect.ilike.%${escapedQuery}%,address.ilike.%${escapedQuery}%,city_normalized.eq.${normalizedCity},city.ilike.%${escapedQuery}%,architectural_style.ilike.%${escapedQuery}%`)
+          if (reviewsData && reviewsData.length > 0) {
+            const buildingIds = [...new Set(reviewsData.map(r => r.building_id))]
+            baseQuery = baseQuery.in('id', buildingIds)
+          } else {
+            // Если нет обзоров с таким текстом, вернем пустой результат
+            setResults([])
+            setTotalCount(0)
+            setHasMore(false)
+            setLoading(false)
+            return
+          }
         } else {
-          // Fallback если нормализация не сработала
-          baseQuery = baseQuery.or(`name.ilike.%${escapedQuery}%,architect.ilike.%${escapedQuery}%,address.ilike.%${escapedQuery}%,city.ilike.%${escapedQuery}%,architectural_style.ilike.%${escapedQuery}%`)
+          // Обычный поиск по зданиям
+          // Используем RPC для получения нормализованного названия города
+          const { data: normalizedCity } = await supabase.rpc('normalize_city_name', {
+            city_name: escapedQuery
+          })
+
+          // Ищем по имени, архитектору, адресу и стилю с ILIKE, а для городов используем нормализацию
+          if (normalizedCity) {
+            baseQuery = baseQuery.or(`name.ilike.%${escapedQuery}%,architect.ilike.%${escapedQuery}%,address.ilike.%${escapedQuery}%,city_normalized.eq.${normalizedCity},city.ilike.%${escapedQuery}%,architectural_style.ilike.%${escapedQuery}%`)
+          } else {
+            // Fallback если нормализация не сработала
+            baseQuery = baseQuery.or(`name.ilike.%${escapedQuery}%,architect.ilike.%${escapedQuery}%,address.ilike.%${escapedQuery}%,city.ilike.%${escapedQuery}%,architectural_style.ilike.%${escapedQuery}%`)
+          }
         }
       }
 
@@ -264,6 +285,34 @@ export function useSearch(options: UseSearchOptions = {}) {
           baseQuery = baseQuery.not('image_url', 'is', null)
         } else {
           baseQuery = baseQuery.is('image_url', null)
+        }
+      }
+
+      // Фильтр по наличию аудио-гидов
+      if (searchFilters.hasAudio !== null && searchFilters.hasAudio) {
+        const { data: audioReviews } = await supabase
+          .from('building_reviews')
+          .select('building_id')
+          .not('audio_url', 'is', null)
+
+        if (audioReviews && audioReviews.length > 0) {
+          const buildingsWithAudio = [...new Set(audioReviews.map(r => r.building_id))]
+          baseQuery = baseQuery.in('id', buildingsWithAudio)
+        } else {
+          // Если нет зданий с аудио-гидами, вернем пустой результат
+          setResults([])
+          setTotalCount(0)
+          setHasMore(false)
+          setLoading(false)
+          return
+        }
+      }
+
+      // Фильтр по доступности
+      if (searchFilters.accessibility && searchFilters.accessibility.length > 0) {
+        // Проверяем, что все выбранные опции доступности присутствуют в здании
+        for (const accessOption of searchFilters.accessibility) {
+          baseQuery = baseQuery.contains('accessibility', [accessOption])
         }
       }
 
@@ -445,10 +494,14 @@ export function useSearch(options: UseSearchOptions = {}) {
     }
   }, [query, loadSuggestions])
 
-  // Загрузка метаданных при монтировании
+  // Загрузка метаданных при монтировании и выполнение начального поиска
   useEffect(() => {
     loadMetadata().then(() => {
       isInitializedRef.current = true
+      // Выполняем начальный поиск для загрузки всех зданий
+      if (autoSearch) {
+        executeSearch(query, filters, 1, false)
+      }
     })
   }, [loadMetadata])
 
