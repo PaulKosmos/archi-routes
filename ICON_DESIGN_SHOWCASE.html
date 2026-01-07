@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archi-Routes Map Icons - Art Deco Design System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      padding: 60px 40px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #60A5FA 0%, #A855F7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #94a3b8;
+      margin-bottom: 60px;
+      font-weight: 400;
+    }
+
+    .section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 40px;
+      backdrop-filter: blur(10px);
+    }
+
+    h2 {
+      font-size: 28px;
+      margin-bottom: 24px;
+      color: #f1f5f9;
+      font-weight: 600;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+      margin-top: 32px;
+    }
+
+    .icon-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .icon-card:hover {
+      transform: translateY(-4px);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon-wrapper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      padding: 20px;
+    }
+
+    .icon-label {
+      font-size: 14px;
+      color: #cbd5e1;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .icon-description {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    .architectural-marker {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      animation: markerAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      display: inline-block;
+    }
+
+    @keyframes markerAppear {
+      from {
+        opacity: 0;
+        transform: scale(0.5) rotate(-180deg);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+    }
+
+    .architectural-marker:hover {
+      transform: scale(1.2);
+      filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.5))
+              drop-shadow(0 0 20px currentColor);
+    }
+
+    .architectural-marker svg {
+      overflow: visible;
+    }
+
+    .architectural-marker .marker-glow {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 0.2;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .architectural-marker:hover .marker-accent {
+      animation: accentGlow 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes accentGlow {
+      from {
+        opacity: 0.6;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .feature {
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .feature-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #f1f5f9;
+    }
+
+    .feature-text {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      color: #a5f3fc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Archi-Routes Map Icons</h1>
+    <p class="subtitle">Art Deco Architectural Design System</p>
+
+    <div class="section">
+      <h2>Icon States</h2>
+      <p style="color: #94a3b8; margin-bottom: 32px;">
+        Geometric, monument-inspired markers in different interactive states
+      </p>
+
+      <div class="icon-grid">
+        <div class="icon-card">
+          <div class="icon-wrapper">
+            <div class="architectural-marker" style="width: 34px; height: 34px;">
+              <svg width="34" height="34" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="grad-normal" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#0F766E;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#14B8A6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#5EEAD4;stop-opacity:0.9" />
+                  </linearGradient>
+                  <filter id="glow-normal" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <circle cx="24" cy="24" r="22" fill="none" stroke="#5EEAD4" stroke-width="0.5" opacity="0.3" class="marker-glow"/>
+                <path d="M 24 4 L 38 13 L 38 31 L 24 40 L 10 31 L 10 13 Z" fill="url(#grad-normal)"/>
+                <path d="M 24 8 L 34 14 L 34 28 L 24 34 L 14 28 L 14 14 Z" fill="none" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <path d="M 24 12 L 30 16 L 30 26 L 24 30 L 18 26 L 18 16 Z" fill="none" stroke="white" stroke-width="1" opacity="0.6"/>
+                <text x="24" y="24" text-anchor="middle" dominant-baseline="central" fill="white" font-family="'SF Pro Display', sans-serif" font-size="14" font-weight="700" filter="url(#glow-normal)">◆</text>
+                <path d="M 24 4 L 26 8 L 22 8 Z" fill="white" opacity="0.8" class="marker-accent"/>
+              </svg>
+            </div>
+          </div>
+          <div class="icon-label">Normal State</div>
+          <div class="icon-description">Default building marker<br/>Teal color scheme<br/>Size: 22px</div>
+        </div>
+
+        <div class="icon-card">
+          <div class="icon-wrapper">
+            <div class="architectural-marker" style="width: 38px; height: 38px;">
+              <svg width="38" height="38" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="grad-hovered" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#C2410C;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#F97316;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#FDBA74;stop-opacity:0.9" />
+                  </linearGradient>
+                  <filter id="glow-hovered" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <circle cx="24" cy="24" r="22" fill="none" stroke="#FDBA74" stroke-width="0.5" opacity="0.3" class="marker-glow"/>
+                <path d="M 24 4 L 38 13 L 38 31 L 24 40 L 10 31 L 10 13 Z" fill="url(#grad-hovered)"/>
+                <path d="M 24 8 L 34 14 L 34 28 L 24 34 L 14 28 L 14 14 Z" fill="none" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <path d="M 24 12 L 30 16 L 30 26 L 24 30 L 18 26 L 18 16 Z" fill="none" stroke="white" stroke-width="1" opacity="0.6"/>
+                <text x="24" y="24" text-anchor="middle" dominant-baseline="central" fill="white" font-family="'SF Pro Display', sans-serif" font-size="14" font-weight="700" filter="url(#glow-hovered)">◆</text>
+                <path d="M 24 4 L 26 8 L 22 8 Z" fill="white" opacity="0.8" class="marker-accent"/>
+              </svg>
+            </div>
+          </div>
+          <div class="icon-label">Hovered State</div>
+          <div class="icon-description">Mouse over effect<br/>Orange color scheme<br/>Size: 26px</div>
+        </div>
+
+        <div class="icon-card">
+          <div class="icon-wrapper">
+            <div class="architectural-marker" style="width: 42px; height: 42px;">
+              <svg width="42" height="42" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="grad-selected" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#1E40AF;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#3B82F6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#93C5FD;stop-opacity:0.9" />
+                  </linearGradient>
+                  <filter id="glow-selected" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <circle cx="24" cy="24" r="22" fill="none" stroke="#93C5FD" stroke-width="0.5" opacity="0.3" class="marker-glow"/>
+                <path d="M 24 4 L 38 13 L 38 31 L 24 40 L 10 31 L 10 13 Z" fill="url(#grad-selected)"/>
+                <path d="M 24 8 L 34 14 L 34 28 L 24 34 L 14 28 L 14 14 Z" fill="none" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <path d="M 24 12 L 30 16 L 30 26 L 24 30 L 18 26 L 18 16 Z" fill="none" stroke="white" stroke-width="1" opacity="0.6"/>
+                <text x="24" y="24" text-anchor="middle" dominant-baseline="central" fill="white" font-family="'SF Pro Display', sans-serif" font-size="14" font-weight="700" filter="url(#glow-selected)">◆</text>
+                <path d="M 24 4 L 26 8 L 22 8 Z" fill="white" opacity="0.8" class="marker-accent"/>
+              </svg>
+            </div>
+          </div>
+          <div class="icon-label">Selected State</div>
+          <div class="icon-description">Active selection<br/>Blue color scheme<br/>Size: 30px</div>
+        </div>
+
+        <div class="icon-card">
+          <div class="icon-wrapper">
+            <div class="architectural-marker" style="width: 46px; height: 46px;">
+              <svg width="46" height="46" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="grad-route" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#6B21A8;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#A855F7;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#D8B4FE;stop-opacity:0.9" />
+                  </linearGradient>
+                  <filter id="glow-route" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <circle cx="24" cy="24" r="22" fill="none" stroke="#D8B4FE" stroke-width="0.5" opacity="0.3" class="marker-glow"/>
+                <path d="M 24 4 L 38 13 L 38 31 L 24 40 L 10 31 L 10 13 Z" fill="url(#grad-route)"/>
+                <path d="M 24 8 L 34 14 L 34 28 L 24 34 L 14 28 L 14 14 Z" fill="none" stroke="white" stroke-width="1.5" opacity="0.4"/>
+                <path d="M 24 12 L 30 16 L 30 26 L 24 30 L 18 26 L 18 16 Z" fill="none" stroke="white" stroke-width="1" opacity="0.6"/>
+                <text x="24" y="24" text-anchor="middle" dominant-baseline="central" fill="white" font-family="'SF Pro Display', sans-serif" font-size="18" font-weight="700" filter="url(#glow-route)">1</text>
+                <path d="M 24 4 L 26 8 L 22 8 Z" fill="white" opacity="0.8" class="marker-accent"/>
+              </svg>
+            </div>
+          </div>
+          <div class="icon-label">Route Point</div>
+          <div class="icon-description">In route sequence<br/>Purple color scheme<br/>Size: 34px</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Design Features</h2>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-title">🏛️ Art Deco Aesthetic</div>
+          <div class="feature-text">
+            Hexagonal monument design inspired by Art Deco architecture. Geometric precision with sophisticated gradients and layered details.
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">✨ SVG Filters & Effects</div>
+          <div class="feature-text">
+            Advanced SVG filters including <code>feGaussianBlur</code> for glows, inner shadows, and multi-layer gradients for depth.
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">🎭 Smooth Animations</div>
+          <div class="feature-text">
+            Appearing animation with rotation, pulsing glow, hover scale effects, and micro-interactions on the architectural spire.
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">🎨 Color Psychology</div>
+          <div class="feature-text">
+            Teal for default (professional), Orange for hover (interactive), Blue for selected (active), Purple for routes (special).
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">📐 Geometric Precision</div>
+          <div class="feature-text">
+            Three concentric hexagonal layers create visual depth. Diamond symbol (◆) maintains clarity at all zoom levels.
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-title">⚡ Performance</div>
+          <div class="feature-text">
+            CSS-only animations with <code>cubic-bezier</code> easing. Hardware-accelerated transforms. No external image dependencies.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Implementation Notes</h2>
+      <div style="color: #94a3b8; line-height: 1.8; font-size: 14px;">
+        <p style="margin-bottom: 16px;">
+          <strong style="color: #f1f5f9;">Replaced:</strong> Generic circular markers with emoji icons
+        </p>
+        <p style="margin-bottom: 16px;">
+          <strong style="color: #f1f5f9;">With:</strong> Hexagonal Art Deco monuments with geometric patterns
+        </p>
+        <p style="margin-bottom: 16px;">
+          <strong style="color: #f1f5f9;">Benefits:</strong>
+        </p>
+        <ul style="margin-left: 24px; margin-bottom: 16px;">
+          <li>More distinctive and memorable visual identity</li>
+          <li>Better suits architectural theme</li>
+          <li>Clearer state differentiation through color and size</li>
+          <li>Professional, polished appearance</li>
+          <li>Scalable vector graphics work at all zoom levels</li>
+          <li>Engaging micro-animations increase user delight</li>
+        </ul>
+        <p>
+          <strong style="color: #f1f5f9;">Location:</strong> <code>src/components/EnhancedMap.tsx</code> → <code>createBuildingIcon()</code>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

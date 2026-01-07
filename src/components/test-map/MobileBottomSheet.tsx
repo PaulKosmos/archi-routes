@@ -7,30 +7,34 @@ interface MobileBottomSheetProps {
   onClose: () => void
   title: string
   children: React.ReactNode
+  showBackdrop?: boolean
 }
 
 export default function MobileBottomSheet({
   isOpen,
   onClose,
   title,
-  children
+  children,
+  showBackdrop = true
 }: MobileBottomSheetProps) {
   // Не рендерим sheet вообще, если он закрыт (для оптимизации и избежания проблем с z-index)
   if (!isOpen) return null
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/70 z-[35] md:hidden"
-        onClick={onClose}
-      />
+      {/* Backdrop - условный рендеринг */}
+      {showBackdrop && (
+        <div
+          className="fixed inset-0 bg-black/70 z-[35] md:hidden"
+          onClick={onClose}
+        />
+      )}
 
       {/* Sheet */}
       <div className={`
         fixed bottom-0 left-0 right-0
         bg-white border-t-2 border-border
-        max-h-[80vh]
+        max-h-[60vh]
         transform transition-transform duration-300
         translate-y-0
         z-[45] md:hidden
