@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, Suspense } from 'react'
+import { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
 import { buildRoute } from '@/lib/mapbox-routing-service'
@@ -54,6 +54,9 @@ const EnhancedMap = dynamic(() => import('../../components/EnhancedMap'), {
   </div>
 })
 
+// Импорт типа для ref
+import type { EnhancedMapRef } from '../../components/EnhancedMap'
+
 // Типы данных (импортируем из types/building.ts)
 import type { Building } from '@/types/building'
 import type { Route } from '@/types/route'
@@ -99,6 +102,9 @@ export default function TestMapPage() {
   const [showRoutes, setShowRoutes] = useState(false) // Скрываем маршруты по умолчанию
   const [showBuildings, setShowBuildings] = useState(true)
   const [mapView, setMapView] = useState<'buildings' | 'routes' | null>(null) // Панель закрыта по умолчанию
+
+  // Ref для карты (для центрирования на маршруте)
+  const mapRef = useRef<EnhancedMapRef>(null)
 
   // Mobile bottom sheet states
   const [showMobileFilters, setShowMobileFilters] = useState(false)
@@ -178,6 +184,14 @@ export default function TestMapPage() {
   useEffect(() => {
     applyFilters()
   }, [buildings, routes, filters, routeViewMode, user])
+
+  // Автоцентрирование карты на выбранном маршруте
+  useEffect(() => {
+    if (selectedRoute && mapRef.current) {
+      console.log('🗺️ Centering map on selected route:', selectedRoute.id)
+      mapRef.current.centerOnRoute(selectedRoute.id)
+    }
+  }, [selectedRoute])
 
   const loadData = async () => {
     try {
@@ -452,6 +466,25 @@ export default function TestMapPage() {
     const building = filteredBuildings.find(b => b.id === buildingId)
     setSelectedBuilding(building || null)
     setSelectedRoute(null)
+
+    // Центрируем карту на выбранном здании и открываем popup - ТОЛЬКО для мобильных
+    if (mapRef.current && buildingId) {
+      const isMobile = window.innerWidth < 768
+
+      if (isMobile) {
+        mapRef.current.centerOnBuilding(buildingId)
+
+        // Открываем popup после небольшой задержки (чтобы карта успела центрироваться)
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.openBuildingPopup(buildingId)
+          }
+        }, 1100) // Чуть больше чем duration анимации (1000ms)
+      } else {
+        // Для десктопа - только открываем popup без центрирования
+        mapRef.current.openBuildingPopup(buildingId)
+      }
+    }
   }, [filteredBuildings])
 
   const handleBuildingDetails = useCallback((buildingIdOrObject: string | Building) => {
@@ -731,8 +764,11 @@ export default function TestMapPage() {
     return R * c
   }
 
-  const handleRouteClick = useCallback((routeId: string) => {
-    const route = filteredRoutes.find(r => r.id === routeId)
+  const handleRouteClick = useCallback((routeOrId: string | Route) => {
+    // Поддержка как объекта Route, так и строки routeId
+    const route = typeof routeOrId === 'string'
+      ? filteredRoutes.find(r => r.id === routeOrId)
+      : routeOrId
     setSelectedRoute(route || null)
     setSelectedBuilding(null)
   }, [filteredRoutes])
@@ -1261,6 +1297,7 @@ export default function TestMapPage() {
             {/* Карта - статичная, всегда показываем все объекты */}
             <div className="absolute inset-0 z-0">
               <EnhancedMap
+                ref={mapRef}
                 buildings={filteredBuildings}
                 routes={filteredRoutes.map(convertRouteForMap)}
                 selectedBuilding={selectedBuilding?.id || null}
@@ -1456,6 +1493,7 @@ export default function TestMapPage() {
         isOpen={showMobileFilters}
         onClose={() => setShowMobileFilters(false)}
         title="Фильтры"
+        showBackdrop={false}
       >
         <LazyFilterPanel
           filters={filters}
@@ -1474,6 +1512,7 @@ export default function TestMapPage() {
         isOpen={showMobileBuildings}
         onClose={() => setShowMobileBuildings(false)}
         title={`Объекты (${filteredBuildings.length})`}
+        showBackdrop={false}
       >
         {/* Кнопка добавления нового объекта */}
         {user && (
@@ -1512,6 +1551,7 @@ export default function TestMapPage() {
         isOpen={showMobileRoutes}
         onClose={() => setShowMobileRoutes(false)}
         title={`Маршруты (${filteredRoutes.length})`}
+        showBackdrop={false}
       >
         {/* Переключатель публичных/личных маршрутов */}
         <div className="mb-4 -mt-2">

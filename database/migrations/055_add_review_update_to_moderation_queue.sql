@@ -25,3 +25,4 @@ COMMENT ON TRIGGER trigger_queue_review_update_moderation ON building_reviews IS
 This handles resubmission of rejected reviews.';
 
 SELECT 'Review UPDATE trigger for moderation queue created successfully' as status;
+ 

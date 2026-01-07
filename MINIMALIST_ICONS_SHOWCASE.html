@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archi-Routes — Минималистичные Иконки</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #FAFAFA;
+      color: #1A1A1A;
+      padding: 80px 40px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 80px;
+    }
+
+    h1 {
+      font-size: 64px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #B91C1C;
+      letter-spacing: -2px;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      font-size: 24px;
+      color: #666;
+      margin-bottom: 12px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+    }
+
+    .philosophy {
+      font-size: 16px;
+      color: #999;
+      max-width: 600px;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .section {
+      background: white;
+      border: 1px solid #E5E5E5;
+      border-radius: 16px;
+      padding: 60px;
+      margin-bottom: 32px;
+    }
+
+    h2 {
+      font-size: 32px;
+      margin-bottom: 32px;
+      color: #1A1A1A;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 40px;
+      margin-top: 48px;
+    }
+
+    .icon-card {
+      text-align: center;
+      padding: 48px 32px;
+      background: #FAFAFA;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: 1px solid #F0F0F0;
+    }
+
+    .icon-card:hover {
+      transform: translateY(-4px);
+      background: white;
+      border-color: #E5E5E5;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+    }
+
+    .icon-wrapper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 32px;
+      padding: 24px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .icon-label {
+      font-size: 16px;
+      color: #1A1A1A;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .icon-description {
+      font-size: 14px;
+      color: #999;
+      line-height: 1.5;
+    }
+
+    .minimal-marker {
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      animation: markerFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      display: inline-block;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+    }
+
+    @keyframes markerFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .minimal-marker:hover {
+      transform: scale(1.15);
+      filter: drop-shadow(0 4px 12px rgba(185, 28, 28, 0.25))
+              drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+    }
+
+    .minimal-marker svg {
+      overflow: visible;
+    }
+
+    .minimal-marker[data-state="selected"] .marker-ring,
+    .minimal-marker[data-state="route"] .marker-ring {
+      animation: ringPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes ringPulse {
+      0%, 100% {
+        opacity: 0.2;
+      }
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    .minimal-marker:hover .marker-highlight {
+      animation: shimmer 1.2s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% {
+        opacity: 0.12;
+      }
+      50% {
+        opacity: 0.25;
+      }
+    }
+
+    .minimal-marker[data-state="normal"] .marker-dot {
+      animation: dotPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes dotPulse {
+      0%, 100% {
+        opacity: 0.7;
+      }
+      50% {
+        opacity: 0.95;
+      }
+    }
+
+    .color-palette {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .color-swatch {
+      padding: 32px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid #E5E5E5;
+    }
+
+    .color-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .color-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1A1A1A;
+      margin-bottom: 4px;
+    }
+
+    .color-code {
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .principles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+      margin-top: 32px;
+    }
+
+    .principle {
+      padding: 32px;
+      background: #FAFAFA;
+      border-radius: 12px;
+      border: 1px solid #F0F0F0;
+    }
+
+    .principle-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    .principle-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #1A1A1A;
+      letter-spacing: -0.5px;
+    }
+
+    .principle-text {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    code {
+      background: #F5F5F5;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 13px;
+      color: #B91C1C;
+      border: 1px solid #E5E5E5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Минималистичные<br/>Иконки</h1>
+      <p class="subtitle">Refined Minimalism для Archi-Routes</p>
+      <p class="philosophy">
+        Изысканная простота. Точные пропорции. Сложные красные оттенки.<br/>
+        Каждая деталь продумана для максимальной читаемости и элегантности.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Состояния Маркеров</h2>
+
+      <div class="icon-grid">
+        <div class="icon-card">
+          <div class="icon-wrapper">
+            <div class="minimal-marker" data-state="normal" style="width: 34px; height: 34px;">
+              <svg width="34" height="34" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="grad-normal">
+                    <stop offset="0%" style="stop-color:#DC2626;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#B91C1C;stop-opacity:1" />
+                  </radialGradient>
+                  <filter id="shadow-normal" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="1.2"/>
+                    <feOffset dx="0" dy="1" result="offsetblur"/>
+                    <feFlood flood-color="#000000" flood-opacity="0.15"/>
+                    <feComposite in2="offsetblur" operator="in" result="shadow"/>
+                    <feMerge>
+                      <feMergeNode in="shadow"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <circle cx="24" cy="24" r="20" fill="none" stroke="#B91C1C" stroke-width="2" opacity="0.2" class="marker-ring"/>
+                <circle cx="24" cy="24" r="15" fill="url(#grad-normal)" filter="url(#shadow-normal)" class="marker-core"/>
+                <circle cx="24" cy="22" r="6" fill="white" opacity="0.12" class="marker-highlight"/>
+                <circle cx="24" cy="24" r="2.5" fill="white" opacity="0.9" class="marker-dot"/>
+              </svg>
+            </div>
+          </div>
+          <div class="icon-label">Обычное</div>
+          <div class="icon-description">
+            Deep Burgundy<br/>
+            22px • Тонкое кольцо • Точка в центре
+          </div>
+        </div>
+
+        <div class="icon-card">
+          <div class="icon-wrapper">
+            <div class="minimal-marker" data-state="hovered" style="width: 38px; height: 38px;">
+              <svg width="38" height="38" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="grad-hover">
+                    <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+                  </radialGradient>
+                  <filter id="shadow-hover" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="1.2"/>
+                    <feOffset dx="0" dy="1"/>
+                    <feFlood flood-color="#000000" flood-opacity="0.15"/>
+                    <feComposite in2="SourceAlpha" operator="in"/>
+                    <feMerge>
+                      <feMergeNode/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <circle cx="24" cy="24" r="20" fill="none" stroke="#DC2626" stroke-width="2" opacity="0.35" class="marker-ring"/>
+                <circle cx="24" cy="24" r="15" fill="url(#grad-hover)" filter="url(#shadow-hover)" class="marker-core"/>
+                <circle cx="24" cy="22" r="6" fill="white" opacity="0.12" class="marker-highlight"/>
+                <circle cx="24" cy="24" r="2.5" fill="white" opacity="0.9" class="marker-dot"/>
+              </svg>
+            </div>
+          </div>
+          <div class="icon-label">Наведение</div>
+          <div class="icon-description">
+            Bright Vermillion<br/>
+            26px • Яркое кольцо • Shimmer эффект
+          </div>
+        </div>
+
+        <div class="icon-card">
+          <div class="icon-wrapper">
+            <div class="minimal-marker" data-state="selected" style="width: 42px; height: 42px;">
+              <svg width="42" height="42" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="grad-selected">
+                    <stop offset="0%" style="stop-color:#F87171;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+                  </radialGradient>
+                  <filter id="shadow-selected" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="1.2"/>
+                    <feOffset dx="0" dy="1"/>
+                    <feFlood flood-color="#000000" flood-opacity="0.15"/>
+                    <feComposite in2="SourceAlpha" operator="in"/>
+                    <feMerge>
+                      <feMergeNode/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <circle cx="24" cy="24" r="20" fill="none" stroke="#EF4444" stroke-width="2" opacity="0.4" class="marker-ring"/>
+                <circle cx="24" cy="24" r="15" fill="url(#grad-selected)" filter="url(#shadow-selected)" class="marker-core"/>
+                <circle cx="24" cy="22" r="6" fill="white" opacity="0.12" class="marker-highlight"/>
+                <circle cx="24" cy="24" r="2.5" fill="white" opacity="0.9" class="marker-dot"/>
+              </svg>
+            </div>
+          </div>
+          <div class="icon-label">Выбрано</div>
+          <div class="icon-description">
+            Saturated Red<br/>
+            30px • Пульсирующее кольцо • Активный
+          </div>
+        </div>
+
+        <div class="icon-card">
+          <div class="icon-wrapper">
+            <div class="minimal-marker" data-state="route" style="width: 46px; height: 46px;">
+              <svg width="46" height="46" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="grad-route">
+                    <stop offset="0%" style="stop-color:#B91C1C;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#991B1B;stop-opacity:1" />
+                  </radialGradient>
+                  <filter id="shadow-route" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="1.2"/>
+                    <feOffset dx="0" dy="1"/>
+                    <feFlood flood-color="#000000" flood-opacity="0.15"/>
+                    <feComposite in2="SourceAlpha" operator="in"/>
+                    <feMerge>
+                      <feMergeNode/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <circle cx="24" cy="24" r="20" fill="none" stroke="#991B1B" stroke-width="2" opacity="0.3" class="marker-ring"/>
+                <circle cx="24" cy="24" r="15" fill="url(#grad-route)" filter="url(#shadow-route)" class="marker-core"/>
+                <circle cx="24" cy="22" r="6" fill="white" opacity="0.12" class="marker-highlight"/>
+                <text x="24" y="24" text-anchor="middle" dominant-baseline="central" fill="white" font-family="'DM Sans', sans-serif" font-size="14" font-weight="700" class="marker-number">1</text>
+              </svg>
+            </div>
+          </div>
+          <div class="icon-label">В Маршруте</div>
+          <div class="icon-description">
+            Wine Red<br/>
+            34px • Номер точки • Pop анимация
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Цветовая Палитра</h2>
+      <p style="color: #666; margin-bottom: 32px;">Изысканные бургундские и вермиллионовые оттенки для разных состояний</p>
+
+      <div class="color-palette">
+        <div class="color-swatch">
+          <div class="color-circle" style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);"></div>
+          <div class="color-name">Deep Burgundy</div>
+          <div class="color-code">#B91C1C → #DC2626</div>
+        </div>
+
+        <div class="color-swatch">
+          <div class="color-circle" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);"></div>
+          <div class="color-name">Bright Vermillion</div>
+          <div class="color-code">#DC2626 → #EF4444</div>
+        </div>
+
+        <div class="color-swatch">
+          <div class="color-circle" style="background: linear-gradient(135deg, #F87171 0%, #DC2626 100%);"></div>
+          <div class="color-name">Saturated Red</div>
+          <div class="color-code">#DC2626 → #F87171</div>
+        </div>
+
+        <div class="color-swatch">
+          <div class="color-circle" style="background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);"></div>
+          <div class="color-name">Wine Red</div>
+          <div class="color-code">#991B1B → #B91C1C</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Принципы Дизайна</h2>
+
+      <div class="principles">
+        <div class="principle">
+          <div class="principle-icon">●</div>
+          <div class="principle-title">Рафинированная Простота</div>
+          <div class="principle-text">
+            Круглая форма с концентрическими кольцами. Минимум деталей — максимум выразительности. Каждый элемент функционален.
+          </div>
+        </div>
+
+        <div class="principle">
+          <div class="principle-icon">✦</div>
+          <div class="principle-title">Сложные Красные</div>
+          <div class="principle-text">
+            Не простой <code>#FF0000</code>, а палитра burgundy/vermillion с радиальными градиентами для глубины и объема.
+          </div>
+        </div>
+
+        <div class="principle">
+          <div class="principle-icon">○</div>
+          <div class="principle-title">Визуальное Разделение</div>
+          <div class="principle-text">
+            Внешнее кольцо с переменной прозрачностью предотвращает слияние маркеров при зумировании карты.
+          </div>
+        </div>
+
+        <div class="principle">
+          <div class="principle-icon">◐</div>
+          <div class="principle-title">Тонкие Тени</div>
+          <div class="principle-text">
+            SVG фильтры создают мягкие, четкие тени (<code>feGaussianBlur</code> 1.2px) для легкого, но заметного объема.
+          </div>
+        </div>
+
+        <div class="principle">
+          <div class="principle-icon">↗</div>
+          <div class="principle-title">Деликатные Анимации</div>
+          <div class="principle-text">
+            Пульсация колец, shimmer highlights, number pop — все с кривыми <code>cubic-bezier(0.34, 1.56, 0.64, 1)</code>.
+          </div>
+        </div>
+
+        <div class="principle">
+          <div class="principle-icon">⊕</div>
+          <div class="principle-title">Идеальная Читаемость</div>
+          <div class="principle-text">
+            Номера маршрутов — <code>DM Sans 700</code>, 14px. Точка для обычных маркеров — 2.5px радиус с 90% opacity.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Технические Детали</h2>
+      <div style="color: #666; line-height: 1.8; font-size: 15px;">
+        <p style="margin-bottom: 16px;">
+          <strong style="color: #1A1A1A;">Структура:</strong> Три концентрических круга — внешнее кольцо (r=20), основной круг (r=15), внутренний highlight (r=6)
+        </p>
+        <p style="margin-bottom: 16px;">
+          <strong style="color: #1A1A1A;">SVG Фильтры:</strong> Радиальные градиенты + Gaussian blur shadow (1.2px) + Offset (0, 1px)
+        </p>
+        <p style="margin-bottom: 16px;">
+          <strong style="color: #1A1A1A;">Анимации:</strong> FadeIn (0.35s) → Ring Pulse (2.5s loop) → Shimmer (1.2s loop) → Number Pop (0.3s)
+        </p>
+        <p style="margin-bottom: 16px;">
+          <strong style="color: #1A1A1A;">Типографика:</strong> DM Sans 700, letter-spacing: -0.3px для номеров
+        </p>
+        <p>
+          <strong style="color: #1A1A1A;">Состояния:</strong> <code>data-state</code> атрибут управляет анимациями через CSS селекторы
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

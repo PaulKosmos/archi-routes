@@ -68,7 +68,10 @@
       "Bash(for file in buildings/ProfileBuildingsPage.tsx routes/page.tsx reviews/ProfileReviewsPage.tsx articles/page.tsx edit/ProfileEditPage.tsx settings/ProfileSettingsPage.tsx)",
       "Bash(do powershell -Command \"\\(Get-Content ''$file''\\) -replace ''pt-20'', ''pt-10'' | Set-Content ''$file''\")",
       "Bash(done)",
-      "mcp__playwright__playwright_hover"
+      "mcp__playwright__playwright_hover",
+      "Bash(exit 0)",
+      "mcp__context7__query-docs",
+      "Skill(frontend-design)"
     ],
     "deny": [],
     "ask": []
