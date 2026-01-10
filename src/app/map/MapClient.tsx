@@ -50,7 +50,7 @@ import { uploadMultipleImages, uploadAudio } from '@/lib/storage'
 const EnhancedMap = dynamic(() => import('../../components/EnhancedMap'), {
   ssr: false,
   loading: () => <div className="h-full bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
-    <span className="text-gray-500">Загрузка карты...</span>
+    <span className="text-gray-500">Loading map...</span>
   </div>
 })
 

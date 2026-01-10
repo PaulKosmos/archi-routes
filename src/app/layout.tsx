@@ -21,8 +21,8 @@ export const metadata: Metadata = {
     default: 'Archiroutes - Discover cities and their stories',
     template: '%s | Archiroutes'
   },
-  description: 'Откройте для себя архитектурные шедевры мира через интерактивные маршруты с профессиональными аудиогидами. Исследуйте здания, создавайте собственные маршруты, делитесь впечатлениями.',
-  keywords: ['архитектура', 'аудиогиды', 'маршруты', 'здания', 'путешествия', 'культура', 'architecture', 'audio guides', 'routes', 'buildings'],
+  description: 'Discover the world\'s architectural masterpieces through interactive routes with professional audio guides. Explore buildings, create your own routes, share your impressions.',
+  keywords: ['architecture', 'audio guides', 'routes', 'buildings', 'travel', 'culture', 'architectural tours', 'city exploration'],
   authors: [{ name: 'Archi-Routes Team' }],
   creator: 'Archi-Routes',
   publisher: 'Archi-Routes',
@@ -33,24 +33,24 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    locale: 'ru_RU',
+    locale: 'en_US',
     url: '/',
     siteName: 'Archi-Routes',
     title: 'Archiroutes - Discover cities and their stories',
-    description: 'Откройте для себя архитектурные шедевры мира через интерактивные маршруты с профессиональными аудиогидами',
+    description: 'Discover the world\'s architectural masterpieces through interactive routes with professional audio guides',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Archi-Routes - Архитектурные маршруты',
+        alt: 'Archi-Routes - Architectural Routes',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Archiroutes - Discover cities and their stories',
-    description: 'Откройте для себя архитектурные шедевры мира через интерактивные маршруты с профессиональными аудиогидами',
+    description: 'Discover the world\'s architectural masterpieces through interactive routes with professional audio guides',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -85,7 +85,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
+    <html lang="en">
       <body
         className={`${rubik.variable} ${geologica.variable} font-sans antialiased`}
       >

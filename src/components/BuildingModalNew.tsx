@@ -39,20 +39,20 @@ interface NewsInfo {
 
 // Словари для локализации
 const difficultyLabels: Record<string, string> = {
-  'easy': 'Легко',
-  'moderate': 'Умеренно',
-  'difficult': 'Сложно',
-  'very_difficult': 'Очень сложно'
+  'easy': 'Easy',
+  'moderate': 'Moderate',
+  'difficult': 'Difficult',
+  'very_difficult': 'Very Difficult'
 }
 
 const timeLabels: Record<string, string> = {
-  'morning': 'Утром',
-  'afternoon': 'Днем',
-  'evening': 'Вечером',
-  'night': 'Ночью',
-  'any_time': 'Любое время',
-  'weekdays': 'Будни',
-  'weekends': 'Выходные'
+  'morning': 'Morning',
+  'afternoon': 'Afternoon',
+  'evening': 'Evening',
+  'night': 'Night',
+  'any_time': 'Any Time',
+  'weekdays': 'Weekdays',
+  'weekends': 'Weekends'
 }
 
 export default function BuildingModalNew({ building, isOpen, onClose }: BuildingModalProps) {
@@ -208,10 +208,10 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
   const toggleFavorite = async () => {
     if (!user) {
-      toast.error('Войдите, чтобы добавить в избранное')
+      toast.error('Sign in to add to favorites')
       return
     }
-    
+
     if (!building) return
 
     try {
@@ -221,9 +221,9 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
           .delete()
           .eq('user_id', user.id)
           .eq('building_id', building.id)
-        
+
         setIsFavorite(false)
-        toast.success('Удалено из избранного')
+        toast.success('Removed from favorites')
       } else {
         await supabase
           .from('user_building_favorites')
@@ -232,13 +232,13 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
             building_id: building.id,
             visit_status: 'want_to_visit'
           })
-        
+
         setIsFavorite(true)
-        toast.success('✅ Добавлено в избранное!')
+        toast.success('✅ Added to favorites!')
       }
     } catch (error) {
       console.error('Error toggling favorite:', error)
-      toast.error('Ошибка')
+      toast.error('Error')
     }
   }
 
@@ -362,7 +362,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
   const handleReviewSuccess = () => {
     setRefreshKey(prev => prev + 1)
-    toast.success('Обзор добавлен!')
+    toast.success('Review added!')
   }
 
   const handleOpenInNewTab = () => {
@@ -410,7 +410,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
             <button
               onClick={toggleFavorite}
               className="p-1.5 md:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title={isFavorite ? 'Удалить из избранного' : 'Добавить в избранное'}
+              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             >
               <Heart className={`w-4 h-4 md:w-5 md:h-5 ${isFavorite ? 'fill-current text-red-600' : 'text-gray-600'}`} />
             </button>
@@ -431,7 +431,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                   window.open(`/buildings/${building.id}/edit`, '_blank')
                 }}
                 className="p-1.5 md:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Редактировать здание"
+                title="Edit building"
               >
                 <Pencil className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
               </button>
@@ -441,7 +441,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
             <button
               onClick={handleOpenInNewTab}
               className="hidden md:block p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Открыть в новом окне"
+              title="Open in new window"
             >
               <ExternalLink className="w-5 h-5 text-gray-600" />
             </button>
@@ -450,7 +450,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
             <button
               onClick={onClose}
               className="p-1.5 md:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Закрыть"
+              title="Close"
             >
               <X className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
             </button>
@@ -541,7 +541,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                 {building.view_count > 0 && (
                   <div className="flex items-center text-gray-600">
                     <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                    <span className="hidden sm:inline">{building.view_count} просмотров</span>
+                    <span className="hidden sm:inline">{building.view_count} views</span>
                     <span className="sm:hidden">{building.view_count}</span>
                   </div>
                 )}
@@ -569,7 +569,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                 <button
                   onClick={handleAddressClick}
                   className="flex items-start text-gray-600 hover:text-blue-600 transition-colors cursor-pointer group w-full text-left"
-                  title="Показать на карте"
+                  title="Show on map"
                 >
                   <MapPin className="w-3 h-3 md:w-4 md:h-4 mr-1.5 md:mr-2 text-gray-500 group-hover:text-blue-600 flex-shrink-0 mt-0.5" />
                   <span className="group-hover:underline line-clamp-2">{building.address}, {building.city}</span>
@@ -588,7 +588,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                 <div className="flex items-center gap-2">
                   <Info className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                   <span className="font-medium text-sm md:text-base">
-                    Практическая информация
+                    Practical Information
                     <span className="ml-2 text-xs md:text-sm text-gray-500">({practicalInfoCount})</span>
                   </span>
                 </div>
@@ -607,7 +607,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline break-all"
                       >
-                        Официальный сайт
+                        Official Website
                       </a>
                     </div>
                   )}
@@ -625,7 +625,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     <div className="flex items-center gap-2">
                       <TrendingUp className="w-4 h-4 text-gray-500 flex-shrink-0" />
                       <span className="text-gray-700">
-                        Сложность: {difficultyLabels[building.visit_difficulty] || building.visit_difficulty}
+                        Difficulty: {difficultyLabels[building.visit_difficulty] || building.visit_difficulty}
                       </span>
                     </div>
                   )}
@@ -635,7 +635,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
                       <span className="text-gray-700">
-                        Лучшее время: {timeLabels[building.best_visit_time] || building.best_visit_time}
+                        Best time: {timeLabels[building.best_visit_time] || building.best_visit_time}
                       </span>
                     </div>
                   )}
@@ -645,7 +645,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Bus className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                        <span className="font-medium text-gray-900">Транспорт:</span>
+                        <span className="font-medium text-gray-900">Transport:</span>
                       </div>
                       <ul className="ml-6 space-y-0.5">
                         {building.nearby_transport.map((transport, idx) => (
@@ -660,7 +660,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Accessibility className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                        <span className="font-medium text-gray-900">Доступность:</span>
+                        <span className="font-medium text-gray-900">Accessibility:</span>
                       </div>
                       <ul className="ml-6 space-y-0.5">
                         {building.accessibility.map((item, idx) => (
@@ -675,7 +675,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Layers className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                        <span className="font-medium text-gray-900">Материалы:</span>
+                        <span className="font-medium text-gray-900">Materials:</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {building.construction_materials.map((material, idx) => (
@@ -695,7 +695,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <BookOpen className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                        <span className="font-medium text-gray-900">Историческое значение:</span>
+                        <span className="font-medium text-gray-900">Historical Significance:</span>
                       </div>
                       <p className="text-gray-600 leading-snug text-xs md:text-sm whitespace-pre-line">
                         {building.historical_significance}
@@ -718,7 +718,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }`}
               >
-                📝 Обзоры
+                📝 Reviews
                 {reviews.length > 0 && ` (${reviews.length})`}
               </button>
 
@@ -730,7 +730,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }`}
               >
-                🗺️ Маршруты
+                🗺️ Routes
                 {routesCount > 0 && ` (${routesCount})`}
               </button>
 
@@ -742,7 +742,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }`}
               >
-                📰 Новости
+                📰 News
                 {newsCount > 0 && ` (${newsCount})`}
               </button>
             </div>
@@ -778,7 +778,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                             : 'text-gray-600 hover:text-gray-900'
                         }`}
                       >
-                        🙋 Личные
+                        🙋 Personal
                       </button>
                       <button
                         onClick={() => setRouteViewMode('public')}
@@ -788,15 +788,15 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                             : 'text-gray-600 hover:text-gray-900'
                         }`}
                       >
-                        🌍 Общественные
+                        🌍 Public
                       </button>
                     </div>
 
                     {routes.length === 0 ? (
                       <div className="text-center py-8 md:py-12 text-gray-500 text-sm md:text-base">
                         📭 {routeViewMode === 'personal'
-                          ? 'У вас пока нет личных маршрутов с этим зданием'
-                          : 'Это здание пока не включено в общественные маршруты'}
+                          ? 'You don\'t have any personal routes with this building yet'
+                          : 'This building is not yet included in public routes'}
                       </div>
                     ) : (
                       routes.map(route => (
@@ -815,13 +815,13 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                           )}
                           <div className="flex items-center gap-3 md:gap-4 text-xs text-gray-500 flex-wrap">
                             {route.distance_km && (
-                              <span>📏 {route.distance_km.toFixed(1)} км</span>
+                              <span>📏 {route.distance_km.toFixed(1)} km</span>
                             )}
                             {route.estimated_duration_minutes && (
-                              <span>⏱️ {route.estimated_duration_minutes} мин</span>
+                              <span>⏱️ {route.estimated_duration_minutes} min</span>
                             )}
                             {route.points_count && (
-                              <span>📍 {route.points_count} точек</span>
+                              <span>📍 {route.points_count} points</span>
                             )}
                           </div>
                         </Link>
@@ -835,7 +835,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                   <div className="space-y-3 md:space-y-4">
                     {news.length === 0 ? (
                       <div className="text-center py-8 md:py-12 text-gray-500 text-sm md:text-base">
-                        📭 Пока нет новостей об этом здании
+                        📭 No news about this building yet
                       </div>
                     ) : (
                       news.map(item => (
@@ -854,7 +854,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                           )}
                           {item.published_at && (
                             <p className="text-xs text-gray-500">
-                              📅 {new Date(item.published_at).toLocaleDateString('ru-RU', {
+                              📅 {new Date(item.published_at).toLocaleDateString('en-US', {
                                 day: 'numeric',
                                 month: 'long',
                                 year: 'numeric'

@@ -41,7 +41,7 @@ export default function MobileControlBar({
           "
         >
           <Filter className="w-5 h-5 text-[hsl(var(--map-primary))]" />
-          <span className="text-xs font-medium">Фильтры</span>
+          <span className="text-xs font-medium">Filters</span>
         </button>
 
         {/* Buildings button */}
@@ -57,7 +57,7 @@ export default function MobileControlBar({
         >
           <MapPin className="w-5 h-5 text-[hsl(var(--map-primary))]" />
           <span className="text-xs font-medium">
-            Объекты
+            Buildings
             {buildingsCount > 0 && (
               <span className="ml-1 text-[hsl(var(--map-primary))]">
                 ({buildingsCount})
@@ -79,7 +79,7 @@ export default function MobileControlBar({
         >
           <List className="w-5 h-5 text-[hsl(var(--map-primary))]" />
           <span className="text-xs font-medium">
-            Маршруты
+            Routes
             {routesCount > 0 && (
               <span className="ml-1 text-[hsl(var(--map-primary))]">
                 ({routesCount})

@@ -9,13 +9,13 @@ import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import dynamic from 'next/dynamic'
 
-// Динамический импорт карты
+// Dynamic map import
 const DynamicMiniMap = dynamic(() => import('./RouteViewerMiniMap'), {
   ssr: false,
   loading: () => <div className="h-full bg-gray-100 animate-pulse rounded-lg"></div>
 })
 
-// Динамический импорт AudioPlayer
+// Dynamic AudioPlayer import
 const AudioPlayer = dynamic(() => import('./AudioPlayer'), {
   ssr: false,
   loading: () => (
@@ -36,26 +36,26 @@ export default function RouteViewerModal({
   onClose,
   route
 }: RouteViewerModalProps) {
-  // ✅ Создаем НОВЫЙ Supabase клиент для этого компонента
+  // ✅ Create NEW Supabase client for this component
   const supabase = useMemo(() => createClient(), [])
-  
+
   const { user, profile } = useAuth()
   const [routePoints, setRoutePoints] = useState<RoutePoint[]>([])
   const [currentPointIndex, setCurrentPointIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [geolocationEnabled, setGeolocationEnabled] = useState(false)
-  
-  // Проверка прав на редактирование
+
+  // Check edit permissions
   const canEdit = route && user && (
     user.id === route.created_by ||
     profile?.role === 'admin' ||
     profile?.role === 'moderator'
   )
 
-  // Отладка прав
+  // Debug permissions
   useEffect(() => {
     if (route) {
-      console.log('🔐 RouteViewerModal - права редактирования:', {
+      console.log('🔐 RouteViewerModal - edit permissions:', {
         user: !!user,
         userId: user?.id,
         routeCreatedBy: route.created_by,
@@ -65,7 +65,7 @@ export default function RouteViewerModal({
     }
   }, [route, user, profile, canEdit])
 
-  // Обзоры для текущей точки
+  // Reviews for current point
   const [reviews, setReviews] = useState<BuildingReview[]>([])
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
   const [loadingReviews, setLoadingReviews] = useState(false)
@@ -73,17 +73,17 @@ export default function RouteViewerModal({
   const [helpfulVotes, setHelpfulVotes] = useState<Set<string>>(new Set())
   const [userRatings, setUserRatings] = useState<Map<string, number>>(new Map())
   const [hoveredRating, setHoveredRating] = useState<{reviewId: string, rating: number} | null>(null)
-  
-  // Галерея фото
+
+  // Photo gallery
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
-  
-  // Экспорт маршрута
+
+  // Route export
   const [showExportMenu, setShowExportMenu] = useState(false)
 
-  // Загрузка точек маршрута
+  // Load route points
   useEffect(() => {
     if (!route || !isOpen) {
-      // Сброс состояния при закрытии
+      // Reset state on close
       if (!isOpen) {
         setRoutePoints([])
         setCurrentPointIndex(0)
@@ -93,12 +93,12 @@ export default function RouteViewerModal({
       return
     }
 
-    console.log('🗺️ RouteViewerModal: Загрузка маршрута', route.id, route.title)
+    console.log('🗺️ RouteViewerModal: Loading route', route.id, route.title)
 
     const loadRoutePoints = async () => {
       setLoading(true)
       try {
-        console.log('🔄 Загружаем точки маршрута...')
+        console.log('🔄 Loading route points...')
         const { data, error } = await supabase
           .from('route_points')
           .select(`
@@ -109,13 +109,13 @@ export default function RouteViewerModal({
           .order('order_index', { ascending: true })
 
         if (error) throw error
-        console.log('✅ Точки маршрута загружены:', data?.length)
+        console.log('✅ Route points loaded:', data?.length)
         setRoutePoints(data || [])
-        setCurrentPointIndex(0) // Сбрасываем на первую точку
-        setCurrentPhotoIndex(0) // Сбрасываем галерею
+        setCurrentPointIndex(0) // Reset to first point
+        setCurrentPhotoIndex(0) // Reset gallery
       } catch (error) {
         console.error('❌ Error loading route points:', error)
-        toast.error('Ошибка загрузки точек маршрута')
+        toast.error('Error loading route points')
       } finally {
         setLoading(false)
       }
@@ -124,13 +124,13 @@ export default function RouteViewerModal({
     loadRoutePoints()
   }, [route?.id, isOpen])
 
-  // Текущая точка
+  // Current point
   const currentPoint = useMemo(() => 
     routePoints[currentPointIndex] || null,
     [routePoints, currentPointIndex]
   )
 
-  // Загрузка обзоров для текущей точки
+  // Load reviews for current point
   useEffect(() => {
     if (!currentPoint || !currentPoint.building_id) {
       setReviews([])
@@ -140,7 +140,7 @@ export default function RouteViewerModal({
     const loadReviews = async () => {
       setLoadingReviews(true)
       try {
-        // Загружаем обзоры для здания
+        // Load reviews for building
         const { data: reviewsData, error } = await supabase
           .from('building_reviews')
           .select('*')
@@ -148,9 +148,9 @@ export default function RouteViewerModal({
 
         if (error) throw error
 
-        // Сортируем: Полные → Рекомендованные → Проверенные → По рейтингу
+        // Sort: Complete → Recommended → Verified → By Rating
         const sortedReviews = (reviewsData || []).sort((a, b) => {
-          // Проверка на "Полный обзор"
+          // Check for "Complete Review"
           const aIsFull = !!(a.content && a.content.length >= 200 && a.photos && a.photos.length >= 2 && a.audio_url)
           const bIsFull = !!(b.content && b.content.length >= 200 && b.photos && b.photos.length >= 2 && b.audio_url)
           
@@ -162,9 +162,9 @@ export default function RouteViewerModal({
 
         setReviews(sortedReviews)
 
-        // Загружаем голоса и рейтинги пользователя
+        // Load user votes and ratings
         if (user) {
-          // Полезные голоса
+          // Helpful votes
           const { data: votesData } = await supabase
             .from('review_helpful_votes')
             .select('review_id')
@@ -175,7 +175,7 @@ export default function RouteViewerModal({
             setHelpfulVotes(new Set(votesData.map(v => v.review_id)))
           }
 
-          // Рейтинги
+          // Ratings
           const { data: ratingsData } = await supabase
             .from('building_review_ratings')
             .select('review_id, rating')
@@ -187,7 +187,7 @@ export default function RouteViewerModal({
           }
         }
 
-        // Загружаем сохраненный выбор обзора
+        // Load saved review selection
         if (user && route) {
           const { data: selectionData } = await supabase
             .from('route_point_review_selections')
@@ -200,13 +200,13 @@ export default function RouteViewerModal({
           if (selectionData) {
             setSelectedReviewId(selectionData.building_review_id)
           } else {
-            // Автовыбор лучшего обзора
+            // Auto-select best review
             if (sortedReviews && sortedReviews.length > 0) {
               setSelectedReviewId(sortedReviews[0].id)
             }
           }
         } else if (sortedReviews && sortedReviews.length > 0) {
-          // Для неавторизованных - выбираем лучший
+          // For unauthorized users - select best
           setSelectedReviewId(sortedReviews[0].id)
         }
       } catch (error) {
@@ -219,10 +219,10 @@ export default function RouteViewerModal({
     loadReviews()
   }, [currentPoint, user, route])
 
-  // Сохранение выбора обзора
+  // Save review selection
   const handleSelectReview = async (reviewId: string) => {
     if (!user || !currentPoint || !route) {
-      toast.error('Необходимо авторизоваться для сохранения выбора')
+      toast.error('Please log in to save your selection')
       return
     }
 
@@ -243,17 +243,17 @@ export default function RouteViewerModal({
       if (error) throw error
 
       setSelectedReviewId(reviewId)
-      toast.success('✅ Обзор выбран!')
+      toast.success('✅ Review selected!')
     } catch (error) {
       console.error('Error saving review selection:', error)
-      toast.error('Ошибка сохранения выбора')
+      toast.error('Error saving selection')
     }
   }
 
-  // Оценка обзора как "полезный"
+  // Mark review as "helpful"
   const handleToggleHelpful = async (reviewId: string) => {
     if (!user) {
-      toast.error('Необходимо авторизоваться')
+      toast.error('Please log in')
       return
     }
 
@@ -261,7 +261,7 @@ export default function RouteViewerModal({
       const isHelpful = helpfulVotes.has(reviewId)
       
       if (isHelpful) {
-        // Удаляем голос
+        // Remove vote
         await supabase
           .from('review_helpful_votes')
           .delete()
@@ -274,12 +274,12 @@ export default function RouteViewerModal({
           return newSet
         })
         
-        // Обновляем счетчик локально
+        // Update counter locally
         setReviews(prev => prev.map(r => 
           r.id === reviewId ? { ...r, helpful_count: Math.max(0, r.helpful_count - 1) } : r
         ))
       } else {
-        // Добавляем голос
+        // Add vote
         await supabase
           .from('review_helpful_votes')
           .insert({
@@ -289,23 +289,23 @@ export default function RouteViewerModal({
         
         setHelpfulVotes(prev => new Set(prev).add(reviewId))
         
-        // Обновляем счетчик локально
+        // Update counter locally
         setReviews(prev => prev.map(r => 
           r.id === reviewId ? { ...r, helpful_count: r.helpful_count + 1 } : r
         ))
         
-        toast.success('👍 Отмечено как полезное!')
+        toast.success('👍 Marked as helpful!')
       }
     } catch (error) {
       console.error('Error toggling helpful:', error)
-      toast.error('Ошибка сохранения оценки')
+      toast.error('Error saving rating')
     }
   }
 
-  // Оценка обзора звездами (1-5)
+  // Rate review with stars (1-5)
   const handleRateReview = async (reviewId: string, rating: number) => {
     if (!user) {
-      toast.error('Необходимо авторизоваться')
+      toast.error('Please log in')
       return
     }
 
@@ -321,36 +321,36 @@ export default function RouteViewerModal({
         })
       
       setUserRatings(prev => new Map(prev).set(reviewId, rating))
-      toast.success(`⭐ Оценка ${rating}/5 сохранена!`)
+      toast.success(`⭐ Rating ${rating}/5 saved!`)
     } catch (error) {
       console.error('Error rating review:', error)
-      toast.error('Ошибка сохранения оценки')
+      toast.error('Error saving rating')
     }
   }
 
-  // Выбранный обзор
+  // Selected review
   const selectedReview = useMemo(() => 
     reviews.find(r => r.id === selectedReviewId) || null,
     [reviews, selectedReviewId]
   )
 
-  // Все фото текущей точки (здание + выбранный обзор)
+  // All photos of current point (building + selected review)
   const currentPointPhotos = useMemo(() => {
     if (!currentPoint || !currentPoint.buildings) return []
     
     const photos: string[] = []
     
-    // Если выбран обзор с фото - показываем фото из обзора
+    // If review with photos is selected - show photos from review
     if (selectedReview && selectedReview.photos && Array.isArray(selectedReview.photos) && selectedReview.photos.length > 0) {
       photos.push(...selectedReview.photos)
     } else {
-      // Иначе показываем фото здания
-      // Добавляем основное фото
+      // Otherwise show building photos
+      // Add main photo
       if (currentPoint.buildings.image_url) {
         photos.push(currentPoint.buildings.image_url)
       }
       
-      // Добавляем дополнительные фото (если они не дублируют основное)
+      // Add additional photos (if they don't duplicate main)
       if (currentPoint.buildings.image_urls && Array.isArray(currentPoint.buildings.image_urls)) {
         const uniquePhotos = currentPoint.buildings.image_urls.filter(
           url => url !== currentPoint.buildings!.image_url
@@ -362,13 +362,13 @@ export default function RouteViewerModal({
     return photos
   }, [currentPoint, selectedReview])
 
-  // Сброс индекса фото и списка обзоров при смене точки
+  // Reset photo index and reviews list when point changes
   useEffect(() => {
     setCurrentPhotoIndex(0)
     setShowAllReviews(false)
   }, [currentPointIndex])
 
-  // Навигация
+  // Navigation
   const goToPrevious = () => {
     if (currentPointIndex > 0) {
       setCurrentPointIndex(currentPointIndex - 1)
@@ -381,22 +381,22 @@ export default function RouteViewerModal({
     }
   }
 
-  // Прогресс
+  // Progress
   const progressPercent = useMemo(() => {
     if (routePoints.length === 0) return 0
     return ((currentPointIndex + 1) / routePoints.length) * 100
   }, [currentPointIndex, routePoints.length])
 
-  // URL для экспорта маршрута
+  // URL for route export
   const exportUrls = useMemo(() => {
     if (routePoints.length === 0) return { google: '', apple: '' }
     
-    // Google Maps: первая точка как старт, остальные как waypoints
+    // Google Maps: first point as start, rest as waypoints
     const firstPoint = routePoints[0]
     const waypoints = routePoints.slice(1).map(p => `${p.latitude},${p.longitude}`).join('|')
     const googleUrl = `https://www.google.com/maps/dir/?api=1&origin=${firstPoint.latitude},${firstPoint.longitude}&waypoints=${waypoints}&travelmode=walking`
     
-    // Apple Maps: первая точка как старт, последняя как destination
+    // Apple Maps: first point as start, last as destination
     const lastPoint = routePoints[routePoints.length - 1]
     const appleUrl = `https://maps.apple.com/?saddr=${firstPoint.latitude},${firstPoint.longitude}&daddr=${lastPoint.latitude},${lastPoint.longitude}&dirflg=w`
     
@@ -407,7 +407,7 @@ export default function RouteViewerModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 md:p-4">
-      {/* Модальное окно - компактное */}
+      {/* Modal window - compact */}
       <div className="bg-card rounded-[var(--radius)] md:rounded-2xl shadow-2xl w-full max-w-5xl h-[95vh] md:h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
         {/* Header */}
         <div className="flex items-center justify-between p-3 md:p-6 border-b-2 border-border bg-card">
@@ -420,20 +420,20 @@ export default function RouteViewerModal({
             </p>
           </div>
           
-          {/* Геолокация и экспорт */}
+          {/* Geolocation and export */}
           <div className="flex items-center space-x-2 md:space-x-4 ml-2 md:ml-4">
-            {/* Экспорт маршрута - теперь видим на мобильных */}
+            {/* Route export - now visible on mobile */}
             <div className="relative">
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
                 className="flex items-center px-2 md:px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-all shadow-md hover:shadow-lg font-medium text-xs md:text-sm"
-                title="Экспорт маршрута"
+                title="Export route"
               >
                 <Navigation className="w-4 h-4 md:mr-2" />
-                <span className="hidden md:inline">Экспорт маршрута</span>
+                <span className="hidden md:inline">Export Route</span>
               </button>
 
-              {/* Dropdown меню */}
+              {/* Dropdown menu */}
               {showExportMenu && (
                 <div className="absolute right-0 mt-2 w-40 md:w-48 bg-card rounded-[var(--radius)] shadow-xl border-2 border-border py-2 z-[60]">
                   <a
@@ -460,15 +460,15 @@ export default function RouteViewerModal({
               )}
             </div>
 
-            {/* Геолокация - теперь видима на мобильных */}
+            {/* Geolocation - now visible on mobile */}
             <div className="flex items-center space-x-1 md:space-x-2">
-              <span className="hidden md:inline text-xs md:text-sm text-muted-foreground">Геолокация:</span>
+              <span className="hidden md:inline text-xs md:text-sm text-muted-foreground">Geolocation:</span>
               <button
                 onClick={() => setGeolocationEnabled(!geolocationEnabled)}
                 className={`relative inline-flex h-5 w-9 md:h-6 md:w-11 items-center rounded-full transition-colors ${
                   geolocationEnabled ? 'bg-primary' : 'bg-muted'
                 }`}
-                title={geolocationEnabled ? 'Геолокация включена' : 'Геолокация выключена'}
+                title={geolocationEnabled ? 'Geolocation enabled' : 'Geolocation disabled'}
               >
                 <span
                   className={`inline-block h-3 w-3 md:h-4 md:w-4 transform rounded-full bg-white transition-transform ${
@@ -478,15 +478,15 @@ export default function RouteViewerModal({
               </button>
             </div>
 
-            {/* Кнопка редактирования (для создателя/админа/модератора) */}
+            {/* Edit button (for creator/admin/moderator) */}
             {canEdit && (
               <button
                 onClick={() => {
-                  console.log('🔧 Открытие редактирования маршрута:', route.id)
+                  console.log('🔧 Opening route editing:', route.id)
                   window.open(`/routes/${route.id}/edit`, '_blank')
                 }}
                 className="p-1.5 md:p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
-                title="Редактировать маршрут"
+                title="Edit route"
               >
                 <Pencil className="w-4 h-4 md:w-5 md:h-5 text-primary" />
               </button>
@@ -503,13 +503,13 @@ export default function RouteViewerModal({
 
         {/* Content */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Левая панель: Список точек - скрыта на мобильных */}
+          {/* Left panel: Points list - hidden on mobile */}
           <div className="hidden md:block w-64 border-r-2 border-border bg-background overflow-y-auto flex-shrink-0">
             <div className="p-4">
-              {/* Прогресс */}
+              {/* Progress */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium font-display text-foreground">Прогресс</span>
+                  <span className="text-sm font-medium font-display text-foreground">Progress</span>
                   <span className="text-sm text-muted-foreground font-metrics">
                     {currentPointIndex + 1} / {routePoints.length}
                   </span>
@@ -522,40 +522,40 @@ export default function RouteViewerModal({
                 </div>
               </div>
 
-              {/* Статистика маршрута */}
+              {/* Route statistics */}
               <div className="bg-card rounded-[var(--radius)] border-2 border-border p-4 mb-4 shadow-sm">
-                <h3 className="font-semibold font-display text-foreground mb-3">Маршрут</h3>
+                <h3 className="font-semibold font-display text-foreground mb-3">Route</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Точек:</span>
+                    <span className="text-muted-foreground">Points:</span>
                     <span className="font-medium font-metrics text-foreground">{routePoints.length}</span>
                   </div>
                   {route.distance_km && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Расстояние:</span>
-                      <span className="font-medium font-metrics text-foreground">{route.distance_km.toFixed(1)} км</span>
+                      <span className="text-muted-foreground">Distance:</span>
+                      <span className="font-medium font-metrics text-foreground">{route.distance_km.toFixed(1)} km</span>
                     </div>
                   )}
                   {route.estimated_duration_minutes && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Время:</span>
+                      <span className="text-muted-foreground">Time:</span>
                       <span className="font-medium font-metrics text-foreground">
-                        {Math.floor(route.estimated_duration_minutes / 60)}ч {route.estimated_duration_minutes % 60}м
+                        {Math.floor(route.estimated_duration_minutes / 60)}h {route.estimated_duration_minutes % 60}m
                       </span>
                     </div>
                   )}
                   {route.transport_mode && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Тип:</span>
+                      <span className="text-muted-foreground">Type:</span>
                       <span className="font-medium text-foreground capitalize">{route.transport_mode}</span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Список точек */}
+              {/* Points list */}
               <div className="space-y-2">
-                <h3 className="font-semibold font-display text-foreground mb-3">Точки маршрута</h3>
+                <h3 className="font-semibold font-display text-foreground mb-3">Route Points</h3>
                 {loading ? (
                   <div className="space-y-2">
                     {[1, 2, 3].map(i => (
@@ -580,7 +580,7 @@ export default function RouteViewerModal({
                         }`}
                       >
                         <div className="flex items-center space-x-3">
-                          {/* Номер/Статус */}
+                          {/* Number/Status */}
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 font-metrics ${
                             isCurrent
                               ? 'bg-primary text-primary-foreground'
@@ -591,7 +591,7 @@ export default function RouteViewerModal({
                             {isPassed ? <Check className="w-4 h-4" /> : index + 1}
                           </div>
 
-                          {/* Информация */}
+                          {/* Information */}
                           <div className="flex-1 min-w-0">
                             <div className="font-medium text-foreground truncate text-sm">
                               {point.title}
@@ -599,12 +599,12 @@ export default function RouteViewerModal({
                             {point.estimated_time_minutes && (
                               <div className="text-xs text-muted-foreground flex items-center mt-1 font-metrics">
                                 <Clock className="w-3 h-3 mr-1" />
-                                {point.estimated_time_minutes} мин
+                                {point.estimated_time_minutes} min
                               </div>
                             )}
                           </div>
 
-                          {/* Индикатор текущей */}
+                          {/* Current indicator */}
                           {isCurrent && (
                             <div className="flex-shrink-0">
                               <Navigation className="w-4 h-4 text-primary" />
@@ -619,7 +619,7 @@ export default function RouteViewerModal({
             </div>
           </div>
 
-          {/* Правая панель: Детали текущей точки */}
+          {/* Right panel: Current point details */}
           <div className="flex-1 overflow-y-auto bg-card">
             {loading ? (
               <div className="p-4 md:p-8 space-y-4">
@@ -629,23 +629,23 @@ export default function RouteViewerModal({
               </div>
             ) : currentPoint ? (
               <div className="p-4 md:p-8">
-                {/* Галерея фото здания */}
+                {/* Building photo gallery */}
                 {currentPointPhotos.length > 0 && (
                   <div className="mb-4 md:mb-6 relative rounded-[var(--radius)] overflow-hidden shadow-lg group">
                     <img
                       src={getStorageUrl(currentPointPhotos[currentPhotoIndex], 'photos')}
-                      alt={`${currentPoint.title} - фото ${currentPhotoIndex + 1}`}
+                      alt={`${currentPoint.title} - photo ${currentPhotoIndex + 1}`}
                       className="w-full h-48 md:h-80 object-cover"
                     />
 
-                    {/* Счетчик фото */}
+                    {/* Photo counter */}
                     {currentPointPhotos.length > 1 && (
                       <div className="absolute top-2 md:top-4 right-2 md:right-4 bg-black/60 text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium font-metrics">
                         {currentPhotoIndex + 1} / {currentPointPhotos.length}
                       </div>
                     )}
 
-                    {/* Стрелочки навигации */}
+                    {/* Navigation arrows */}
                     {currentPointPhotos.length > 1 && (
                       <>
                         <button
@@ -667,7 +667,7 @@ export default function RouteViewerModal({
                       </>
                     )}
 
-                    {/* Точки-индикаторы */}
+                    {/* Indicator dots */}
                     {currentPointPhotos.length > 1 && currentPointPhotos.length <= 10 && (
                       <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-1.5 md:space-x-2">
                         {currentPointPhotos.map((_, index) => (
@@ -686,7 +686,7 @@ export default function RouteViewerModal({
                   </div>
                 )}
 
-                {/* Информация о точке */}
+                {/* Point information */}
                 <div className="mb-4 md:mb-6">
                   <h3 className="text-xl md:text-3xl font-bold font-display text-foreground mb-2">
                     {currentPoint.title}
@@ -703,7 +703,7 @@ export default function RouteViewerModal({
                       {currentPoint.estimated_time_minutes && (
                         <div className="flex items-center font-metrics">
                           <Clock className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                          {currentPoint.estimated_time_minutes} мин
+                          {currentPoint.estimated_time_minutes} min
                         </div>
                       )}
                       {currentPoint.buildings.rating && (
@@ -715,7 +715,7 @@ export default function RouteViewerModal({
                     </div>
                   )}
 
-                  {/* Текст обзора (если выбран) или описание здания */}
+                  {/* Review text (if selected) or building description */}
                   {selectedReview && selectedReview.content ? (
                     <div className="prose max-w-none mb-4">
                       <p className="text-sm md:text-base text-foreground leading-relaxed whitespace-pre-line">
@@ -740,15 +740,15 @@ export default function RouteViewerModal({
                   )}
                 </div>
 
-                {/* Секция обзоров */}
+                {/* Reviews section */}
                 <div className="mb-4 md:mb-6">
                   <div className="flex items-center justify-between mb-3 md:mb-4">
                     <h4 className="text-lg md:text-xl font-semibold font-display text-foreground">
-                      📝 Обзоры {reviews.length > 0 && `(${reviews.length})`}
+                      📝 Reviews {reviews.length > 0 && `(${reviews.length})`}
                     </h4>
                     {reviews.length > 0 && (
                       <div className="text-xs md:text-sm text-muted-foreground font-metrics">
-                        {reviews.filter(r => r.audio_url).length} с аудио
+                        {reviews.filter(r => r.audio_url).length} with audio
                       </div>
                     )}
                   </div>
@@ -762,7 +762,7 @@ export default function RouteViewerModal({
                   ) : reviews.length === 0 ? (
                     <div className="bg-muted border-2 border-border rounded-[var(--radius)] p-4 md:p-6 text-center">
                       <p className="text-sm md:text-base text-muted-foreground">
-                        📭 Пока нет обзоров для этого объекта
+                        📭 No reviews yet for this object
                       </p>
                     </div>
                   ) : (
@@ -771,7 +771,7 @@ export default function RouteViewerModal({
                         {(showAllReviews ? reviews : reviews.slice(0, 3)).map((review) => {
                         const isSelected = review.id === selectedReviewId
 
-                        // Проверка на "Полный обзор"
+                        // Check for "Complete Review"
                         const isFullReview = !!(
                           review.content && review.content.length >= 200 &&
                           review.photos && review.photos.length >= 2 &&
@@ -791,7 +791,7 @@ export default function RouteViewerModal({
                             {/* Header */}
                             <div className="flex items-start justify-between mb-2 md:mb-3">
                               <div className="flex items-center flex-wrap gap-1.5 md:gap-2">
-                                {/* Рейтинг от пользователей */}
+                                {/* User ratings */}
                                 {review.user_rating_count > 0 && (
                                   <div className="flex items-center bg-yellow-50 px-1.5 md:px-2 py-0.5 md:py-1 rounded">
                                     <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 fill-yellow-400 mr-0.5 md:mr-1" />
@@ -807,7 +807,7 @@ export default function RouteViewerModal({
                                 {/* Полный обзор - ГЛАВНЫЙ бейдж */}
                                 {isFullReview && (
                                   <span className="flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-bold border border-yellow-300">
-                                    ⭐ ПОЛНЫЙ
+                                    ⭐ COMPLETE
                                   </span>
                                 )}
 
@@ -815,29 +815,29 @@ export default function RouteViewerModal({
                                 {review.audio_url && (
                                   <span className="flex items-center bg-purple-50 text-purple-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
                                     <Headphones className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
-                                    <span className="hidden md:inline">Аудио</span>
+                                    <span className="hidden md:inline">Audio</span>
                                   </span>
                                 )}
                                 {review.is_verified && (
                                   <span className="flex items-center bg-green-50 text-green-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
                                     <CheckCircle className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
-                                    <span className="hidden md:inline">Проверено</span>
+                                    <span className="hidden md:inline">Verified</span>
                                   </span>
                                 )}
                                 {review.is_featured && (
                                   <span className="flex items-center bg-primary/10 text-primary px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
                                     <Award className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
-                                    <span className="hidden md:inline">Рекомендовано</span>
+                                    <span className="hidden md:inline">Recommended</span>
                                   </span>
                                 )}
                                 {review.review_type === 'expert' && (
                                   <span className="bg-indigo-50 text-indigo-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
-                                    👨‍🎓 <span className="hidden md:inline">Эксперт</span>
+                                    👨‍🎓 <span className="hidden md:inline">Expert</span>
                                   </span>
                                 )}
                                 {review.review_type === 'historical' && (
                                   <span className="bg-amber-50 text-amber-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
-                                    📜 <span className="hidden md:inline">Исторический</span>
+                                    📜 <span className="hidden md:inline">Historical</span>
                                   </span>
                                 )}
                               </div>
@@ -845,45 +845,45 @@ export default function RouteViewerModal({
                               {isSelected && (
                                 <span className="flex items-center text-primary text-xs md:text-sm font-medium">
                                   <Check className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                                  <span className="hidden md:inline">Выбран</span>
+                                  <span className="hidden md:inline">Selected</span>
                                 </span>
                               )}
                             </div>
 
-                            {/* Заголовок */}
+                            {/* Title */}
                             {review.title && (
                               <h5 className="font-semibold font-display text-foreground mb-1 md:mb-2 text-sm md:text-base">
                                 {review.title}
                               </h5>
                             )}
 
-                            {/* Превью текста */}
+                            {/* Text preview */}
                             {review.content && (
                               <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3 line-clamp-2">
                                 {review.content}
                               </p>
                             )}
 
-                            {/* Метаданные */}
+                            {/* Metadata */}
                             <div className="flex items-center space-x-2 md:space-x-3 text-xs text-muted-foreground mb-2 md:mb-3 font-metrics">
                               {review.audio_duration_seconds && (
                                 <span className="flex items-center">
                                   <Headphones className="w-3 h-3 mr-1" />
-                                  {Math.floor(review.audio_duration_seconds / 60)} мин
+                                  {Math.floor(review.audio_duration_seconds / 60)} min
                                 </span>
                               )}
                               {review.content && (
                                 <span>
-                                  ~{Math.round(review.content.length / 5)} слов
+                                  ~{Math.round(review.content.length / 5)} words
                                 </span>
                               )}
                             </div>
 
-                            {/* Оценка обзора */}
+                            {/* Review rating */}
                             <div className="border-t border-border pt-2 md:pt-3 flex items-center justify-between flex-wrap gap-2 md:gap-3">
                               {/* Звезды для оценки */}
                               <div onClick={(e) => e.stopPropagation()}>
-                                <p className="text-xs text-muted-foreground mb-1 hidden md:block">Оцените обзор:</p>
+                                <p className="text-xs text-muted-foreground mb-1 hidden md:block">Rate review:</p>
                                 <div className="flex items-center space-x-0.5 md:space-x-1">
                                   {[1, 2, 3, 4, 5].map(star => {
                                     const userRating = userRatings.get(review.id) || 0
@@ -913,7 +913,7 @@ export default function RouteViewerModal({
                                 </div>
                               </div>
 
-                              {/* Кнопка "Полезно" */}
+                              {/* "Helpful" button */}
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -924,7 +924,7 @@ export default function RouteViewerModal({
                                     ? 'bg-primary/10 text-primary font-medium'
                                     : 'hover:bg-muted text-muted-foreground'
                                 }`}
-                                title={helpfulVotes.has(review.id) ? 'Отменить оценку' : 'Отметить как полезный'}
+                                title={helpfulVotes.has(review.id) ? 'Remove rating' : 'Mark as helpful'}
                               >
                                 <span className="mr-1">{helpfulVotes.has(review.id) ? '👍' : '👍🏻'}</span>
                                 <span className="text-xs font-metrics">{review.helpful_count}</span>
@@ -943,9 +943,9 @@ export default function RouteViewerModal({
                             className="px-3 md:px-4 py-1.5 md:py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors font-medium text-xs md:text-sm"
                           >
                             {showAllReviews ? (
-                              <>↑ Свернуть обзоры</>
+                              <>↑ Collapse reviews</>
                             ) : (
-                              <>↓ Показать еще {reviews.length - 3} обзоров</>
+                              <>↓ Show {reviews.length - 3} more reviews</>
                             )}
                           </button>
                         </div>
@@ -954,17 +954,17 @@ export default function RouteViewerModal({
                   )}
                 </div>
 
-                {/* Аудио плеер (если выбран обзор с аудио) */}
+                {/* Audio player (if review with audio is selected) */}
                 {selectedReview && selectedReview.audio_url && (
                   <div className="mb-4 md:mb-6">
                     <h4 className="text-lg md:text-xl font-semibold font-display text-foreground mb-3 md:mb-4">
-                      🎧 Аудио обзор
+                      🎧 Audio Review
                     </h4>
                     <AudioPlayer
                       audioUrl={getStorageUrl(selectedReview.audio_url, 'audio')}
                       title={selectedReview.title || currentPoint.title}
                       onPositionChange={async (position) => {
-                        // Сохраняем позицию в БД
+                        // Save position to DB
                         if (user && currentPoint) {
                           await supabase
                             .from('route_point_review_selections')
@@ -982,10 +982,10 @@ export default function RouteViewerModal({
                   </div>
                 )}
 
-                {/* Мини-карта */}
+                {/* Mini-map */}
                 <div className="mb-4 md:mb-6">
                   <h4 className="text-lg md:text-xl font-semibold font-display text-foreground mb-3 md:mb-4">
-                    🗺️ Карта
+                    🗺️ Map
                   </h4>
                   <div className="h-48 md:h-64 rounded-[var(--radius)] overflow-hidden border-2 border-border">
                     <DynamicMiniMap
@@ -999,16 +999,16 @@ export default function RouteViewerModal({
               </div>
             ) : (
               <div className="p-4 md:p-8 text-center text-muted-foreground">
-                Выберите точку маршрута
+                Select a route point
               </div>
             )}
           </div>
         </div>
 
-        {/* Превью маршрута для мобильной версии */}
+        {/* Route preview for mobile version */}
         <div className="md:hidden border-t-2 border-border bg-background p-3">
           <h4 className="text-sm font-semibold font-display text-foreground mb-2">
-            Маршрут ({routePoints.length} точек)
+            Route ({routePoints.length} points)
           </h4>
           <div className="flex space-x-2 overflow-x-auto pb-2 -mx-3 px-3 scrollbar-hide">
             {routePoints.map((point, index) => {
@@ -1088,12 +1088,12 @@ export default function RouteViewerModal({
             className="flex items-center space-x-1 md:space-x-2 px-3 md:px-6 py-2 md:py-3 bg-card border-2 border-border text-foreground rounded-[var(--radius)] font-medium hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
           >
             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
-            <span className="hidden md:inline">Предыдущая</span>
+            <span className="hidden md:inline">Previous</span>
           </button>
 
           <div className="text-center">
             <div className="text-lg md:text-2xl font-bold font-display text-foreground">
-              {currentPointIndex + 1} <span className="text-muted-foreground">из</span> {routePoints.length}
+              {currentPointIndex + 1} <span className="text-muted-foreground">of</span> {routePoints.length}
             </div>
             {currentPoint && (
               <div className="text-xs md:text-sm text-muted-foreground mt-1 truncate max-w-[120px] md:max-w-none">
@@ -1107,7 +1107,7 @@ export default function RouteViewerModal({
             disabled={currentPointIndex === routePoints.length - 1}
             className="flex items-center space-x-1 md:space-x-2 px-3 md:px-6 py-2 md:py-3 bg-primary text-primary-foreground rounded-[var(--radius)] font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
           >
-            <span className="hidden md:inline">Следующая</span>
+            <span className="hidden md:inline">Next</span>
             <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>

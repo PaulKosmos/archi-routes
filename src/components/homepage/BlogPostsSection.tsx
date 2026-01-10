@@ -73,7 +73,7 @@ export default function BlogPostsSection() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return new Intl.DateTimeFormat('ru-RU', {
+    return new Intl.DateTimeFormat('en-US', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
@@ -179,7 +179,7 @@ export default function BlogPostsSection() {
               onClick={() => scroll('left')}
               className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 z-10 bg-background border border-border p-3 hover:border-foreground/30 transition-all hidden lg:flex items-center justify-center"
               style={{ borderRadius: '2px' }}
-              aria-label="Предыдущие статьи"
+              aria-label="Previous articles"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -233,7 +233,7 @@ export default function BlogPostsSection() {
                   {post.reading_time_minutes && (
                     <div className="flex items-center gap-1">
                       <Clock size={14} />
-                      <span>{post.reading_time_minutes} мин</span>
+                      <span>{post.reading_time_minutes} min</span>
                     </div>
                   )}
                 </div>
@@ -275,7 +275,7 @@ export default function BlogPostsSection() {
                       >
                         <OptimizedImage
                           src={getStorageUrl(post.author.avatar_url, 'photos')}
-                          alt={post.author.display_name || post.author.full_name || 'Автор'}
+                          alt={post.author.display_name || post.author.full_name || 'Author'}
                           fill
                           className="object-cover"
                           sizes="24px"
@@ -289,7 +289,7 @@ export default function BlogPostsSection() {
                       </div>
                     )}
                     <span className="text-xs text-foreground font-medium">
-                      {post.author.display_name || post.author.full_name || 'Аноним'}
+                      {post.author.display_name || post.author.full_name || 'Anonymous'}
                     </span>
                   </div>
                 )}
@@ -303,7 +303,7 @@ export default function BlogPostsSection() {
               onClick={() => scroll('right')}
               className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 z-10 bg-background border border-border p-3 hover:border-foreground/30 transition-all hidden lg:flex items-center justify-center"
               style={{ borderRadius: '2px' }}
-              aria-label="Следующие статьи"
+              aria-label="Next articles"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

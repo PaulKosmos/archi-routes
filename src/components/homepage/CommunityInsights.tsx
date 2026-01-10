@@ -14,27 +14,27 @@ interface CommunityInsightsProps {
 // Review type configurations
 const reviewTypeConfig = {
   expert: {
-    badge: 'Эксперт',
+    badge: 'Expert',
     icon: '⭐',
     color: 'bg-yellow-100 text-yellow-700 border-yellow-200'
   },
   guide: {
-    badge: 'Гид',
+    badge: 'Guide',
     icon: '◆',
     color: 'bg-blue-100 text-blue-700 border-blue-200'
   },
   historical: {
-    badge: 'История',
+    badge: 'History',
     icon: '📚',
     color: 'bg-purple-100 text-purple-700 border-purple-200'
   },
   general: {
-    badge: 'Обзор',
+    badge: 'Review',
     icon: '💬',
     color: 'bg-gray-100 text-gray-700 border-gray-200'
   },
   amateur: {
-    badge: 'Энтузиаст',
+    badge: 'Enthusiast',
     icon: '❤️',
     color: 'bg-pink-100 text-pink-700 border-pink-200'
   }
@@ -121,7 +121,7 @@ export default function CommunityInsights({ reviews, loading }: CommunityInsight
             }`}
             style={{ borderRadius: '2px' }}
           >
-            Все ({reviews.length})
+            All ({reviews.length})
           </button>
           {Object.entries(reviewTypeConfig).map(([type, config]) => {
             const count = reviews.filter(r => r.review_type === type).length
@@ -160,7 +160,7 @@ export default function CommunityInsights({ reviews, loading }: CommunityInsight
                   {/* Featured badge */}
                   <div className="flex items-center gap-3 mb-4">
                     <span className="px-3 py-1 bg-foreground text-background text-xs font-bold uppercase">
-                      Избранное
+                      Featured
                     </span>
                     {featuredReview.review_type && reviewTypeConfig[featuredReview.review_type] && (
                       <span className={`px-2 py-1 border text-xs font-medium ${reviewTypeConfig[featuredReview.review_type].color}`}>
@@ -199,13 +199,13 @@ export default function CommunityInsights({ reviews, loading }: CommunityInsight
 
                     <div className="flex-1">
                       <div className="font-semibold text-foreground">
-                        {featuredReview.profiles?.full_name || 'Анонимный пользователь'}
+                        {featuredReview.profiles?.full_name || 'Anonymous User'}
                       </div>
                       {featuredReview.profiles?.role && (
                         <div className="text-xs text-muted-foreground">
-                          {featuredReview.profiles.role === 'expert' && '⭐ Эксперт'}
-                          {featuredReview.profiles.role === 'guide' && '◆ Гид'}
-                          {featuredReview.profiles.role === 'explorer' && 'Исследователь'}
+                          {featuredReview.profiles.role === 'expert' && '⭐ Expert'}
+                          {featuredReview.profiles.role === 'guide' && '◆ Guide'}
+                          {featuredReview.profiles.role === 'explorer' && 'Explorer'}
                         </div>
                       )}
                     </div>
@@ -227,7 +227,7 @@ export default function CommunityInsights({ reviews, loading }: CommunityInsight
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                       </svg>
-                      <span>Аудио-гид доступен</span>
+                      <span>Audio Guide Available</span>
                     </div>
                   )}
                 </div>
@@ -274,7 +274,7 @@ export default function CommunityInsights({ reviews, loading }: CommunityInsight
                       {review.profiles?.full_name?.charAt(0) || '?'}
                     </div>
                     <span className="text-muted-foreground">
-                      {review.profiles?.full_name || 'Анонимный'}
+                      {review.profiles?.full_name || 'Anonymous'}
                     </span>
 
                     {review.user_rating_avg > 0 && (

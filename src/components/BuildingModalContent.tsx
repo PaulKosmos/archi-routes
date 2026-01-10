@@ -234,7 +234,7 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Загрузка данных здания...</p>
+          <p className="text-gray-600">Loading building data...</p>
         </div>
       </div>
     )
@@ -244,8 +244,8 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Ошибка загрузки</h1>
-          <p className="text-gray-600">Не удалось загрузить данные о здании</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Loading Error</h1>
+          <p className="text-gray-600">Failed to load building data</p>
         </div>
       </div>
     )
@@ -271,7 +271,7 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
             {/* Описание здания */}
             {building.description && (
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Описание</h2>
+                <h2 className="text-xl font-semibold mb-4">Description</h2>
                 <p className="text-gray-700 leading-relaxed">{building.description}</p>
               </div>
             )}
@@ -279,13 +279,13 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
             {/* Дополнительные изображения */}
             {building.image_urls && building.image_urls.length > 0 && (
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Галерея</h2>
+                <h2 className="text-xl font-semibold mb-4">Gallery</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {building.image_urls.map((imageUrl, index) => (
                     <div key={index} className="aspect-square overflow-hidden rounded-lg">
                       <img
                         src={getStorageUrl(imageUrl, 'photos')}
-                        alt={`${building.name} - фото ${index + 1}`}
+                        alt={`${building.name} - photo ${index + 1}`}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                       />
                     </div>
@@ -320,9 +320,9 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
             {/* Карта */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="p-4 border-b">
-                <h3 className="font-semibold">Расположение</h3>
+                <h3 className="font-semibold">Location</h3>
               </div>
-              <BuildingMap 
+              <BuildingMap
                 building={building}
                 className="h-64"
               />
@@ -330,14 +330,14 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
 
             {/* Основная информация */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-4">Информация</h3>
+              <h3 className="text-lg font-semibold mb-4">Information</h3>
               <div className="space-y-4">
-                
+
                 {building.architect && (
                   <div className="flex items-start">
                     <User className="h-4 w-4 text-gray-400 mr-3 mt-1 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <span className="text-sm text-gray-500 block">Архитектор</span>
+                      <span className="text-sm text-gray-500 block">Architect</span>
                       <p className="font-medium text-gray-900">{building.architect}</p>
                     </div>
                   </div>
@@ -347,7 +347,7 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
                   <div className="flex items-start">
                     <Calendar className="h-4 w-4 text-gray-400 mr-3 mt-1 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <span className="text-sm text-gray-500 block">Год постройки</span>
+                      <span className="text-sm text-gray-500 block">Year Built</span>
                       <p className="font-medium text-gray-900">{building.year_built}</p>
                     </div>
                   </div>
@@ -357,7 +357,7 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
                   <div className="flex items-start">
                     <Camera className="h-4 w-4 text-gray-400 mr-3 mt-1 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <span className="text-sm text-gray-500 block">Архитектурный стиль</span>
+                      <span className="text-sm text-gray-500 block">Architectural Style</span>
                       <p className="font-medium text-gray-900">{building.architectural_style}</p>
                     </div>
                   </div>
@@ -367,7 +367,7 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
                   <div className="flex items-start">
                     <MapPin className="h-4 w-4 text-gray-400 mr-3 mt-1 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <span className="text-sm text-gray-500 block">Адрес</span>
+                      <span className="text-sm text-gray-500 block">Address</span>
                       <p className="font-medium text-gray-900">{building.address}</p>
                     </div>
                   </div>

@@ -95,7 +95,7 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                     : 'hover:text-[hsl(var(--map-primary))]'
                 }`}
               >
-                Карта
+                Map
               </a>
               <a
                 href="/news"
@@ -105,7 +105,7 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                     : 'hover:text-[hsl(var(--news-primary))]'
                 }`}
               >
-                Новости
+                News
               </a>
               <a
                 href="/blog"
@@ -115,7 +115,7 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                     : 'hover:text-[hsl(var(--blog-primary))]'
                 }`}
               >
-                Блог
+                Blog
               </a>
               <a
                 href="/podcasts"
@@ -125,7 +125,7 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                     : 'hover:text-[hsl(var(--podcast-primary))]'
                 }`}
               >
-                Подкасты
+                Podcasts
               </a>
             </nav>
 
@@ -140,7 +140,7 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                   <a
                     href="/search"
                     className="p-2 text-foreground hover:bg-muted rounded-lg transition-colors"
-                    aria-label="Поиск"
+                    aria-label="Search"
                   >
                     <Search className="h-5 w-5" />
                   </a>
@@ -152,7 +152,7 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                   <a
                     href="/search"
                     className="p-2 text-foreground hover:bg-muted rounded-lg transition-colors"
-                    aria-label="Поиск"
+                    aria-label="Search"
                   >
                     <Search className="h-5 w-5" />
                   </a>
@@ -160,7 +160,7 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                     onClick={handleAuthModalOpen}
                     className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium"
                   >
-                    Войти
+                    Sign In
                   </button>
                 </>
               )}
@@ -187,35 +187,35 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                     onClick={() => setShowMobileMenu(false)}
                   >
                     <Search className="h-4 w-4" />
-                    <span>Поиск</span>
+                    <span>Search</span>
                   </a>
                   <a
                     href="/map"
                     className="block text-foreground hover:text-[hsl(var(--map-primary))] font-medium transition-colors"
                     onClick={() => setShowMobileMenu(false)}
                   >
-                    Карта
+                    Map
                   </a>
                   <a
                     href="/news"
                     className="block text-foreground hover:text-[hsl(var(--news-primary))] font-medium transition-colors"
                     onClick={() => setShowMobileMenu(false)}
                   >
-                    Новости
+                    News
                   </a>
                   <a
                     href="/blog"
                     className="block text-foreground hover:text-[hsl(var(--blog-primary))] font-medium transition-colors"
                     onClick={() => setShowMobileMenu(false)}
                   >
-                    Блог
+                    Blog
                   </a>
                   <a
                     href="/podcasts"
                     className="block text-foreground hover:text-[hsl(var(--podcast-primary))] font-medium transition-colors"
                     onClick={() => setShowMobileMenu(false)}
                   >
-                    Подкасты
+                    Podcasts
                   </a>
                 </div>
 
@@ -228,35 +228,35 @@ export default function Header({ buildings, onRouteCreated }: HeaderProps) {
                         className="block text-foreground hover:text-primary font-medium transition-colors"
                         onClick={() => setShowMobileMenu(false)}
                       >
-                        Мой профиль
+                        My Profile
                       </a>
                       <a
                         href="/profile/edit"
                         className="block text-foreground hover:text-primary font-medium transition-colors"
                         onClick={() => setShowMobileMenu(false)}
                       >
-                        Редактировать профиль
+                        Edit Profile
                       </a>
                       <a
                         href="/profile/buildings"
                         className="block text-foreground hover:text-primary font-medium transition-colors"
                         onClick={() => setShowMobileMenu(false)}
                       >
-                        Мои объекты
+                        My Buildings
                       </a>
                       <a
                         href="/profile/favorites"
                         className="block text-foreground hover:text-primary font-medium transition-colors"
                         onClick={() => setShowMobileMenu(false)}
                       >
-                        Избранное
+                        Favorites
                       </a>
                       <a
                         href="/profile/collections"
                         className="block text-foreground hover:text-primary font-medium transition-colors"
                         onClick={() => setShowMobileMenu(false)}
                       >
-                        Коллекции
+                        Collections
                       </a>
                     </div>
                   </div>

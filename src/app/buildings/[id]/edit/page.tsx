@@ -1,4 +1,4 @@
-// src/app/buildings/[id]/edit/page.tsx - Страница редактирования здания
+// src/app/buildings/[id]/edit/page.tsx - Building edit page
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import EditBuildingClient from './EditBuildingClient'
@@ -23,10 +23,10 @@ export default async function EditBuildingPage({ params }: PageProps) {
     return notFound()
   }
 
-  // Создаем публичный клиент для получения данных
+  // Create public client to fetch data
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-  // Загружаем здание с информацией о создателе
+  // Load building with creator information
   const { data: building, error } = await supabase
     .from('buildings')
     .select(`

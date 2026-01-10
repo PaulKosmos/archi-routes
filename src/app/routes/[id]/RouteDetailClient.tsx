@@ -1,4 +1,4 @@
-// src/app/routes/[id]/RouteDetailClient.tsx - С GPS-навигацией и экспортом
+// src/app/routes/[id]/RouteDetailClient.tsx - With GPS navigation and export
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -14,11 +14,11 @@ import DeleteContentModal from '../../../components/DeleteContentModal'
 import RouteFavoriteButton, { RouteCompletedButton } from '../../../components/RouteFavoriteButton'
 import { Route, TransportModeHelper, formatDistance, formatDuration } from '../../../types/route'
 
-// Динамический импорт обновленной карты
+// Dynamic import of updated map
 const RouteMap = dynamic(() => import('./RouteMap'), {
   ssr: false,
   loading: () => <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
-    <span className="text-gray-500">Загрузка карты...</span>
+    <span className="text-gray-500">Loading map...</span>
   </div>
 })
 
@@ -32,9 +32,9 @@ interface UserLocation {
   accuracy: number
 }
 
-// 🔧 ФУНКЦИЯ РАСЧЕТА РАССТОЯНИЯ
+// 🔧 DISTANCE CALCULATION FUNCTION
 const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
-  const R = 6371000 // радиус Земли в метрах
+  const R = 6371000 // Earth radius in meters
   const φ1 = lat1 * Math.PI / 180
   const φ2 = lat2 * Math.PI / 180
   const Δφ = (lat2 - lat1) * Math.PI / 180
@@ -53,20 +53,20 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
   const [showActionsMenu, setShowActionsMenu] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
-  
-  // GPS-навигация
+
+  // GPS navigation
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null)
   const [isTrackingLocation, setIsTrackingLocation] = useState(false)
   const [locationError, setLocationError] = useState<string>('')
   const [watchId, setWatchId] = useState<number | null>(null)
   const [showNavigationPanel, setShowNavigationPanel] = useState(false)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
-  
-  // Состояния для экспорта
+
+  // Export states
   const [exportStatus, setExportStatus] = useState<string>('')
   const [copySuccess, setCopySuccess] = useState(false)
 
-  // Проверяем авторизацию
+  // Check authorization
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession()
@@ -76,7 +76,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
     checkAuth()
   }, [route.id])
 
-  // Используем хук для проверки прав
+  // Use hook to check permissions
   const permissions = useEditPermissions('route', route.id, user?.id || null)
   const canEdit = permissions.canEdit
   const userRole = permissions.userRole
@@ -88,21 +88,21 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
     route.created_by === user?.id
   )
 
-  // Получаем данные о транспорте
+  // Get transport data
   const transportMode = route.transport_mode || 'walking'
   const transportIcon = TransportModeHelper.getIcon(transportMode)
   const transportLabel = TransportModeHelper.getLabel(transportMode)
   const transportDescription = TransportModeHelper.getDescription(transportMode)
 
-  // Проверяем есть ли реальная геометрия маршрута
+  // Check if route has real geometry
   const hasRealRoute = !!(route.route_geometry && route.route_geometry.coordinates && route.route_geometry.coordinates.length > 0)
 
-  // 🔧 ИСПРАВЛЕННАЯ СТАБИЛЬНАЯ GPS-НАВИГАЦИЯ
+  // 🔧 FIXED STABLE GPS NAVIGATION
   const startLocationTracking = () => {
-    console.log('🔍 Запуск стабильной GPS-навигации...')
+    console.log('🔍 Starting stable GPS navigation...')
     
     if (!navigator.geolocation) {
-      setLocationError('❌ Геолокация не поддерживается вашим браузером')
+      setLocationError('❌ Geolocation is not supported by your browser')
       return
     }
 
@@ -110,10 +110,10 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
     setLocationError('')
     setShowNavigationPanel(true)
 
-    // ПЕРВОНАЧАЛЬНОЕ получение позиции
+    // INITIAL position retrieval
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        console.log('✅ Начальная GPS позиция получена:', position.coords)
+        console.log('✅ Initial GPS position received:', position.coords)
         
         const location: UserLocation = {
           latitude: position.coords.latitude,
@@ -122,8 +122,8 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
         }
 
         setUserLocation(location)
-        
-        // МЕДЛЕННОЕ обновление - раз в 2 минуты
+
+        // SLOW updates - once every 2 minutes
         const updateInterval = setInterval(() => {
           navigator.geolocation.getCurrentPosition(
             (newPosition) => {
@@ -132,25 +132,25 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                 longitude: newPosition.coords.longitude,
                 accuracy: newPosition.coords.accuracy
               }
-              
-              // Получаем текущее местоположение для сравнения
+
+              // Get current location for comparison
               setUserLocation(currentLocation => {
                 if (currentLocation) {
-                  // Обновляем ТОЛЬКО если изменение больше 10 метров
+                  // Update ONLY if change is greater than 10 meters
                   const distance = calculateDistance(
                     currentLocation.latitude, currentLocation.longitude,
                     newLocation.latitude, newLocation.longitude
                   )
-                  
+
                   if (distance > 10) {
-                    console.log('📍 GPS обновление (движение >10м):', newLocation, 'расстояние:', Math.round(distance), 'м')
+                    console.log('📍 GPS update (movement >10m):', newLocation, 'distance:', Math.round(distance), 'm')
                     return newLocation
                   } else {
-                    console.log('📍 GPS: движение незначительное (<10м), не обновляем')
+                    console.log('📍 GPS: movement insignificant (<10m), not updating')
                     return currentLocation
                   }
                 } else {
-                  console.log('📍 GPS: устанавливаем начальное местоположение')
+                  console.log('📍 GPS: setting initial location')
                   return newLocation
                 }
               })
@@ -158,38 +158,38 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
             (error) => console.log('GPS update error:', error.message),
             { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
           )
-        }, 120000) // Обновляем раз в 2 минуты
-        
-        // Сохраняем ID интервала для очистки
+        }, 120000) // Update once every 2 minutes
+
+        // Save interval ID for cleanup
         setWatchId(updateInterval as any)
       },
       (error) => {
-        console.log('🔍 GPS диагностика:', {
+        console.log('🔍 GPS diagnostics:', {
           code: error.code,
           message: error.message
         })
-        
+
         let errorMessage = ''
         switch (error.code) {
           case 1:
-            errorMessage = '🔒 Доступ к GPS запрещен. В адресной строке нажмите на замок → "Разрешить местоположение"'
+            errorMessage = '🔒 GPS access denied. In the address bar, click the lock → "Allow location"'
             break
           case 2:
-            errorMessage = '📡 GPS недоступен. Проверьте подключение к интернету и включите GPS'
+            errorMessage = '📡 GPS unavailable. Check internet connection and enable GPS'
             break
           case 3:
-            errorMessage = '⏱️ Время ожидания GPS истекло. Попробуйте еще раз'
+            errorMessage = '⏱️ GPS timeout. Please try again'
             break
           default:
-            errorMessage = `❌ Ошибка GPS (код ${error.code}): ${error.message || 'Неизвестная ошибка'}`
+            errorMessage = `❌ GPS error (code ${error.code}): ${error.message || 'Unknown error'}`
         }
-        
+
         setLocationError(errorMessage)
         setIsTrackingLocation(false)
         setShowNavigationPanel(false)
       },
       {
-        enableHighAccuracy: false, // Не используем высокую точность для экономии батареи
+        enableHighAccuracy: false, // Don't use high accuracy to save battery
         timeout: 15000,
         maximumAge: 60000
       }
@@ -198,7 +198,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
 
   const stopLocationTracking = () => {
     if (watchId !== null) {
-      // Очищаем интервал вместо watchPosition
+      // Clear interval instead of watchPosition
       clearInterval(watchId)
       setWatchId(null)
     }
@@ -206,10 +206,10 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
     setUserLocation(null)
     setShowNavigationPanel(false)
     setLocationError('')
-    console.log('⛔ GPS навигация остановлена')
+    console.log('⛔ GPS navigation stopped')
   }
 
-  // 🔧 ОБНОВЛЕННАЯ ФУНКЦИЯ РАСЧЕТА РАССТОЯНИЯ ДО СЛЕДУЮЩЕЙ ТОЧКИ
+  // 🔧 UPDATED FUNCTION FOR CALCULATING DISTANCE TO NEXT POINT
   const calculateDistanceToNextPoint = () => {
     if (!userLocation || !route.route_points || currentStepIndex >= route.route_points.length) {
       return null
@@ -228,10 +228,10 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
     )
   }
 
-  // Функции экспорта маршрута
+  // Route export functions
   const exportToGoogleMaps = () => {
     if (!route.route_points || route.route_points.length === 0) {
-      alert('Нет точек маршрута для экспорта')
+      alert('No route points to export')
       return
     }
 
@@ -241,80 +241,80 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
 
     const googleMapsUrl = `https://www.google.com/maps/dir/${waypoints}`
     window.open(googleMapsUrl, '_blank')
-    setExportStatus('Открыт в Google Maps')
+    setExportStatus('Opened in Google Maps')
     setTimeout(() => setExportStatus(''), 3000)
   }
 
   const exportToAppleMaps = () => {
     if (!route.route_points || route.route_points.length === 0) {
-      alert('Нет точек маршрута для экспорта')
+      alert('No route points to export')
       return
     }
 
-    // Для Apple Maps используем наиболее совместимый формат
+    // Use most compatible format for Apple Maps
     const firstPoint = route.route_points[0]
     const lastPoint = route.route_points[route.route_points.length - 1]
-    
-    // Создаем URL для маршрута с началом и концом
+
+    // Create URL for route with start and end
     let appleMapsUrl = `http://maps.apple.com/?saddr=${firstPoint.latitude},${firstPoint.longitude}&daddr=${lastPoint.latitude},${lastPoint.longitude}`
-    
-    // Добавляем промежуточные точки как отдельные параметры
+
+    // Add intermediate points as separate parameters
     if (route.route_points.length > 2) {
       const waypoints = route.route_points.slice(1, -1)
         .map(point => `${point.latitude},${point.longitude}`)
         .join('|')
-      
+
       if (waypoints) {
         appleMapsUrl += `&waypoints=${waypoints}`
       }
     }
-    
-    // Добавляем тип направлений
+
+    // Add directions type
     appleMapsUrl += `&dirflg=${route.transport_mode === 'driving' ? 'd' : 'w'}`
-    
+
     console.log('🍎 Apple Maps URL:', appleMapsUrl)
-    
-    // Альтернативный способ - открываем каждую точку отдельно
+
+    // Alternative method - open each point separately
     if (route.route_points.length > 2) {
       const confirmation = confirm(
-        `Apple Maps имеет ограничения по промежуточным точкам. \n\n` +
-        `Вариант 1: Открыть только начало и конец маршрута\n` +
-        `Вариант 2: Открыть все точки как отдельные маркеры\n\n` +
-        `Нажмите OK для варианта 1, Отмена для варианта 2`
+        `Apple Maps has limitations with intermediate points. \n\n` +
+        `Option 1: Open only start and end of route\n` +
+        `Option 2: Open all points as separate markers\n\n` +
+        `Press OK for option 1, Cancel for option 2`
       )
-      
+
       if (!confirmation) {
-        // Открываем все точки как отдельные маркеры
+        // Open all points as separate markers
         const allPointsUrl = route.route_points
           .map((point, index) => {
             return `http://maps.apple.com/?q=${encodeURIComponent(point.title)}&ll=${point.latitude},${point.longitude}&z=16`
           })
-        
-        // Открываем первые 3 точки (ограничение браузера)
+
+        // Open first 3 points (browser limitation)
         allPointsUrl.slice(0, 3).forEach((url, index) => {
           setTimeout(() => {
             window.open(url, `_blank_${index}`)
-          }, index * 500) // Задержка между открытиями
+          }, index * 500) // Delay between opens
         })
-        
+
         if (allPointsUrl.length > 3) {
-          alert(`Открыты первые 3 точки из ${route.route_points.length}. Остальные точки можно найти в приложении.`)
+          alert(`Opened first 3 points out of ${route.route_points.length}. Remaining points can be found in the app.`)
         }
-        
-        setExportStatus(`Открыто ${Math.min(3, route.route_points.length)} точек в Apple Maps`)
+
+        setExportStatus(`Opened ${Math.min(3, route.route_points.length)} points in Apple Maps`)
         setTimeout(() => setExportStatus(''), 3000)
         return
       }
     }
-    
+
     window.open(appleMapsUrl, '_blank')
-    setExportStatus('Открыт в Apple Maps (начало и конец)')
+    setExportStatus('Opened in Apple Maps (start and end)')
     setTimeout(() => setExportStatus(''), 3000)
   }
 
   const exportToGPX = () => {
     if (!route.route_points || route.route_points.length === 0) {
-      alert('Нет точек маршрута для экспорта GPX')
+      alert('No route points to export GPX')
       return
     }
 
@@ -326,14 +326,14 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
     a.download = `${route.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.gpx`
     a.click()
     URL.revokeObjectURL(url)
-    setExportStatus('GPX файл загружен')
+    setExportStatus('GPX file downloaded')
     setTimeout(() => setExportStatus(''), 3000)
   }
 
   const generateGPX = (): string => {
     const waypoints = route.route_points || []
-    const routeName = route.title || 'Архитектурный маршрут'
-    const routeDescription = route.description || 'Маршрут создан в ArchiRoutes'
+    const routeName = route.title || 'Architectural Route'
+    const routeDescription = route.description || 'Route created in ArchiRoutes'
 
     let gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="ArchiRoutes" xmlns="http://www.topografix.com/GPX/1/1">
@@ -344,7 +344,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
   </metadata>
 `
 
-    // Добавляем waypoints (точки маршрута)
+    // Add waypoints (route points)
     waypoints.forEach((point, index) => {
       gpxContent += `  <wpt lat="${point.latitude}" lon="${point.longitude}">
     <name>${index + 1}. ${point.title}</name>
@@ -355,7 +355,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
 `
     })
 
-    // Добавляем трек (если есть геометрия маршрута)
+    // Add track (if route geometry exists)
     if (route.route_geometry?.coordinates && route.route_geometry.coordinates.length > 0) {
       gpxContent += `  <trk>
     <name>${routeName}</name>
@@ -381,15 +381,15 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
 
   const shareRoute = async () => {
     const url = window.location.href
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: route.title,
-          text: route.description || 'Интересный архитектурный маршрут',
+          text: route.description || 'Interesting architectural route',
           url: url
         })
-        setExportStatus('Маршрут поделен')
+        setExportStatus('Route shared')
       } catch (error) {
         console.log('Sharing cancelled')
       }
@@ -399,25 +399,25 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
         setCopySuccess(true)
         setTimeout(() => setCopySuccess(false), 2000)
       } catch (error) {
-        prompt('Скопируйте ссылку:', url)
+        prompt('Copy link:', url)
       }
     }
     setTimeout(() => setExportStatus(''), 3000)
   }
 
-  // Очистка отслеживания при размонтировании
+  // Cleanup tracking on unmount
   useEffect(() => {
-    // 🔧 ДОБАВЛЯЕМ ГЛОБАЛЬНУЮ ФУНКЦИЮ ДЛЯ КНОПКИ "НАЧАТЬ С ЭТОЙ ТОЧКИ"
+    // 🔧 ADD GLOBAL FUNCTION FOR "START FROM THIS POINT" BUTTON
     (window as any).setCurrentStepFromMap = (pointIndex: number) => {
-      console.log('🎯 Обновляем текущую точку на:', pointIndex)
+      console.log('🎯 Updating current point to:', pointIndex)
       setCurrentStepIndex(pointIndex)
     }
-    
+
     return () => {
       if (watchId !== null) {
-        clearInterval(watchId) // Очищаем интервал
+        clearInterval(watchId) // Clear interval
       }
-      // Очищаем глобальную функцию
+      // Clear global function
       delete (window as any).setCurrentStepFromMap
     }
   }, [watchId])
@@ -425,26 +425,27 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
   return (
     <>
       <div className="max-w-6xl mx-auto p-6">
-        {/* Навигация */}
+        {/* Navigation */}
         <div className="mb-6">
           <button
             onClick={() => window.history.back()}
             className="flex items-center text-gray-600 hover:text-gray-800 mb-4"
           >
             <ArrowLeft size={20} className="mr-2" />
-            Назад
+            Back
           </button>
         </div>
 
-        {/* Заголовок с кнопками действий - ИСПРАВЛЕННАЯ ВЕРСИЯ */}
+        {/* Header with action buttons - FIXED VERSION */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          {/* Основная информация */}
+          {/* Main information */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
               {route.title}
             </h1>
-            
-            {/* Метаинформация */}
+
+
+            {/* Meta information */}
             <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-4">
               <div className="flex items-center">
                 <MapPin size={16} className="mr-1" />
@@ -459,24 +460,24 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
               <div className="flex items-center">
                 <Clock size={16} className="mr-1" />
                 <span>
-                  {route.route_summary 
+                  {route.route_summary
                     ? formatDuration(route.route_summary.duration)
-                    : `${route.estimated_duration_minutes || 'N/A'} минут`
+                    : `${route.estimated_duration_minutes || 'N/A'} minutes`
                   }
                 </span>
               </div>
-              
+
               <div className="flex items-center">
                 <Users size={16} className="mr-1" />
-                <span>{route.points_count} точек</span>
+                <span>{route.points_count} points</span>
               </div>
-              
+
               <div className="flex items-center">
                 <RouteIcon size={16} className="mr-1" />
                 <span>
-                  {route.route_summary 
+                  {route.route_summary
                     ? formatDistance(route.route_summary.distance)
-                    : `${route.distance_km || 'N/A'} км`
+                    : `${route.distance_km || 'N/A'} km`
                   }
                 </span>
               </div>
@@ -489,7 +490,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
               )}
             </div>
 
-            {/* Теги */}
+            {/* Tags */}
             {route.tags && route.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {route.tags.map((tag: string) => (
@@ -503,7 +504,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
               </div>
             )}
 
-            {/* Описание если есть */}
+            {/* Description if available */}
             {route.description && (
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <p className="text-gray-700 leading-relaxed">
@@ -513,16 +514,16 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
             )}
           </div>
 
-          {/* Кнопки действий - УНИФИЦИРОВАННЫЕ */}
+          {/* Action buttons - UNIFIED */}
           <div className="flex flex-wrap items-center gap-3">
-            {/* GPS-навигация */}
+            {/* GPS navigation */}
             {!isTrackingLocation ? (
               <button
                 onClick={startLocationTracking}
                 className="inline-flex items-center px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
               >
                 <Navigation size={16} className="mr-2" />
-                GPS Навигация
+                GPS Navigation
               </button>
             ) : (
               <button
@@ -530,18 +531,18 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                 className="inline-flex items-center px-4 py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
               >
                 <Navigation size={16} className="mr-2" />
-                Остановить GPS
+                Stop GPS
               </button>
             )}
 
-            {/* Экспорт */}
+            {/* Export */}
             <div className="relative">
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
                 className="inline-flex items-center px-4 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <Download size={16} className="mr-2" />
-                Экспорт
+                Export
               </button>
 
               {showExportMenu && (
@@ -554,36 +555,36 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                     className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-lg flex items-center space-x-2"
                   >
                     <Map size={16} />
-                    <span>Открыть в Google Maps</span>
+                    <span>Open in Google Maps</span>
                     <ExternalLink size={14} className="ml-auto" />
                   </button>
-                  
+
                   <button
                     onClick={() => {
-                      // Универсальная функция
+                      // Universal function
                       if (!route.route_points || route.route_points.length === 0) {
-                        alert('Нет точек маршрута')
+                        alert('No route points')
                         return
                       }
-                      
+
                       const waypoints = route.route_points
                         .map(point => `${point.latitude},${point.longitude}`)
                         .join('/')
 
                       const navigatorUrl = `https://www.google.com/maps/dir/${waypoints}`
                       window.open(navigatorUrl, '_blank')
-                      setExportStatus('Открыт универсальный навигатор')
+                      setExportStatus('Opened in navigator')
                       setTimeout(() => setExportStatus(''), 3000)
-                      
+
                       setShowExportMenu(false)
                     }}
                     className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-lg flex items-center space-x-2"
                   >
                     <Navigation size={16} />
-                    <span>Открыть в навигаторе</span>
+                    <span>Open in Navigator</span>
                     <ExternalLink size={14} className="ml-auto" />
                   </button>
-                  
+
                   <button
                     onClick={() => {
                       exportToGPX()
@@ -592,11 +593,11 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                     className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-lg flex items-center space-x-2"
                   >
                     <Download size={16} />
-                    <span>Скачать GPX файл</span>
+                    <span>Download GPX file</span>
                   </button>
-                  
+
                   <hr className="my-1" />
-                  
+
                   <button
                     onClick={() => {
                       shareRoute()
@@ -607,12 +608,12 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                     {copySuccess ? (
                       <>
                         <CheckCircle size={16} className="text-green-600" />
-                        <span className="text-green-600">Скопировано!</span>
+                        <span className="text-green-600">Copied!</span>
                       </>
                     ) : (
                       <>
                         <Share2 size={16} />
-                        <span>Поделиться маршрутом</span>
+                        <span>Share Route</span>
                       </>
                     )}
                   </button>
@@ -620,7 +621,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
               )}
             </div>
 
-            {/* Кнопки управления (если есть права) */}
+            {/* Management buttons (if permissions) */}
             {!checkingPermissions && canEdit && (
               <>
                 <a
@@ -628,7 +629,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                   className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <Edit size={16} className="mr-2" />
-                  Редактировать
+                  Edit
                 </a>
 
                 {canDelete && (
@@ -638,7 +639,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                       className="inline-flex items-center px-4 py-2.5 border border-red-300 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors"
                     >
                       <Trash2 size={16} className="mr-2" />
-                      Удалить
+                      Delete
                     </button>
 
                     {showActionsMenu && (
@@ -651,7 +652,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                           className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 rounded-lg flex items-center space-x-2"
                         >
                           <Trash2 size={16} />
-                          <span>Подтвердить удаление</span>
+                          <span>Confirm Delete</span>
                         </button>
                       </div>
                     )}
@@ -660,7 +661,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
               </>
             )}
 
-            {/* Кнопки управления избранным и завершением */}
+            {/* Favorite and completion buttons */}
             <div className="flex items-center gap-3 ml-auto">
               <RouteFavoriteButton 
                 routeId={route.id}
@@ -677,13 +678,13 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
           </div>
         </div>
 
-        {/* GPS панель навигации */}
+        {/* GPS navigation panel */}
         {showNavigationPanel && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center">
                 <Navigation size={20} className="text-green-600 mr-2" />
-                <h3 className="font-semibold text-green-900">GPS Навигация</h3>
+                <h3 className="font-semibold text-green-900">GPS Navigation</h3>
               </div>
               <button
                 onClick={stopLocationTracking}
@@ -698,21 +699,21 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
             ) : userLocation ? (
               <div className="space-y-2">
                 <div className="text-sm text-green-700">
-                  📍 <strong>Ваше местоположение:</strong> {userLocation.latitude.toFixed(6)}, {userLocation.longitude.toFixed(6)}
-                  <span className="ml-2">(точность: {Math.round(userLocation.accuracy)}м)</span>
+                  📍 <strong>Your location:</strong> {userLocation.latitude.toFixed(6)}, {userLocation.longitude.toFixed(6)}
+                  <span className="ml-2">(accuracy: {Math.round(userLocation.accuracy)}m)</span>
                 </div>
-                
+
                 {route.route_points && currentStepIndex < route.route_points.length && (
                   <div className="bg-white rounded p-3 border border-green-200">
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-green-900">
-                          Следующая точка: {route.route_points[currentStepIndex]?.title}
+                          Next point: {route.route_points[currentStepIndex]?.title}
                         </div>
                         <div className="text-sm text-green-700">
                           {(() => {
                             const distance = calculateDistanceToNextPoint()
-                            return distance ? `Расстояние: ${formatDistance(distance)}` : 'Расчет расстояния...'
+                            return distance ? `Distance: ${formatDistance(distance)}` : 'Calculating distance...'
                           })()}
                         </div>
                       </div>
@@ -725,7 +726,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                             onClick={() => setCurrentStepIndex(currentStepIndex + 1)}
                             className="text-xs bg-green-600 text-white px-2 py-1 rounded mt-1"
                           >
-                            Следующая →
+                            Next →
                           </button>
                         )}
                       </div>
@@ -734,12 +735,12 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                 )}
               </div>
             ) : (
-              <div className="text-green-700">Получение местоположения...</div>
+              <div className="text-green-700">Getting location...</div>
             )}
           </div>
         )}
 
-        {/* Статус экспорта */}
+        {/* Export status */}
         {exportStatus && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
             <div className="flex items-center text-blue-800">
@@ -750,15 +751,15 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
         )}
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-          {/* Основной контент - карта */}
+          {/* Main content - map */}
           <div className="xl:col-span-3 space-y-8">
-            {/* Карта маршрута - УВЕЛИЧЕННАЯ */}
+            {/* Route map - ENLARGED */}
             <div>
-              <h2 className="text-xl font-semibold mb-4">Маршрут на карте</h2>
+              <h2 className="text-xl font-semibold mb-4">Route on Map</h2>
               <div className="rounded-lg overflow-hidden shadow-md">
-                <RouteMap 
-                  route={route} 
-                  userLocation={userLocation} 
+                <RouteMap
+                  route={route}
+                  userLocation={userLocation}
                   currentPointIndex={currentStepIndex}
                   showNavigation={showNavigationPanel}
                 />
@@ -766,14 +767,14 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
             </div>
           </div>
 
-          {/* Боковая панель - только самое важное */}
+          {/* Sidebar - only essential */}
           <div className="xl:col-span-1 space-y-6">
-            {/* Статистика маршрута */}
+            {/* Route statistics */}
             <div className="bg-white rounded-lg border shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-4">Статистика</h3>
+              <h3 className="text-lg font-semibold mb-4">Statistics</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Рейтинг</span>
+                  <span className="text-gray-600">Rating</span>
                   <div className="flex items-center">
                     <Star size={16} className="text-yellow-400 mr-1" />
                     <span className="font-medium">{route.rating || '—'}/5</span>
@@ -781,7 +782,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Транспорт</span>
+                  <span className="text-gray-600">Transport</span>
                   <span className="font-medium flex items-center">
                     <span className="mr-1">{transportIcon}</span>
                     {transportLabel}
@@ -789,13 +790,13 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Качество</span>
+                  <span className="text-gray-600">Quality</span>
                   <span className={`text-sm px-2 py-1 rounded-full ${
-                    hasRealRoute 
-                      ? 'bg-green-100 text-green-800' 
+                    hasRealRoute
+                      ? 'bg-green-100 text-green-800'
                       : 'bg-amber-100 text-amber-800'
                   }`}>
-                    {hasRealRoute ? 'Точный' : 'Приблизительный'}
+                    {hasRealRoute ? 'Precise' : 'Approximate'}
                   </span>
                 </div>
 
@@ -805,16 +806,16 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                     <div className="bg-green-50 rounded-lg p-3">
                       <h4 className="font-medium text-green-900 mb-2 flex items-center">
                         <Navigation size={16} className="mr-1" />
-                        GPS Статус
+                        GPS Status
                       </h4>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-green-700">Местоположение:</span>
-                          <span className="text-green-900 font-medium">Активно</span>
+                          <span className="text-green-700">Location:</span>
+                          <span className="text-green-900 font-medium">Active</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-green-700">Точность:</span>
-                          <span className="text-green-900 font-medium">{Math.round(userLocation.accuracy)}м</span>
+                          <span className="text-green-700">Accuracy:</span>
+                          <span className="text-green-900 font-medium">{Math.round(userLocation.accuracy)}m</span>
                         </div>
                       </div>
                     </div>
@@ -823,9 +824,9 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
               </div>
             </div>
 
-            {/* Быстрые действия */}
+            {/* Quick actions */}
             <div className="bg-white rounded-lg border shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-4">Быстрые действия</h3>
+              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 {!isTrackingLocation ? (
                   <button
@@ -833,7 +834,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                     className="w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
                     <Navigation size={16} className="mr-2" />
-                    Начать навигацию
+                    Start Navigation
                   </button>
                 ) : (
                   <button
@@ -841,10 +842,10 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                     className="w-full flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                   >
                     <Navigation size={16} className="mr-2" />
-                    Остановить навигацию
+                    Stop Navigation
                   </button>
                 )}
-                
+
                 <button
                   onClick={exportToGoogleMaps}
                   className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
@@ -852,29 +853,29 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                   <Map size={16} className="mr-2" />
                   Google Maps
                 </button>
-                
+
                 <button
                   onClick={shareRoute}
                   className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <Share2 size={16} className="mr-2" />
-                  Поделиться
+                  Share
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 🔧 СПИСОК ОБЪЕКТОВ МАРШРУТА ПЕРЕНЕСЕН ВНИЗ И РАСШИРЕН НА ВСЮ ШИРИНУ */}
+        {/* 🔧 ROUTE OBJECTS LIST MOVED DOWN AND FULL WIDTH */}
         <div className="mt-12">
           <h2 className="text-xl font-semibold mb-6">
-            Объекты маршрута ({route.route_points?.length || 0})
+            Route Points ({route.route_points?.length || 0})
           </h2>
               
               <div className="space-y-4">
                 {route.route_points?.map((point: any, index: number) => (
-                  <div 
-                    key={point.id} 
+                  <div
+                    key={point.id}
                     className={`border rounded-lg p-4 shadow-sm transition-all hover:shadow-md cursor-pointer ${
                       userLocation && index === currentStepIndex
                         ? 'bg-green-50 border-green-300 ring-2 ring-green-200'
@@ -882,7 +883,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                     }`}
                   >
                     <div className="flex items-start space-x-4">
-                      {/* Номер точки */}
+                      {/* Point number */}
                       <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-md ${
                         userLocation && index === currentStepIndex
                           ? 'bg-green-500 text-white ring-2 ring-green-300'
@@ -892,24 +893,24 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                       }`}>
                         {userLocation && index < currentStepIndex ? '✓' : index + 1}
                       </div>
-                      
-                      {/* Информация о точке */}
+
+                      {/* Point information */}
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
                           <h3 className={`font-semibold text-lg ${
-                            userLocation && index === currentStepIndex 
-                              ? 'text-green-900' 
+                            userLocation && index === currentStepIndex
+                              ? 'text-green-900'
                               : 'text-gray-900'
                           }`}>
                             {point.title}
                             {userLocation && index === currentStepIndex && (
                               <span className="ml-2 text-sm bg-green-500 text-white px-2 py-1 rounded-full animate-pulse">
-                                Текущая точка
+                                Current point
                               </span>
                             )}
                           </h3>
-                          
-                          {/* Расстояние от пользователя */}
+
+                          {/* Distance from user */}
                           {userLocation && (
                             <div className="text-sm text-blue-600 font-medium">
                               {(() => {
@@ -922,7 +923,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                                 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
                                 const distance = R * c
                                 return `📍 ${formatDistance(distance)}`
-                              })()} от вас
+                              })()} from you
                             </div>
                           )}
                         </div>
@@ -930,68 +931,69 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                         {point.description && (
                           <p className="text-gray-600 text-sm mb-3 leading-relaxed">{point.description}</p>
                         )}
-                        
-                        {/* Информация о здании */}
+
+
+                        {/* Building information */}
                         {point.buildings && (
                           <div className="bg-gray-50 rounded-lg p-3 mb-3">
                             <h4 className="font-medium text-gray-900 mb-2 flex items-center">
-                              🏛️ Архитектурная информация
+                              🏛️ Architectural Information
                             </h4>
                             <div className="grid grid-cols-2 gap-3 text-sm">
                               {point.buildings.architect && (
                                 <div>
-                                  <span className="text-gray-500">Архитектор:</span>
+                                  <span className="text-gray-500">Architect:</span>
                                   <span className="ml-1 font-medium text-gray-800">{point.buildings.architect}</span>
                                 </div>
                               )}
                               {point.buildings.year_built && (
                                 <div>
-                                  <span className="text-gray-500">Год постройки:</span>
+                                  <span className="text-gray-500">Year Built:</span>
                                   <span className="ml-1 font-medium text-gray-800">{point.buildings.year_built}</span>
                                 </div>
                               )}
                               {point.buildings.architectural_style && (
                                 <div>
-                                  <span className="text-gray-500">Архитектурный стиль:</span>
+                                  <span className="text-gray-500">Style:</span>
                                   <span className="ml-1 font-medium text-gray-800">{point.buildings.architectural_style}</span>
                                 </div>
                               )}
                               {point.buildings.building_type && (
                                 <div>
-                                  <span className="text-gray-500">Тип здания:</span>
+                                  <span className="text-gray-500">Building Type:</span>
                                   <span className="ml-1 font-medium text-gray-800">{point.buildings.building_type}</span>
                                 </div>
                               )}
                             </div>
                           </div>
                         )}
-                        
-                        {/* Инструкции для посещения */}
+
+                        {/* Visit instructions */}
                         {point.instructions && (
                           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
                             <div className="flex items-center mb-1">
-                              <span className="text-blue-800 font-medium text-sm">💡 Рекомендации для посещения:</span>
+                              <span className="text-blue-800 font-medium text-sm">💡 Visit Recommendations:</span>
                             </div>
                             <p className="text-blue-900 text-sm">{point.instructions}</p>
                           </div>
                         )}
-                        
-                        {/* Метаинформация */}
+
+                        {/* Meta information */}
                         <div className="flex items-center justify-between text-sm text-gray-500">
                           <div className="flex items-center space-x-4">
                             <div className="flex items-center">
                               <Clock size={14} className="mr-1" />
-                              <span>Время осмотра: {point.estimated_time_minutes || 10} мин</span>
+                              <span>Visit time: {point.estimated_time_minutes || 10} min</span>
                             </div>
-                            
+
                             {point.building_id && (
                               <div className="flex items-center">
                                 <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                                <span>Архитектурный объект</span>
+                                <span>Architectural Object</span>
                               </div>
                             )}
                           </div>
-                          
+
                           {userLocation && index === currentStepIndex && (
                             <button
                               onClick={() => {
@@ -1002,13 +1004,13 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                               disabled={currentStepIndex >= route.route_points!.length - 1}
                               className="text-xs bg-green-600 text-white px-3 py-1 rounded-full hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              {currentStepIndex >= route.route_points!.length - 1 ? 'Финиш!' : 'Следующая точка →'}
+                              {currentStepIndex >= route.route_points!.length - 1 ? 'Finish!' : 'Next Point →'}
                             </button>
                           )}
                         </div>
                       </div>
-                      
-                      {/* Изображение здания */}
+
+                      {/* Building image */}
                       {point.buildings?.image_url && (
                         <div className="flex-shrink-0">
                           <img
@@ -1016,7 +1018,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                             alt={point.title || undefined}
                             className="w-28 h-28 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
                             onClick={() => {
-                              // Открываем изображение в новой вкладке
+                              // Open image in new tab
                               window.open(point.buildings.image_url, '_blank')
                             }}
                           />
@@ -1027,15 +1029,15 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                 )) || (
                   <div className="text-center py-12 text-gray-500">
                     <MapPin size={64} className="mx-auto mb-4 text-gray-300" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Объекты маршрута не найдены</h3>
-                    <p className="text-sm">Этот маршрут пока не содержит точек для посещения</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Route Points Found</h3>
+                    <p className="text-sm">This route doesn't contain any points to visit yet</p>
                   </div>
                 )}
               </div>
         </div>
       </div>
 
-      {/* Модальное окно удаления */}
+      {/* Delete modal */}
       {canDelete && (
         <DeleteContentModal
           contentType="route"
@@ -1046,7 +1048,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
         />
       )}
 
-      {/* Закрытие меню при клике вне них */}
+      {/* Close menus on outside click */}
       {(showActionsMenu || showExportMenu) && (
         <div
           className="fixed inset-0 z-5"

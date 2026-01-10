@@ -117,7 +117,7 @@ export default function FilterPanel({
           {/* Поиск */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-foreground mb-2">
-              Поиск
+              Search
             </label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -125,7 +125,7 @@ export default function FilterPanel({
                 type="text"
                 value={filters.search}
                 onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
-                placeholder="Поиск по названию, архитектору, стилю..."
+                placeholder="Search by name, architect, style..."
                 className={`w-full pl-10 pr-4 ${isMobile ? 'py-3 text-base' : 'py-2 text-sm'} border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--map-primary))] transition-colors`}
               />
             </div>
@@ -134,7 +134,7 @@ export default function FilterPanel({
           {/* Геолокация и радиус */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-foreground mb-2">
-              Местоположение
+              Location
             </label>
 
             {/* Кнопки выбора режима - 2 кубика в ряд, отключить снизу */}
@@ -153,7 +153,7 @@ export default function FilterPanel({
                   }`}
                 >
                   <Navigation className="w-5 h-5 mb-1" />
-                  <span className="text-xs text-center">Моё местоположение</span>
+                  <span className="text-xs text-center">My Location</span>
                 </button>
 
                 <button
@@ -165,7 +165,7 @@ export default function FilterPanel({
                   }`}
                 >
                   <MapPin className="w-5 h-5 mb-1" />
-                  <span className="text-xs text-center">Выбрать на карте</span>
+                  <span className="text-xs text-center">Choose on Map</span>
                 </button>
               </div>
 
@@ -181,7 +181,7 @@ export default function FilterPanel({
                 className="w-full flex items-center justify-center px-3 py-2 bg-muted border border-border rounded-[var(--radius)] hover:bg-muted/80 transition-colors"
               >
                 <X className="w-4 h-4 mr-2 text-muted-foreground" />
-                <span className="text-sm text-foreground">Отключить</span>
+                <span className="text-sm text-foreground">Disable</span>
               </button>
             </div>
             
@@ -191,7 +191,7 @@ export default function FilterPanel({
                 {/* Ввод радиуса цифрами */}
                 <div>
                   <label className="block text-xs text-muted-foreground mb-1">
-                    Радиус поиска (км)
+                    Search Radius (km)
                   </label>
                   <input
                     type="number"
@@ -210,7 +210,7 @@ export default function FilterPanel({
                 {/* Ползунок радиуса */}
                 <div>
                   <label className="block text-xs text-muted-foreground mb-1">
-                    Радиус: {filters.radiusKm} км
+                    Radius: {filters.radiusKm} km
                   </label>
                   <input
                     type="range"
@@ -229,12 +229,12 @@ export default function FilterPanel({
                 {/* Подсказка */}
                 {radiusMode === 'map' && (
                   <p className="text-xs text-muted-foreground">
-                    💡 Кликните на карту, чтобы выбрать центр поиска
+                    💡 Click on the map to choose search center
                   </p>
                 )}
                 {radiusMode === 'location' && filters.currentLocation && (
                   <p className="text-xs text-[hsl(var(--map-primary))]">
-                    ✅ Центр установлен на вашем местоположении
+                    ✅ Center set at your location
                   </p>
                 )}
               </div>
@@ -244,7 +244,7 @@ export default function FilterPanel({
           {/* Быстрые фильтры */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-foreground mb-2">
-              Быстрые фильтры
+              Quick Filters
             </label>
             <div className="flex flex-wrap gap-2">
               <button
@@ -255,7 +255,7 @@ export default function FilterPanel({
                     : 'bg-muted border-border text-foreground hover:bg-muted/80'
                 }`}
               >
-                4+ рейтинг
+                4+ Rating
               </button>
               <button
                 onClick={() => handleQuickFilter('featured', 'true')}
@@ -265,7 +265,7 @@ export default function FilterPanel({
                     : 'bg-muted border-border text-foreground hover:bg-muted/80'
                 }`}
               >
-                Рекомендуемые
+                Featured
               </button>
               <button
                 onClick={() => handleQuickFilter('distance', '5')}
@@ -275,7 +275,7 @@ export default function FilterPanel({
                     : 'bg-muted border-border text-foreground hover:bg-muted/80'
                 }`}
               >
-                До 5 км
+                Within 5 km
               </button>
             </div>
           </div>
@@ -286,7 +286,7 @@ export default function FilterPanel({
               {uniqueValues.architecturalStyles.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Архитектурные стили
+                    Architectural Styles
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {uniqueValues.architecturalStyles.map(style => (
@@ -322,7 +322,7 @@ export default function FilterPanel({
               {uniqueValues.buildingTypes.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Типы зданий
+                    Building Types
                   </label>
                   <div className="space-y-1 max-h-32 overflow-y-auto">
                     {uniqueValues.buildingTypes.map(type => (
@@ -355,7 +355,7 @@ export default function FilterPanel({
               {/* Фильтр аудио */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Аудио
+                  Audio
                 </label>
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -369,7 +369,7 @@ export default function FilterPanel({
                         : 'bg-muted border-border text-foreground hover:bg-muted/80'
                     }`}
                   >
-                    🎧 С аудио
+                    🎧 With Audio
                   </button>
                 </div>
               </div>

@@ -152,7 +152,7 @@ export default function BuildingsGrid({ buildings, loading }: BuildingsGridProps
                       </div>
                     ) : (
                       <div className="text-xs text-muted-foreground mt-2 pt-2 border-t border-border">
-                        Нет оценок
+                        No ratings
                       </div>
                     )}
                   </div>

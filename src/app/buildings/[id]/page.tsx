@@ -14,7 +14,7 @@ interface PageProps {
   }>
 }
 
-// Генерация динамических SEO мета-тегов
+// Generate dynamic SEO meta tags
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const resolvedParams = await params
 
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return {
-      title: 'Здание не найдено',
+      title: 'Building Not Found',
     }
   }
 
@@ -38,14 +38,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!building) {
     return {
-      title: 'Здание не найдено',
+      title: 'Building Not Found',
     }
   }
 
   const title = building.name
   const description = building.description
     ? building.description.substring(0, 160) + '...'
-    : `${building.name} - архитектурное здание в ${building.city || 'городе'}. Архитектор: ${building.architect || 'неизвестен'}.`
+    : `${building.name} - architectural building in ${building.city || 'the city'}. Architect: ${building.architect || 'unknown'}.`
 
   const imageUrl = building.image_url || '/og-image.jpg'
   const buildingUrl = `${baseUrl}/buildings/${building.id}`
@@ -94,10 +94,10 @@ export default async function BuildingDetailPage({ params, searchParams }: PageP
     return notFound()
   }
 
-  // Создаем публичный клиент
+  // Create public client
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-  // Загружаем данные здания
+  // Load building data
   console.log('🏢 [DEBUG] Fetching building from server...')
   const { data: building, error } = await supabase
     .from('buildings')
@@ -121,7 +121,7 @@ export default async function BuildingDetailPage({ params, searchParams }: PageP
   
   console.log('🏢 [DEBUG] Building found, rendering client component')
 
-  // Загружаем все здания для Header
+  // Load all buildings for Header
   console.log('🏢 [DEBUG] Fetching all buildings for header...')
   const { data: allBuildings } = await supabase
     .from('buildings')
@@ -130,7 +130,7 @@ export default async function BuildingDetailPage({ params, searchParams }: PageP
 
   console.log('🏢 [DEBUG] Rendering page with building:', building.name)
 
-  // Проверяем, нужно ли скрыть Header (для модального окна)
+  // Check if Header should be hidden (for modal window)
   const resolvedSearchParams = await searchParams
   const shouldHideHeader = resolvedSearchParams?.hideHeader === 'true'
   console.log('🏢 [DEBUG] Should hide header:', shouldHideHeader)

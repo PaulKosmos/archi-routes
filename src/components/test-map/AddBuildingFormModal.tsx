@@ -40,34 +40,34 @@ export interface BuildingFormData {
 
 // Список архитектурных стилей
 const ARCHITECTURAL_STYLES = [
-  'Классицизм',
-  'Модернизм',
-  'Постмодернизм',
-  'Барокко',
-  'Готика',
-  'Ренессанс',
-  'Неоренессанс',
-  'Конструктивизм',
-  'Ар-деко',
-  'Брутализм',
-  'Минимализм',
-  'Хай-тек',
-  'Современная архитектура',
-  'Другой'
+  'Classicism',
+  'Modernism',
+  'Postmodernism',
+  'Baroque',
+  'Gothic',
+  'Renaissance',
+  'Neo-Renaissance',
+  'Constructivism',
+  'Art Deco',
+  'Brutalism',
+  'Minimalism',
+  'High-tech',
+  'Contemporary Architecture',
+  'Other'
 ]
 
 // Список типов зданий
 const BUILDING_TYPES = [
-  'Памятник архитектуры',
-  'Жилой дом',
-  'Общественное здание',
-  'Религиозное сооружение',
-  'Музей',
-  'Театр',
-  'Вокзал',
-  'Мост',
-  'Парк',
-  'Другое'
+  'Architectural Monument',
+  'Residential Building',
+  'Public Building',
+  'Religious Structure',
+  'Museum',
+  'Theater',
+  'Railway Station',
+  'Bridge',
+  'Park',
+  'Other'
 ]
 
 export default function AddBuildingFormModal({
@@ -165,7 +165,7 @@ export default function AddBuildingFormModal({
         }))
       } else {
         console.warn('🏛️ [FORM] Geocoding failed, using defaults')
-        toast.error('Не удалось определить адрес. Заполните вручную.')
+        toast.error('Could not determine address. Please fill manually.')
       }
     } catch (error) {
       console.error('🏛️ [FORM] Geocoding error:', error)
@@ -205,19 +205,19 @@ export default function AddBuildingFormModal({
     const newErrors: Record<string, string> = {}
 
     if (!formData.name || formData.name.trim().length < 3) {
-      newErrors.name = 'Введите название (минимум 3 символа)'
+      newErrors.name = 'Enter name (minimum 3 characters)'
     }
 
     if (!formData.city || formData.city.trim().length < 2) {
-      newErrors.city = 'Введите город'
+      newErrors.city = 'Enter city'
     }
 
     if (!formData.country || formData.country.trim().length < 2) {
-      newErrors.country = 'Введите страну'
+      newErrors.country = 'Enter country'
     }
 
     if (formData.year_built && (formData.year_built < 1000 || formData.year_built > 2025)) {
-      newErrors.year_built = 'Год должен быть между 1000 и 2025'
+      newErrors.year_built = 'Year must be between 1000 and 2025'
     }
 
     setErrors(newErrors)
@@ -226,7 +226,7 @@ export default function AddBuildingFormModal({
 
   const handleSave = async () => {
     if (!validate()) {
-      toast.error('Пожалуйста, исправьте ошибки в форме')
+      toast.error('Please fix errors in the form')
       return
     }
 
@@ -259,11 +259,11 @@ export default function AddBuildingFormModal({
       }
       
       await onSave(dataToSave)
-      toast.success(isExpanded && dataToSave.review ? 'Объект и обзор успешно добавлены!' : 'Объект успешно добавлен!')
+      toast.success(isExpanded && dataToSave.review ? 'Building and review successfully added!' : 'Building successfully added!')
       handleClose()
     } catch (error: any) {
       console.error('🏛️ [FORM] Save error:', error)
-      toast.error(error.message || 'Ошибка при сохранении объекта')
+      toast.error(error.message || 'Error saving building')
     } finally {
       setSaving(false)
     }
@@ -293,16 +293,16 @@ export default function AddBuildingFormModal({
   // Обработчики для фотографий
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    
+
     if (photoFiles.length + files.length > 5) {
-      toast.error('Максимум 5 фотографий')
+      toast.error('Maximum 5 photos')
       return
     }
-    
+
     // Проверка размера (макс 5MB на файл)
     const validFiles = files.filter(file => {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error(`Файл ${file.name} слишком большой (макс 5MB)`)
+        toast.error(`File ${file.name} is too large (max 5MB)`)
         return false
       }
       return true
@@ -329,10 +329,10 @@ export default function AddBuildingFormModal({
   const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    
+
     // Проверка размера (макс 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('Аудио файл слишком большой (макс 10MB)')
+      toast.error('Audio file is too large (max 10MB)')
       return
     }
     
@@ -411,12 +411,12 @@ export default function AddBuildingFormModal({
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <BuildingIcon className="w-5 h-5 text-green-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Добавить объект</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Add Building</h2>
           </div>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            title="Закрыть"
+            title="Close"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -430,7 +430,7 @@ export default function AddBuildingFormModal({
             <div>
               <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="w-4 h-4 mr-2 text-blue-600" />
-                Местоположение
+                Location
               </label>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <div className="flex items-center justify-between">
@@ -441,7 +441,7 @@ export default function AddBuildingFormModal({
                     {geocoding ? (
                       <div className="text-xs text-gray-500 mt-1 flex items-center">
                         <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                        Определение адреса...
+                        Determining address...
                       </div>
                     ) : formData.address ? (
                       <div className="text-xs text-gray-500 mt-1">
@@ -458,7 +458,7 @@ export default function AddBuildingFormModal({
             <div>
               <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                 <BuildingIcon className="w-4 h-4 mr-2 text-green-600" />
-                Название здания *
+                Building Name *
               </label>
               <div className="relative">
                 <input
@@ -468,7 +468,7 @@ export default function AddBuildingFormModal({
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
                     errors.name ? 'border-red-500' : 'border-gray-300'
                   }`}
-                  placeholder="Например: Рейхстаг"
+                  placeholder="e.g. Reichstag"
                 />
                 {checking && (
                   <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
@@ -487,13 +487,13 @@ export default function AddBuildingFormModal({
                   <div className="flex-1">
                     <h3 className="font-semibold text-yellow-900 mb-2">
                       {hasHighConfidenceDuplicates
-                        ? '⚠️ Возможно, это здание уже добавлено!'
-                        : '📋 Найдены похожие здания'}
+                        ? '⚠️ This building may already be added!'
+                        : '📋 Similar buildings found'}
                     </h3>
                     <p className="text-sm text-yellow-800 mb-3">
                       {hasHighConfidenceDuplicates
-                        ? 'Мы обнаружили здания с очень похожими характеристиками. Пожалуйста, проверьте перед добавлением.'
-                        : 'Найдены здания с похожими названиями в этом городе.'}
+                        ? 'We found buildings with very similar characteristics. Please check before adding.'
+                        : 'Found buildings with similar names in this city.'}
                     </p>
 
                     {/* Список дубликатов */}
@@ -503,10 +503,10 @@ export default function AddBuildingFormModal({
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <p className="font-medium text-gray-900">{duplicate.name}</p>
-                              <p className="text-xs text-gray-600 mt-1">{duplicate.address || 'Адрес не указан'}</p>
+                              <p className="text-xs text-gray-600 mt-1">{duplicate.address || 'Address not specified'}</p>
                               {duplicate.distance_meters && (
                                 <p className="text-xs text-gray-500 mt-1">
-                                  📍 {Math.round(duplicate.distance_meters)}м от выбранной точки
+                                  📍 {Math.round(duplicate.distance_meters)}m from selected point
                                 </p>
                               )}
                               {duplicate.confidence && (
@@ -517,9 +517,9 @@ export default function AddBuildingFormModal({
                                     ? 'bg-orange-100 text-orange-800'
                                     : 'bg-yellow-100 text-yellow-800'
                                 }`}>
-                                  Совпадение: {
-                                    duplicate.confidence === 'high' ? 'Высокое' :
-                                    duplicate.confidence === 'medium' ? 'Среднее' : 'Низкое'
+                                  Match: {
+                                    duplicate.confidence === 'high' ? 'High' :
+                                    duplicate.confidence === 'medium' ? 'Medium' : 'Low'
                                   }
                                 </span>
                               )}
@@ -532,7 +532,7 @@ export default function AddBuildingFormModal({
                               }}
                               className="ml-3 text-blue-600 hover:text-blue-800 text-sm font-medium whitespace-nowrap"
                             >
-                              Открыть →
+                              Open →
                             </button>
                           </div>
                         </div>
@@ -544,28 +544,28 @@ export default function AddBuildingFormModal({
                       <div className="flex items-center justify-between pt-2 border-t border-yellow-300">
                         <p className="text-sm text-yellow-800">
                           {hasHighConfidenceDuplicates
-                            ? 'Убедитесь, что это другое здание'
-                            : 'Проверьте список выше'}
+                            ? 'Make sure this is a different building'
+                            : 'Check the list above'}
                         </p>
                         <button
                           type="button"
                           onClick={() => setUserConfirmedDuplicate(true)}
                           className="px-3 py-1.5 bg-yellow-600 text-white text-sm font-medium rounded hover:bg-yellow-700 transition-colors"
                         >
-                          Это другое здание, продолжить
+                          This is a different building, continue
                         </button>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between pt-2 border-t border-yellow-300">
                         <p className="text-sm text-green-700 font-medium">
-                          ✓ Подтверждено: это новое здание
+                          ✓ Confirmed: this is a new building
                         </p>
                         <button
                           type="button"
                           onClick={() => setUserConfirmedDuplicate(false)}
                           className="text-sm text-yellow-700 hover:text-yellow-900 underline"
                         >
-                          Отменить
+                          Cancel
                         </button>
                       </div>
                     )}
@@ -579,7 +579,7 @@ export default function AddBuildingFormModal({
               <div>
                 <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                   <Globe className="w-4 h-4 mr-2 text-blue-600" />
-                  Город *
+                  City *
                 </label>
                 <input
                   type="text"
@@ -588,7 +588,7 @@ export default function AddBuildingFormModal({
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
                     errors.city ? 'border-red-500' : 'border-gray-300'
                   }`}
-                  placeholder="Берлин"
+                  placeholder="Berlin"
                 />
                 {errors.city && (
                   <p className="text-red-500 text-xs mt-1">{errors.city}</p>
@@ -597,7 +597,7 @@ export default function AddBuildingFormModal({
 
               <div>
                 <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  🏳️ Страна *
+                  🏳️ Country *
                 </label>
                 <input
                   type="text"
@@ -606,7 +606,7 @@ export default function AddBuildingFormModal({
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
                     errors.country ? 'border-red-500' : 'border-gray-300'
                   }`}
-                  placeholder="Германия"
+                  placeholder="Germany"
                 />
                 {errors.country && (
                   <p className="text-red-500 text-xs mt-1">{errors.country}</p>
@@ -618,14 +618,14 @@ export default function AddBuildingFormModal({
             <div>
               <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                 <User className="w-4 h-4 mr-2 text-purple-600" />
-                Архитектор (опционально)
+                Architect (optional)
               </label>
               <input
                 type="text"
                 value={formData.architect || ''}
                 onChange={(e) => handleInputChange('architect', e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Например: Норман Фостер"
+                placeholder="e.g. Norman Foster"
               />
             </div>
 
@@ -634,7 +634,7 @@ export default function AddBuildingFormModal({
               <div>
                 <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                   <Calendar className="w-4 h-4 mr-2 text-orange-600" />
-                  Год постройки
+                  Year Built
                 </label>
                 <input
                   type="number"
@@ -655,14 +655,14 @@ export default function AddBuildingFormModal({
               <div>
                 <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                   <Palette className="w-4 h-4 mr-2 text-pink-600" />
-                  Стиль
+                  Style
                 </label>
                 <select
                   value={formData.architectural_style || ''}
                   onChange={(e) => handleInputChange('architectural_style', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
-                  <option value="">Выбрать стиль</option>
+                  <option value="">Select style</option>
                   {ARCHITECTURAL_STYLES.map(style => (
                     <option key={style} value={style}>{style}</option>
                   ))}
@@ -674,14 +674,14 @@ export default function AddBuildingFormModal({
             <div>
               <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                 <BuildingIcon className="w-4 h-4 mr-2 text-indigo-600" />
-                Тип здания
+                Building Type
               </label>
               <select
                 value={formData.building_type || ''}
                 onChange={(e) => handleInputChange('building_type', e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
-                <option value="">Выбрать тип</option>
+                <option value="">Select type</option>
                 {BUILDING_TYPES.map(type => (
                   <option key={type} value={type}>{type}</option>
                 ))}
@@ -694,9 +694,9 @@ export default function AddBuildingFormModal({
                 <div className="flex items-start space-x-2">
                   <div className="text-green-600 text-xl flex-shrink-0">ℹ️</div>
                   <div className="text-sm text-gray-700">
-                    <p className="font-medium mb-1">Минимальная информация для добавления объекта</p>
+                    <p className="font-medium mb-1">Minimum information to add building</p>
                     <p className="text-gray-600">
-                      Хотите добавить детальное описание? Нажмите "Добавить детали" внизу.
+                      Want to add a detailed description? Click "Add Details" below.
                     </p>
                   </div>
                 </div>
@@ -711,24 +711,24 @@ export default function AddBuildingFormModal({
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                     <span className="text-2xl mr-2">📝</span>
-                    ВАШЕ ОПИСАНИЕ ОБЪЕКТА (обзор)
+                    YOUR DESCRIPTION OF THE BUILDING (review)
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    Поделитесь своими впечатлениями и знаниями об этом месте
+                    Share your impressions and knowledge about this place
                   </p>
                 </div>
 
                 {/* Заголовок обзора */}
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    📄 Заголовок обзора
+                    📄 Review Title
                   </label>
                   <input
                     type="text"
                     value={reviewData.title}
                     onChange={(e) => setReviewData(prev => ({ ...prev, title: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Краткое впечатление о месте"
+                    placeholder="Brief impression of the place"
                     maxLength={100}
                   />
                 </div>
@@ -736,25 +736,25 @@ export default function AddBuildingFormModal({
                 {/* Описание обзора */}
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    📝 Описание (минимум 50 символов для качественного обзора)
+                    📝 Description (minimum 50 characters for quality review)
                   </label>
                   <textarea
                     value={reviewData.content}
                     onChange={(e) => setReviewData(prev => ({ ...prev, content: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     rows={6}
-                    placeholder="Расскажите подробнее о здании, его истории, архитектурных особенностях..."
+                    placeholder="Tell more about the building, its history, architectural features..."
                     maxLength={2000}
                   />
                   <div className="text-xs text-gray-500 mt-1 text-right">
-                    {reviewData.content.length} / 2000 символов
+                    {reviewData.content.length} / 2000 characters
                   </div>
                 </div>
 
                 {/* Загрузка фотографий */}
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    📷 Фотографии (до 5 шт, макс 5MB каждое)
+                    📷 Photos (up to 5, max 5MB each)
                   </label>
                   <div className="space-y-3">
                     {/* Кнопка загрузки */}
@@ -764,10 +764,10 @@ export default function AddBuildingFormModal({
                           <div className="text-center">
                             <div className="text-4xl mb-2">📤</div>
                             <p className="text-sm text-gray-600">
-                              Нажмите для загрузки фото
+                              Click to upload photos
                             </p>
                             <p className="text-xs text-gray-400 mt-1">
-                              {5 - photoFiles.length} из 5 доступно
+                              {5 - photoFiles.length} of 5 available
                             </p>
                           </div>
                         </div>
@@ -780,7 +780,7 @@ export default function AddBuildingFormModal({
                         />
                       </label>
                     )}
-                    
+
                     {/* Превью загруженных фото */}
                     {photoPreviews.length > 0 && (
                       <div className="grid grid-cols-3 gap-3">
@@ -788,7 +788,7 @@ export default function AddBuildingFormModal({
                           <div key={index} className="relative group">
                             <img
                               src={preview}
-                              alt={`Фото ${index + 1}`}
+                              alt={`Photo ${index + 1}`}
                               className="w-full h-32 object-cover rounded-lg border-2 border-gray-200"
                             />
                             <button
@@ -808,7 +808,7 @@ export default function AddBuildingFormModal({
                 {/* Аудио комментарий */}
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    🎤 Аудио-гид (опционально, макс 10MB)
+                    🎤 Audio Guide (optional, max 10MB)
                   </label>
                   {!audioFile ? (
                     <label className="cursor-pointer">
@@ -816,7 +816,7 @@ export default function AddBuildingFormModal({
                         <div className="flex items-center justify-center space-x-3">
                           <div className="text-2xl">🎙️</div>
                           <div className="text-sm text-gray-600">
-                            Загрузить аудио файл (mp3, wav, m4a)
+                            Upload audio file (mp3, wav, m4a)
                           </div>
                         </div>
                       </div>
@@ -864,27 +864,27 @@ export default function AddBuildingFormModal({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      🕐 Часы работы
+                      🕐 Opening Hours
                     </label>
                     <input
                       type="text"
                       value={reviewData.opening_hours}
                       onChange={(e) => setReviewData(prev => ({ ...prev, opening_hours: e.target.value }))}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Пн-Вс 9:00-18:00"
+                      placeholder="Mon-Sun 9:00-18:00"
                     />
                   </div>
 
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      💰 Стоимость входа
+                      💰 Entry Fee
                     </label>
                     <input
                       type="text"
                       value={reviewData.entry_fee}
                       onChange={(e) => setReviewData(prev => ({ ...prev, entry_fee: e.target.value }))}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Бесплатно / 500₽"
+                      placeholder="Free / $10"
                     />
                   </div>
                 </div>
@@ -892,7 +892,7 @@ export default function AddBuildingFormModal({
                 {/* Теги */}
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    🏷️ Теги (помогают в поиске)
+                    🏷️ Tags (help with search)
                   </label>
                   <div className="flex items-center space-x-2 mb-2">
                     <input
@@ -906,14 +906,14 @@ export default function AddBuildingFormModal({
                         }
                       }}
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Например: музей, модернизм"
+                      placeholder="e.g. museum, modernism"
                     />
                     <button
                       type="button"
                       onClick={handleAddTag}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      + Добавить
+                      + Add
                     </button>
                   </div>
                   {reviewData.tags.length > 0 && (
@@ -942,9 +942,9 @@ export default function AddBuildingFormModal({
                   <div className="flex items-start space-x-2">
                     <div className="text-purple-600 text-xl flex-shrink-0">💡</div>
                     <div className="text-sm text-gray-700">
-                      <p className="font-medium mb-1">Ваш обзор поможет другим!</p>
+                      <p className="font-medium mb-1">Your review will help others!</p>
                       <p className="text-gray-600">
-                        Качественные обзоры с высоким рейтингом будут использоваться в маршрутах и показываться чаще.
+                        Quality reviews with high ratings will be used in routes and shown more often.
                       </p>
                     </div>
                   </div>
@@ -961,9 +961,9 @@ export default function AddBuildingFormModal({
             disabled={saving}
             className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors font-medium disabled:opacity-50"
           >
-            Отмена
+            Cancel
           </button>
-          
+
           <div className="flex items-center space-x-3">
             {/* Кнопка "Добавить детали" - переключатель расширения */}
             {!isExpanded ? (
@@ -974,7 +974,7 @@ export default function AddBuildingFormModal({
                 className="px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium flex items-center space-x-2 disabled:opacity-50"
               >
                 <span>📝</span>
-                <span>Добавить детали</span>
+                <span>Add Details</span>
                 <span>→</span>
               </button>
             ) : (
@@ -985,10 +985,10 @@ export default function AddBuildingFormModal({
                 className="px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center space-x-2 disabled:opacity-50"
               >
                 <span>←</span>
-                <span>Скрыть детали</span>
+                <span>Hide Details</span>
               </button>
             )}
-            
+
             {/* Кнопка сохранения */}
             <button
               onClick={handleSave}
@@ -998,12 +998,12 @@ export default function AddBuildingFormModal({
               {saving ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Сохранение...</span>
+                  <span>Saving...</span>
                 </>
               ) : (
                 <>
                   <span>💾</span>
-                  <span>{isExpanded ? 'Сохранить всё' : 'Создать'}</span>
+                  <span>{isExpanded ? 'Save All' : 'Create'}</span>
                 </>
               )}
             </button>

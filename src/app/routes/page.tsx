@@ -40,11 +40,11 @@ const getTransportIcon = (mode: string | null) => {
 
 const getTransportLabel = (mode: string | null) => {
   switch (mode) {
-    case 'walking': return 'Пешком'
-    case 'cycling': return 'На велосипеде'
-    case 'driving': return 'На автомобиле'
-    case 'public_transport': return 'Общественный транспорт'
-    default: return 'Пешком'
+    case 'walking': return 'Walking'
+    case 'cycling': return 'Cycling'
+    case 'driving': return 'Driving'
+    case 'public_transport': return 'Public Transport'
+    default: return 'Walking'
   }
 }
 
@@ -66,22 +66,22 @@ export default function RoutesPage() {
     setError(null)
     
     try {
-      console.log('🔍 Загрузка маршрутов с умной фильтрацией...')
-      
-      // Используем умную фильтрацию для страницы маршрутов (больше маршрутов)
+      console.log('🔍 Loading routes with smart filtering...')
+
+      // Use smart filtering for routes page (more routes)
       const smartRoutes = await SmartRouteFilter.getRoutesForMap({
         city: 'Berlin',
-        maxRoutes: 50, // Для страницы маршрутов показываем больше
+        maxRoutes: 50, // Show more routes on routes page
         userPreferences: {
-          // Можно добавить фильтры пользователя
+          // Can add user filters
         }
       })
-      
-      console.log(`✅ Получено ${smartRoutes.length} отфильтрованных маршрутов`)
+
+      console.log(`✅ Retrieved ${smartRoutes.length} filtered routes`)
       setRoutes(smartRoutes)
-      
+
     } catch (smartError: any) {
-      console.error('❌ Ошибка умной фильтрации:', smartError)
+      console.error('❌ Smart filtering error:', smartError)
       
       // Fallback к обычному запросу
       try {
@@ -112,10 +112,10 @@ export default function RoutesPage() {
           return
         }
 
-        // Преобразуем в нужный формат
+        // Convert to needed format
         const formattedRoutes = (routesData || []).map(route => ({
           ...route,
-          // Добавляем отсутствующие поля
+          // Add missing fields
           route_points: [],
           profiles: null,
           route_geometry: null,
@@ -123,9 +123,9 @@ export default function RoutesPage() {
           rating: null,
           completion_count: 0
         })) as RouteWithUserData[]
-        
+
         setRoutes(formattedRoutes)
-        console.log('✅ Использован fallback загрузка:', formattedRoutes.length)
+        console.log('✅ Used fallback loading:', formattedRoutes.length)
         
       } catch (fallbackError: any) {
         console.error('❌ Fallback error:', fallbackError)
@@ -134,7 +134,7 @@ export default function RoutesPage() {
       }
     }
 
-    // Загружаем здания для создания маршрутов
+    // Load buildings for route creation
     try {
       const { data: buildingsData, error: buildingsError } = await supabase
         .from('buildings')
@@ -159,7 +159,7 @@ export default function RoutesPage() {
 
   const handleCloseRouteCreator = () => {
     setIsRouteCreatorOpen(false)
-    // Перезагружаем данные после создания маршрута
+    // Reload data after route creation
     loadData()
   }
 
@@ -168,7 +168,7 @@ export default function RoutesPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Загружаем маршруты...</p>
+          <p className="mt-4 text-gray-600">Loading routes...</p>
         </div>
       </div>
     )
@@ -179,22 +179,22 @@ export default function RoutesPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Ошибка загрузки маршрутов</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Routes Loading Error</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <div className="space-x-4">
-            <button 
+            <button
               onClick={loadData}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             >
-              Попробовать снова
+              Try Again
             </button>
             <Link href="/" className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 inline-block">
-              На главную
+              Home
             </Link>
           </div>
           <div className="mt-4">
             <Link href="/diagnostic" className="text-blue-600 hover:underline text-sm">
-              Диагностика системы →
+              System Diagnostics →
             </Link>
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function RoutesPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Навигация */}
+        {/* Navigation */}
         <div className="mb-6">
           <Link
             href="/"
@@ -216,34 +216,34 @@ export default function RoutesPage() {
           >
             <ArrowLeft className="w-4 h-4" />
             <Home className="w-4 h-4" />
-            <span>На главную</span>
+            <span>Home</span>
           </Link>
         </div>
-        
+
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-3">
               <MapPin className="w-8 h-8 text-blue-600" />
-              Архитектурные маршруты
+              Architectural Routes
             </h1>
-            
+
             {user && (
               <button
                 onClick={handleOpenRouteCreator}
                 className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition-colors font-medium"
               >
                 <Plus className="w-5 h-5" />
-                <span>Создать маршрут</span>
+                <span>Create Route</span>
               </button>
             )}
           </div>
-          
+
           <p className="text-lg text-gray-600">
-            Исследуйте города через призму архитектуры. Публичные маршруты от местных экспертов и энтузиастов.
+            Explore cities through the lens of architecture. Public routes from local experts and enthusiasts.
           </p>
-          
+
           <div className="mt-4 text-sm text-gray-500">
-            Статус БД: Подключено ✅ | Найдено маршрутов: {routes.length}
+            DB Status: Connected ✅ | Routes found: {routes.length}
           </div>
         </div>
 
@@ -251,10 +251,10 @@ export default function RoutesPage() {
           <div className="text-center py-12">
             <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Пока нет маршрутов
+              No routes yet
             </h3>
             <p className="text-gray-600 mb-6">
-              Станьте первым, кто создаст архитектурный маршрут!
+              Be the first to create an architectural route!
             </p>
             {user ? (
               <button
@@ -262,14 +262,14 @@ export default function RoutesPage() {
                 className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <Plus className="w-5 h-5" />
-                <span>Создать первый маршрут</span>
+                <span>Create First Route</span>
               </button>
             ) : (
               <Link
                 href="/auth"
                 className="inline-flex items-center gap-2 bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
               >
-                <span>Войти для создания маршрутов</span>
+                <span>Sign In to Create Routes</span>
               </Link>
             )}
           </div>
@@ -290,8 +290,8 @@ export default function RoutesPage() {
                     <span>📍 {route.city}, {route.country}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>⏱️ {route.estimated_duration_minutes || 60} мин</span>
-                    <span>📍 {route.points_count || 0} точек</span>
+                    <span>⏱️ {route.estimated_duration_minutes || 60} min</span>
+                    <span>📍 {route.points_count || 0} points</span>
                   </div>
                   {route.transport_mode && (
                     <div className="flex items-center gap-2">
@@ -300,17 +300,17 @@ export default function RoutesPage() {
                     </div>
                   )}
                   <div className="text-xs text-gray-400 pt-2 border-t flex justify-between">
-                    <span>Создан: {new Date(route.created_at).toLocaleDateString('ru-RU')}</span>
-                    <span className="text-green-600 font-medium">🌍 Публичный</span>
+                    <span>Created: {new Date(route.created_at).toLocaleDateString('en-US')}</span>
+                    <span className="text-green-600 font-medium">🌍 Public</span>
                   </div>
                 </div>
-                
+
                 <div className="mt-4">
-                  <Link 
+                  <Link
                     href={`/routes/${route.id}`}
                     className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                   >
-                    Посмотреть маршрут →
+                    View Route →
                   </Link>
                 </div>
               </div>
@@ -321,17 +321,17 @@ export default function RoutesPage() {
         {/* Debug info */}
         {process.env.NODE_ENV === 'development' && (
           <div className="mt-8 p-4 bg-gray-100 rounded-lg text-xs">
-            <h4 className="font-semibold mb-2">Отладочная информация:</h4>
-            <div>Пользователь: {user ? user.email : 'Не авторизован'}</div>
-            <div>Загружено маршрутов: {routes.length}</div>
-            <div>Последнее обновление: {new Date().toLocaleString('ru-RU')}</div>
+            <h4 className="font-semibold mb-2">Debug Information:</h4>
+            <div>User: {user ? user.email : 'Not authorized'}</div>
+            <div>Routes loaded: {routes.length}</div>
+            <div>Last update: {new Date().toLocaleString('en-US')}</div>
           </div>
         )}
 
         </div>
       </div>
     
-    {/* Модальное окно создания маршрута */}
+    {/* Route creation modal */}
     {isRouteCreatorOpen && user && (
       <RouteCreator
         isOpen={isRouteCreatorOpen}

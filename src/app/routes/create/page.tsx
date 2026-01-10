@@ -17,7 +17,7 @@ export default function CreateRoutePage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Если пользователь не авторизован, перенаправляем на авторизацию
+    // If user is not authorized, redirect to authentication
     if (!authLoading && !user) {
       router.push('/auth')
     }
@@ -32,7 +32,7 @@ export default function CreateRoutePage() {
   }
 
   if (!user) {
-    return null // Произойдет redirect
+    return null // Redirect will occur
   }
 
   return (
@@ -47,7 +47,7 @@ export default function CreateRoutePage() {
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>К маршрутам</span>
+            <span>Back to Routes</span>
           </Link>
         </div>
 
@@ -57,30 +57,30 @@ export default function CreateRoutePage() {
           </div>
           
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Создание маршрутов
+            Creating Routes
           </h1>
-          
+
           <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            Для создания архитектурных маршрутов используйте форму в выпадающем меню "Создать" в верхней панели навигации.
+            To create architectural routes, use the form in the "Create" dropdown menu in the top navigation bar.
           </p>
-          
+
           <div className="space-y-4">
             <div className="bg-blue-50 rounded-lg p-4 text-left max-w-md mx-auto">
-              <h3 className="font-semibold text-gray-900 mb-2">Как создать маршрут:</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">How to create a route:</h3>
               <ol className="text-sm text-gray-700 space-y-1">
-                <li>1. Нажмите на кнопку "Создать" в верхней панели</li>
-                <li>2. Выберите "Маршрут" из выпадающего меню</li>
-                <li>3. Заполните информацию о маршруте</li>
-                <li>4. Добавьте точки и здания</li>
-                <li>5. Опубликуйте маршрут</li>
+                <li>1. Click the "Create" button in the top bar</li>
+                <li>2. Select "Route" from the dropdown menu</li>
+                <li>3. Fill in the route information</li>
+                <li>4. Add points and buildings</li>
+                <li>5. Publish the route</li>
               </ol>
             </div>
-            
+
             <Link
               href="/routes"
               className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Вернуться к маршрутам
+              Back to Routes
             </Link>
           </div>
         </div>
