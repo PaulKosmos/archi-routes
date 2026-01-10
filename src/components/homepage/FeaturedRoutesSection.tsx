@@ -10,7 +10,7 @@ const RoutePreviewMap = dynamic(() => import('./RoutePreviewMap'), {
   ssr: false,
   loading: () => (
     <div className="aspect-[4/3] bg-muted animate-pulse flex items-center justify-center">
-      <span className="text-sm text-muted-foreground">Загрузка карты...</span>
+      <span className="text-sm text-muted-foreground">Loading map...</span>
     </div>
   )
 })
@@ -22,17 +22,17 @@ interface FeaturedRoutesSectionProps {
 
 // Transport mode icons and labels
 const transportModes = {
-  walking: { icon: '🚶', label: 'Пешком', color: 'text-green-600' },
-  cycling: { icon: '🚴', label: 'Вело', color: 'text-blue-600' },
-  driving: { icon: '🚗', label: 'Авто', color: 'text-purple-600' },
-  public_transport: { icon: '🚌', label: 'Транспорт', color: 'text-orange-600' }
+  walking: { icon: '🚶', label: 'Walking', color: 'text-green-600' },
+  cycling: { icon: '🚴', label: 'Cycling', color: 'text-blue-600' },
+  driving: { icon: '🚗', label: 'Driving', color: 'text-purple-600' },
+  public_transport: { icon: '🚌', label: 'Transit', color: 'text-orange-600' }
 }
 
 // Difficulty badges
 const difficultyConfig = {
-  easy: { label: 'Легко', color: 'bg-green-100 text-green-700 border-green-200' },
-  medium: { label: 'Средне', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-  hard: { label: 'Сложно', color: 'bg-red-100 text-red-700 border-red-200' }
+  easy: { label: 'Easy', color: 'bg-green-100 text-green-700 border-green-200' },
+  medium: { label: 'Medium', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+  hard: { label: 'Hard', color: 'bg-red-100 text-red-700 border-red-200' }
 }
 
 export default function FeaturedRoutesSection({ routes, loading }: FeaturedRoutesSectionProps) {
@@ -151,7 +151,7 @@ export default function FeaturedRoutesSection({ routes, loading }: FeaturedRoute
                       <div className="px-2 py-1 bg-background/90 backdrop-blur-sm border border-border text-xs font-medium flex items-center gap-1.5">
                         {route.profiles.role === 'expert' && <span className="text-yellow-600">★</span>}
                         {route.profiles.role === 'guide' && <span className="text-blue-600">◆</span>}
-                        <span className="text-foreground/80">{route.profiles.role === 'expert' ? 'Эксперт' : route.profiles.role === 'guide' ? 'Гид' : 'Пользователь'}</span>
+                        <span className="text-foreground/80">{route.profiles.role === 'expert' ? 'Expert' : route.profiles.role === 'guide' ? 'Guide' : 'User'}</span>
                       </div>
                     </div>
                   )}
@@ -178,7 +178,7 @@ export default function FeaturedRoutesSection({ routes, loading }: FeaturedRoute
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
-                        <span className="font-medium">{route.distance_km.toFixed(1)} км</span>
+                        <span className="font-medium">{route.distance_km.toFixed(1)} km</span>
                       </div>
                     )}
 
@@ -189,8 +189,8 @@ export default function FeaturedRoutesSection({ routes, loading }: FeaturedRoute
                         </svg>
                         <span className="font-medium">
                           {route.estimated_duration_minutes < 60
-                            ? `${route.estimated_duration_minutes} мин`
-                            : `${Math.floor(route.estimated_duration_minutes / 60)}ч ${route.estimated_duration_minutes % 60}м`}
+                            ? `${route.estimated_duration_minutes} min`
+                            : `${Math.floor(route.estimated_duration_minutes / 60)}h ${route.estimated_duration_minutes % 60}m`}
                         </span>
                       </div>
                     )}
@@ -201,7 +201,7 @@ export default function FeaturedRoutesSection({ routes, loading }: FeaturedRoute
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span className="font-medium">{route.route_points.length} точек</span>
+                        <span className="font-medium">{route.route_points.length} points</span>
                       </div>
                     )}
                   </div>

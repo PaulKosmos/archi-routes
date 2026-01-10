@@ -74,7 +74,7 @@ export default function NewsSection() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return new Intl.DateTimeFormat('ru-RU', {
+    return new Intl.DateTimeFormat('en-US', {
       day: 'numeric',
       month: 'short',
       year: 'numeric'
@@ -83,12 +83,12 @@ export default function NewsSection() {
 
   const getCategoryLabel = (category: string): string => {
     const labels: Record<string, string> = {
-      'projects': 'Проекты',
-      'events': 'События',
-      'personalities': 'Персоналии',
-      'trends': 'Тренды',
-      'planning': 'Планирование',
-      'heritage': 'Наследие'
+      'projects': 'Projects',
+      'events': 'Events',
+      'personalities': 'Personalities',
+      'trends': 'Trends',
+      'planning': 'Planning',
+      'heritage': 'Heritage'
     }
     return labels[category] || category
   }

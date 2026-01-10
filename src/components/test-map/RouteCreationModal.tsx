@@ -39,12 +39,12 @@ export default function RouteCreationModal({
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center">
             <Route className="w-6 h-6 mr-2 text-blue-600" />
-            Создание маршрута
+            Route Creation
           </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            title="Закрыть"
+            title="Close"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -57,13 +57,13 @@ export default function RouteCreationModal({
           <div className="mb-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
               <MapPin className="w-5 h-5 mr-2 text-green-600" />
-              Выбранные объекты ({selectedBuildings.length})
+              Selected Buildings ({selectedBuildings.length})
             </h3>
-            
+
             {selectedBuildings.length > 0 ? (
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {selectedBuildings.map((building, index) => (
-                  <div 
+                  <div
                     key={building.id}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
                   >
@@ -79,7 +79,7 @@ export default function RouteCreationModal({
                     <button
                       onClick={() => onRemoveBuilding(building.id)}
                       className="p-1 hover:bg-red-100 rounded-full transition-colors"
-                      title="Удалить из маршрута"
+                      title="Remove from route"
                     >
                       <Trash2 className="w-4 h-4 text-red-500" />
                     </button>
@@ -89,8 +89,8 @@ export default function RouteCreationModal({
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <MapPin className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>Нет выбранных объектов</p>
-                <p className="text-sm">Выберите объекты на карте для создания маршрута</p>
+                <p>No buildings selected</p>
+                <p className="text-sm">Select buildings on the map to create a route</p>
               </div>
             )}
           </div>
@@ -102,7 +102,7 @@ export default function RouteCreationModal({
               className="flex items-center px-4 py-2 text-gray-600 hover:text-red-600 transition-colors"
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              Очистить все
+              Clear All
             </button>
 
             <div className="flex items-center space-x-4">
@@ -113,15 +113,15 @@ export default function RouteCreationModal({
                     className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <Wrench className="w-5 h-5 mr-2" />
-                    Создать собственный маршрут
+                    Create Custom Route
                   </button>
-                  
+
                   <button
                     onClick={onCreateAutoRoute}
                     className="flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                   >
                     <Zap className="w-5 h-5 mr-2" />
-                    Автогенерация с ИИ
+                    AI Auto-generation
                   </button>
                 </>
               )}
@@ -131,19 +131,19 @@ export default function RouteCreationModal({
           {/* Информация о маршруте */}
           {selectedBuildings.length > 0 && (
             <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <h4 className="font-medium text-blue-900 mb-2">Информация о маршруте</h4>
+              <h4 className="font-medium text-blue-900 mb-2">Route Information</h4>
               <div className="grid grid-cols-2 gap-4 text-sm text-blue-800">
                 <div>
-                  <strong>Количество объектов:</strong> {selectedBuildings.length}
+                  <strong>Number of buildings:</strong> {selectedBuildings.length}
                 </div>
                 <div>
-                  <strong>Примерное время:</strong> {Math.max(selectedBuildings.length * 30, 60)} мин
+                  <strong>Estimated time:</strong> {Math.max(selectedBuildings.length * 30, 60)} min
                 </div>
                 <div>
-                  <strong>Примерное расстояние:</strong> {(selectedBuildings.length * 0.5).toFixed(1)} км
+                  <strong>Estimated distance:</strong> {(selectedBuildings.length * 0.5).toFixed(1)} km
                 </div>
                 <div>
-                  <strong>Города:</strong> {[...new Set(selectedBuildings.map(b => b.city))].join(', ')}
+                  <strong>Cities:</strong> {[...new Set(selectedBuildings.map(b => b.city))].join(', ')}
                 </div>
               </div>
             </div>

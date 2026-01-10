@@ -9,28 +9,28 @@ import dynamic from 'next/dynamic'
 import { buildRoute, optimizeRoute } from '../lib/mapbox-routing-service'
 import { TRANSPORT_MODE_OPTIONS, TransportMode, RouteOptions } from '../types/route'
 
-// Функции форматирования
+// Formatting functions
 const formatDistance = (meters: number): string => {
   if (meters >= 1000) {
-    return `${(meters / 1000).toFixed(1)} км`
+    return `${(meters / 1000).toFixed(1)} km`
   }
-  return `${Math.round(meters)} м`
+  return `${Math.round(meters)} m`
 }
 
 const formatDuration = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
-  
+
   if (hours > 0) {
-    return `${hours} ч ${minutes} мин`
+    return `${hours} h ${minutes} min`
   }
-  return `${minutes} мин`
+  return `${minutes} min`
 }
 
 const LeafletMapCreator = dynamic(() => import('./LeafletMapCreator'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-    <span className="text-gray-500">Загрузка карты...</span>
+    <span className="text-gray-500">Loading map...</span>
   </div>
 })
 
@@ -160,25 +160,25 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
     'walking', 'family-friendly', 'photography', 'educational'
   ]
 
-  // Архитектурные стили для фильтрации
+  // Architectural styles for filtering
   const architecturalStyles = [
-    { value: 'baroque', label: 'Барокко', icon: '🏰' },
-    { value: 'gothic', label: 'Готика', icon: '⛪' },
-    { value: 'renaissance', label: 'Ренессанс', icon: '🏘️' },
-    { value: 'neoclassical', label: 'Неоклассицизм', icon: '🏦' },
-    { value: 'art-nouveau', label: 'Модерн', icon: '🎨' },
-    { value: 'bauhaus', label: 'Баухаус', icon: '📊' },
-    { value: 'contemporary', label: 'Современная', icon: '🏢' },
-    { value: 'brutalism', label: 'Брутализм', icon: '🏢' }
+    { value: 'baroque', label: 'Baroque', icon: '🏰' },
+    { value: 'gothic', label: 'Gothic', icon: '⛪' },
+    { value: 'renaissance', label: 'Renaissance', icon: '🏘️' },
+    { value: 'neoclassical', label: 'Neoclassical', icon: '🏦' },
+    { value: 'art-nouveau', label: 'Art Nouveau', icon: '🎨' },
+    { value: 'bauhaus', label: 'Bauhaus', icon: '📊' },
+    { value: 'contemporary', label: 'Contemporary', icon: '🏢' },
+    { value: 'brutalism', label: 'Brutalism', icon: '🏢' }
   ]
 
-  // Тематические предустановки
+  // Thematic presets
   const thematicPresets = [
     {
       id: 'historical',
-      name: 'Историческая прогулка',
+      name: 'Historical Walk',
       icon: '📜',
-      description: 'Маршрут по самым древним зданиям города',
+      description: 'Route through the oldest buildings in the city',
       params: {
         architectural_styles: ['baroque', 'gothic', 'renaissance'],
         min_rating: 4.0,
@@ -189,9 +189,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
     },
     {
       id: 'modern',
-      name: 'Современная архитектура',
+      name: 'Modern Architecture',
       icon: '🏢',
-      description: 'Инновационные здания и современный дизайн',
+      description: 'Innovative buildings and contemporary design',
       params: {
         architectural_styles: ['contemporary', 'bauhaus', 'brutalism'],
         min_rating: 3.5,
@@ -202,9 +202,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
     },
     {
       id: 'family',
-      name: 'Семейный маршрут',
+      name: 'Family Route',
       icon: '👨‍👩‍👧‍👦',
-      description: 'Легкая прогулка с детьми по красивым местам',
+      description: 'Easy walk with children through beautiful places',
       params: {
         max_points: 5,
         max_duration_hours: 2,
@@ -216,9 +216,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
     },
     {
       id: 'photography',
-      name: 'Фотографский тур',
+      name: 'Photography Tour',
       icon: '📷',
-      description: 'Лучшие места для архитектурной фотосъемки',
+      description: 'Best spots for architectural photography',
       params: {
         min_rating: 4.5,
         max_points: 10,
@@ -229,9 +229,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
     },
     {
       id: 'evening',
-      name: 'Вечерняя прогулка',
+      name: 'Evening Walk',
       icon: '🌆',
-      description: 'Красивая подсветка зданий на закате',
+      description: 'Beautiful lighting of buildings at sunset',
       params: {
         max_points: 6,
         time_preferences: 'evening',
@@ -300,15 +300,15 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
     return () => clearTimeout(timeoutId)
   }, [routePoints, transportMode, routeOptions])
 
-  // Функция автогенерации маршрута
+  // Auto-generate route function
   const generateRoute = async () => {
     if (!autogenParams.city.trim()) {
-      setGenerateError('Укажите город для генерации')
+      setGenerateError('Please specify a city for generation')
       return
     }
 
     if (!autogenParams.route_title.trim()) {
-      setGenerateError('Укажите название маршрута')
+      setGenerateError('Please specify a route title')
       return
     }
     
@@ -322,7 +322,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
       if (sessionError || !session?.access_token) {
-        throw new Error('Требуется авторизация для создания маршрута')
+        throw new Error('Authorization required to create route')
       }
       
       const response = await fetch('/api/autogeneration/generate', {
@@ -346,12 +346,12 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
       const result = await response.json()
       
       if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Ошибка генерации маршрута')
+        throw new Error(result.error || 'Route generation error')
       }
-      
-      console.log('✅ Маршрут сгенерирован успешно:', result.route_id)
-      
-      alert(`🎉 Маршрут успешно создан! Перенаправляем на главную страницу...`)
+
+      console.log('✅ Route generated successfully:', result.route_id)
+
+      alert(`🎉 Route created successfully! Redirecting to main page...`)
       
       resetForm()
       onClose()
@@ -360,14 +360,14 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
       window.location.href = '/'
       
     } catch (error: any) {
-      console.error('❌ Ошибка автогенерации:', error)
-      setGenerateError(error.message || 'Произошла неизвестная ошибка при генерации')
+      console.error('❌ Auto-generation error:', error)
+      setGenerateError(error.message || 'An unknown error occurred during generation')
     } finally {
       setIsGenerating(false)
     }
   }
 
-  // Построение превью маршрута
+  // Build route preview
   const buildRoutePreview = async () => {
     if (routePoints.length < 2) return
 
@@ -412,7 +412,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
     } catch (error: any) {
       console.error('❌ Error building route preview:', error)
-      setBuildError(error.message || 'Ошибка построения маршрута')
+      setBuildError(error.message || 'Route building error')
       setRouteDataState(null)
     } finally {
       setIsBuilding(false)
@@ -532,12 +532,12 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
   const saveRoute = async () => {
     if (!title.trim()) {
-      setError('Укажите название маршрута')
+      setError('Please specify a route title')
       return
     }
 
     if (routePoints.length < 2) {
-      setError('Маршрут должен содержать минимум 2 точки')
+      setError('Route must contain at least 2 points')
       return
     }
 
@@ -579,15 +579,15 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
       if (routeError) {
         console.error('❌ Route creation error:', routeError)
-        
+
         if (routeError.message.includes('row-level security')) {
-          throw new Error('Ошибка прав доступа. Пожалуйста, обновите политики безопасности базы данных.')
+          throw new Error('Access rights error. Please update database security policies.')
         } else if (routeError.message.includes('violates check constraint')) {
-          throw new Error('Ошибка валидации данных. Проверьте корректность заполненных полей.')
+          throw new Error('Data validation error. Check the correctness of filled fields.')
         } else if (routeError.message.includes('column') && routeError.message.includes('does not exist')) {
-          throw new Error('Ошибка структуры базы данных. Выполните обновление схемы.')
+          throw new Error('Database structure error. Perform schema update.')
         } else {
-          throw new Error(`Ошибка создания маршрута: ${routeError.message}`)
+          throw new Error(`Route creation error: ${routeError.message}`)
         }
       }
 
@@ -612,7 +612,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
       if (pointsError) {
         console.error('Points creation error:', pointsError)
-        throw new Error(`Ошибка создания точек: ${pointsError.message}`)
+        throw new Error(`Points creation error: ${pointsError.message}`)
       }
 
       if (routeVisibility === 'public') {
@@ -623,8 +623,8 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
             route_id: route.id,
             requested_by: user.id,
             request_type: 'public', // ВАЖНО: используем 'public' для совместимости с БД
-            justification: `Пользователь хочет поделиться маршрутом "${title}" с сообществом. Маршрут содержит ${routePoints.length} точек и охватывает ${calculateDistance()}км в городе ${city}.`,
-            target_audience: `Любители архитектуры в городе ${city}`,
+            justification: `User wants to share the route "${title}" with the community. The route contains ${routePoints.length} points and covers ${calculateDistance()}km in the city of ${city}.`,
+            target_audience: `Architecture enthusiasts in ${city}`,
             estimated_popularity: Math.min(routePoints.length * 10, 50),
             status: 'pending',
             created_at: new Date().toISOString()
@@ -647,30 +647,30 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
               code: publicationError.code
             })
             
-            // Не прерываем процесс создания маршрута, просто уведомляем
-            alert(`Маршрут создан, но заявка на модерацию не отправлена: ${publicationError.message}`)
+            // Don't interrupt the route creation process, just notify
+            alert(`Route created, but moderation request was not sent: ${publicationError.message}`)
           } else {
             console.log('✅ Publication request created successfully:', requestData)
-            alert('Маршрут создан и отправлен на модерацию!')
+            alert('Route created and sent for moderation!')
           }
         } catch (error) {
           console.error('Exception creating publication request:', error)
-          alert('Маршрут создан, но произошла ошибка при отправке заявки на модерацию')
+          alert('Route created, but an error occurred while sending the moderation request')
         }
       }
-      
-      alert(`Маршрут успешно создан!${
-        routeVisibility === 'public' 
-          ? ' Заявка на публикацию отправлена на модерацию.' 
-          : ' Маршрут сохранен как личный.'
+
+      alert(`Route created successfully!${
+        routeVisibility === 'public'
+          ? ' Publication request sent for moderation.'
+          : ' Route saved as private.'
       }`)
       resetForm()
       
       window.location.href = '/'
 
     } catch (error: any) {
-      console.error('Ошибка создания маршрута:', error)
-      setError(error.message || 'Произошла неизвестная ошибка')
+      console.error('Route creation error:', error)
+      setError(error.message || 'An unknown error occurred')
     } finally {
       setLoading(false)
     }
@@ -721,11 +721,11 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
   return (
     <div className="route-creator-backdrop fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style={{ zIndex: 9998 }}>
       <div className="route-creator-modal bg-white rounded-2xl max-w-6xl w-full h-[90vh] flex flex-col" style={{ zIndex: 9999 }}>
-        {/* Заголовок */}
+        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center space-x-4">
             <h2 className="text-2xl font-bold text-gray-900">
-              Создание маршрута
+              Create Route
             </h2>
             <div className="flex space-x-1">
               {['mode', 'info', 'points', 'preview'].map((step, index) => {
@@ -758,11 +758,11 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
           </button>
         </div>
 
-        {/* Контент */}
+        {/* Content */}
         <div className="flex-1 overflow-hidden">
           {currentStep === 'mode' && (
             <div className="p-6 h-full overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-4">Выберите способ создания маршрута</h3>
+              <h3 className="text-lg font-semibold mb-4">Choose route creation method</h3>
               
               <div className="space-y-4 max-w-2xl">
                 {/* Ручное создание */}
@@ -787,16 +787,16 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     <div className="flex-1">
                       <h4 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
                         <Wrench className="w-5 h-5 mr-2" />
-                        Создать вручную
+                        Create Manually
                       </h4>
                       <p className="text-gray-600 mb-3">
-                        Полный контроль над каждой точкой маршрута. Выбирайте здания, настраивайте описания и создавайте уникальные прогулки.
+                        Full control over each route point. Choose buildings, customize descriptions and create unique walks.
                       </p>
                       <div className="text-sm text-gray-500">
-                        ✅ Максимальная кастомизация<br/>
-                        ✅ Точное планирование<br/>
-                        ✅ Авторские описания<br/>
-                        ⏱️ Время создания: 20-40 минут
+                        ✅ Maximum customization<br/>
+                        ✅ Precise planning<br/>
+                        ✅ Custom descriptions<br/>
+                        ⏱️ Creation time: 20-40 minutes
                       </div>
                     </div>
                   </div>
@@ -824,20 +824,20 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     <div className="flex-1">
                       <h4 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
                         <Zap className="w-5 h-5 mr-2" />
-                        Автогенерация с ИИ
+                        AI Auto-generation
                       </h4>
                       <p className="text-gray-600 mb-3">
-                        Умная система создаст маршрут автоматически на основе ваших предпочтений и лучших архитектурных объектов города.
+                        Smart system will create route automatically based on your preferences and best architectural objects in the city.
                       </p>
                       <div className="text-sm text-gray-500">
-                        🚀 Быстрое создание<br/>
-                        🎯 Оптимизированные маршруты<br/>
-                        🧠 ИИ-генерированные описания<br/>
-                        ⏱️ Время создания: 2-5 минут
+                        🚀 Quick creation<br/>
+                        🎯 Optimized routes<br/>
+                        🧠 AI-generated descriptions<br/>
+                        ⏱️ Creation time: 2-5 minutes
                       </div>
                       {availableTemplates.length > 0 && (
                         <div className="mt-3 text-sm text-purple-600">
-                          📚 Доступно шаблонов: {availableTemplates.length}
+                          📚 Available templates: {availableTemplates.length}
                         </div>
                       )}
                     </div>
@@ -851,7 +851,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
             <div className="p-6 h-full overflow-y-auto">
               <h3 className="text-lg font-semibold mb-4 flex items-center">
                 <Zap className="w-6 h-6 mr-2 text-purple-600" />
-                Настройки автогенерации
+                Auto-generation Settings
               </h3>
               
               <div className="space-y-6 max-w-2xl">
@@ -859,72 +859,72 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                     <div className="flex items-center text-red-800">
                       <AlertCircle className="w-5 h-5 mr-2" />
-                      <span className="font-medium">Ошибка генерации</span>
+                      <span className="font-medium">Generation Error</span>
                     </div>
                     <p className="text-red-700 text-sm mt-1">{generateError}</p>
                   </div>
                 )}
-                
+
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                   <h4 className="font-medium text-purple-900 mb-2 flex items-center">
                     <Zap className="w-4 h-4 mr-1" />
-                    Как работает автогенерация
+                    How Auto-generation Works
                   </h4>
                   <div className="text-sm text-purple-800 space-y-1">
-                    <div>1. Система анализирует архитектурные объекты в выбранном городе</div>
-                    <div>2. Искусственный интеллект создает оптимальный маршрут</div>
-                    <div>3. Генерируются описания и инструкции для каждой точки</div>
-                    <div>4. Маршрут автоматически сохраняется и готов к использованию</div>
+                    <div>1. System analyzes architectural objects in the selected city</div>
+                    <div>2. Artificial intelligence creates an optimal route</div>
+                    <div>3. Descriptions and instructions are generated for each point</div>
+                    <div>4. Route is automatically saved and ready to use</div>
                   </div>
                 </div>
                 
                 {/* Удалены быстрые предустановки - используем только тематические шаблоны из БД */}
                 
-                {/* Основные параметры */}
+                {/* Main parameters */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Название маршрута *
+                    Route Title *
                   </label>
                   <input
                     type="text"
                     value={autogenParams.route_title}
                     onChange={(e) => setAutogenParams({...autogenParams, route_title: e.target.value})}
-                    placeholder="Например: Мои любимые места в Берлине"
+                    placeholder="For example: My favorite places in Berlin"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Вы можете изменить название потом
+                    You can change the title later
                   </p>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Город для исследования *
+                    City to Explore *
                   </label>
                   <input
                     type="text"
                     value={autogenParams.city}
                     onChange={(e) => setAutogenParams({...autogenParams, city: e.target.value})}
-                    placeholder="Например: Berlin, Munich, Hamburg"
+                    placeholder="For example: Berlin, Munich, Hamburg"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Система найдет лучшие архитектурные объекты в этом городе
+                    System will find the best architectural objects in this city
                   </p>
                 </div>
                 
-                {/* Шаблон */}
+                {/* Template */}
                 {availableTemplates.length > 0 && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Тематический шаблон (необязательно)
+                      Thematic Template (optional)
                     </label>
                     <select
                       value={autogenParams.template_id}
                       onChange={(e) => setAutogenParams({...autogenParams, template_id: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
-                      <option value="">🎲 Универсальный маршрут (рекомендуется)</option>
+                      <option value="">🎲 Universal Route (recommended)</option>
                       {availableTemplates.map(template => (
                         <option key={template.id} value={template.id}>
                           {template.category === 'seasonal' ? '🌸' :
@@ -935,7 +935,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                       ))}
                     </select>
                     <p className="text-xs text-gray-500 mt-1">
-                      Шаблоны помогают создать более специализированные маршруты
+                      Templates help create more specialized routes
                     </p>
                   </div>
                 )}
@@ -943,39 +943,39 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Тип транспорта
+                      Transport Type
                     </label>
                     <select
                       value={autogenParams.transport_mode}
                       onChange={(e) => setAutogenParams({...autogenParams, transport_mode: e.target.value as any})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
-                      <option value="walking">🚶 Пешком</option>
-                      <option value="cycling">🚴 Велосипед</option>
-                      <option value="driving">🚗 Автомобиль</option>
-                      <option value="public_transport">🚌 Общ. транспорт</option>
+                      <option value="walking">🚶 Walking</option>
+                      <option value="cycling">🚴 Cycling</option>
+                      <option value="driving">🚗 Driving</option>
+                      <option value="public_transport">🚌 Public Transport</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Сложность
+                      Difficulty
                     </label>
                     <select
                       value={autogenParams.difficulty}
                       onChange={(e) => setAutogenParams({...autogenParams, difficulty: e.target.value as any})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
-                      <option value="easy">😊 Легкий</option>
-                      <option value="medium">🤔 Средний</option>
-                      <option value="hard">😅 Сложный</option>
+                      <option value="easy">😊 Easy</option>
+                      <option value="medium">🤔 Medium</option>
+                      <option value="hard">😅 Hard</option>
                     </select>
                   </div>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Количество точек: {autogenParams.max_points}
+                    Number of Points: {autogenParams.max_points}
                   </label>
                   <input
                     type="range"
@@ -986,27 +986,27 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>3 (Короткий)</span>
-                    <span>8 (Оптимальный)</span>
-                    <span>15 (Длинный)</span>
+                    <span>3 (Short)</span>
+                    <span>8 (Optimal)</span>
+                    <span>15 (Long)</span>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Больше точек = более длинный и детальный маршрут
+                    More points = longer and more detailed route
                   </p>
                 </div>
                 
-                {/* Расширенные настройки */}
+                {/* Advanced settings */}
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h4 className="font-medium text-gray-900 mb-4 flex items-center">
                     <Settings className="w-4 h-4 mr-2" />
-                    🎨 Расширенные настройки
+                    🎨 Advanced Settings
                   </h4>
-                  
+
                   <div className="space-y-4">
-                    {/* Архитектурные стили */}
+                    {/* Architectural styles */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        🏰 Архитектурные стили (необязательно)
+                        🏰 Architectural Styles (optional)
                       </label>
                       <div className="grid grid-cols-2 gap-2">
                         {architecturalStyles.map(style => (
@@ -1025,25 +1025,25 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                         ))}
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        Выберите стили для фокуса на определенной архитектуре или оставьте пустым для всех стилей
+                        Select styles to focus on specific architecture or leave empty for all styles
                       </p>
-                      
-                      {/* Кнопка "Очистить все" */}
+
+                      {/* Clear all button */}
                       {autogenParams.architectural_styles.length > 0 && (
                         <button
                           onClick={() => setAutogenParams({...autogenParams, architectural_styles: []})}
                           className="mt-2 px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-xs hover:bg-gray-300 transition-colors"
                         >
-                          ❌ Очистить все (любые стили)
+                          ❌ Clear all (any styles)
                         </button>
                       )}
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
-                      {/* Радиус поиска */}
+                      {/* Search radius */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          📍 Радиус поиска: {autogenParams.radius_km} км
+                          📍 Search Radius: {autogenParams.radius_km} km
                         </label>
                         <input
                           type="range"
@@ -1061,10 +1061,10 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                         </div>
                       </div>
                       
-                      {/* Минимальный рейтинг */}
+                      {/* Minimum rating */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          ⭐ Мин. рейтинг: {autogenParams.min_rating === 0 ? 'Любой' : autogenParams.min_rating.toFixed(1)}
+                          ⭐ Min. Rating: {autogenParams.min_rating === 0 ? 'Any' : autogenParams.min_rating.toFixed(1)}
                         </label>
                         <input
                           type="range"
@@ -1076,35 +1076,35 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           className="w-full"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
-                          <span>Любой</span>
+                          <span>Any</span>
                           <span>3.5</span>
                           <span>5.0</span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
-                      {/* Временные предпочтения */}
+                      {/* Time preferences */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          🕰️ Лучшее время
+                          🕰️ Best Time
                         </label>
                         <select
                           value={autogenParams.time_preferences}
                           onChange={(e) => setAutogenParams({...autogenParams, time_preferences: e.target.value as any})}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                         >
-                          <option value="any">🕒 Любое время</option>
-                          <option value="morning">🌅 Утро (8-12)</option>
-                          <option value="afternoon">☀️ День (12-17)</option>
-                          <option value="evening">🌆 Вечер (17-21)</option>
+                          <option value="any">🕒 Any Time</option>
+                          <option value="morning">🌅 Morning (8-12)</option>
+                          <option value="afternoon">☀️ Afternoon (12-17)</option>
+                          <option value="evening">🌆 Evening (17-21)</option>
                         </select>
                       </div>
-                      
-                      {/* Максимальная продолжительность */}
+
+                      {/* Maximum duration */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          ⏱️ Макс. время: {autogenParams.max_duration_hours} ч
+                          ⏱️ Max. Time: {autogenParams.max_duration_hours} h
                         </label>
                         <input
                           type="range"
@@ -1123,10 +1123,10 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                       </div>
                     </div>
                     
-                    {/* Дополнительные опции */}
+                    {/* Additional options */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        🎁 Дополнительные опции
+                        🎁 Additional Options
                       </label>
                       <div className="space-y-2">
                         <label className="flex items-center space-x-2">
@@ -1136,9 +1136,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                             onChange={(e) => setAutogenParams({...autogenParams, include_parks: e.target.checked})}
                             className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                           />
-                          <span className="text-sm text-gray-700">🌳 Включать парки и скверы</span>
+                          <span className="text-sm text-gray-700">🌳 Include parks and squares</span>
                         </label>
-                        
+
                         <label className="flex items-center space-x-2">
                           <input
                             type="checkbox"
@@ -1146,9 +1146,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                             onChange={(e) => setAutogenParams({...autogenParams, include_restaurants: e.target.checked})}
                             className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                           />
-                          <span className="text-sm text-gray-700">🍽️ Добавить рестораны и кафе</span>
+                          <span className="text-sm text-gray-700">🍽️ Add restaurants and cafes</span>
                         </label>
-                        
+
                         <label className="flex items-center space-x-2">
                           <input
                             type="checkbox"
@@ -1156,29 +1156,29 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                             onChange={(e) => setAutogenParams({...autogenParams, season_specific: e.target.checked})}
                             className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                           />
-                          <span className="text-sm text-gray-700">🍂 Учитывать сезонность</span>
+                          <span className="text-sm text-gray-700">🍂 Consider seasonality</span>
                         </label>
                       </div>
                       <p className="text-xs text-gray-500 mt-2">
-                        Эти опции помогают создать более полные и разнообразные маршруты
+                        These options help create more complete and diverse routes
                       </p>
                     </div>
                   </div>
                 </div>
                 
-                {/* Предпросмотр генерации */}
+                {/* Generation preview */}
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">📋 Что будет создано:</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">📋 What will be created:</h4>
                   <div className="text-sm text-gray-700 space-y-1">
-                    <div>🏛️ Маршрут по {autogenParams.max_points} архитектурным объектам в городе {autogenParams.city}</div>
-                    <div>🤖 ИИ-генерированное название и описание</div>
-                    <div>📝 Детальные инструкции для каждой точки</div>
-                    <div>🗺️ Оптимизированная последовательность посещения</div>
-                    <div>⏱️ Расчет времени и расстояния</div>
+                    <div>🏛️ Route through {autogenParams.max_points} architectural objects in {autogenParams.city}</div>
+                    <div>🤖 AI-generated title and description</div>
+                    <div>📝 Detailed instructions for each point</div>
+                    <div>🗺️ Optimized visiting sequence</div>
+                    <div>⏱️ Time and distance calculation</div>
                   </div>
                 </div>
                 
-                {/* Кнопка генерации */}
+                {/* Generation button */}
                 <div className="bg-white border-2 border-purple-200 rounded-lg p-6">
                   <button
                     onClick={generateRoute}
@@ -1188,45 +1188,45 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     {isGenerating ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        <span>Генерирую маршрут...</span>
+                        <span>Generating route...</span>
                       </>
                     ) : (
                       <>
                         <Zap className="w-5 h-5" />
-                        <span>Сгенерировать маршрут с ИИ</span>
+                        <span>Generate Route with AI</span>
                       </>
                     )}
                   </button>
                   <p className="text-xs text-gray-500 text-center mt-2">
-                    Процесс займет 30-60 секунд
+                    Process will take 30-60 seconds
                   </p>
                   
-                  {/* Предпросмотр параметров */}
-                  {(autogenParams.architectural_styles.length > 0 || autogenParams.time_preferences !== 'any' || 
+                  {/* Parameters preview */}
+                  {(autogenParams.architectural_styles.length > 0 || autogenParams.time_preferences !== 'any' ||
                     autogenParams.include_parks || autogenParams.include_restaurants || autogenParams.season_specific) && (
                     <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                      <div className="text-xs font-medium text-purple-900 mb-2">📋 Дополнительные параметры:</div>
+                      <div className="text-xs font-medium text-purple-900 mb-2">📋 Additional Parameters:</div>
                       <div className="text-xs text-purple-800 space-y-1">
                         {autogenParams.architectural_styles.length > 0 && (
-                          <div>🏰 Стили: {autogenParams.architectural_styles.map(style => 
+                          <div>🏰 Styles: {autogenParams.architectural_styles.map(style =>
                             architecturalStyles.find(s => s.value === style)?.label
                           ).filter(Boolean).join(', ')}</div>
                         )}
-                        <div>📍 Радиус: {autogenParams.radius_km} км • ⭐ Мин.рейтинг: {autogenParams.min_rating.toFixed(1)}</div>
-                        <div>⏱️ Макс.время: {autogenParams.max_duration_hours} ч • 🎯 Точек: {autogenParams.max_points}</div>
+                        <div>📍 Radius: {autogenParams.radius_km} km • ⭐ Min.rating: {autogenParams.min_rating.toFixed(1)}</div>
+                        <div>⏱️ Max.time: {autogenParams.max_duration_hours} h • 🎯 Points: {autogenParams.max_points}</div>
                         {autogenParams.time_preferences !== 'any' && (
-                          <div>🕰️ Время: {
-                            autogenParams.time_preferences === 'morning' ? 'Утро' :
-                            autogenParams.time_preferences === 'afternoon' ? 'День' :
-                            autogenParams.time_preferences === 'evening' ? 'Вечер' : 'Любое'
+                          <div>🕰️ Time: {
+                            autogenParams.time_preferences === 'morning' ? 'Morning' :
+                            autogenParams.time_preferences === 'afternoon' ? 'Afternoon' :
+                            autogenParams.time_preferences === 'evening' ? 'Evening' : 'Any'
                           }</div>
                         )}
                         {(autogenParams.include_parks || autogenParams.include_restaurants || autogenParams.season_specific) && (
-                          <div>🎁 Доп.: {
+                          <div>🎁 Additional: {
                             [
-                              autogenParams.include_parks && '🌳 Парки',
-                              autogenParams.include_restaurants && '🍽️ Рестораны',
-                              autogenParams.season_specific && '🍂 Сезонность'
+                              autogenParams.include_parks && '🌳 Parks',
+                              autogenParams.include_restaurants && '🍽️ Restaurants',
+                              autogenParams.season_specific && '🍂 Seasonality'
                             ].filter(Boolean).join(', ')
                           }</div>
                         )}
@@ -1240,30 +1240,30 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
           
           {currentStep === 'info' && creationMode === 'manual' && (
             <div className="p-6 h-full overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-4">Основная информация</h3>
-              
+              <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
+
               <div className="space-y-4 max-w-2xl">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Название маршрута *
+                    Route Title *
                   </label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Например: Архитектура Берлина: от классики к модерну"
+                    placeholder="For example: Berlin Architecture: From Classic to Modern"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Описание
+                    Description
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Расскажите о вашем маршруте..."
+                    placeholder="Tell about your route..."
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -1272,7 +1272,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Город
+                      City
                     </label>
                     <input
                       type="text"
@@ -1284,7 +1284,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Страна
+                      Country
                     </label>
                     <input
                       type="text"
@@ -1295,10 +1295,10 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                   </div>
                 </div>
 
-                {/* Тип транспорта */}
+                {/* Transport type */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Тип транспорта *
+                    Transport Type *
                   </label>
                   <select
                     value={transportMode}
@@ -1319,7 +1319,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Время прохождения (минуты)
+                      Duration (minutes)
                     </label>
                     <input
                       type="number"
@@ -1333,28 +1333,28 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Сложность
+                      Difficulty
                     </label>
                     <select
                       value={difficulty}
                       onChange={(e) => setDifficulty(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="easy">Легкий</option>
-                      <option value="medium">Средний</option>
-                      <option value="hard">Сложный</option>
+                      <option value="easy">Easy</option>
+                      <option value="medium">Medium</option>
+                      <option value="hard">Hard</option>
                     </select>
                   </div>
                 </div>
 
-                {/* Дополнительные настройки */}
+                {/* Additional settings */}
                 <div>
                   <button
                     onClick={() => setShowAdvanced(!showAdvanced)}
                     className="flex items-center text-blue-600 hover:text-blue-800"
                   >
                     <Settings size={16} className="mr-1" />
-                    Дополнительные настройки маршрута
+                    Additional Route Settings
                   </button>
 
                   {showAdvanced && (
@@ -1368,7 +1368,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                               onChange={(e) => setRouteOptions({...routeOptions, avoid_tolls: e.target.checked})}
                               className="mr-2"
                             />
-                            <span className="text-sm">Избегать платных дорог</span>
+                            <span className="text-sm">Avoid toll roads</span>
                           </label>
                           <label className="flex items-center">
                             <input
@@ -1377,7 +1377,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                               onChange={(e) => setRouteOptions({...routeOptions, avoid_ferries: e.target.checked})}
                               className="mr-2"
                             />
-                            <span className="text-sm">Избегать паромов</span>
+                            <span className="text-sm">Avoid ferries</span>
                           </label>
                         </>
                       )}
@@ -1390,7 +1390,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                             onChange={(e) => setRouteOptions({...routeOptions, prefer_green: e.target.checked})}
                             className="mr-2"
                           />
-                          <span className="text-sm">Предпочитать парки и зеленые зоны</span>
+                          <span className="text-sm">Prefer parks and green areas</span>
                         </label>
                       )}
 
@@ -1401,8 +1401,8 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           onChange={(e) => setRouteOptions({...routeOptions, optimized: e.target.checked})}
                           className="mr-2"
                         />
-                        <span className="text-sm">Оптимизировать порядок точек</span>
-                        <span className="text-xs text-gray-500 ml-2">(для 4+ точек)</span>
+                        <span className="text-sm">Optimize point order</span>
+                        <span className="text-xs text-gray-500 ml-2">(for 4+ points)</span>
                       </label>
                     </div>
                   )}
@@ -1410,7 +1410,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Теги
+                    Tags
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {availableTags.map((tag) => (
@@ -1431,7 +1431,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Приватность маршрута
+                    Route Privacy
                   </label>
                   <div className="space-y-3">
                     <label className="flex items-start space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
@@ -1444,13 +1444,13 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                         className="mt-1"
                       />
                       <div>
-                        <div className="font-medium text-gray-900">🔒 Личный маршрут</div>
+                        <div className="font-medium text-gray-900">🔒 Private Route</div>
                         <div className="text-sm text-gray-600">
-                          Виден только вам. Можно будет подать заявку на публикацию позже.
+                          Visible only to you. You can submit for publication later.
                         </div>
                       </div>
                     </label>
-                    
+
                     <label className="flex items-start space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
                       <input
                         type="radio"
@@ -1461,24 +1461,24 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                         className="mt-1"
                       />
                       <div>
-                        <div className="font-medium text-gray-900">🌍 Публичный маршрут</div>
+                        <div className="font-medium text-gray-900">🌍 Public Route</div>
                         <div className="text-sm text-gray-600">
-                          После модерации будет виден всем пользователям.
+                          Will be visible to all users after moderation.
                         </div>
                       </div>
                     </label>
                   </div>
-                  
+
                   {routeVisibility === 'public' && (
                     <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <div className="flex items-start space-x-2">
                         <div className="text-blue-600 mt-0.5">ℹ️</div>
                         <div className="text-sm text-blue-800">
-                          <div className="font-medium mb-1">Модерация публичных маршрутов:</div>
+                          <div className="font-medium mb-1">Public Route Moderation:</div>
                           <ul className="text-xs space-y-1">
-                            <li>• Маршрут будет отправлен на модерацию</li>
-                            <li>• После одобрения станет доступен всем</li>
-                            <li>• Может появиться на главной странице</li>
+                            <li>• Route will be sent for moderation</li>
+                            <li>• After approval will be available to everyone</li>
+                            <li>• May appear on the main page</li>
                           </ul>
                         </div>
                       </div>
@@ -1491,59 +1491,59 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
           {currentStep === 'points' && (
             <div className="h-full flex">
-              {/* Панель управления точками */}
+              {/* Points control panel */}
               <div className="w-80 border-r p-4 overflow-y-auto">
-                <h3 className="text-lg font-semibold mb-4">Точки маршрута</h3>
-                
+                <h3 className="text-lg font-semibold mb-4">Route Points</h3>
+
                 <div className="space-y-2 mb-4">
                   <button
                     onClick={() => setIsAddingPoint(!isAddingPoint)}
                     className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                      isAddingPoint 
-                        ? 'bg-green-500 text-white border-green-500 hover:bg-green-600' 
+                      isAddingPoint
+                        ? 'bg-green-500 text-white border-green-500 hover:bg-green-600'
                         : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
                     }`}
                   >
-                    {isAddingPoint ? '✓ Режим добавления (нажмите еще раз чтобы выйти)' : '+ Добавить точку'}
+                    {isAddingPoint ? '✓ Adding mode (click again to exit)' : '+ Add Point'}
                   </button>
-                  
+
                   {isAddingPoint && (
                     <div className="text-sm text-gray-600 bg-green-50 p-3 rounded-lg border border-green-200">
-                      <p className="font-medium mb-1 text-green-800">🎯 Режим добавления активен:</p>
+                      <p className="font-medium mb-1 text-green-800">🎯 Adding mode active:</p>
                       <ul className="text-xs space-y-1 text-green-700">
-                        <li>• Кликните по синей точке (существующее здание)</li>
-                        <li>• Или кликните по пустому месту (новая точка)</li>
-                        <li>• Можете добавлять сколько угодно точек подряд</li>
-                        <li>• Нажмите кнопку выше чтобы выйти из режима</li>
+                        <li>• Click on a blue point (existing building)</li>
+                        <li>• Or click on an empty space (new point)</li>
+                        <li>• You can add as many points in a row</li>
+                        <li>• Click the button above to exit mode</li>
                       </ul>
                     </div>
                   )}
                 </div>
 
-                {/* Информация о маршруте */}
+                {/* Route information */}
                 {routeDataState && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                     <div className="flex items-center mb-2">
                       <RouteIcon size={20} className="text-blue-600 mr-2" />
-                      <h4 className="font-medium text-blue-900">Предварительная информация о маршруте</h4>
+                      <h4 className="font-medium text-blue-900">Preliminary Route Information</h4>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-blue-700">Расстояние:</span>
+                        <span className="text-blue-700">Distance:</span>
                         <span className="ml-2 font-medium">{formatDistance(routeDataState.distance)}</span>
                       </div>
                       <div>
-                        <span className="text-blue-700">Время:</span>
+                        <span className="text-blue-700">Time:</span>
                         <span className="ml-2 font-medium">{formatDuration(routeDataState.duration)}</span>
                       </div>
                       <div>
-                        <span className="text-blue-700">Инструкций:</span>
+                        <span className="text-blue-700">Instructions:</span>
                         <span className="ml-2 font-medium">{routeDataState.instructions?.length || 0}</span>
                       </div>
                       <div>
-                        <span className="text-blue-700">Транспорт:</span>
+                        <span className="text-blue-700">Transport:</span>
                         <span className="ml-2 font-medium">
-                          {TRANSPORT_MODE_OPTIONS.find(o => o.value === transportMode)?.icon} 
+                          {TRANSPORT_MODE_OPTIONS.find(o => o.value === transportMode)?.icon}
                           {TRANSPORT_MODE_OPTIONS.find(o => o.value === transportMode)?.label}
                         </span>
                       </div>
@@ -1554,7 +1554,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                 {isBuilding && (
                   <div className="flex items-center justify-center py-4 text-blue-600 mb-4">
                     <Loader className="animate-spin mr-2" size={20} />
-                    <span>Построение маршрута...</span>
+                    <span>Building route...</span>
                   </div>
                 )}
 
@@ -1562,7 +1562,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                     <div className="flex items-center text-red-800">
                       <AlertCircle size={20} className="mr-2" />
-                      <span className="font-medium">Ошибка построения маршрута</span>
+                      <span className="font-medium">Route Building Error</span>
                     </div>
                     <p className="text-red-700 text-sm mt-1">{buildError}</p>
                   </div>
@@ -1584,7 +1584,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           )}
                           <div className="flex items-center space-x-2 mt-1 ml-8">
                             <Clock size={12} className="text-gray-400" />
-                            <span className="text-xs text-gray-500">{point.duration_minutes || point.estimated_time_minutes} мин осмотра</span>
+                            <span className="text-xs text-gray-500">{point.duration_minutes || point.estimated_time_minutes} min viewing</span>
                           </div>
                         </div>
                         <button
@@ -1647,7 +1647,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
           {currentStep === 'preview' && (
             <div className="p-6 h-full overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-4">Предварительный просмотр</h3>
+              <h3 className="text-lg font-semibold mb-4">Preview</h3>
               
               <div className="max-w-2xl space-y-6">
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -1662,9 +1662,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     <div className="flex items-center space-x-2">
                       <Clock size={16} className="text-gray-500" />
                       <span>
-                        {routeDataState 
+                        {routeDataState
                           ? formatDuration(routeDataState.duration)
-                          : `${estimatedDuration} минут`
+                          : `${estimatedDuration} minutes`
                         }
                       </span>
                     </div>
@@ -1674,7 +1674,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     </div>
                     <div className="flex items-center space-x-2">
                       <Users size={16} className="text-gray-500" />
-                      <span>{routePoints.length} точек</span>
+                      <span>{routePoints.length} points</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RouteIcon size={16} className="text-gray-500" />
@@ -1706,10 +1706,10 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     </div>
                   )}
                   
-                  {/* Статус публикации */}
+                  {/* Publication status */}
                   <div className={`mt-4 p-3 rounded-lg ${
-                    routeVisibility === 'public' 
-                      ? 'bg-blue-50 border border-blue-200' 
+                    routeVisibility === 'public'
+                      ? 'bg-blue-50 border border-blue-200'
                       : 'bg-gray-50 border border-gray-200'
                   }`}>
                     <div className="flex items-center space-x-2 mb-2">
@@ -1719,7 +1719,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                       <span className={`font-medium ${
                         routeVisibility === 'public' ? 'text-blue-900' : 'text-gray-900'
                       }`}>
-                        {routeVisibility === 'public' ? 'Публичный маршрут' : 'Личный маршрут'}
+                        {routeVisibility === 'public' ? 'Public Route' : 'Private Route'}
                       </span>
                     </div>
                     <div className={`text-sm ${
@@ -1849,11 +1849,11 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                   }}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
-                  Назад
+                  Back
                 </button>
               )}
             </div>
-            
+
             <div className="flex space-x-3">
               <button
                 onClick={() => {
@@ -1862,7 +1862,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                 }}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
               >
-                Отмена
+                Cancel
               </button>
               
               {creationMode === 'autogenerate' ? (
@@ -1873,11 +1873,11 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     disabled={!creationMode}
                     className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
                   >
-                    Далее
+                    Next
                   </button>
                 ) : null
               ) : (
-                // Для ручного создания стандартная логика
+                // For manual creation standard logic
                 currentStep === 'preview' ? (
                   <button
                     onClick={saveRoute}
@@ -1885,7 +1885,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center space-x-2"
                   >
                     <Save size={16} />
-                    <span>{loading ? 'Сохранение...' : 'Сохранить маршрут'}</span>
+                    <span>{loading ? 'Saving...' : 'Save Route'}</span>
                   </button>
                 ) : currentStep === 'mode' ? (
                   <button
@@ -1893,13 +1893,13 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     disabled={!creationMode}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                   >
-                    Далее
+                    Next
                   </button>
                 ) : (
                   <button
                     onClick={() => {
                       if (currentStep === 'info' && !title.trim()) {
-                        setError('Укажите название маршрута')
+                        setError('Please specify a route title')
                         return
                       }
                       
@@ -1915,7 +1915,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     }}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
-                    Далее
+                    Next
                   </button>
                 )
               )}

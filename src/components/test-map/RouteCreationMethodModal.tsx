@@ -23,7 +23,7 @@ export default function RouteCreationMethodModal({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-900">
-            Создание маршрута
+            Route Creation
           </h2>
           <button
             onClick={onClose}
@@ -36,7 +36,7 @@ export default function RouteCreationMethodModal({
         {/* Content */}
         <div className="p-8">
           <p className="text-center text-gray-600 mb-8 text-lg">
-            Как вы хотите создать маршрут?
+            How would you like to create your route?
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -54,34 +54,34 @@ export default function RouteCreationMethodModal({
 
               {/* Title */}
               <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center">
-                Создать вручную
+                Create Manually
               </h3>
 
               {/* Description */}
               <p className="text-gray-600 text-center mb-4 leading-relaxed">
-                Выберите объекты на карте самостоятельно и создайте персональный маршрут
+                Select buildings on the map yourself and create a personalized route
               </p>
 
               {/* Features */}
               <ul className="text-sm text-gray-500 space-y-2 mb-6">
                 <li className="flex items-center justify-center">
                   <span className="mr-2">✓</span>
-                  <span>Полный контроль над маршрутом</span>
+                  <span>Full control over route</span>
                 </li>
                 <li className="flex items-center justify-center">
                   <span className="mr-2">✓</span>
-                  <span>Выбор порядка объектов</span>
+                  <span>Choose building order</span>
                 </li>
                 <li className="flex items-center justify-center">
                   <span className="mr-2">✓</span>
-                  <span>От 2 до 20 объектов</span>
+                  <span>From 2 to 20 buildings</span>
                 </li>
               </ul>
 
               {/* Button */}
               <div className="mt-auto">
                 <div className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium group-hover:bg-blue-700 transition-colors text-center">
-                  Выбрать
+                  Select
                 </div>
               </div>
 
@@ -94,7 +94,7 @@ export default function RouteCreationMethodModal({
               {/* "Скоро" badge */}
               <div className="absolute top-4 right-4">
                 <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
-                  Скоро
+                  Coming Soon
                 </span>
               </div>
 
@@ -107,34 +107,34 @@ export default function RouteCreationMethodModal({
 
               {/* Title */}
               <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center">
-                Сгенерировать с AI
+                Generate with AI
               </h3>
 
               {/* Description */}
               <p className="text-gray-600 text-center mb-4 leading-relaxed">
-                Укажите ваши предпочтения, и AI создаст идеальный маршрут
+                Specify your preferences and AI will create the perfect route
               </p>
 
               {/* Features */}
               <ul className="text-sm text-gray-500 space-y-2 mb-6">
                 <li className="flex items-center justify-center">
                   <span className="mr-2">✓</span>
-                  <span>Умные рекомендации</span>
+                  <span>Smart recommendations</span>
                 </li>
                 <li className="flex items-center justify-center">
                   <span className="mr-2">✓</span>
-                  <span>Учет ваших интересов</span>
+                  <span>Consider your interests</span>
                 </li>
                 <li className="flex items-center justify-center">
                   <span className="mr-2">✓</span>
-                  <span>Оптимальный маршрут</span>
+                  <span>Optimal route</span>
                 </li>
               </ul>
 
               {/* Button */}
               <div className="mt-auto">
                 <div className="px-6 py-3 bg-gray-400 text-white rounded-lg font-medium text-center cursor-not-allowed">
-                  В разработке
+                  In Development
                 </div>
               </div>
             </div>
@@ -144,7 +144,7 @@ export default function RouteCreationMethodModal({
           <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800 text-center flex items-center justify-center">
               <span className="mr-2">💡</span>
-              <span>Создавайте личные маршруты для своих прогулок. Вы сможете редактировать их в любое время.</span>
+              <span>Create personal routes for your walks. You can edit them anytime.</span>
             </p>
           </div>
         </div>

@@ -50,7 +50,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
 
   const handleFavoriteToggle = async () => {
     if (!user) {
-      alert('Необходимо войти в систему для добавления в избранное')
+      alert('You need to sign in to add to favorites')
       return
     }
 
@@ -80,7 +80,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
       onFavoriteUpdate()
     } catch (error) {
       console.error('Error toggling favorite:', error)
-      alert('Ошибка при добавлении в избранное. Попробуйте ещё раз.')
+      alert('Error adding to favorites. Please try again.')
     } finally {
       setFavoriteLoading(false)
     }
@@ -91,7 +91,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
       try {
         await navigator.share({
           title: building.name,
-          text: building.description || `Архитектурный объект: ${building.name}`,
+          text: building.description || `Architectural building: ${building.name}`,
           url: window.location.href
         })
       } catch (error) {
@@ -99,7 +99,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
       }
     } else {
       navigator.clipboard.writeText(window.location.href)
-      alert('Ссылка скопирована в буфер обмена')
+      alert('Link copied to clipboard')
     }
   }
 
@@ -174,7 +174,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                 <div className="w-full h-full bg-muted flex items-center justify-center rounded-[var(--radius)]">
                   <div className="text-center">
                     <Camera className="h-16 w-16 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-muted-foreground text-sm">Фото недоступно</p>
+                    <p className="text-muted-foreground text-sm">Photo unavailable</p>
                   </div>
                 </div>
               )}
@@ -185,7 +185,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                   <Link
                     href={`/buildings/${building.id}/edit`}
                     className="p-3 bg-card/90 text-foreground rounded-full backdrop-blur-sm hover:bg-card transition-colors"
-                    title="Редактировать здание"
+                    title="Edit building"
                   >
                     <Edit className="h-5 w-5" />
                   </Link>
@@ -216,7 +216,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                 <div className="absolute top-4 left-4">
                   <div className="flex items-center bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                     <Award className="h-4 w-4 mr-1" />
-                    Проверено
+                    Verified
                   </div>
                 </div>
               )}
@@ -284,7 +284,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground font-metrics">
-                  {building.review_count || 0} {building.review_count === 1 ? 'отзыв' : 'отзывов'}
+                  {building.review_count || 0} {building.review_count === 1 ? 'review' : 'reviews'}
                 </p>
               </div>
 
@@ -294,7 +294,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                   href={`/buildings/${building.id}/review/new`}
                   className="inline-block bg-primary text-primary-foreground px-6 py-2 rounded-[var(--radius)] font-medium hover:bg-primary/90 transition-colors"
                 >
-                  Написать обзор
+                  Write Review
                 </Link>
               </div>
             </div>

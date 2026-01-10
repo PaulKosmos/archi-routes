@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Государственный Исторический Музей — Archi-Routes</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Crimson+Pro:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cream: #FBF8F3;
+            --black: #1a1a1a;
+            --gold: #D4AF37;
+            --warm-brown: #8B7355;
+            --coral: #F26438;
+            --off-white: #F5F1EB;
+            --deep-gold: #B8941F;
+
+            --serif: 'Cormorant Garamond', Georgia, serif;
+            --body: 'Crimson Pro', Georgia, serif;
+            --sans: 'Montserrat', -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: var(--body);
+            background: var(--cream);
+            color: var(--black);
+            line-height: 1.8;
+            font-size: 18px;
+            overflow-x: hidden;
+        }
+
+        /* Noise Texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            z-index: 1000;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E");
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            background: linear-gradient(135deg, #1a1a1a 0%, #3a2a2a 100%);
+        }
+
+        .hero-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+            transform: scale(1.1);
+            transition: transform 0.3s ease-out;
+        }
+
+        .hero.parallax .hero-image {
+            transform: scale(1.05) translateY(var(--scroll-offset, 0));
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(26, 26, 26, 0.3) 0%,
+                rgba(26, 26, 26, 0.6) 60%,
+                rgba(26, 26, 26, 0.9) 100%
+            );
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            padding: 0 5%;
+            padding-bottom: 8vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-meta {
+            font-family: var(--sans);
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 20px;
+            font-weight: 500;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero-title {
+            font-family: var(--serif);
+            font-size: clamp(48px, 8vw, 96px);
+            font-weight: 700;
+            line-height: 1.1;
+            color: #fff;
+            margin-bottom: 30px;
+            font-style: italic;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .hero-subtitle {
+            font-family: var(--body);
+            font-size: clamp(18px, 2vw, 24px);
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 700px;
+            font-weight: 300;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        /* Decorative Line */
+        .decorative-line {
+            position: absolute;
+            left: 5%;
+            top: 15%;
+            width: 2px;
+            height: 120px;
+            background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+            animation: fadeIn 1.5s ease-out 0.8s both;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 5%;
+            position: relative;
+        }
+
+        /* Layout Grid */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 80px;
+            margin-top: -100px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .main-content {
+            background: var(--cream);
+            padding: 80px 60px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.1),
+                0 8px 20px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--gold), var(--deep-gold));
+        }
+
+        /* Sidebar */
+        .sidebar {
+            padding-top: 80px;
+        }
+
+        .sticky-nav {
+            position: sticky;
+            top: 40px;
+            background: #fff;
+            padding: 40px 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .sticky-nav h3 {
+            font-family: var(--sans);
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--warm-brown);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 12px;
+        }
+
+        .nav-links a {
+            font-family: var(--body);
+            color: var(--black);
+            text-decoration: none;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 1px;
+            background: var(--gold);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+            transform: translateX(5px);
+        }
+
+        .nav-links a:hover::before {
+            width: 12px;
+        }
+
+        .quick-facts {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(26, 26, 26, 0.1);
+        }
+
+        .fact-item {
+            margin-bottom: 20px;
+        }
+
+        .fact-label {
+            font-family: var(--sans);
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--warm-brown);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .fact-value {
+            font-family: var(--body);
+            font-size: 15px;
+            color: var(--black);
+            font-weight: 500;
+        }
+
+        /* Drop Cap */
+        .drop-cap::first-letter {
+            font-family: var(--serif);
+            float: left;
+            font-size: 92px;
+            line-height: 0.85;
+            font-weight: 700;
+            color: var(--gold);
+            padding-right: 15px;
+            padding-top: 8px;
+            font-style: italic;
+        }
+
+        /* Typography */
+        .section {
+            margin-bottom: 100px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-family: var(--serif);
+            font-size: clamp(36px, 4vw, 56px);
+            font-weight: 700;
+            margin-bottom: 40px;
+            font-style: italic;
+            color: var(--black);
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: var(--gold);
+        }
+
+        .intro-text {
+            font-size: 20px;
+            line-height: 1.9;
+            margin-bottom: 40px;
+            color: var(--black);
+        }
+
+        .pull-quote {
+            font-family: var(--serif);
+            font-size: 28px;
+            font-style: italic;
+            line-height: 1.6;
+            color: var(--warm-brown);
+            padding: 50px 60px;
+            margin: 60px -60px;
+            background: var(--off-white);
+            border-left: 4px solid var(--gold);
+            position: relative;
+        }
+
+        .pull-quote::before {
+            content: '"';
+            font-size: 120px;
+            font-family: var(--serif);
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            color: var(--gold);
+            opacity: 0.2;
+            line-height: 1;
+        }
+
+        /* Timeline */
+        .timeline {
+            margin: 80px 0;
+            position: relative;
+        }
+
+        .timeline-container {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            padding: 60px 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: linear-gradient(to right, var(--gold), var(--deep-gold));
+            transform: translateY(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            text-align: center;
+            flex: 1;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .timeline-item:hover .timeline-dot {
+            transform: scale(1.3);
+            background: var(--coral);
+        }
+
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--gold);
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 2;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 0 4px var(--cream);
+        }
+
+        .timeline-year {
+            font-family: var(--sans);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 8px;
+        }
+
+        .timeline-event {
+            font-family: var(--body);
+            font-size: 14px;
+            color: var(--warm-brown);
+            max-width: 180px;
+            margin: 0 auto;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .timeline-item:hover .timeline-event,
+        .timeline-item.active .timeline-event {
+            opacity: 1;
+            max-height: 100px;
+        }
+
+        /* Architectural Details Grid */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .detail-card {
+            background: #fff;
+            padding: 35px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detail-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, var(--gold), transparent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .detail-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .detail-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .detail-icon {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .detail-label {
+            font-family: var(--sans);
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--warm-brown);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-family: var(--body);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--black);
+        }
+
+        /* Photo Gallery */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery-item:first-child {
+            grid-column: span 2;
+            aspect-ratio: 16/9;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.08);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(26, 26, 26, 0.8), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            display: flex;
+            align-items: flex-end;
+            padding: 30px;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .gallery-caption {
+            font-family: var(--body);
+            color: #fff;
+            font-size: 16px;
+            transform: translateY(20px);
+            transition: transform 0.4s ease;
+        }
+
+        .gallery-item:hover .gallery-caption {
+            transform: translateY(0);
+        }
+
+        /* Floor Plan */
+        .floor-plan {
+            background: #fff;
+            padding: 60px;
+            margin: 50px 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .floor-plan-svg {
+            width: 100%;
+            height: auto;
+            max-width: 800px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .floor-plan-room {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .floor-plan-room:hover {
+            fill: var(--coral);
+            fill-opacity: 0.3;
+        }
+
+        /* Architect Card */
+        .architect-card {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 40px;
+            background: linear-gradient(135deg, #f5f1eb 0%, #fff 100%);
+            padding: 50px;
+            margin: 80px 0;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .architect-card::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 100px;
+            height: 100px;
+            background: var(--gold);
+            opacity: 0.1;
+            clip-path: polygon(100% 0, 0 0, 100% 100%);
+        }
+
+        .architect-image {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(1.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .architect-info h3 {
+            font-family: var(--serif);
+            font-size: 36px;
+            font-weight: 700;
+            font-style: italic;
+            margin-bottom: 10px;
+            color: var(--black);
+        }
+
+        .architect-dates {
+            font-family: var(--sans);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--warm-brown);
+            margin-bottom: 25px;
+        }
+
+        .architect-bio {
+            font-family: var(--body);
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--black);
+        }
+
+        /* Related Buildings Carousel */
+        .carousel {
+            margin: 80px -60px;
+            padding: 60px;
+            background: var(--off-white);
+            position: relative;
+        }
+
+        .carousel-track {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .carousel-item {
+            background: #fff;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .carousel-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .carousel-item img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .carousel-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .carousel-content {
+            padding: 25px;
+        }
+
+        .carousel-title {
+            font-family: var(--serif);
+            font-size: 22px;
+            font-weight: 600;
+            font-style: italic;
+            margin-bottom: 8px;
+            color: var(--black);
+        }
+
+        .carousel-meta {
+            font-family: var(--sans);
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--warm-brown);
+        }
+
+        /* Visit Info */
+        .visit-info {
+            background: linear-gradient(135deg, var(--black) 0%, #2a2a2a 100%);
+            color: #fff;
+            padding: 60px;
+            margin: 80px -60px -80px;
+            position: relative;
+        }
+
+        .visit-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h60v60H0z' fill='none'/%3E%3Cpath d='M0 0h30v30H0z' fill='%23fff' fill-opacity='0.02'/%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .visit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .visit-item h4 {
+            font-family: var(--sans);
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .visit-item p {
+            font-family: var(--body);
+            font-size: 16px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--black);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            transform: rotate(90deg);
+            background: var(--gold);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .sidebar {
+                order: -1;
+                padding-top: 0;
+            }
+
+            .sticky-nav {
+                position: static;
+            }
+
+            .main-content {
+                padding: 60px 40px;
+            }
+
+            .pull-quote {
+                margin-left: 0;
+                margin-right: 0;
+                padding: 40px 30px;
+            }
+
+            .carousel {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .visit-info {
+                margin-left: 0;
+                margin-right: 0;
+                margin-bottom: -60px;
+            }
+
+            .architect-card {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .carousel-track {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 48px;
+            }
+
+            .main-content {
+                padding: 40px 30px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .timeline-container {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .timeline-line {
+                top: 0;
+                bottom: 0;
+                left: 50%;
+                width: 2px;
+                height: auto;
+                transform: translateX(-50%);
+            }
+
+            .timeline-event {
+                opacity: 1;
+                max-height: none;
+            }
+
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-item:first-child {
+                grid-column: span 1;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .drop-cap::first-letter {
+                font-size: 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <img src="https://images.unsplash.com/photo-1590079332485-0e94bb6c22d1?w=1920&q=80" alt="Государственный Исторический Музей" class="hero-image">
+        <div class="hero-overlay"></div>
+        <div class="decorative-line"></div>
+        <div class="hero-content">
+            <div class="hero-meta">Псевдорусский Стиль • Красная Площадь</div>
+            <h1 class="hero-title">Государственный Исторический Музей</h1>
+            <p class="hero-subtitle">Монументальный шедевр русской архитектуры XIX века, воплощающий национальную идентичность в камне</p>
+        </div>
+    </section>
+
+    <!-- Main Layout -->
+    <div class="container">
+        <div class="layout-grid">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sticky-nav">
+                    <h3>Содержание</h3>
+                    <ul class="nav-links">
+                        <li><a href="#introduction">Введение</a></li>
+                        <li><a href="#history">История</a></li>
+                        <li><a href="#details">Детали</a></li>
+                        <li><a href="#gallery">Галерея</a></li>
+                        <li><a href="#floor-plan">План здания</a></li>
+                        <li><a href="#architect">Архитектор</a></li>
+                        <li><a href="#visit">Посещение</a></li>
+                    </ul>
+
+                    <div class="quick-facts">
+                        <h3>Основные Факты</h3>
+                        <div class="fact-item">
+                            <div class="fact-label">Архитектор</div>
+                            <div class="fact-value">Владимир Шервуд</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">Годы</div>
+                            <div class="fact-value">1872-1883</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">Стиль</div>
+                            <div class="fact-value">Псевдорусский</div>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-label">Статус</div>
+                            <div class="fact-value">Объект культурного наследия</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Introduction -->
+                <section id="introduction" class="section visible">
+                    <p class="intro-text drop-cap">Государственный Исторический музей — один из крупнейших национальных музеев России. Его монументальное здание, расположенное между Красной площадью и Манежной площадью, стало символом российской истории и культуры. Построенное в псевдорусском стиле по проекту архитектора Владимира Осиповича Шервуда и инженера Анатолия Семёнова, здание музея представляет собой уникальный образец русской архитектурной мысли второй половины XIX века.</p>
+
+                    <p class="intro-text">Музей был задуман как «храм истории», где каждая деталь фасада и интерьера несёт глубокий символический смысл. Архитектурный облик здания отражает стремление к возрождению национальных традиций в искусстве, характерное для эпохи Александра III.</p>
+
+                    <div class="pull-quote">
+                        Каждый камень этого здания говорит о величии русской истории, воплощая в себе дух народа и его культурное наследие
+                    </div>
+                </section>
+
+                <!-- Timeline -->
+                <section id="history" class="section">
+                    <h2 class="section-title">Временная Линия</h2>
+                    <div class="timeline">
+                        <div class="timeline-container">
+                            <div class="timeline-line"></div>
+                            <div class="timeline-item" data-year="1872">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-year">1872</div>
+                                <div class="timeline-event">Начало строительства по проекту В. О. Шервуда</div>
+                            </div>
+                            <div class="timeline-item" data-year="1883">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-year">1883</div>
+                                <div class="timeline-event">Торжественное открытие музея императором Александром III</div>
+                            </div>
+                            <div class="timeline-item" data-year="1936">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-year">1936</div>
+                                <div class="timeline-event">Музей получает статус Государственного Исторического</div>
+                            </div>
+                            <div class="timeline-item" data-year="1997">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-year">1997</div>
+                                <div class="timeline-event">Завершение масштабной реставрации</div>
+                            </div>
+                            <div class="timeline-item active" data-year="2024">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-year">2024</div>
+                                <div class="timeline-event">Современность: один из ведущих музеев России</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Architectural Details -->
+                <section id="details" class="section">
+                    <h2 class="section-title">Архитектурные Детали</h2>
+                    <div class="details-grid">
+                        <div class="detail-card">
+                            <div class="detail-icon">🏛️</div>
+                            <div class="detail-label">Площадь</div>
+                            <div class="detail-value">4,000 м²</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-icon">📐</div>
+                            <div class="detail-label">Высота</div>
+                            <div class="detail-value">40 метров</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-icon">🎨</div>
+                            <div class="detail-label">Залов</div>
+                            <div class="detail-value">39 залов</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-icon">🏗️</div>
+                            <div class="detail-label">Материал</div>
+                            <div class="detail-value">Красный кирпич</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-icon">🎭</div>
+                            <div class="detail-label">Стиль</div>
+                            <div class="detail-value">Псевдорусский</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-icon">⭐</div>
+                            <div class="detail-label">Статус</div>
+                            <div class="detail-value">Памятник культуры</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Photo Gallery -->
+                <section id="gallery" class="section">
+                    <h2 class="section-title">Фотогалерея</h2>
+                    <div class="gallery">
+                        <div class="gallery-item" onclick="openLightbox(this)">
+                            <img src="https://images.unsplash.com/photo-1590079332485-0e94bb6c22d1?w=1200&q=80" alt="Фасад музея">
+                            <div class="gallery-overlay">
+                                <div class="gallery-caption">Главный фасад со стороны Красной площади</div>
+                            </div>
+                        </div>
+                        <div class="gallery-item" onclick="openLightbox(this)">
+                            <img src="https://images.unsplash.com/photo-1583422409516-2895a77efded?w=800&q=80" alt="Интерьер">
+                            <div class="gallery-overlay">
+                                <div class="gallery-caption">Парадная лестница с росписями</div>
+                            </div>
+                        </div>
+                        <div class="gallery-item" onclick="openLightbox(this)">
+                            <img src="https://images.unsplash.com/photo-1604772729359-0e4d3d5c93b4?w=800&q=80" alt="Детали">
+                            <div class="gallery-overlay">
+                                <div class="gallery-caption">Архитектурные детали фасада</div>
+                            </div>
+                        </div>
+                        <div class="gallery-item" onclick="openLightbox(this)">
+                            <img src="https://images.unsplash.com/photo-1564769610856-923f0a2ccb10?w=800&q=80" alt="Башня">
+                            <div class="gallery-overlay">
+                                <div class="gallery-caption">Башня в псевдорусском стиле</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Floor Plan -->
+                <section id="floor-plan" class="section">
+                    <h2 class="section-title">План Здания</h2>
+                    <div class="floor-plan">
+                        <svg class="floor-plan-svg" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Main Building Outline -->
+                            <rect x="50" y="50" width="700" height="500" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+
+                            <!-- Rooms -->
+                            <rect class="floor-plan-room" x="70" y="70" width="200" height="150" fill="#f5f1eb" stroke="#8B7355" stroke-width="2">
+                                <title>Парадный вестибюль</title>
+                            </rect>
+                            <text x="170" y="145" font-family="Montserrat" font-size="12" text-anchor="middle" fill="#1a1a1a">Вестибюль</text>
+
+                            <rect class="floor-plan-room" x="290" y="70" width="230" height="150" fill="#f5f1eb" stroke="#8B7355" stroke-width="2">
+                                <title>Главный зал</title>
+                            </rect>
+                            <text x="405" y="145" font-family="Montserrat" font-size="12" text-anchor="middle" fill="#1a1a1a">Главный зал</text>
+
+                            <rect class="floor-plan-room" x="540" y="70" width="190" height="150" fill="#f5f1eb" stroke="#8B7355" stroke-width="2">
+                                <title>Галерея</title>
+                            </rect>
+                            <text x="635" y="145" font-family="Montserrat" font-size="12" text-anchor="middle" fill="#1a1a1a">Галерея</text>
+
+                            <rect class="floor-plan-room" x="70" y="240" width="150" height="140" fill="#f5f1eb" stroke="#8B7355" stroke-width="2">
+                                <title>Экспозиционный зал 1</title>
+                            </rect>
+                            <text x="145" y="310" font-family="Montserrat" font-size="11" text-anchor="middle" fill="#1a1a1a">Зал 1</text>
+
+                            <rect class="floor-plan-room" x="240" y="240" width="150" height="140" fill="#f5f1eb" stroke="#8B7355" stroke-width="2">
+                                <title>Экспозиционный зал 2</title>
+                            </rect>
+                            <text x="315" y="310" font-family="Montserrat" font-size="11" text-anchor="middle" fill="#1a1a1a">Зал 2</text>
+
+                            <rect class="floor-plan-room" x="410" y="240" width="150" height="140" fill="#f5f1eb" stroke="#8B7355" stroke-width="2">
+                                <title>Экспозиционный зал 3</title>
+                            </rect>
+                            <text x="485" y="310" font-family="Montserrat" font-size="11" text-anchor="middle" fill="#1a1a1a">Зал 3</text>
+
+                            <rect class="floor-plan-room" x="580" y="240" width="150" height="140" fill="#f5f1eb" stroke="#8B7355" stroke-width="2">
+                                <title>Лекторий</title>
+                            </rect>
+                            <text x="655" y="310" font-family="Montserrat" font-size="11" text-anchor="middle" fill="#1a1a1a">Лекторий</text>
+
+                            <rect class="floor-plan-room" x="70" y="400" width="320" height="130" fill="#f5f1eb" stroke="#8B7355" stroke-width="2">
+                                <title>Конференц-зал</title>
+                            </rect>
+                            <text x="230" y="465" font-family="Montserrat" font-size="12" text-anchor="middle" fill="#1a1a1a">Конференц-зал</text>
+
+                            <rect class="floor-plan-room" x="410" y="400" width="320" height="130" fill="#f5f1eb" stroke="#8B7355" stroke-width="2">
+                                <title>Библиотека</title>
+                            </rect>
+                            <text x="570" y="465" font-family="Montserrat" font-size="12" text-anchor="middle" fill="#1a1a1a">Библиотека</text>
+
+                            <!-- Staircase -->
+                            <circle cx="405" cy="310" r="40" fill="none" stroke="#D4AF37" stroke-width="3" stroke-dasharray="5,5"/>
+                            <text x="405" y="315" font-family="Montserrat" font-size="11" text-anchor="middle" fill="#D4AF37">Лестница</text>
+
+                            <!-- Entrance -->
+                            <line x1="390" y1="50" x2="420" y2="50" stroke="#D4AF37" stroke-width="6"/>
+                            <text x="405" y="35" font-family="Montserrat" font-size="10" text-anchor="middle" fill="#D4AF37" font-weight="600">ВХОД</text>
+                        </svg>
+                    </div>
+                </section>
+
+                <!-- Architect Card -->
+                <section id="architect" class="section">
+                    <h2 class="section-title">Об Архитекторе</h2>
+                    <div class="architect-card">
+                        <img src="https://images.unsplash.com/photo-1580793241553-806c8e1d0632?w=400&q=80" alt="Владимир Шервуд" class="architect-image">
+                        <div class="architect-info">
+                            <h3>Владимир Осипович Шервуд</h3>
+                            <div class="architect-dates">1832–1897</div>
+                            <p class="architect-bio">
+                                Выдающийся русский архитектор, художник и теоретик искусства. Шервуд стал одним из главных представителей «русского стиля» в архитектуре второй половины XIX века. Его главным творением стало здание Исторического музея в Москве, которое по праву считается архитектурным шедевром эпохи историзма.
+                            </p>
+                            <p class="architect-bio" style="margin-top: 15px;">
+                                Создавая проект музея, Шервуд стремился воплотить идею национального возрождения, объединив в архитектурном облике здания мотивы древнерусского зодчества и современные строительные технологии.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Related Buildings Carousel -->
+                <section class="section">
+                    <h2 class="section-title">Похожие Здания</h2>
+                    <div class="carousel">
+                        <div class="carousel-track">
+                            <div class="carousel-item">
+                                <img src="https://images.unsplash.com/photo-1578070181910-f1e514afdd08?w=600&q=80" alt="ГУМ">
+                                <div class="carousel-content">
+                                    <h3 class="carousel-title">ГУМ</h3>
+                                    <div class="carousel-meta">1893 • Неорусский стиль</div>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://images.unsplash.com/photo-1547448415-e9f5b28e570d?w=600&q=80" alt="Храм Христа Спасителя">
+                                <div class="carousel-content">
+                                    <h3 class="carousel-title">Храм Христа Спасителя</h3>
+                                    <div class="carousel-meta">1883 • Византийский стиль</div>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://images.unsplash.com/photo-1513326738677-b964603b136d?w=600&q=80" alt="Казанский вокзал">
+                                <div class="carousel-content">
+                                    <h3 class="carousel-title">Казанский вокзал</h3>
+                                    <div class="carousel-meta">1940 • Неорусский стиль</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visit Information -->
+                <section id="visit" class="visit-info">
+                    <h2 class="section-title" style="color: #fff;">Информация для Посещения</h2>
+                    <div class="visit-grid">
+                        <div class="visit-item">
+                            <h4>Адрес</h4>
+                            <p>Красная площадь, 1<br>Москва, 109012<br>Россия</p>
+                        </div>
+                        <div class="visit-item">
+                            <h4>Часы работы</h4>
+                            <p>Пн, Ср–Вс: 10:00–18:00<br>Пт, Сб: 10:00–21:00<br>Вт: выходной</p>
+                        </div>
+                        <div class="visit-item">
+                            <h4>Транспорт</h4>
+                            <p>М. Охотный Ряд<br>М. Театральная<br>М. Площадь Революции</p>
+                        </div>
+                        <div class="visit-item">
+                            <h4>Входной билет</h4>
+                            <p>Взрослые: 500₽<br>Студенты: 250₽<br>Дети до 16 лет: бесплатно</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <script>
+        // Parallax Effect
+        const hero = document.getElementById('hero');
+        let ticking = false;
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrolled = window.pageYOffset;
+                    const parallaxOffset = scrolled * 0.5;
+                    hero.style.setProperty('--scroll-offset', `${parallaxOffset}px`);
+
+                    if (scrolled > 100) {
+                        hero.classList.add('parallax');
+                    }
+
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // Scroll Reveal Animation
+        const sections = document.querySelectorAll('.section');
+
+        const revealSection = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const sectionObserver = new IntersectionObserver(revealSection, {
+            root: null,
+            threshold: 0.15,
+            rootMargin: '0px'
+        });
+
+        sections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        // Timeline Interaction
+        const timelineItems = document.querySelectorAll('.timeline-item');
+
+        timelineItems.forEach(item => {
+            item.addEventListener('click', () => {
+                timelineItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // Lightbox
+        function openLightbox(element) {
+            const img = element.querySelector('img');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+
+            lightboxImg.src = img.src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Smooth Scroll for Navigation
+        document.querySelectorAll('.nav-links a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                const offset = 80;
+                const targetPosition = target.offsetTop - offset;
+
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Floor Plan Room Interaction
+        document.querySelectorAll('.floor-plan-room').forEach(room => {
+            room.addEventListener('mouseenter', function() {
+                const title = this.querySelector('title').textContent;
+                console.log('Hovering:', title);
+            });
+        });
+    </script>
+</body>
+</html>

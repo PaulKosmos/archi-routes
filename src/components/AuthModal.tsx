@@ -24,12 +24,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) {
-      toast.error('Введите email')
+      toast.error('Enter email')
       return
     }
-    
+
     if (mode !== 'reset' && !password) {
-      toast.error('Введите пароль')
+      toast.error('Enter password')
       return
     }
 
@@ -50,10 +50,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         if (error) throw error
 
         if (data.user?.email_confirmed_at) {
-          toast.success('Аккаунт создан! Вы вошли в систему')
+          toast.success('Account created! You are signed in')
           onClose()
         } else {
-          toast.success('Проверьте email для подтверждения регистрации')
+          toast.success('Check your email to confirm registration')
           onClose()
         }
       } else if (mode === 'signin') {
@@ -65,7 +65,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
         if (error) throw error
 
-        toast.success('Добро пожаловать!')
+        toast.success('Welcome!')
         onClose()
       } else if (mode === 'reset') {
         // Сброс пароля
@@ -75,22 +75,22 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
         if (error) throw error
 
-        toast.success('Ссылка для сброса пароля отправлена на email')
+        toast.success('Password reset link sent to email')
         setMode('signin')
       }
     } catch (error: any) {
       console.error('Auth error:', error)
       
-      // Переводим ошибки на русский
-      let errorMessage = 'Произошла ошибка'
+      // Error messages
+      let errorMessage = 'An error occurred'
       if (error.message.includes('Invalid login credentials')) {
-        errorMessage = 'Неверный email или пароль'
+        errorMessage = 'Invalid email or password'
       } else if (error.message.includes('User already registered')) {
-        errorMessage = 'Пользователь уже зарегистрирован'
+        errorMessage = 'User already registered'
       } else if (error.message.includes('Password should be at least 6 characters')) {
-        errorMessage = 'Пароль должен содержать минимум 6 символов'
+        errorMessage = 'Password must contain at least 6 characters'
       } else if (error.message.includes('Unable to validate email address')) {
-        errorMessage = 'Неверный формат email'
+        errorMessage = 'Invalid email format'
       }
       
       toast.error(errorMessage)
@@ -130,13 +130,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
       if (error) {
         console.error('Google OAuth error:', error)
-        toast.error('Ошибка при входе через Google. Попробуйте снова.')
+        toast.error('Google sign in error. Try again.')
       }
       // Пользователь будет перенаправлен на страницу Google
       // После успешной авторизации вернется через callback
     } catch (error) {
       console.error('Unexpected Google OAuth error:', error)
-      toast.error('Неожиданная ошибка. Попробуйте позже.')
+      toast.error('Unexpected error. Try again later.')
     }
   }
 
@@ -155,13 +155,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
       if (error) {
         console.error('GitHub OAuth error:', error)
-        toast.error('Ошибка при входе через GitHub. Попробуйте снова.')
+        toast.error('GitHub sign in error. Try again.')
       }
       // Пользователь будет перенаправлен на страницу GitHub
       // После успешной авторизации вернется через callback
     } catch (error) {
       console.error('Unexpected GitHub OAuth error:', error)
-      toast.error('Неожиданная ошибка. Попробуйте позже.')
+      toast.error('Unexpected error. Try again later.')
     }
   }
 
@@ -171,9 +171,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         {/* Заголовок */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900">
-            {mode === 'signin' && 'Вход в аккаунт'}
-            {mode === 'signup' && 'Создать аккаунт'}
-            {mode === 'reset' && 'Сброс пароля'}
+            {mode === 'signin' && 'Sign In'}
+            {mode === 'signup' && 'Create Account'}
+            {mode === 'reset' && 'Reset Password'}
           </h2>
           <button
             onClick={onClose}
@@ -198,7 +198,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Продолжить с Google
+              Continue with Google
             </button>
 
             {/* Кнопка GitHub */}
@@ -208,7 +208,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Github className="w-5 h-5 mr-3 text-gray-900" />
-              Продолжить с GitHub
+              Continue with GitHub
             </button>
           </div>
         )}
@@ -220,7 +220,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">или</span>
+              <span className="px-2 bg-white text-gray-500">or</span>
             </div>
           </div>
         )}
@@ -249,7 +249,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           {mode === 'signup' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Полное имя (необязательно)
+                Full name (optional)
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -257,7 +257,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Ваше имя"
+                  placeholder="Your name"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -268,7 +268,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           {mode !== 'reset' && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Пароль
+              Password
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -291,7 +291,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </div>
             {mode === 'signup' && (
               <p className="text-sm text-gray-500 mt-1">
-                Минимум 6 символов
+                Minimum 6 characters
               </p>
             )}
           </div>
@@ -306,15 +306,15 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             {loading ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                {mode === 'signin' && 'Вход...'}
-                {mode === 'signup' && 'Регистрация...'}
-                {mode === 'reset' && 'Отправка...'}
+                {mode === 'signin' && 'Signing in...'}
+                {mode === 'signup' && 'Creating account...'}
+                {mode === 'reset' && 'Sending...'}
               </>
             ) : (
               <>
-                {mode === 'signin' && 'Войти'}
-                {mode === 'signup' && 'Создать аккаунт'}
-                {mode === 'reset' && 'Отправить ссылку'}
+                {mode === 'signin' && 'Sign In'}
+                {mode === 'signup' && 'Create Account'}
+                {mode === 'reset' && 'Send Link'}
               </>
             )}
           </button>
@@ -328,7 +328,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onClick={() => switchMode('reset')}
               className="text-sm text-blue-600 hover:text-blue-700"
             >
-              Забыли пароль?
+              Forgot password?
             </button>
           </div>
         )}
@@ -337,39 +337,39 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         <div className="mt-6 text-center">
           {mode === 'signin' && (
             <p className="text-gray-600">
-              Нет аккаунта?
+              No account?
               {' '}
               <button
                 onClick={() => switchMode('signup')}
                 className="text-blue-600 hover:text-blue-700 font-medium"
               >
-                Зарегистрироваться
+                Sign Up
               </button>
             </p>
           )}
-          
+
           {mode === 'signup' && (
             <p className="text-gray-600">
-              Уже есть аккаунт?
+              Already have an account?
               {' '}
               <button
                 onClick={() => switchMode('signin')}
                 className="text-blue-600 hover:text-blue-700 font-medium"
               >
-                Войти
+                Sign In
               </button>
             </p>
           )}
-          
+
           {mode === 'reset' && (
             <p className="text-gray-600">
-              Вспомнили пароль?
+              Remembered password?
               {' '}
               <button
                 onClick={() => switchMode('signin')}
                 className="text-blue-600 hover:text-blue-700 font-medium"
               >
-                Войти
+                Sign In
               </button>
             </p>
           )}
@@ -379,19 +379,19 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         {mode === 'signin' && (
           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Демо-доступ:</strong><br/>
+              <strong>Demo access:</strong><br/>
               Email: demo@example.com<br/>
-              Пароль: demo123
+              Password: demo123
             </p>
           </div>
         )}
-        
+
         {mode === 'reset' && (
           <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <div className="flex items-start space-x-2">
               <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
               <p className="text-sm text-amber-800">
-                Мы отправим ссылку для сброса пароля на указанный email. Проверьте папку спам, если письмо не пришло.
+                We will send a password reset link to the specified email. Check your spam folder if the email doesn't arrive.
               </p>
             </div>
           </div>

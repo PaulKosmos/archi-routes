@@ -146,11 +146,11 @@ export default function PodcastsSection() {
                   <div className="flex items-center gap-2 mb-2">
                     <Headphones size={20} className="opacity-90" />
                     <p className="text-sm font-medium opacity-90">
-                      {featuredEpisode?.series?.title || 'АРХИТЕКТУРА & ДИЗАЙН'}
+                      {featuredEpisode?.series?.title || 'ARCHITECTURE & DESIGN'}
                     </p>
                   </div>
                   {featuredEpisode?.episode_number && (
-                    <p className="text-xl font-bold">ВЫПУСК #{featuredEpisode.episode_number}</p>
+                    <p className="text-xl font-bold">EPISODE #{featuredEpisode.episode_number}</p>
                   )}
                 </div>
               </div>
@@ -163,7 +163,7 @@ export default function PodcastsSection() {
                 <span className="px-3 py-1 bg-muted border border-border text-xs font-medium"
                   style={{ borderRadius: '2px' }}
                 >
-                  {featuredEpisode?.series?.title || 'Подкаст'}
+                  {featuredEpisode?.series?.title || 'Podcast'}
                 </span>
                 {featuredEpisode?.published_at && (
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -211,7 +211,7 @@ export default function PodcastsSection() {
 
           {/* Recent episodes list */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-foreground mb-4">Предыдущие выпуски</h3>
+            <h3 className="text-lg font-bold text-foreground mb-4">Previous Episodes</h3>
 
             {recentEpisodes.map((episode) => (
               <div

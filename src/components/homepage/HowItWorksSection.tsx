@@ -5,23 +5,23 @@ export default function HowItWorksSection() {
     {
       number: '01',
       icon: '🗺️',
-      title: 'Выберите город',
-      description: 'Найдите интересующий вас город из нашего каталога или на интерактивной карте',
-      details: ['2,500+ зданий', '50+ городов', '15 стран']
+      title: 'Choose a City',
+      description: 'Find a city you\'re interested in from our catalog or on the interactive map',
+      details: ['2,500+ buildings', '50+ cities', '15 countries']
     },
     {
       number: '02',
       icon: '📍',
-      title: 'Создайте маршрут',
-      description: 'Соберите уникальный архитектурный маршрут из выбранных зданий',
-      details: ['Вручную или AI', 'Любой транспорт', 'Любая длина']
+      title: 'Create a Route',
+      description: 'Build a unique architectural route from selected buildings',
+      details: ['Manual or AI', 'Any transport', 'Any length']
     },
     {
       number: '03',
       icon: '🎧',
-      title: 'Делитесь впечатлениями',
-      description: 'Оставляйте отзывы, фото и аудио-гиды о посещенных объектах',
-      details: ['Текст + фото', 'Аудио-гиды', 'Экспертные обзоры']
+      title: 'Share Experiences',
+      description: 'Leave reviews, photos, and audio guides about visited places',
+      details: ['Text + photos', 'Audio guides', 'Expert reviews']
     }
   ]
 

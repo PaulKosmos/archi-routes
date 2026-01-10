@@ -18,7 +18,7 @@ export default function RouteList({
   selectedRoute,
   onRouteSelect,
   onRouteDetails,
-  title = "🛤️ Маршруты",
+  title = "🛤️ Routes",
   maxHeight = "max-h-64"
 }: RouteListProps) {
   
@@ -43,10 +43,10 @@ export default function RouteList({
 
   const getDifficultyText = useCallback((level?: string) => {
     switch (level) {
-      case 'easy': return 'Легкий'
-      case 'medium': return 'Средний'
-      case 'hard': return 'Сложный'
-      default: return 'Не указано'
+      case 'easy': return 'Easy'
+      case 'medium': return 'Medium'
+      case 'hard': return 'Hard'
+      default: return 'Not specified'
     }
   }, [])
 
@@ -56,8 +56,8 @@ export default function RouteList({
         <h3 className="font-medium font-display text-foreground mb-3">{title}</h3>
         <div className="text-center py-8 text-muted-foreground">
           <RouteIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
-          <p>Маршруты не найдены</p>
-          <p className="text-sm">Попробуйте изменить фильтры</p>
+          <p>No routes found</p>
+          <p className="text-sm">Try changing filters</p>
         </div>
       </div>
     )
@@ -105,7 +105,7 @@ export default function RouteList({
                         <div className="flex items-center text-[hsl(var(--map-primary))]">
                           {getTransportIcon(route.transport_mode)}
                           <span className="ml-1 capitalize">
-                            {route.transport_mode === 'public_transport' ? 'Транспорт' : route.transport_mode}
+                            {route.transport_mode === 'public_transport' ? 'Transit' : route.transport_mode}
                           </span>
                         </div>
                       )}
@@ -126,8 +126,8 @@ export default function RouteList({
                       <div className="flex items-center">
                         <Clock className="w-3 h-3 mr-1" />
                         <span>
-                          {Math.round(route.estimated_duration_minutes / 60) > 0 && `${Math.round(route.estimated_duration_minutes / 60)}ч `}
-                          {route.estimated_duration_minutes % 60 > 0 && `${route.estimated_duration_minutes % 60}м`}
+                          {Math.round(route.estimated_duration_minutes / 60) > 0 && `${Math.round(route.estimated_duration_minutes / 60)}h `}
+                          {route.estimated_duration_minutes % 60 > 0 && `${route.estimated_duration_minutes % 60}m`}
                         </span>
                       </div>
                     )}
@@ -135,13 +135,13 @@ export default function RouteList({
                     {route.distance_km && (
                       <div className="flex items-center">
                         <RouteIcon className="w-3 h-3 mr-1" />
-                        <span>{route.distance_km.toFixed(1)} км</span>
+                        <span>{route.distance_km.toFixed(1)} km</span>
                       </div>
                     )}
 
                     {route.points_count && route.points_count > 0 && (
                       <div className="flex items-center">
-                        <span className="font-medium">{route.points_count} точек</span>
+                        <span className="font-medium">{route.points_count} points</span>
                       </div>
                     )}
                   </div>
@@ -162,7 +162,7 @@ export default function RouteList({
                       {route.completion_count && route.completion_count > 0 && (
                         <div className="flex items-center">
                           <Eye className="w-3 h-3 mr-1" />
-                          <span>{route.completion_count} прохождений</span>
+                          <span>{route.completion_count} completions</span>
                         </div>
                       )}
                     </div>
@@ -180,7 +180,7 @@ export default function RouteList({
 
                     {!route.is_published && (
                       <span className="px-2 py-1 bg-muted text-muted-foreground text-xs font-medium rounded-full">
-                        Черновик
+                        Draft
                       </span>
                     )}
                   </div>
@@ -194,7 +194,7 @@ export default function RouteList({
                       }}
                       className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex-shrink-0"
                     >
-                      Подробнее
+                      Details
                     </button>
                   )}
                 </div>

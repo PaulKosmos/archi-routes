@@ -160,19 +160,19 @@ export default function UserDropdown() {
 
   if (!user || !profile) return null
 
-  const displayName = profile.display_name || profile.full_name || user.user_metadata?.full_name || 'Пользователь'
+  const displayName = profile.display_name || profile.full_name || user.user_metadata?.full_name || 'User'
   const avatar = profile.avatar_url || user.user_metadata?.avatar_url
 
   const getRoleDisplayName = (role: string) => {
     const roleNames = {
-      'guest': 'Гость',
-      'explorer': 'Исследователь',
-      'guide': 'Гид',
-      'expert': 'Эксперт',
-      'moderator': 'Модератор',
-      'admin': 'Администратор'
+      'guest': 'Guest',
+      'explorer': 'Explorer',
+      'guide': 'Guide',
+      'expert': 'Expert',
+      'moderator': 'Moderator',
+      'admin': 'Administrator'
     }
-    return roleNames[role as keyof typeof roleNames] || 'Исследователь'
+    return roleNames[role as keyof typeof roleNames] || 'Explorer'
   }
 
   return (
@@ -237,28 +237,28 @@ export default function UserDropdown() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-primary" />
-                <span className="text-muted-foreground">Объекты:</span>
+                <span className="text-muted-foreground">Buildings:</span>
                 <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.buildings_count}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary" />
-                <span className="text-muted-foreground">Маршруты:</span>
+                <span className="text-muted-foreground">Routes:</span>
                 <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.routes_count}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-primary" />
-                <span className="text-muted-foreground">Обзоры:</span>
+                <span className="text-muted-foreground">Reviews:</span>
                 <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.reviews_count}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <Heart className="w-4 h-4 text-primary" />
-                <span className="text-muted-foreground">Избранное:</span>
+                <span className="text-muted-foreground">Favorites:</span>
                 <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.favorites_count}
                 </span>
@@ -275,7 +275,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <User className="w-4 h-4 text-muted-foreground" />
-              <span>Мой профиль</span>
+              <span>My Profile</span>
             </a>
 
             <a
@@ -284,7 +284,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <Edit3 className="w-4 h-4 text-muted-foreground" />
-              <span>Редактировать профиль</span>
+              <span>Edit Profile</span>
             </a>
 
             {/* Разделитель */}
@@ -297,7 +297,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <Building2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="flex-1">Мои объекты</span>
+              <span className="flex-1">My Buildings</span>
               {stats.buildings_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
                   {stats.buildings_count}
@@ -311,7 +311,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <MapPin className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="flex-1">Мои маршруты</span>
+              <span className="flex-1">My Routes</span>
               {stats.routes_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
                   {stats.routes_count}
@@ -325,7 +325,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <MessageSquare className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="flex-1">Мои обзоры</span>
+              <span className="flex-1">My Reviews</span>
               {stats.reviews_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
                   {stats.reviews_count}
@@ -339,7 +339,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <BookOpen className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="flex-1">Мои блоги</span>
+              <span className="flex-1">My Blogs</span>
               {stats.articles_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
                   {stats.articles_count}
@@ -357,7 +357,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <Heart className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="flex-1">Избранное</span>
+              <span className="flex-1">Favorites</span>
               {stats.favorites_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
                   {stats.favorites_count}
@@ -371,7 +371,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <Folder className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="flex-1">Коллекции</span>
+              <span className="flex-1">Collections</span>
               {stats.collections_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
                   {stats.collections_count}
@@ -389,7 +389,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <Settings className="w-4 h-4 text-muted-foreground" />
-              <span>Настройки</span>
+              <span>Settings</span>
             </a>
 
             {/* Админ панель для модераторов и админов */}
@@ -400,7 +400,7 @@ export default function UserDropdown() {
                 onClick={() => setIsOpen(false)}
               >
                 <Shield className="w-4 h-4 text-muted-foreground" />
-                <span>Админ панель</span>
+                <span>Admin Panel</span>
                 {(stats.pending_requests_count || 0) > 0 && (
                   <span className="ml-auto text-xs bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded-full font-medium">
                     {loading ? '...' : stats.pending_requests_count}
@@ -417,7 +417,7 @@ export default function UserDropdown() {
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors w-full text-left rounded-[var(--radius)]"
             >
               <LogOut className="w-4 h-4" />
-              <span>Выйти</span>
+              <span>Sign Out</span>
             </button>
           </div>
         </div>

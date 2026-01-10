@@ -23,10 +23,10 @@ export default async function RouteEditPage({ params }: PageProps) {
     return notFound()
   }
 
-  // Создаем публичный клиент для получения данных
+  // Create public client for data fetching
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-  // Загружаем базовые данные маршрута
+  // Load basic route data
   const { data: route, error } = await supabase
     .from('routes')
     .select(`
@@ -73,12 +73,12 @@ export default async function RouteEditPage({ params }: PageProps) {
     notFound()
   }
 
-  // Сортируем точки по порядку
+  // Sort points by order
   if (route.route_points) {
     route.route_points.sort((a: any, b: any) => a.order_index - b.order_index)
   }
 
-  // Загружаем все здания для карты
+  // Load all buildings for map
   const { data: allBuildings } = await supabase
     .from('buildings')
     .select('*')

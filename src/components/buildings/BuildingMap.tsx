@@ -68,8 +68,8 @@ export default function BuildingMap({ building, className = "h-48" }: BuildingMa
     const popupContent = `
       <div class="building-popup">
         <h3 class="font-semibold text-sm mb-1">${building.name}</h3>
-        ${building.architect ? `<p class="text-xs text-gray-600 mb-1">Арх.: ${building.architect}</p>` : ''}
-        ${building.year_built ? `<p class="text-xs text-gray-600 mb-1">${building.year_built} г.</p>` : ''}
+        ${building.architect ? `<p class="text-xs text-gray-600 mb-1">Arch.: ${building.architect}</p>` : ''}
+        ${building.year_built ? `<p class="text-xs text-gray-600 mb-1">${building.year_built}</p>` : ''}
         ${building.address ? `<p class="text-xs text-gray-500">${building.address}</p>` : ''}
       </div>
     `

@@ -1,19 +1,19 @@
 // src/app/buildings/page.tsx
-// Редирект на универсальную страницу поиска
+// Redirect to universal search page
 import { redirect } from 'next/navigation'
 
 export const metadata = {
-  title: 'Каталог зданий - Архитектурная платформа',
-  description: 'Каталог архитектурных объектов, зданий и памятников с возможностью поиска и фильтрации по стилям, архитекторам, годам постройки и другим параметрам.',
-  keywords: 'каталог зданий, архитектура, памятники, архитектурные объекты, поиск зданий',
+  title: 'Buildings Catalog - Architecture Platform',
+  description: 'Catalog of architectural objects, buildings, and monuments with search and filtering by styles, architects, years of construction, and other parameters.',
+  keywords: 'buildings catalog, architecture, monuments, architectural objects, building search',
   openGraph: {
-    title: 'Каталог зданий - Архитектурная платформа',
-    description: 'Каталог архитектурных объектов, зданий и памятников с умным поиском и фильтрами',
+    title: 'Buildings Catalog - Architecture Platform',
+    description: 'Catalog of architectural objects, buildings, and monuments with smart search and filters',
     type: 'website'
   }
 }
 
 export default function BuildingsRoute() {
-  // Перенаправляем на универсальную страницу поиска
+  // Redirect to universal search page
   redirect('/search')
 }

@@ -1,4 +1,4 @@
-// src/app/routes/[id]/RouteDetailPageClient.tsx - Client Component с авторизацией
+// src/app/routes/[id]/RouteDetailPageClient.tsx - Client Component with authentication
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
@@ -37,7 +37,7 @@ export default function RouteDetailPageClient() {
     console.log('👤 Current user:', user?.id || 'anonymous')
 
     try {
-      // Загружаем конкретный маршрут
+      // Load specific route
       const { data: routeData, error } = await supabase
         .from('routes')
         .select(`
@@ -124,7 +124,7 @@ export default function RouteDetailPageClient() {
 
         if (error?.code === 'PGRST116') {
           console.log('ℹ️ Route not found or access denied due to RLS')
-          setError('Маршрут не найден или у вас нет доступа к нему')
+          setError('Route not found or you do not have access to it')
           return
         }
 
@@ -134,11 +134,11 @@ export default function RouteDetailPageClient() {
 
       if (!routeData) {
         console.error('❌ No route data returned')
-        setError('Маршрут не найден')
+        setError('Route not found')
         return
       }
 
-      // Обрабатываем данные
+      // Process data
       const processedRoute = {
         ...routeData,
         profiles: Array.isArray(routeData.profiles)
@@ -152,7 +152,7 @@ export default function RouteDetailPageClient() {
         }))
       }
 
-      // Сортируем точки по порядку
+      // Sort points by order
       if (processedRoute.route_points) {
         processedRoute.route_points.sort((a: any, b: any) => a.order_index - b.order_index)
       }
@@ -166,7 +166,7 @@ export default function RouteDetailPageClient() {
       setRoute(processedRoute)
     } catch (error) {
       console.error('❌ Unexpected error loading route:', error)
-      setError('Произошла ошибка при загрузке маршрута')
+      setError('An error occurred while loading the route')
     } finally {
       setLoading(false)
     }
@@ -184,7 +184,7 @@ export default function RouteDetailPageClient() {
     }
   }
 
-  // Показываем загрузку
+  // Show loading
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -201,7 +201,7 @@ export default function RouteDetailPageClient() {
     )
   }
 
-  // Показываем ошибку
+  // Show error
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -210,7 +210,7 @@ export default function RouteDetailPageClient() {
           <div className="bg-white rounded-lg shadow-sm p-8 text-center">
             <div className="text-red-600 text-6xl mb-4">404</div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Маршрут не найден
+              Route Not Found
             </h1>
             <p className="text-gray-600 mb-6">
               {error}
@@ -219,7 +219,7 @@ export default function RouteDetailPageClient() {
               href="/routes"
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Вернуться к маршрутам
+              Back to Routes
             </a>
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function RouteDetailPageClient() {
     )
   }
 
-  // Маршрут не загружен
+  // Route not loaded
   if (!route) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -235,16 +235,16 @@ export default function RouteDetailPageClient() {
         <div className="max-w-4xl mx-auto p-6">
           <div className="bg-white rounded-lg shadow-sm p-8 text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Маршрут не найден
+              Route Not Found
             </h1>
             <p className="text-gray-600 mb-6">
-              Возможно, маршрут был удален или у вас нет доступа к нему
+              The route may have been deleted or you do not have access to it
             </p>
             <a
               href="/routes"
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Вернуться к маршрутам
+              Back to Routes
             </a>
           </div>
         </div>
@@ -252,7 +252,7 @@ export default function RouteDetailPageClient() {
     )
   }
 
-  // Проверяем, нужно ли скрыть Header (для модального окна)
+  // Check if Header should be hidden (for modal)
   const shouldHideHeader = searchParams?.get('hideHeader') === 'true'
   console.log('🛤️ [DEBUG] Should hide header:', shouldHideHeader)
 

@@ -15,20 +15,20 @@ export default function EnhancedFooter() {
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-      toast.error('Пожалуйста, введите корректный email')
+      toast.error('Please enter a valid email')
       return
     }
 
     try {
       setIsSubmitting(true)
-      
+
       // Simulate form submission (placeholder)
       await new Promise(resolve => setTimeout(resolve, 500))
-      
-      toast.success('Спасибо за подписку! 🎉')
+
+      toast.success('Thanks for subscribing! 🎉')
       setEmail('')
     } catch (error) {
-      toast.error('Ошибка при подписке. Пожалуйста, попробуйте позже.')
+      toast.error('Subscription error. Please try again later.')
     } finally {
       setIsSubmitting(false)
     }
@@ -51,23 +51,23 @@ export default function EnhancedFooter() {
               <span className="text-xl font-bold">ArchiRoutes</span>
             </div>
             <p className="text-sm leading-relaxed text-[hsl(215,20%,65%)]">
-              Откройте архитектуру города через призму сообщества энтузиастов. Исследуйте здания, делитесь маршрутами и создавайте вместе с нами.
+              Discover city architecture through the lens of an enthusiast community. Explore buildings, share routes, and create together with us.
             </p>
             <p className="text-xs text-[hsl(215,20%,55%)]">
-              Платформа для путешествия по архитектурным сокровищам мира
+              Platform for journeying through the world's architectural treasures
             </p>
           </div>
 
           {/* Column 2: Navigation */}
           <div>
-            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider">Навигация</h3>
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider">Navigation</h3>
             <ul className="space-y-2">
               {[
-                { label: "Главная", href: "/" },
-                { label: "Карта", href: "/map" },
-                { label: "Новости", href: "/news" },
-                { label: "Блог", href: "/blog" },
-                { label: "Подкасты", href: "/podcasts" },
+                { label: "Home", href: "/" },
+                { label: "Map", href: "/map" },
+                { label: "News", href: "/news" },
+                { label: "Blog", href: "/blog" },
+                { label: "Podcasts", href: "/podcasts" },
               ].map((link) => (
                 <li key={link.label}>
                   <Link
@@ -83,13 +83,13 @@ export default function EnhancedFooter() {
 
           {/* Column 3: Information */}
           <div>
-            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider">Информация</h3>
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider">Information</h3>
             <ul className="space-y-2">
               {[
-                { label: "О нас", href: "#" },
-                { label: "Контакты", href: "#" },
-                { label: "Политика конфиденциальности", href: "#" },
-                { label: "Условия использования", href: "#" },
+                { label: "About Us", href: "#" },
+                { label: "Contact", href: "#" },
+                { label: "Privacy Policy", href: "#" },
+                { label: "Terms of Use", href: "#" },
               ].map((link) => (
                 <li key={link.label}>
                   <Link
@@ -105,9 +105,9 @@ export default function EnhancedFooter() {
 
           {/* Column 4: Social & Newsletter */}
           <div>
-            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider">Подпишитесь</h3>
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider">Subscribe</h3>
             <p className="text-sm text-[hsl(215,20%,65%)] mb-4">
-              Получайте обновления об архитектуре и новых маршрутах
+              Get updates on architecture and new routes
             </p>
             <div className="flex gap-2">
               <input
@@ -128,7 +128,7 @@ export default function EnhancedFooter() {
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
-            <p className="text-xs text-[hsl(215,20%,55%)] mt-4">Следите за нами</p>
+            <p className="text-xs text-[hsl(215,20%,55%)] mt-4">Follow us</p>
             <div className="flex gap-3 mt-2">
               {[Twitter, Facebook, Instagram, Linkedin].map((Icon, index) => (
                 <a
@@ -150,10 +150,10 @@ export default function EnhancedFooter() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-[hsl(215,20%,55%)]">
-              © {currentYear} ArchiRoutes. Все права защищены.
+              © {currentYear} ArchiRoutes. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
-              {["Карта сайта", "Статус", "Документация"].map((link) => (
+              {["Sitemap", "Status", "Documentation"].map((link) => (
                 <Link
                   key={link}
                   href="#"
@@ -171,7 +171,7 @@ export default function EnhancedFooter() {
       <div className="border-t border-[hsl(222,47%,18%)]">
         <div className="container mx-auto px-6 py-3 text-center">
           <p className="text-sm text-[hsl(215,20%,55%)]">
-            Сделано с любовью к архитектуре ❤️
+            Made with love for architecture ❤️
           </p>
         </div>
       </div>

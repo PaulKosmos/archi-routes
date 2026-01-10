@@ -72,22 +72,22 @@ export default function HeroWithVideo({
           <div className="mb-8 space-y-2">
             <div className="flex items-baseline gap-3">
               <span className="text-sm font-medium text-white/60 tracking-wider uppercase">
-                Исследуй города и их истории
+                Explore cities and their stories
               </span>
               <div className="h-px flex-1 bg-gradient-to-r from-white/20 to-transparent"></div>
             </div>
 
             <h1 className="text-white">
               <span className="block text-5xl md:text-7xl font-bold tracking-tight leading-[0.95]">
-                Открывай города
+                Discover cities
               </span>
               <span className="block text-5xl md:text-7xl font-light tracking-tight leading-[0.95] mt-1">
-                через <span className="font-bold italic">маршруты</span>
+                through <span className="font-bold italic">routes</span>
               </span>
             </h1>
 
             <p className="text-lg md:text-xl text-white/80 max-w-2xl pt-4 leading-relaxed">
-              Исследуй архитектуру, создавай уникальные маршруты, делись историями с сообществом
+              Explore architecture, create unique routes, share stories with the community
             </p>
           </div>
 
@@ -114,7 +114,7 @@ export default function HeroWithVideo({
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => setIsSearchFocused(true)}
                     onBlur={() => setIsSearchFocused(false)}
-                    placeholder="Найти город, здание или архитектора..."
+                    placeholder="Find city, building or architect..."
                     className="flex-1 bg-transparent text-white placeholder-white/50 py-4 pr-5 outline-none text-base"
                   />
                 </div>
@@ -129,7 +129,7 @@ export default function HeroWithVideo({
               className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 font-semibold overflow-hidden transition-all duration-300 hover:bg-gray-100"
               style={{ borderRadius: '2px' }}
             >
-              <span className="relative z-10">Создать маршрут</span>
+              <span className="relative z-10">Create Route</span>
               <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
@@ -143,7 +143,7 @@ export default function HeroWithVideo({
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
               </svg>
-              <span>Исследовать карту</span>
+              <span>Explore Map</span>
             </Link>
           </div>
 
@@ -158,7 +158,7 @@ export default function HeroWithVideo({
                   {stats.buildings.toLocaleString()}+
                 </div>
                 <div className="text-sm text-white/60 uppercase tracking-wider mt-1">
-                  Зданий
+                  Buildings
                 </div>
               </div>
 
@@ -167,7 +167,7 @@ export default function HeroWithVideo({
                   {stats.routes.toLocaleString()}+
                 </div>
                 <div className="text-sm text-white/60 uppercase tracking-wider mt-1">
-                  Маршрутов
+                  Routes
                 </div>
               </div>
 
@@ -176,7 +176,7 @@ export default function HeroWithVideo({
                   {(stats.reviews / 1000).toFixed(0)}K+
                 </div>
                 <div className="text-sm text-white/60 uppercase tracking-wider mt-1">
-                  Отзывов
+                  Reviews
                 </div>
               </div>
             </div>
@@ -189,7 +189,7 @@ export default function HeroWithVideo({
 
       {/* Scroll Indicator - subtle */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
-        <span className="text-xs text-white uppercase tracking-widest">Прокрутите вниз</span>
+        <span className="text-xs text-white uppercase tracking-widest">Scroll Down</span>
         <div className="w-px h-12 bg-gradient-to-b from-white to-transparent animate-pulse"></div>
       </div>
     </section>

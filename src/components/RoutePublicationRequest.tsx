@@ -1,5 +1,5 @@
 // src/components/RoutePublicationRequest.tsx
-// Компонент для подачи заявки на публикацию маршрута
+// Component for submitting route publication request
 
 'use client'
 
@@ -34,12 +34,12 @@ export default function RoutePublicationRequest({
     e.preventDefault()
     
     if (!justification.trim()) {
-      toast.error('Укажите обоснование для публикации')
+      toast.error('Please specify justification for publication')
       return
     }
 
     if (!targetAudience.trim()) {
-      toast.error('Укажите целевую аудиторию')
+      toast.error('Please specify target audience')
       return
     }
 
@@ -60,15 +60,15 @@ export default function RoutePublicationRequest({
       )
 
       if (success) {
-        toast.success('Заявка на публикацию отправлена на рассмотрение!')
+        toast.success('Publication request submitted for review!')
         onSuccess?.()
         onClose()
       } else {
-        toast.error('Ошибка при отправке заявки')
+        toast.error('Error submitting request')
       }
     } catch (error) {
       console.error('Error submitting publication request:', error)
-      toast.error('Произошла ошибка при отправке заявки')
+      toast.error('An error occurred while submitting request')
     } finally {
       setIsSubmitting(false)
     }
@@ -79,11 +79,11 @@ export default function RoutePublicationRequest({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Заголовок */}
+        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div>
             <h2 className="text-xl font-bold text-gray-900">
-              Заявка на публикацию маршрута
+              Route Publication Request
             </h2>
             <p className="text-sm text-gray-600 mt-1">
               "{route.title}"
@@ -98,10 +98,10 @@ export default function RoutePublicationRequest({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Тип заявки */}
+          {/* Request type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Тип публикации
+              Publication Type
             </label>
             <div className="space-y-3">
               <label className="flex items-start space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
@@ -116,10 +116,10 @@ export default function RoutePublicationRequest({
                 <div>
                   <div className="flex items-center space-x-2">
                     <Globe className="w-4 h-4 text-blue-600" />
-                    <span className="font-medium text-gray-900">Публичный маршрут</span>
+                    <span className="font-medium text-gray-900">Public Route</span>
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
-                    Маршрут будет доступен всем пользователям платформы
+                    Route will be available to all platform users
                   </div>
                 </div>
               </label>
@@ -136,10 +136,10 @@ export default function RoutePublicationRequest({
                 <div>
                   <div className="flex items-center space-x-2">
                     <TrendingUp className="w-4 h-4 text-purple-600" />
-                    <span className="font-medium text-gray-900">Рекомендуемый маршрут</span>
+                    <span className="font-medium text-gray-900">Featured Route</span>
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
-                    Маршрут может появиться на главной странице и в рекомендациях
+                    Route may appear on the main page and in recommendations
                   </div>
                 </div>
               </label>
@@ -156,53 +156,53 @@ export default function RoutePublicationRequest({
                 <div>
                   <div className="flex items-center space-x-2">
                     <Users className="w-4 h-4 text-green-600" />
-                    <span className="font-medium text-gray-900">Корпоративный маршрут</span>
+                    <span className="font-medium text-gray-900">Corporate Route</span>
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
-                    Маршрут от туристической компании или организации
+                    Route from a tour company or organization
                   </div>
                 </div>
               </label>
             </div>
           </div>
 
-          {/* Обоснование */}
+          {/* Justification */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Обоснование публикации *
+              Publication Justification *
             </label>
             <textarea
               value={justification}
               onChange={(e) => setJustification(e.target.value)}
-              placeholder="Почему этот маршрут будет интересен другим пользователям? Что в нем особенного?"
+              placeholder="Why will this route be interesting to other users? What makes it special?"
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
             <p className="text-xs text-gray-500 mt-1">
-              Опишите уникальность маршрута, его образовательную или культурную ценность
+              Describe the uniqueness of the route, its educational or cultural value
             </p>
           </div>
 
-          {/* Целевая аудитория */}
+          {/* Target audience */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Целевая аудитория *
+              Target Audience *
             </label>
             <input
               type="text"
               value={targetAudience}
               onChange={(e) => setTargetAudience(e.target.value)}
-              placeholder="Например: любители архитектуры, туристы, семьи с детьми"
+              placeholder="For example: architecture lovers, tourists, families with children"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
           </div>
 
-          {/* Оценка популярности */}
+          {/* Popularity estimate */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ожидаемая популярность
+              Expected Popularity
             </label>
             <div className="flex items-center space-x-4">
               <input
@@ -218,59 +218,59 @@ export default function RoutePublicationRequest({
               </span>
             </div>
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>Низкая</span>
-              <span>Средняя</span>
-              <span>Высокая</span>
+              <span>Low</span>
+              <span>Medium</span>
+              <span>High</span>
             </div>
           </div>
 
-          {/* Корпоративная информация */}
+          {/* Corporate information */}
           {requestType === 'corporate' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Информация об организации
+                Organization Information
               </label>
               <textarea
                 value={businessInfo}
                 onChange={(e) => setBusinessInfo(e.target.value)}
-                placeholder="Название компании, контактная информация, лицензии..."
+                placeholder="Company name, contact information, licenses..."
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           )}
 
-          {/* Информация о маршруте */}
+          {/* Route information */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-medium text-gray-900 mb-3">Информация о маршруте</h3>
+            <h3 className="font-medium text-gray-900 mb-3">Route Information</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-600">Точек:</span>
+                <span className="text-gray-600">Points:</span>
                 <span className="ml-2 font-medium">{route.points_count || 0}</span>
               </div>
               <div>
-                <span className="text-gray-600">Город:</span>
+                <span className="text-gray-600">City:</span>
                 <span className="ml-2 font-medium">{route.city}</span>
               </div>
               <div>
-                <span className="text-gray-600">Длительность:</span>
-                <span className="ml-2 font-medium">{route.estimated_duration_minutes || 0} мин</span>
+                <span className="text-gray-600">Duration:</span>
+                <span className="ml-2 font-medium">{route.estimated_duration_minutes || 0} min</span>
               </div>
               <div>
-                <span className="text-gray-600">Расстояние:</span>
-                <span className="ml-2 font-medium">{route.distance_km || 0} км</span>
+                <span className="text-gray-600">Distance:</span>
+                <span className="ml-2 font-medium">{route.distance_km || 0} km</span>
               </div>
             </div>
           </div>
 
-          {/* Кнопки */}
+          {/* Buttons */}
           <div className="flex justify-end space-x-3 pt-4">
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Отмена
+              Cancel
             </button>
             <button
               type="submit"
@@ -278,7 +278,7 @@ export default function RoutePublicationRequest({
               className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
               <Send size={16} className="mr-2" />
-              {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
+              {isSubmitting ? 'Submitting...' : 'Submit Request'}
             </button>
           </div>
         </form>

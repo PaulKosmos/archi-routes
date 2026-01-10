@@ -26,7 +26,7 @@ export default function BuildingList({
   onAddToRoute,
   onStartRouteFrom,
   onRemoveFromRoute,
-  title = "🏛️ Здания",
+  title = "🏛️ Buildings",
   maxHeight = "max-h-64"
 }: BuildingListProps) {
   
@@ -51,8 +51,8 @@ export default function BuildingList({
         <h3 className="font-medium font-display text-foreground mb-3">{title}</h3>
         <div className="text-center py-8 text-muted-foreground">
           <Building2 className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
-          <p>Здания не найдены</p>
-          <p className="text-sm">Попробуйте изменить фильтры</p>
+          <p>No buildings found</p>
+          <p className="text-sm">Try changing filters</p>
         </div>
       </div>
     )
@@ -84,14 +84,14 @@ export default function BuildingList({
                   <div className="text-xs text-muted-foreground mb-1 md:mb-2 space-y-0.5 md:space-y-1">
                     {building.architectural_style && (
                       <div className="flex items-center">
-                        <span className="font-medium">Стиль:</span>
+                        <span className="font-medium">Style:</span>
                         <span className="ml-1">{building.architectural_style}</span>
                       </div>
                     )}
 
                     {building.architect && (
                       <div className="flex items-center">
-                        <span className="font-medium">Архитектор:</span>
+                        <span className="font-medium">Architect:</span>
                         <span className="ml-1 truncate">{building.architect}</span>
                       </div>
                     )}
@@ -127,7 +127,7 @@ export default function BuildingList({
                     <div className="mt-2 pt-2 border-t border-border">
                       <div className="flex items-center text-xs text-[hsl(var(--map-primary))] font-metrics">
                         <div className="w-2 h-2 bg-[hsl(var(--map-primary))] rounded-full mr-2"></div>
-                        <span>В маршруте</span>
+                        <span>In Route</span>
                       </div>
                     </div>
                   )}
@@ -142,7 +142,7 @@ export default function BuildingList({
                         <button
                           onClick={(e) => handleAddToRoute(e, building.id)}
                           className="flex items-center justify-center w-8 h-8 bg-[hsl(var(--map-primary))]/10 hover:bg-[hsl(var(--map-primary))]/20 text-[hsl(var(--map-primary))] rounded-full transition-colors"
-                          title="Добавить в маршрут"
+                          title="Add to Route"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -150,7 +150,7 @@ export default function BuildingList({
                         <button
                           onClick={(e) => handleStartRouteFrom(e, building.id)}
                           className="flex items-center justify-center w-8 h-8 bg-[hsl(var(--map-primary))]/10 hover:bg-[hsl(var(--map-primary))]/20 text-[hsl(var(--map-primary))] rounded-full transition-colors"
-                          title="Начать маршрут с этого здания"
+                          title="Start Route from Here"
                         >
                           <Play className="w-4 h-4" />
                         </button>
@@ -159,7 +159,7 @@ export default function BuildingList({
                       <button
                         onClick={(e) => handleRemoveFromRoute(e, building.id)}
                         className="flex items-center justify-center w-8 h-8 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-full transition-colors"
-                        title="Удалить из маршрута"
+                        title="Remove from Route"
                       >
                         <span className="text-xs font-bold">×</span>
                       </button>
@@ -175,7 +175,7 @@ export default function BuildingList({
                       }}
                       className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex-shrink-0"
                     >
-                      Подробнее
+                      Details
                     </button>
                   )}
                 </div>

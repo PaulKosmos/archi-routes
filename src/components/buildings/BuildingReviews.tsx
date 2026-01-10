@@ -173,7 +173,7 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
   if (hasError) {
     return (
       <div className="bg-red-50 rounded-lg p-4 mt-4">
-        <p className="text-red-600 text-sm">Не удалось загрузить аудио файл</p>
+        <p className="text-red-600 text-sm">Failed to load audio file</p>
         <p className="text-red-500 text-xs mt-1">URL: {fullAudioUrl}</p>
       </div>
     )
@@ -191,9 +191,9 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
 
       {/* Заголовок с информацией о длительности */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-foreground">Аудио комментарий</span>
+        <span className="text-sm font-medium text-foreground">Audio Commentary</span>
         <span className="text-sm text-muted-foreground font-metrics">
-          {isLoading ? 'Загрузка...' : formatTime(totalDuration)}
+          {isLoading ? 'Loading...' : formatTime(totalDuration)}
         </span>
       </div>
       
@@ -302,10 +302,10 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
 function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; isActive: boolean }) {
   const getReviewTypeLabel = (type: string) => {
     switch (type) {
-      case 'expert': return 'Экспертный обзор'
-      case 'historical': return 'Историческая справка'
-      case 'amateur': return 'Пользовательский обзор'
-      default: return 'Обзор'
+      case 'expert': return 'Expert Review'
+      case 'historical': return 'Historical Reference'
+      case 'amateur': return 'User Review'
+      default: return 'Review'
     }
   }
 
@@ -331,7 +331,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
               </span>
               {review.is_featured && (
                 <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
-                  Рекомендуемый
+                  Recommended
                 </span>
               )}
             </div>
@@ -377,15 +377,15 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
             )}
             <div>
               <p className="font-medium text-sm">
-                {review.profiles?.full_name || review.profiles?.username || 'Анонимный пользователь'}
+                {review.profiles?.full_name || review.profiles?.username || 'Anonymous user'}
               </p>
               <div className="flex items-center text-xs text-muted-foreground font-metrics">
                 <Calendar className="h-3 w-3 mr-1" />
-                {new Date(review.created_at).toLocaleDateString('ru-RU')}
+                {new Date(review.created_at).toLocaleDateString('en-US')}
                 {review.profiles?.role === 'expert' && (
                   <>
                     <Award className="h-3 w-3 ml-2 mr-1" />
-                    <span>Эксперт</span>
+                    <span>Expert</span>
                   </>
                 )}
               </div>
@@ -438,13 +438,13 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
         {/* Практическая информация */}
         {(review.opening_hours || review.entry_fee) && (
           <div className="mt-4 p-4 bg-primary/5 rounded-[var(--radius)] border border-primary/10">
-            <h4 className="text-sm font-semibold font-display text-foreground mb-2">Практическая информация</h4>
+            <h4 className="text-sm font-semibold font-display text-foreground mb-2">Practical Information</h4>
             <div className="space-y-2 text-sm">
               {review.opening_hours && (
                 <div className="flex items-start">
                   <span className="text-foreground font-medium mr-2">🕐</span>
                   <div>
-                    <span className="text-foreground font-medium">Часы работы:</span>
+                    <span className="text-foreground font-medium">Opening hours:</span>
                     <span className="text-muted-foreground ml-2">{review.opening_hours}</span>
                   </div>
                 </div>
@@ -453,7 +453,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
                 <div className="flex items-start">
                   <span className="text-foreground font-medium mr-2">💰</span>
                   <div>
-                    <span className="text-foreground font-medium">Стоимость:</span>
+                    <span className="text-foreground font-medium">Price:</span>
                     <span className="text-muted-foreground ml-2">{review.entry_fee}</span>
                   </div>
                 </div>
@@ -467,12 +467,12 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
           <div className="flex items-center justify-between">
             <button className="flex items-center text-muted-foreground hover:text-foreground text-sm">
               <MessageSquare className="h-4 w-4 mr-1" />
-              Полезно ({review.helpful_count})
+              Helpful ({review.helpful_count})
             </button>
 
             {review.visit_date && (
               <span className="text-xs text-muted-foreground font-metrics">
-                Посещение: {new Date(review.visit_date).toLocaleDateString('ru-RU')}
+                Visited: {new Date(review.visit_date).toLocaleDateString('en-US')}
               </span>
             )}
           </div>
@@ -496,10 +496,10 @@ export default function BuildingReviews({
       <div className="bg-card border border-border rounded-[var(--radius)] p-8 text-center">
         <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-lg font-medium font-display text-foreground mb-2">
-          Пока нет обзоров
+          No reviews yet
         </h3>
         <p className="text-muted-foreground mb-4">
-          Станьте первым, кто поделится впечатлениями об этом здании
+          Be the first to share your impressions of this building
         </p>
         {onOpenAddReview ? (
           <button
@@ -507,7 +507,7 @@ export default function BuildingReviews({
             className="inline-flex items-center bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
           >
             <Star className="h-4 w-4 mr-2" />
-            Добавить обзор
+            Add Review
           </button>
         ) : (
           <Link
@@ -515,7 +515,7 @@ export default function BuildingReviews({
             className="inline-flex items-center bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
           >
             <Star className="h-4 w-4 mr-2" />
-            Добавить обзор
+            Add Review
           </Link>
         )}
       </div>
@@ -528,13 +528,13 @@ export default function BuildingReviews({
       {/* Заголовок и переключатели */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold font-display text-foreground">
-          Обзоры ({reviews.length})
+          Reviews ({reviews.length})
         </h2>
 
         {reviews.length > 1 && (
           <div className="flex items-center space-x-2">
             <span className="text-sm text-muted-foreground font-metrics">
-              {activeIndex + 1} из {reviews.length}
+              {activeIndex + 1} of {reviews.length}
             </span>
             <div className="flex space-x-1">
               {reviews.map((_, index) => (
@@ -565,10 +565,10 @@ export default function BuildingReviews({
                 }}
                 className="px-3 py-1 rounded-full text-sm border border-border hover:border-primary hover:text-primary transition-colors"
               >
-                {type === 'expert' && 'Экспертные'}
-                {type === 'historical' && 'Исторические'}
-                {type === 'amateur' && 'Пользовательские'}
-                {type === 'general' && 'Общие'}
+                {type === 'expert' && 'Expert'}
+                {type === 'historical' && 'Historical'}
+                {type === 'amateur' && 'User'}
+                {type === 'general' && 'General'}
                 {' '}({count})
               </button>
             )
@@ -590,14 +590,14 @@ export default function BuildingReviews({
             disabled={activeIndex === 0}
             className="px-4 py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Предыдущий
+            Previous
           </button>
           <button
             onClick={() => onActiveIndexChange(Math.min(reviews.length - 1, activeIndex + 1))}
             disabled={activeIndex === reviews.length - 1}
             className="px-4 py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Следующий
+            Next
           </button>
         </div>
       )}
@@ -610,7 +610,7 @@ export default function BuildingReviews({
             className="inline-flex items-center bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
           >
             <Star className="h-5 w-5 mr-2" />
-            Добавить обзор
+            Add Review
           </button>
         ) : (
           <Link
@@ -618,7 +618,7 @@ export default function BuildingReviews({
             className="inline-flex items-center bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
           >
             <Star className="h-5 w-5 mr-2" />
-            Добавить обзор
+            Add Review
           </Link>
         )}
       </div>
