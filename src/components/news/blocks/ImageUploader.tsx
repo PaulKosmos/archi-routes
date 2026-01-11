@@ -41,7 +41,7 @@ export default function ImageUploader({
 
       // Проверка лимита изображений
       if (images.length + files.length > maxImages) {
-        setError(`Максимум ${maxImages} изображений`);
+        setError(`Maximum ${maxImages} images`);
         return;
       }
 
@@ -52,10 +52,10 @@ export default function ImageUploader({
         const uploadPromises = Array.from(files).map(async (file) => {
           // Валидация файла
           if (!file.type.startsWith('image/')) {
-            throw new Error('Файл должен быть изображением');
+            throw new Error('File must be an image');
           }
           if (file.size > 10 * 1024 * 1024) {
-            throw new Error('Размер файла не должен превышать 10MB');
+            throw new Error('File size must not exceed 10MB');
           }
 
           // Загрузка в Supabase Storage (используем bucket 'photos', папка 'news')
@@ -87,7 +87,7 @@ export default function ImageUploader({
         onChange([...images, ...uploadedImages]);
       } catch (err) {
         console.error('Error uploading image:', err);
-        setError(err instanceof Error ? err.message : 'Ошибка загрузки изображения');
+        setError(err instanceof Error ? err.message : 'Error uploading image');
       } finally {
         setUploading(false);
         // Сбрасываем input для возможности повторной загрузки того же файла
@@ -241,7 +241,7 @@ export default function ImageUploader({
                         type="button"
                         onClick={() => handleMoveImage(index, 'up')}
                         className="p-1 bg-white rounded-full shadow-sm hover:bg-gray-100"
-                        title="Переместить вверх"
+                        title="Move up"
                       >
                         <svg
                           className="h-4 w-4 text-gray-600"
@@ -264,7 +264,7 @@ export default function ImageUploader({
                         type="button"
                         onClick={() => handleMoveImage(index, 'down')}
                         className="p-1 bg-white rounded-full shadow-sm hover:bg-gray-100"
-                        title="Переместить вниз"
+                        title="Move down"
                       >
                         <svg
                           className="h-4 w-4 text-gray-600"
@@ -286,7 +286,7 @@ export default function ImageUploader({
                       type="button"
                       onClick={() => handleRemoveImage(index)}
                       className="p-1 bg-white rounded-full shadow-sm hover:bg-red-100"
-                      title="Удалить изображение"
+                      title="Delete image"
                     >
                       <svg
                         className="h-4 w-4 text-red-600"
@@ -316,7 +316,7 @@ export default function ImageUploader({
                     type="text"
                     value={image.caption || ''}
                     onChange={(e) => handleCaptionChange(index, e.target.value)}
-                    placeholder="Описание для отображения под изображением"
+                    placeholder="Description to display under image"
                     disabled={readOnly}
                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
                   />
@@ -329,7 +329,7 @@ export default function ImageUploader({
                     type="text"
                     value={image.alt || ''}
                     onChange={(e) => handleAltChange(index, e.target.value)}
-                    placeholder="Описание для читалок экрана"
+                    placeholder="Description for screen readers"
                     disabled={readOnly}
                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
                   />

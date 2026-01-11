@@ -45,7 +45,7 @@ export default function NewsSection() {
         // If we have news, fetch author information separately
         if (data && data.length > 0) {
           const authorIds = [...new Set((data as any[]).map((article: any) => article.author_id).filter(Boolean))]
-          
+
           let authorsData: any[] = []
           if (authorIds.length > 0) {
             const { data: fetchedAuthors } = await supabase
@@ -158,7 +158,7 @@ export default function NewsSection() {
             onClick={() => router.push('/news')}
             className="hidden md:flex items-center space-x-2 text-blue-600 hover:text-blue-700 font-medium transition-colors group"
           >
-            <span>Все новости</span>
+            <span>All News</span>
             <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
           </button>
         </div>
@@ -240,7 +240,7 @@ export default function NewsSection() {
             onClick={() => router.push('/news')}
             className="inline-flex items-center space-x-2 px-8 py-3 bg-blue-600 text-white font-medium rounded-full hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
           >
-            <span>Все новости</span>
+            <span>All News</span>
             <ArrowRight size={20} />
           </button>
         </div>

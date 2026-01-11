@@ -60,9 +60,9 @@ export default function PodcastPreview({
   const selectedTags = tags.filter(tag => previewData.tags.includes(tag.id))
 
   const formatDate = (dateString?: string | null) => {
-    if (!dateString) return 'Не указано'
+    if (!dateString) return 'Not specified'
     const date = new Date(dateString)
-    return new Intl.DateTimeFormat('ru-RU', {
+    return new Intl.DateTimeFormat('en-US', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
@@ -82,7 +82,7 @@ export default function PodcastPreview({
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
-          <h2 className="text-2xl font-bold text-gray-900">Предпросмотр подкаста</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Podcast Preview</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -96,17 +96,16 @@ export default function PodcastPreview({
           {/* Status Badge */}
           <div className="flex items-center gap-2">
             <span
-              className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                previewData.status === 'published'
+              className={`px-3 py-1 rounded-full text-sm font-semibold ${previewData.status === 'published'
                   ? 'bg-green-100 text-green-700'
                   : 'bg-yellow-100 text-yellow-700'
-              }`}
+                }`}
             >
-              {previewData.status === 'published' ? 'Опубликовано' : 'Черновик'}
+              {previewData.status === 'published' ? 'Published' : 'Draft'}
             </span>
             {previewData.episode_number && (
               <span className="px-3 py-1 rounded-full text-sm font-semibold bg-purple-100 text-purple-700">
-                Выпуск #{previewData.episode_number}
+                Episode #{previewData.episode_number}
               </span>
             )}
           </div>
@@ -116,7 +115,7 @@ export default function PodcastPreview({
             {coverPreviewUrl ? (
               <Image
                 src={coverPreviewUrl}
-                alt={previewData.title || 'Обложка'}
+                alt={previewData.title || 'Cover'}
                 fill
                 className="object-cover"
               />
@@ -131,7 +130,7 @@ export default function PodcastPreview({
           {selectedSeries && (
             <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
               <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1">
-                Серия
+                Series
               </p>
               <h3 className="text-lg font-bold text-purple-900">{selectedSeries.title}</h3>
               {selectedSeries.description && (
@@ -143,7 +142,7 @@ export default function PodcastPreview({
           {/* Title */}
           <div>
             <h1 className="text-4xl font-bold text-gray-900 leading-tight">
-              {previewData.title || 'Название подкаста'}
+              {previewData.title || 'Podcast Title'}
             </h1>
           </div>
 
@@ -174,10 +173,10 @@ export default function PodcastPreview({
               <div className="flex items-start gap-3">
                 <FileAudio size={24} className="text-blue-600 flex-shrink-0 mt-1" />
                 <div>
-                  <p className="font-semibold text-blue-900">Аудиофайл</p>
+                  <p className="font-semibold text-blue-900">Audio File</p>
                   <p className="text-sm text-blue-700">{audioFileName}</p>
                   <p className="text-xs text-blue-600 mt-1">
-                    Размер: {formatFileSize(previewData.audio_file.size)}
+                    Size: {formatFileSize(previewData.audio_file.size)}
                   </p>
                 </div>
               </div>
@@ -187,7 +186,7 @@ export default function PodcastPreview({
           {/* Description */}
           {previewData.description && (
             <div className="bg-white rounded-lg p-6 border border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Описание</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Description</h2>
               <div className="prose prose-lg max-w-none">
                 <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
                   {previewData.description}
@@ -199,7 +198,7 @@ export default function PodcastPreview({
           {/* Tags */}
           {selectedTags.length > 0 && (
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Теги</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Tags</h2>
               <div className="flex flex-wrap gap-3">
                 {selectedTags.map(tag => (
                   <div
@@ -216,40 +215,40 @@ export default function PodcastPreview({
 
           {/* Summary Section */}
           <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <h3 className="font-bold text-gray-900 mb-4">Итоговая информация</h3>
+            <h3 className="font-bold text-gray-900 mb-4">Summary</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Статус:</span>
+                <span className="text-gray-600">Status:</span>
                 <span className="font-semibold text-gray-900">
-                  {previewData.status === 'published' ? 'Опубликовано' : 'Черновик'}
+                  {previewData.status === 'published' ? 'Published' : 'Draft'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Серия:</span>
+                <span className="text-gray-600">Series:</span>
                 <span className="font-semibold text-gray-900">
-                  {selectedSeries ? selectedSeries.title : 'Без серии'}
+                  {selectedSeries ? selectedSeries.title : 'No series'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Количество тегов:</span>
+                <span className="text-gray-600">Tags count:</span>
                 <span className="font-semibold text-gray-900">{selectedTags.length}</span>
               </div>
               {previewData.episode_number && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Номер выпуска:</span>
+                  <span className="text-gray-600">Episode number:</span>
                   <span className="font-semibold text-gray-900">#{previewData.episode_number}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-gray-600">Обложка:</span>
+                <span className="text-gray-600">Cover:</span>
                 <span className="font-semibold text-gray-900">
-                  {coverPreviewUrl ? 'Загружена' : 'Не указана'}
+                  {coverPreviewUrl ? 'Uploaded' : 'Not specified'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Аудиофайл:</span>
+                <span className="text-gray-600">Audio file:</span>
                 <span className="font-semibold text-gray-900">
-                  {audioFileName ? 'Загружен' : 'Не указан'}
+                  {audioFileName ? 'Uploaded' : 'Not specified'}
                 </span>
               </div>
             </div>
@@ -258,8 +257,8 @@ export default function PodcastPreview({
           {/* Info note */}
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
-              Это предпросмотр того, как будет выглядеть ваш подкаст после публикации.
-              Закройте это окно, чтобы вернуться к редактированию.
+              This is a preview of how your podcast will look after publication.
+              Close this window to return to editing.
             </p>
           </div>
         </div>
@@ -270,7 +269,7 @@ export default function PodcastPreview({
             onClick={onClose}
             className="w-full px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors"
           >
-            Закрыть предпросмотр
+            Close Preview
           </button>
         </div>
       </div>

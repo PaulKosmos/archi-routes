@@ -11,12 +11,12 @@ interface NewsBreadcrumbsProps {
   className?: string;
 }
 
-export default function NewsBreadcrumbs({ 
-  article, 
+export default function NewsBreadcrumbs({
+  article,
   currentPage,
-  className = '' 
+  className = ''
 }: NewsBreadcrumbsProps) {
-  
+
   const categoryNames = {
     'projects': 'Архитектурные проекты',
     'events': 'События',
@@ -27,8 +27,8 @@ export default function NewsBreadcrumbs({
   };
 
   const breadcrumbs = [
-    { title: 'Главная', href: '/', icon: Home },
-    { title: 'Новости', href: '/news' },
+    { title: 'Home', href: '/', icon: Home },
+    { title: 'News', href: '/news' },
   ];
 
   if (article) {
@@ -61,7 +61,7 @@ export default function NewsBreadcrumbs({
             {index > 0 && (
               <ChevronRight className="w-4 h-4 text-gray-400 mx-2" />
             )}
-            
+
             {breadcrumb.current ? (
               <span className="text-gray-900 font-medium line-clamp-1" aria-current="page">
                 {breadcrumb.icon && <breadcrumb.icon className="w-4 h-4 inline mr-1" />}
@@ -89,7 +89,7 @@ export function BreadcrumbsStructuredData({ article }: { article?: NewsArticleWi
 
   const categoryNames = {
     'projects': 'Архитектурные проекты',
-    'events': 'События', 
+    'events': 'События',
     'personalities': 'Персоналии',
     'trends': 'Тренды',
     'planning': 'Городское планирование',

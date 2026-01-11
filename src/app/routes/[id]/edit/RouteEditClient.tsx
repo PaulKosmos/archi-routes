@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic'
 const LeafletMapCreator = dynamic(() => import('../../../../components/LeafletMapCreator'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-    <span className="text-gray-500">Загрузка карты...</span>
+    <span className="text-gray-500">Loading map...</span>
   </div>
 })
 
@@ -22,15 +22,15 @@ interface RouteEditClientProps {
   buildings: Building[]
 }
 
-export default function RouteEditClient({ 
-  route, 
+export default function RouteEditClient({
+  route,
   buildings
 }: RouteEditClientProps) {
   const router = useRouter()
-  
+
   // Получаем права доступа для отображения роли (новый API без userId)
   const permissions = useEditPermissions('route', route.id)
-  
+
   // Основные данные маршрута
   const [formData, setFormData] = useState({
     title: route.title || '',
@@ -76,7 +76,7 @@ export default function RouteEditClient({
 
   // Теги
   const availableTags = [
-    'architecture', 'historical', 'modern', 'baroque', 'gothic', 
+    'architecture', 'historical', 'modern', 'baroque', 'gothic',
     'art-nouveau', 'brutalism', 'classical', 'contemporary',
     'walking', 'family-friendly', 'photography', 'educational'
   ]
@@ -100,7 +100,7 @@ export default function RouteEditClient({
       created_at: new Date().toISOString(),
       duration_minutes: 15
     }
-    
+
     setRoutePoints([...routePoints, newPoint])
   }
 
@@ -128,7 +128,7 @@ export default function RouteEditClient({
       created_at: new Date().toISOString(),
       duration_minutes: 10
     }
-    
+
     setRoutePoints([...routePoints, newPoint])
   }
 
@@ -141,7 +141,7 @@ export default function RouteEditClient({
   const toggleTag = (tag: string) => {
     setFormData(prev => ({
       ...prev,
-      tags: prev.tags.includes(tag) 
+      tags: prev.tags.includes(tag)
         ? prev.tags.filter((t: string) => t !== tag)
         : [...prev.tags, tag]
     }))
@@ -150,30 +150,30 @@ export default function RouteEditClient({
   // Расчет расстояния
   const calculateDistance = () => {
     if (routePoints.length < 2) return 0
-    
+
     let totalDistance = 0
     for (let i = 0; i < routePoints.length - 1; i++) {
       const point1 = routePoints[i]
       const point2 = routePoints[i + 1]
-      
+
       const dx = point2.latitude - point1.latitude
       const dy = point2.longitude - point1.longitude
       const distance = Math.sqrt(dx * dx + dy * dy) * 111
       totalDistance += distance
     }
-    
+
     return Math.round(totalDistance * 100) / 100
   }
 
   // Сохранение изменений
   const saveRoute = async () => {
     if (!formData.title.trim()) {
-      setError('Укажите название маршрута')
+      setError('Specify route name')
       return
     }
 
     if (routePoints.length < 2) {
-      setError('Маршрут должен содержать минимум 2 точки')
+      setError('Route must contain at least 2 points')
       return
     }
 
@@ -241,7 +241,7 @@ export default function RouteEditClient({
       }
 
       setSuccess(true)
-      
+
       // Редирект через 2 секунды
       setTimeout(() => {
         router.push(`/routes/${route.id}`)
@@ -249,7 +249,7 @@ export default function RouteEditClient({
 
     } catch (error: any) {
       console.error('Error saving route:', error)
-      setError(error.message || 'Произошла ошибка при сохранении')
+      setError(error.message || 'An error occurred while saving')
     } finally {
       setLoading(false)
     }
@@ -286,7 +286,7 @@ export default function RouteEditClient({
       // Успешное удаление - перенаправляем на главную
       alert('✅ Маршрут успешно удален')
       router.push('/test-map')
-      
+
     } catch (error: any) {
       console.error('Error deleting route:', error)
       alert(`❌ Ошибка удаления маршрута: ${error.message}`)
@@ -302,10 +302,10 @@ export default function RouteEditClient({
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
           <div className="text-green-600 text-4xl mb-4">✅</div>
           <h2 className="text-xl font-bold text-green-800 mb-2">
-            Изменения сохранены!
+            Changes Saved!
           </h2>
           <p className="text-green-700">
-            Перенаправляем на страницу маршрута...
+            Redirecting to route page...
           </p>
         </div>
       </div>
@@ -325,13 +325,13 @@ export default function RouteEditClient({
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Редактирование маршрута
+              Edit Route
             </h1>
             <p className="text-sm text-gray-600">
               {route.profiles?.full_name && (
-                <>Автор: {route.profiles.full_name} • </>
+                <>Author: {route.profiles.full_name} • </>
               )}
-              Создан: {new Date(route.created_at).toLocaleDateString()}
+              Created: {new Date(route.created_at).toLocaleDateString()}
             </p>
           </div>
         </div>
@@ -339,7 +339,7 @@ export default function RouteEditClient({
         {/* Индикатор роли - показываем только если роль есть */}
         {permissions.userRole && (
           <div className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-            Ваша роль: {permissions.userRole === 'moderator' ? 'Модератор' : permissions.userRole === 'admin' ? 'Администратор' : 'Автор'}
+            Your role: {permissions.userRole === 'moderator' ? 'Moderator' : permissions.userRole === 'admin' ? 'Administrator' : 'Author'}
           </div>
         )}
 
@@ -348,10 +348,9 @@ export default function RouteEditClient({
           {['info', 'points', 'preview'].map((step, index) => (
             <div
               key={step}
-              className={`w-3 h-3 rounded-full ${
-                currentStep === step ? 'bg-blue-500' : 
-                ['info', 'points', 'preview'].indexOf(currentStep) > index ? 'bg-green-500' : 'bg-gray-300'
-              }`}
+              className={`w-3 h-3 rounded-full ${currentStep === step ? 'bg-blue-500' :
+                  ['info', 'points', 'preview'].indexOf(currentStep) > index ? 'bg-green-500' : 'bg-gray-300'
+                }`}
             />
           ))}
         </div>
@@ -368,12 +367,12 @@ export default function RouteEditClient({
       <div className="bg-white rounded-lg shadow-sm border">
         {currentStep === 'info' && (
           <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Основная информация</h3>
-            
+            <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
+
             <div className="space-y-4 max-w-2xl">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Название маршрута *
+                  Route Name *
                 </label>
                 <input
                   type="text"
@@ -385,7 +384,7 @@ export default function RouteEditClient({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Описание
+                  Description
                 </label>
                 <textarea
                   value={formData.description}
@@ -398,7 +397,7 @@ export default function RouteEditClient({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Город
+                    City
                   </label>
                   <input
                     type="text"
@@ -410,7 +409,7 @@ export default function RouteEditClient({
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Страна
+                    Country
                   </label>
                   <input
                     type="text"
@@ -424,7 +423,7 @@ export default function RouteEditClient({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Время прохождения (минуты)
+                    Duration (minutes)
                   </label>
                   <input
                     type="number"
@@ -436,34 +435,33 @@ export default function RouteEditClient({
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Сложность
+                    Difficulty
                   </label>
                   <select
                     value={formData.difficulty_level}
                     onChange={(e) => setFormData(prev => ({ ...prev, difficulty_level: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="easy">Легкий</option>
-                    <option value="medium">Средний</option>
-                    <option value="hard">Сложный</option>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Теги
+                  Tags
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {availableTags.map((tag: string) => (
                     <button
                       key={tag}
                       onClick={() => toggleTag(tag)}
-                      className={`px-3 py-1 rounded-full text-sm border transition-colors ${
-                        formData.tags.includes(tag)
+                      className={`px-3 py-1 rounded-full text-sm border transition-colors ${formData.tags.includes(tag)
                           ? 'bg-blue-500 text-white border-blue-500'
                           : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-                      }`}
+                        }`}
                     >
                       {tag}
                     </button>
@@ -480,7 +478,7 @@ export default function RouteEditClient({
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <label htmlFor="published" className="text-sm text-gray-700">
-                  Опубликовать маршрут
+                  Publish route
                 </label>
               </div>
             </div>
@@ -491,25 +489,24 @@ export default function RouteEditClient({
           <div className="h-[600px] flex">
             {/* Панель точек */}
             <div className="w-80 border-r p-4 overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-4">Точки маршрута</h3>
-              
+              <h3 className="text-lg font-semibold mb-4">Route Points</h3>
+
               <button
                 onClick={() => setIsAddingPoint(!isAddingPoint)}
-                className={`w-full px-4 py-2 rounded-lg border transition-colors mb-4 ${
-                  isAddingPoint 
-                    ? 'bg-green-500 text-white border-green-500 hover:bg-green-600' 
+                className={`w-full px-4 py-2 rounded-lg border transition-colors mb-4 ${isAddingPoint
+                    ? 'bg-green-500 text-white border-green-500 hover:bg-green-600'
                     : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
-                }`}
+                  }`}
               >
-                {isAddingPoint ? '✓ Режим добавления (нажмите чтобы выйти)' : '+ Добавить точку'}
+                {isAddingPoint ? '✓ Adding Mode (click to exit)' : '+ Add Point'}
               </button>
-              
+
               {isAddingPoint && (
                 <div className="text-sm text-gray-600 bg-green-50 p-3 rounded-lg border border-green-200 mb-4">
-                  <p className="font-medium mb-1 text-green-800">🎯 Режим добавления активен:</p>
+                  <p className="font-medium mb-1 text-green-800">🎯 Adding mode active:</p>
                   <ul className="text-xs space-y-1 text-green-700">
-                    <li>• Кликните по синей точке (здание)</li>
-                    <li>• Или кликните по пустому месту (новая точка)</li>
+                    <li>• Click on blue marker (building)</li>
+                    <li>• Or click on empty space (new point)</li>
                   </ul>
                 </div>
               )}
@@ -530,7 +527,7 @@ export default function RouteEditClient({
                         )}
                         <div className="flex items-center space-x-2 mt-1 ml-8">
                           <Clock size={12} className="text-gray-400" />
-                          <span className="text-xs text-gray-500">{point.estimated_time_minutes} мин</span>
+                          <span className="text-xs text-gray-500">{point.estimated_time_minutes} min</span>
                         </div>
                       </div>
                       <button
@@ -547,7 +544,7 @@ export default function RouteEditClient({
               {routePoints.length === 0 && (
                 <div className="text-center text-gray-500 mt-8">
                   <MapPin size={48} className="mx-auto mb-2 text-gray-300" />
-                  <p className="text-sm">Добавьте точки маршрута</p>
+                  <p className="text-sm">Add route points</p>
                 </div>
               )}
             </div>
@@ -561,17 +558,17 @@ export default function RouteEditClient({
                 onAddBuildingPoint={addBuildingPoint}
                 onAddCustomPoint={addCustomPoint}
               />
-              
+
               {routePoints.length > 0 && (
                 <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-md p-3">
                   <div className="text-sm">
                     <div className="flex items-center space-x-2 mb-1">
                       <MapPin size={14} className="text-gray-500" />
-                      <span>{routePoints.length} точек</span>
+                      <span>{routePoints.length} points</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Clock size={14} className="text-gray-500" />
-                      <span>~{calculateDistance()} км</span>
+                      <span>~{calculateDistance()} km</span>
                     </div>
                   </div>
                 </div>
@@ -582,13 +579,13 @@ export default function RouteEditClient({
 
         {currentStep === 'preview' && (
           <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Предварительный просмотр</h3>
-            
+            <h3 className="text-lg font-semibold mb-4">Preview</h3>
+
             <div className="max-w-2xl space-y-6">
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h4 className="text-xl font-bold mb-2">{formData.title}</h4>
                 {formData.description && <p className="text-gray-600 mb-4">{formData.description}</p>}
-                
+
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center space-x-2">
                     <MapPin size={16} className="text-gray-500" />
@@ -596,7 +593,7 @@ export default function RouteEditClient({
                   </div>
                   <div className="flex items-center space-x-2">
                     <Clock size={16} className="text-gray-500" />
-                    <span>{formData.estimated_duration_minutes} минут</span>
+                    <span>{formData.estimated_duration_minutes} minutes</span>
                   </div>
                 </div>
 
@@ -617,7 +614,7 @@ export default function RouteEditClient({
               </div>
 
               <div>
-                <h5 className="font-medium mb-3">Маршрут ({routePoints.length} точек)</h5>
+                <h5 className="font-medium mb-3">Route ({routePoints.length} points)</h5>
                 <div className="space-y-2">
                   {routePoints.map((point, index) => (
                     <div key={point.id} className="flex items-center space-x-3 p-2 bg-gray-50 rounded">
@@ -630,7 +627,7 @@ export default function RouteEditClient({
                           <div className="text-xs text-gray-600">{point.description}</div>
                         )}
                       </div>
-                      <div className="text-xs text-gray-500">{point.estimated_time_minutes}м</div>
+                      <div className="text-xs text-gray-500">{point.estimated_time_minutes}m</div>
                     </div>
                   ))}
                 </div>
@@ -652,21 +649,21 @@ export default function RouteEditClient({
               }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800"
             >
-              Назад
+              Back
             </button>
           )}
         </div>
-        
+
         <div className="flex items-center justify-between">
           {/* Левая часть: Кнопка удаления */}
           <button
             onClick={() => setShowDeleteModal(true)}
             disabled={deleting}
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center space-x-2"
-            title="Удалить маршрут"
+            title="Delete route"
           >
             <Trash2 size={16} />
-            <span>{deleting ? 'Удаление...' : 'Удалить маршрут'}</span>
+            <span>{deleting ? 'Deleting...' : 'Delete Route'}</span>
           </button>
 
           {/* Правая часть: Действия */}
@@ -675,9 +672,9 @@ export default function RouteEditClient({
               onClick={() => router.back()}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
             >
-              Отмена
+              Cancel
             </button>
-            
+
             {currentStep === 'preview' ? (
               <button
                 onClick={saveRoute}
@@ -685,16 +682,16 @@ export default function RouteEditClient({
                 className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center space-x-2"
               >
                 <Save size={16} />
-                <span>{loading ? 'Сохранение...' : 'Сохранить изменения'}</span>
+                <span>{loading ? 'Saving...' : 'Save Changes'}</span>
               </button>
             ) : (
               <button
                 onClick={() => {
                   if (currentStep === 'info' && !formData.title.trim()) {
-                    setError('Укажите название маршрута')
+                    setError('Specify route name')
                     return
                   }
-                  
+
                   const steps = ['info', 'points', 'preview']
                   const currentIndex = steps.indexOf(currentStep)
                   setCurrentStep(steps[currentIndex + 1] as any)
@@ -702,7 +699,7 @@ export default function RouteEditClient({
                 }}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Далее
+                Next
               </button>
             )}
           </div>
@@ -714,11 +711,11 @@ export default function RouteEditClient({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
             <h3 className="text-xl font-bold text-gray-900 mb-4">
-              🗑️ Удалить маршрут?
+              🗑️ Delete Route?
             </h3>
             <p className="text-gray-600 mb-6">
-              Вы уверены, что хотите удалить маршрут <strong>"{route.title}"</strong>? 
-              Это действие необратимо. Все точки маршрута также будут удалены.
+              Are you sure you want to delete route <strong>"{route.title}"</strong>?
+              This action is irreversible. All route points will also be deleted.
             </p>
             <div className="flex space-x-3">
               <button
@@ -726,7 +723,7 @@ export default function RouteEditClient({
                 disabled={deleting}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
               >
-                Отмена
+                Cancel
               </button>
               <button
                 onClick={deleteRoute}
@@ -734,7 +731,7 @@ export default function RouteEditClient({
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center space-x-2"
               >
                 <Trash2 size={16} />
-                <span>{deleting ? 'Удаление...' : 'Удалить'}</span>
+                <span>{deleting ? 'Deleting...' : 'Delete'}</span>
               </button>
             </div>
           </div>

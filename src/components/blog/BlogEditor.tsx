@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  Link, 
-  Image, 
-  List, 
+import {
+  Bold,
+  Italic,
+  Underline,
+  Link,
+  Image,
+  List,
   ListOrdered,
   Quote,
   Heading1,
@@ -24,7 +24,7 @@ interface BlogEditorProps {
   placeholder?: string
 }
 
-export default function BlogEditor({ content, onChange, placeholder = "Начните писать..." }: BlogEditorProps) {
+export default function BlogEditor({ content, onChange, placeholder = "Start writing..." }: BlogEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null)
   const [showBuildingSelector, setShowBuildingSelector] = useState(false)
   const [showBuildingCreator, setShowBuildingCreator] = useState(false)
@@ -45,7 +45,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
 
   const convertContentToHTML = (content: any): string => {
     if (!content || !content.content) return ''
-    
+
     return content.content.map((node: any) => {
       switch (node.type) {
         case 'paragraph':
@@ -75,12 +75,12 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
             return ''
           }).join('') || ''
           return `<p>${text}</p>`
-        
+
         case 'heading':
           const level = node.attrs?.level || 1
           const headingText = node.content?.[0]?.text || ''
           return `<h${level} class="font-bold ${level === 1 ? 'text-2xl' : level === 2 ? 'text-xl' : 'text-lg'} mb-4">${headingText}</h${level}>`
-        
+
         default:
           return ''
       }
@@ -90,7 +90,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
   const convertHTMLToContent = (html: string): any => {
     // Простое преобразование
     const cleanText = html.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim()
-    
+
     return {
       type: 'doc',
       content: [{
@@ -123,9 +123,9 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
   // 🛠️ УПРОЩЕННЫЕ КОМАНДЫ ФОРМАТИРОВАНИЯ
   const executeCommand = (command: string, value?: string) => {
     if (!editorRef.current) return
-    
+
     editorRef.current.focus()
-    
+
     try {
       const success = document.execCommand(command, false, value)
       if (success) {
@@ -137,17 +137,17 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
   }
 
   const insertLink = () => {
-    const url = prompt('Введите URL:')
+    const url = prompt('Enter URL:')
     if (url) {
-      const text = prompt('Введите текст ссылки:') || url
+      const text = prompt('Enter link text:') || url
       executeCommand('insertHTML', `<a href="${url}" class="text-blue-600 hover:underline" target="_blank">${text}</a>`)
     }
   }
 
   const insertImage = () => {
-    const url = prompt('Введите URL изображения:')
+    const url = prompt('Enter image URL:')
     if (url) {
-      executeCommand('insertHTML', `<img src="${url}" alt="Изображение" class="max-w-full h-auto my-4 rounded-lg" />`)
+      executeCommand('insertHTML', `<img src="${url}" alt="Image" class="max-w-full h-auto my-4 rounded-lg" />`)
     }
   }
 
@@ -171,14 +171,14 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
       {/* Панель инструментов */}
       <div className="bg-gray-50 border-b border-gray-300 p-2">
         <div className="flex flex-wrap items-center gap-1">
-          
+
           {/* Форматирование текста */}
           <div className="flex items-center border-r border-gray-300 pr-2 mr-2">
             <button
               type="button"
               onClick={() => executeCommand('bold')}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Жирный"
+              title="Bold"
             >
               <Bold className="w-4 h-4" />
             </button>
@@ -186,7 +186,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={() => executeCommand('italic')}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Курсив"
+              title="Italic"
             >
               <Italic className="w-4 h-4" />
             </button>
@@ -194,7 +194,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={() => executeCommand('underline')}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Подчеркнутый"
+              title="Underline"
             >
               <Underline className="w-4 h-4" />
             </button>
@@ -206,7 +206,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={() => executeCommand('formatBlock', 'h1')}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Заголовок 1"
+              title="Heading 1"
             >
               <Heading1 className="w-4 h-4" />
             </button>
@@ -214,7 +214,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={() => executeCommand('formatBlock', 'h2')}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Заголовок 2"
+              title="Heading 2"
             >
               <Heading2 className="w-4 h-4" />
             </button>
@@ -222,7 +222,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={() => executeCommand('formatBlock', 'h3')}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Заголовок 3"
+              title="Heading 3"
             >
               <Heading3 className="w-4 h-4" />
             </button>
@@ -234,7 +234,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={() => executeCommand('insertUnorderedList')}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Маркированный список"
+              title="Bulleted List"
             >
               <List className="w-4 h-4" />
             </button>
@@ -242,7 +242,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={() => executeCommand('insertOrderedList')}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Нумерованный список"
+              title="Numbered List"
             >
               <ListOrdered className="w-4 h-4" />
             </button>
@@ -254,7 +254,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={insertLink}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Вставить ссылку"
+              title="Insert Link"
             >
               <Link className="w-4 h-4" />
             </button>
@@ -262,7 +262,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={insertImage}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Вставить изображение"
+              title="Insert Image"
             >
               <Image className="w-4 h-4" />
             </button>
@@ -270,7 +270,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={() => executeCommand('formatBlock', 'blockquote')}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Цитата"
+              title="Quote"
             >
               <Quote className="w-4 h-4" />
             </button>
@@ -282,7 +282,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
               type="button"
               onClick={insertBuildingMention}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Добавить здание"
+              title="Add Building"
             >
               <Building2 className="w-4 h-4" />
             </button>
@@ -297,7 +297,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
         onInput={handleInput}
         onBlur={handleContentChange}
         className="min-h-[400px] p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 prose prose-lg max-w-none"
-        style={{ 
+        style={{
           lineHeight: '1.6',
           fontSize: '16px'
         }}
@@ -392,7 +392,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Начн�
           setShowBuildingSelector(false)
         }}
       />
-      
+
       <BuildingCreator
         isOpen={showBuildingCreator}
         onClose={() => setShowBuildingCreator(false)}

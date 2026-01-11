@@ -42,12 +42,12 @@ const MAP_STYLES = {
   }
 }
 
-export default function LeafletMapCreator({ 
-  buildings, 
-  routePoints, 
-  isAddingPoint, 
-  onAddBuildingPoint, 
-  onAddCustomPoint 
+export default function LeafletMapCreator({
+  buildings,
+  routePoints,
+  isAddingPoint,
+  onAddBuildingPoint,
+  onAddCustomPoint
 }: LeafletMapCreatorProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<L.Map | null>(null)
@@ -137,11 +137,11 @@ export default function LeafletMapCreator({
     if (isAddingPoint) {
       mapInstance.current.on('click', (e: L.LeafletMouseEvent) => {
         console.log('🎯 Map clicked in adding mode:', e.latlng)
-        
+
         // Проверяем, что клик не по маркеру
         const target = e.originalEvent.target as HTMLElement
         const isMarkerClick = target.closest('.building-marker') || target.closest('.route-point-marker')
-        
+
         if (!isMarkerClick) {
           console.log('🎯 Adding custom point at:', e.latlng)
           addCustomCallback(e.latlng.lat, e.latlng.lng)
@@ -167,7 +167,7 @@ export default function LeafletMapCreator({
       console.log(`📍 Creating marker ${index + 1}:`, building.name)
 
       const isInRoute = isBuildingInRoute(building.id.toString())
-      
+
       const marker = L.marker([building.latitude, building.longitude], {
         icon: L.divIcon({
           className: 'building-marker',
@@ -241,7 +241,7 @@ export default function LeafletMapCreator({
 
         // 🔧 ИСПРАВЛЕНИЕ: Добавляем кнопки программно с React event handlers
         const buttonContainer = popupDiv.querySelector('#action-buttons-container')
-        
+
         if (!isInRoute) {
           const addButton = document.createElement('button')
           addButton.innerHTML = '➕ Добавить в маршрут'
@@ -257,7 +257,7 @@ export default function LeafletMapCreator({
             flex: 1; 
             min-width: 120px;
           `
-          
+
           // 🔧 ИСПРАВЛЕНИЕ: Прямой вызов React callback
           addButton.addEventListener('click', (e) => {
             e.preventDefault()
@@ -266,15 +266,15 @@ export default function LeafletMapCreator({
             addBuildingCallback(building)
             marker.closePopup() // Закрываем попап после добавления
           })
-          
+
           addButton.addEventListener('mouseenter', () => {
             addButton.style.backgroundColor = '#047857'
           })
-          
+
           addButton.addEventListener('mouseleave', () => {
             addButton.style.backgroundColor = '#059669'
           })
-          
+
           buttonContainer?.appendChild(addButton)
         } else {
           const inRouteDiv = document.createElement('div')
@@ -293,7 +293,7 @@ export default function LeafletMapCreator({
         }
 
         const detailsButton = document.createElement('button')
-        detailsButton.innerHTML = '📖 Подробнее'
+        detailsButton.innerHTML = '📖 Learn More'
         detailsButton.style.cssText = `
           background: #3B82F6; 
           color: white; 
@@ -306,26 +306,26 @@ export default function LeafletMapCreator({
           flex: 1; 
           min-width: 100px;
         `
-        
+
         detailsButton.addEventListener('click', () => {
           window.location.href = `/buildings/${building.id}`
         })
-        
+
         detailsButton.addEventListener('mouseenter', () => {
           detailsButton.style.backgroundColor = '#2563EB'
         })
-        
+
         detailsButton.addEventListener('mouseleave', () => {
           detailsButton.style.backgroundColor = '#3B82F6'
         })
-        
+
         buttonContainer?.appendChild(detailsButton)
 
         return popupDiv
       }
-      
+
       const popupContent = createPopupContent(building, isInRoute)
-      
+
       marker.bindPopup(popupContent, {
         maxWidth: 350,
         className: 'building-popup-enhanced',
@@ -357,7 +357,7 @@ export default function LeafletMapCreator({
         setTimeout(() => {
           const popupElement = marker.getPopup()?.getElement()
           const isHoveringPopup = popupElement?.matches(':hover')
-          
+
           if (marker.getPopup()?.isOpen() && !isHoveringPopup) {
             marker.closePopup()
             isPopupOpen = false
@@ -516,7 +516,7 @@ export default function LeafletMapCreator({
     if (!mapInstance.current) return
 
     setCurrentStyle(newStyle)
-    
+
     // Находим все тайловые слои и удаляем их
     mapInstance.current.eachLayer((layer) => {
       if (layer instanceof L.TileLayer) {
@@ -571,13 +571,13 @@ export default function LeafletMapCreator({
               </span>
             </div>
           </div>
-          
+
           {isAddingPoint && (
             <div className="mt-2 px-2 py-1 bg-green-50 border border-green-200 rounded text-green-700 font-medium text-xs">
               🎯 Режим добавления активен
             </div>
           )}
-          
+
           <div className="mt-2 pt-2 border-t border-gray-200 text-xs text-gray-500">
             💡 Наведите курсор на маркеры для подробной информации
           </div>
@@ -585,10 +585,10 @@ export default function LeafletMapCreator({
       </div>
 
       {/* Контейнер карты */}
-      <div 
-        ref={mapRef} 
+      <div
+        ref={mapRef}
         className="w-full h-full"
-        style={{ 
+        style={{
           minHeight: '400px',
           cursor: isAddingPoint ? 'crosshair' : 'grab'
         }}

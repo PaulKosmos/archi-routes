@@ -74,7 +74,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
 
       // Проверяем что коллекция публичная
       if (!collectionData.is_public) {
-        toast.error('Эта коллекция приватная')
+        toast.error('This collection is private')
         router.push('/')
         return
       }
@@ -139,7 +139,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
       setItems(itemsWithData.filter(item => item.item_data !== null))
     } catch (error) {
       console.error('Error loading collection:', error)
-      toast.error('Коллекция не найдена')
+      toast.error('Collection not found')
       router.push('/')
     } finally {
       setLoading(false)
@@ -148,7 +148,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
 
   const copyCollection = async () => {
     if (!user) {
-      toast.error('Войдите, чтобы скопировать коллекцию')
+      toast.error('Sign in to copy collection')
       return
     }
 
@@ -161,7 +161,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
         .from('user_collections')
         .insert({
           user_id: user.id,
-          name: `${collection.name} (копия)`,
+          name: `${collection.name} (copy)`,
           description: collection.description,
           is_public: false
         })
@@ -183,7 +183,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
 
       if (itemsError) throw itemsError
 
-      toast.success('Коллекция скопирована в ваш профиль!')
+      toast.success('Collection copied to your profile!')
 
       // Перенаправляем на новую коллекцию
       setTimeout(() => {
@@ -191,7 +191,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
       }, 1000)
     } catch (error) {
       console.error('Error copying collection:', error)
-      toast.error('Ошибка копирования коллекции')
+      toast.error('Error copying collection')
     } finally {
       setCopying(false)
     }
@@ -223,7 +223,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
             )}
             <div className="absolute top-3 left-3">
               <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
-                Блог
+                Blog
               </span>
             </div>
           </div>
@@ -237,7 +237,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
               </p>
             )}
             <div className="flex items-center justify-end text-xs text-muted-foreground">
-              <span>Добавлено {new Date(item.added_at).toLocaleDateString('ru-RU')}</span>
+              <span>Added {new Date(item.added_at).toLocaleDateString('en-US')}</span>
             </div>
           </div>
         </Link>
@@ -265,7 +265,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
             )}
             <div className="absolute top-3 left-3">
               <span className="px-2 py-1 bg-green-500 text-white text-xs rounded-full">
-                Новость
+                News
               </span>
             </div>
           </div>
@@ -279,8 +279,8 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
               </p>
             )}
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{new Date(item_data.published_at).toLocaleDateString('ru-RU')}</span>
-              <span>{new Date(item.added_at).toLocaleDateString('ru-RU')}</span>
+              <span>{new Date(item_data.published_at).toLocaleDateString('en-US')}</span>
+              <span>{new Date(item.added_at).toLocaleDateString('en-US')}</span>
             </div>
           </div>
         </Link>
@@ -308,7 +308,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
             )}
             <div className="absolute top-3 left-3">
               <span className="px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
-                Маршрут
+                Route
               </span>
             </div>
           </div>
@@ -322,8 +322,8 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
               </p>
             )}
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              {item_data.distance_km && <span>{item_data.distance_km} км</span>}
-              <span>{new Date(item.added_at).toLocaleDateString('ru-RU')}</span>
+              {item_data.distance_km && <span>{item_data.distance_km} km</span>}
+              <span>{new Date(item.added_at).toLocaleDateString('en-US')}</span>
             </div>
           </div>
         </Link>
@@ -351,7 +351,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
             )}
             <div className="absolute top-3 left-3">
               <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded-full">
-                Здание
+                Building
               </span>
             </div>
           </div>
@@ -375,7 +375,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
               )}
             </div>
             <div className="text-xs text-muted-foreground">
-              Добавлено {new Date(item.added_at).toLocaleDateString('ru-RU')}
+              Added {new Date(item.added_at).toLocaleDateString('en-US')}
             </div>
           </div>
         </Link>
@@ -400,16 +400,16 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <Folder className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h2 className="text-2xl font-bold mb-2">Коллекция не найдена</h2>
+            <h2 className="text-2xl font-bold mb-2">Collection not found</h2>
             <p className="text-muted-foreground mb-6">
-              Коллекция не существует или ссылка недействительна
+              The collection doesn't exist or the link is invalid
             </p>
             <Link
               href="/"
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              На главную
+              Back to Home
             </Link>
           </div>
         </main>
@@ -427,11 +427,11 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
           <div className="flex items-center gap-3">
             <Globe className="w-5 h-5 text-primary" />
             <div className="flex-1">
-              <p className="font-medium text-foreground">Публичная коллекция</p>
+              <p className="font-medium text-foreground">Public Collection</p>
               <p className="text-sm text-muted-foreground">
-                Вы просматриваете коллекцию пользователя{' '}
+                You are viewing the collection from{' '}
                 <span className="font-semibold text-foreground">
-                  {collection.profiles?.full_name || collection.profiles?.username || 'Аноним'}
+                  {collection.profiles?.full_name || collection.profiles?.username || 'Anonymous'}
                 </span>
               </p>
             </div>
@@ -444,12 +444,12 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
                 {copying ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Копирование...
+                    Copying...
                   </>
                 ) : (
                   <>
                     <Copy className="w-4 h-4" />
-                    Скопировать в мои коллекции
+                    Copy to my collections
                   </>
                 )}
               </button>
@@ -467,7 +467,7 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
               </h1>
               <div className="flex items-center gap-1 px-3 py-1 bg-primary text-primary-foreground text-sm rounded-full">
                 <Globe className="w-4 h-4" />
-                <span>Публичная</span>
+                <span>Public</span>
               </div>
             </div>
 
@@ -478,10 +478,10 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
             <div className="flex items-center justify-between border-t border-border pt-6">
               <div className="text-sm text-muted-foreground space-y-1">
                 <div>
-                  Элементов: <span className="font-semibold text-foreground">{items.length}</span>
+                  Items: <span className="font-semibold text-foreground">{items.length}</span>
                 </div>
                 <div>
-                  Создана: {new Date(collection.created_at).toLocaleDateString('ru-RU')}
+                  Created: {new Date(collection.created_at).toLocaleDateString('en-US')}
                 </div>
               </div>
 
@@ -491,9 +491,9 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
                   <UserIcon className="w-5 h-5 text-muted-foreground" />
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      {collection.profiles.full_name || collection.profiles.username || 'Аноним'}
+                      {collection.profiles.full_name || collection.profiles.username || 'Anonymous'}
                     </p>
-                    <p className="text-xs text-muted-foreground">Автор коллекции</p>
+                    <p className="text-xs text-muted-foreground">Collection Author</p>
                   </div>
                 </div>
               )}
@@ -506,10 +506,10 @@ export default function PublicCollectionPage({ collectionId, shareToken }: { col
           <div className="text-center py-16 bg-card border border-border rounded-[var(--radius)] p-8">
             <Folder className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
             <h3 className="text-xl font-semibold mb-2 text-foreground">
-              Коллекция пуста
+              Collection is empty
             </h3>
             <p className="text-muted-foreground">
-              В этой коллекции пока нет элементов
+              This collection doesn't have any items yet
             </p>
           </div>
         ) : (

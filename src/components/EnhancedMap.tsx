@@ -135,9 +135,9 @@ const createBuildingIcon = (
   }
 
   const colors = isInRoute ? colorScheme.route
-                : isSelected ? colorScheme.selected
-                : isHovered ? colorScheme.hovered
-                : colorScheme.normal
+    : isSelected ? colorScheme.selected
+      : isHovered ? colorScheme.hovered
+        : colorScheme.normal
 
   // Минималистичный круглый маркер с точными пропорциями
   const pinSVG = `
@@ -233,8 +233,8 @@ const createBuildingIcon = (
       </div>
     `,
     iconSize: [actualSize, actualSize],
-    iconAnchor: [actualSize/2, actualSize/2],
-    popupAnchor: [-10, -actualSize/2 - 5]
+    iconAnchor: [actualSize / 2, actualSize / 2],
+    popupAnchor: [-10, -actualSize / 2 - 5]
   })
 }
 
@@ -242,7 +242,7 @@ const createBuildingIcon = (
 const createRouteIcon = (route: Route, isSelected: boolean = false) => {
   const color = isSelected ? '#F57C53' : '#F59E0B'
   const size = isSelected ? 28 : 20
-  
+
   return L.divIcon({
     className: 'custom-route-icon',
     html: `
@@ -265,8 +265,8 @@ const createRouteIcon = (route: Route, isSelected: boolean = false) => {
       </div>
     `,
     iconSize: [size, size],
-    iconAnchor: [size/2, size/2],
-    popupAnchor: [0, -size/2]
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2]
   })
 }
 
@@ -309,247 +309,247 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
       hideLegend = false,
       compactControls = false
     } = props
-  const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstance = useRef<L.Map | null>(null)
-  const buildingsLayer = useRef<L.LayerGroup | null>(null)
-  const routesLayer = useRef<L.LayerGroup | null>(null)
-  const buildingMarkersRef = useRef<{ [key: string]: L.Marker }>({})
-  const routeMarkersRef = useRef<{ [key: string]: L.Marker }>({})
-  const routeLinesRef = useRef<{ [key: string]: L.Polyline }>({})
-  const radiusCircleRef = useRef<L.Circle | null>(null)
-  const locationMarkerRef = useRef<L.Marker | null>(null)
-  const isFirstBuildingsLoad = useRef(true) // Флаг для первой загрузки зданий
-  const lastClickedBuildingRef = useRef<string | null>(null) // ID последнего кликнутого здания для двухуровневых попапов
+    const mapRef = useRef<HTMLDivElement>(null)
+    const mapInstance = useRef<L.Map | null>(null)
+    const buildingsLayer = useRef<L.LayerGroup | null>(null)
+    const routesLayer = useRef<L.LayerGroup | null>(null)
+    const buildingMarkersRef = useRef<{ [key: string]: L.Marker }>({})
+    const routeMarkersRef = useRef<{ [key: string]: L.Marker }>({})
+    const routeLinesRef = useRef<{ [key: string]: L.Polyline }>({})
+    const radiusCircleRef = useRef<L.Circle | null>(null)
+    const locationMarkerRef = useRef<L.Marker | null>(null)
+    const isFirstBuildingsLoad = useRef(true) // Флаг для первой загрузки зданий
+    const lastClickedBuildingRef = useRef<string | null>(null) // ID последнего кликнутого здания для двухуровневых попапов
 
-  const [currentStyle, setCurrentStyle] = useState('light')
-  const [mapInitialized, setMapInitialized] = useState(false)
-  // Убрали всю сложную логику счетчиков попапов
+    const [currentStyle, setCurrentStyle] = useState('light')
+    const [mapInitialized, setMapInitialized] = useState(false)
+    // Убрали всю сложную логику счетчиков попапов
 
-  // Метод для центрирования карты на маршруте
-  const centerOnRoute = useCallback((routeId: string) => {
-    if (!mapInstance.current || !routeId) return
+    // Метод для центрирования карты на маршруте
+    const centerOnRoute = useCallback((routeId: string) => {
+      if (!mapInstance.current || !routeId) return
 
-    const route = routes.find(r => r.id === routeId)
+      const route = routes.find(r => r.id === routeId)
 
-    // Edge case: маршрут без геометрии
-    if (!route?.route_geometry?.coordinates || route.route_geometry.coordinates.length === 0) {
-      console.warn('⚠️ Cannot center on route: no geometry', routeId)
-      return
-    }
-
-    try {
-      // Edge case: маршрут с одной точкой
-      if (route.route_geometry.coordinates.length === 1) {
-        const coord = route.route_geometry.coordinates[0]
-        mapInstance.current.setView([coord[1], coord[0]], 14, {
-          animate: true,
-          duration: 1.0
-        })
-        console.log('✅ Centered on single-point route:', routeId)
+      // Edge case: маршрут без геометрии
+      if (!route?.route_geometry?.coordinates || route.route_geometry.coordinates.length === 0) {
+        console.warn('⚠️ Cannot center on route: no geometry', routeId)
         return
       }
 
-      // Преобразуем координаты в Leaflet формат [lat, lng]
-      const bounds = L.latLngBounds(
-        route.route_geometry.coordinates.map((coord: number[]) =>
-          [coord[1], coord[0]] as [number, number]
-        )
-      )
-
-      const isMobile = window.innerWidth < 768
-
-      if (isMobile) {
-        // Для мобильных: вычисляем смещенный центр и делаем один плавный переход
-        const center = bounds.getCenter()
-        const targetZoom = 13
-
-        // Вычисляем смещение для видимой области
-        const headerHeight = 60
-        const sheetTop = window.innerHeight - (window.innerHeight * 0.6)
-        const visibleCenter = (headerHeight + sheetTop) / 2
-        const currentCenter = window.innerHeight / 2
-        const pixelShiftY = currentCenter - visibleCenter
-
-        // Конвертируем центр маршрута в абсолютные пиксели при target zoom
-        const targetPoint = mapInstance.current.project(center, targetZoom)
-
-        // Применяем смещение в пикселях (сдвигаем вниз чтобы скомпенсировать шторку)
-        const shiftedPoint = L.point(targetPoint.x, targetPoint.y + pixelShiftY)
-
-        // Конвертируем обратно в координаты
-        const shiftedCenter = mapInstance.current.unproject(shiftedPoint, targetZoom)
-
-        // Один плавный переход к смещенному центру
-        mapInstance.current.flyTo(shiftedCenter, targetZoom, {
-          animate: true,
-          duration: 1.0,
-          easeLinearity: 0.25
-        })
-      } else {
-        // Для десктопа: используем fitBounds как раньше
-        mapInstance.current.fitBounds(bounds, {
-          padding: [50, 50, 50, 50],
-          animate: true,
-          duration: 1.0,
-          maxZoom: 13
-        })
-      }
-
-      console.log('✅ Centered on route:', routeId)
-    } catch (error) {
-      console.error('❌ Error centering on route:', error)
-    }
-  }, [routes])
-
-  // Метод для центрирования на здании
-  const centerOnBuilding = useCallback((buildingId: string) => {
-    if (!mapInstance.current || !buildingId) return
-
-    const building = buildings.find(b => b.id === buildingId)
-
-    if (!building) {
-      console.warn('⚠️ Cannot center on building: not found', buildingId)
-      return
-    }
-
-    try {
-      const targetZoom = 14 // Умеренный zoom для одного здания
-      const isMobile = window.innerWidth < 768
-
-      if (isMobile) {
-        // Для мобильных: вычисляем смещенный центр с учетом шторки
-        const buildingLatLng = L.latLng(building.latitude, building.longitude)
-
-        // Вычисляем смещение для видимой области
-        const headerHeight = 60
-        const sheetTop = window.innerHeight - (window.innerHeight * 0.6)
-        const visibleCenter = (headerHeight + sheetTop) / 2
-        const currentCenter = window.innerHeight / 2
-        const pixelShiftY = currentCenter - visibleCenter
-
-        // Конвертируем координаты здания в пиксели при target zoom
-        const targetPoint = mapInstance.current.project(buildingLatLng, targetZoom)
-
-        // Применяем смещение
-        const shiftedPoint = L.point(targetPoint.x, targetPoint.y + pixelShiftY)
-
-        // Конвертируем обратно в координаты
-        const shiftedCenter = mapInstance.current.unproject(shiftedPoint, targetZoom)
-
-        // Один плавный переход к смещенному центру
-        mapInstance.current.flyTo(shiftedCenter, targetZoom, {
-          animate: true,
-          duration: 1.0,
-          easeLinearity: 0.25
-        })
-      } else {
-        // Для десктопа: простое центрирование
-        mapInstance.current.flyTo([building.latitude, building.longitude], targetZoom, {
-          animate: true,
-          duration: 1.0
-        })
-      }
-
-      console.log('✅ Centered on building:', buildingId)
-    } catch (error) {
-      console.error('❌ Error centering on building:', error)
-    }
-  }, [buildings])
-
-  // Метод для открытия popup здания
-  const openBuildingPopup = useCallback((buildingId: string) => {
-    const marker = buildingMarkersRef.current[buildingId]
-
-    if (!marker) {
-      console.warn('⚠️ Cannot open popup: marker not found', buildingId)
-      return
-    }
-
-    // Открываем маленький hover popup
-    marker.openPopup()
-    console.log('✅ Opened popup for building:', buildingId)
-  }, [])
-
-  // Expose методы через ref
-  useImperativeHandle(ref, () => ({
-    centerOnRoute,
-    centerOnBuilding,
-    openBuildingPopup
-  }), [centerOnRoute, centerOnBuilding, openBuildingPopup])
-
-  // Инициализация карты
-  useEffect(() => {
-    if (!mapRef.current || mapInstance.current) return
-
-    console.log('🗺️ Инициализация улучшенной карты...')
-
-    mapInstance.current = L.map(mapRef.current, {
-      center: [52.5200, 13.4050], // Берлин по умолчанию
-      zoom: 13,
-      zoomControl: true,
-      scrollWheelZoom: true,
-      doubleClickZoom: true,
-      dragging: true,
-      attributionControl: true
-    })
-
-    // Добавляем тайловый слой
-    const tileLayer = L.tileLayer(MAP_STYLES[currentStyle as keyof typeof MAP_STYLES].url, {
-      attribution: MAP_STYLES[currentStyle as keyof typeof MAP_STYLES].attribution,
-      maxZoom: 19
-    }).addTo(mapInstance.current)
-
-    // Создаем слои
-    buildingsLayer.current = L.layerGroup().addTo(mapInstance.current)
-    routesLayer.current = L.layerGroup().addTo(mapInstance.current)
-
-    // Добавляем обработчик клика на карту
-    if (onMapClick) {
-      mapInstance.current.on('click', (e) => {
-        console.log('🗺️ Map clicked:', e.latlng.lat, e.latlng.lng, 'radiusMode:', radiusMode)
-        if (radiusMode === 'map') {
-          onMapClick(e.latlng.lat, e.latlng.lng)
+      try {
+        // Edge case: маршрут с одной точкой
+        if (route.route_geometry.coordinates.length === 1) {
+          const coord = route.route_geometry.coordinates[0]
+          mapInstance.current.setView([coord[1], coord[0]], 14, {
+            animate: true,
+            duration: 1.0
+          })
+          console.log('✅ Centered on single-point route:', routeId)
+          return
         }
-      })
-    }
 
-    setMapInitialized(true)
+        // Преобразуем координаты в Leaflet формат [lat, lng]
+        const bounds = L.latLngBounds(
+          route.route_geometry.coordinates.map((coord: number[]) =>
+            [coord[1], coord[0]] as [number, number]
+          )
+        )
 
-    return () => {
-      if (mapInstance.current) {
-        mapInstance.current.remove()
-        mapInstance.current = null
-        setMapInitialized(false)
+        const isMobile = window.innerWidth < 768
+
+        if (isMobile) {
+          // Для мобильных: вычисляем смещенный центр и делаем один плавный переход
+          const center = bounds.getCenter()
+          const targetZoom = 13
+
+          // Вычисляем смещение для видимой области
+          const headerHeight = 60
+          const sheetTop = window.innerHeight - (window.innerHeight * 0.6)
+          const visibleCenter = (headerHeight + sheetTop) / 2
+          const currentCenter = window.innerHeight / 2
+          const pixelShiftY = currentCenter - visibleCenter
+
+          // Конвертируем центр маршрута в абсолютные пиксели при target zoom
+          const targetPoint = mapInstance.current.project(center, targetZoom)
+
+          // Применяем смещение в пикселях (сдвигаем вниз чтобы скомпенсировать шторку)
+          const shiftedPoint = L.point(targetPoint.x, targetPoint.y + pixelShiftY)
+
+          // Конвертируем обратно в координаты
+          const shiftedCenter = mapInstance.current.unproject(shiftedPoint, targetZoom)
+
+          // Один плавный переход к смещенному центру
+          mapInstance.current.flyTo(shiftedCenter, targetZoom, {
+            animate: true,
+            duration: 1.0,
+            easeLinearity: 0.25
+          })
+        } else {
+          // Для десктопа: используем fitBounds как раньше
+          mapInstance.current.fitBounds(bounds, {
+            padding: [50, 50, 50, 50],
+            animate: true,
+            duration: 1.0,
+            maxZoom: 13
+          })
+        }
+
+        console.log('✅ Centered on route:', routeId)
+      } catch (error) {
+        console.error('❌ Error centering on route:', error)
       }
-    }
-  }, [])
+    }, [routes])
 
-  // Обновление маркеров зданий
-  useEffect(() => {
-    if (!mapInitialized || !buildingsLayer.current || !showBuildings) return
+    // Метод для центрирования на здании
+    const centerOnBuilding = useCallback((buildingId: string) => {
+      if (!mapInstance.current || !buildingId) return
 
-    // Очищаем существующие маркеры
-    buildingsLayer.current.clearLayers()
-    buildingMarkersRef.current = {}
+      const building = buildings.find(b => b.id === buildingId)
 
-    // Добавляем новые маркеры
-    buildings.forEach(building => {
-      if (!building.latitude || !building.longitude) return
+      if (!building) {
+        console.warn('⚠️ Cannot center on building: not found', buildingId)
+        return
+      }
 
-      const isSelected = selectedBuilding === building.id
-      const isHovered = hoveredBuilding === building.id
-      const isInRoute = selectedBuildingsForRoute.includes(building.id)
-      const routeIndex = isInRoute ? selectedBuildingsForRoute.indexOf(building.id) : -1
-      const icon = createBuildingIcon(building, isSelected, isHovered, isInRoute, routeIndex)
+      try {
+        const targetZoom = 14 // Умеренный zoom для одного здания
+        const isMobile = window.innerWidth < 768
 
-      const marker = L.marker([building.latitude, building.longitude], { icon })
-        .addTo(buildingsLayer.current!)
+        if (isMobile) {
+          // Для мобильных: вычисляем смещенный центр с учетом шторки
+          const buildingLatLng = L.latLng(building.latitude, building.longitude)
 
-      // Преобразуем image_url в полный URL Supabase Storage
-      const imageUrl = building.image_url ? getStorageUrl(building.image_url, 'photos') : null
+          // Вычисляем смещение для видимой области
+          const headerHeight = 60
+          const sheetTop = window.innerHeight - (window.innerHeight * 0.6)
+          const visibleCenter = (headerHeight + sheetTop) / 2
+          const currentCenter = window.innerHeight / 2
+          const pixelShiftY = currentCenter - visibleCenter
 
-      // Создаем базовый popup для hover
-      const hoverPopupContent = `
+          // Конвертируем координаты здания в пиксели при target zoom
+          const targetPoint = mapInstance.current.project(buildingLatLng, targetZoom)
+
+          // Применяем смещение
+          const shiftedPoint = L.point(targetPoint.x, targetPoint.y + pixelShiftY)
+
+          // Конвертируем обратно в координаты
+          const shiftedCenter = mapInstance.current.unproject(shiftedPoint, targetZoom)
+
+          // Один плавный переход к смещенному центру
+          mapInstance.current.flyTo(shiftedCenter, targetZoom, {
+            animate: true,
+            duration: 1.0,
+            easeLinearity: 0.25
+          })
+        } else {
+          // Для десктопа: простое центрирование
+          mapInstance.current.flyTo([building.latitude, building.longitude], targetZoom, {
+            animate: true,
+            duration: 1.0
+          })
+        }
+
+        console.log('✅ Centered on building:', buildingId)
+      } catch (error) {
+        console.error('❌ Error centering on building:', error)
+      }
+    }, [buildings])
+
+    // Метод для открытия popup здания
+    const openBuildingPopup = useCallback((buildingId: string) => {
+      const marker = buildingMarkersRef.current[buildingId]
+
+      if (!marker) {
+        console.warn('⚠️ Cannot open popup: marker not found', buildingId)
+        return
+      }
+
+      // Открываем маленький hover popup
+      marker.openPopup()
+      console.log('✅ Opened popup for building:', buildingId)
+    }, [])
+
+    // Expose методы через ref
+    useImperativeHandle(ref, () => ({
+      centerOnRoute,
+      centerOnBuilding,
+      openBuildingPopup
+    }), [centerOnRoute, centerOnBuilding, openBuildingPopup])
+
+    // Инициализация карты
+    useEffect(() => {
+      if (!mapRef.current || mapInstance.current) return
+
+      console.log('🗺️ Инициализация улучшенной карты...')
+
+      mapInstance.current = L.map(mapRef.current, {
+        center: [52.5200, 13.4050], // Берлин по умолчанию
+        zoom: 13,
+        zoomControl: true,
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        dragging: true,
+        attributionControl: true
+      })
+
+      // Добавляем тайловый слой
+      const tileLayer = L.tileLayer(MAP_STYLES[currentStyle as keyof typeof MAP_STYLES].url, {
+        attribution: MAP_STYLES[currentStyle as keyof typeof MAP_STYLES].attribution,
+        maxZoom: 19
+      }).addTo(mapInstance.current)
+
+      // Создаем слои
+      buildingsLayer.current = L.layerGroup().addTo(mapInstance.current)
+      routesLayer.current = L.layerGroup().addTo(mapInstance.current)
+
+      // Добавляем обработчик клика на карту
+      if (onMapClick) {
+        mapInstance.current.on('click', (e) => {
+          console.log('🗺️ Map clicked:', e.latlng.lat, e.latlng.lng, 'radiusMode:', radiusMode)
+          if (radiusMode === 'map') {
+            onMapClick(e.latlng.lat, e.latlng.lng)
+          }
+        })
+      }
+
+      setMapInitialized(true)
+
+      return () => {
+        if (mapInstance.current) {
+          mapInstance.current.remove()
+          mapInstance.current = null
+          setMapInitialized(false)
+        }
+      }
+    }, [])
+
+    // Обновление маркеров зданий
+    useEffect(() => {
+      if (!mapInitialized || !buildingsLayer.current || !showBuildings) return
+
+      // Очищаем существующие маркеры
+      buildingsLayer.current.clearLayers()
+      buildingMarkersRef.current = {}
+
+      // Добавляем новые маркеры
+      buildings.forEach(building => {
+        if (!building.latitude || !building.longitude) return
+
+        const isSelected = selectedBuilding === building.id
+        const isHovered = hoveredBuilding === building.id
+        const isInRoute = selectedBuildingsForRoute.includes(building.id)
+        const routeIndex = isInRoute ? selectedBuildingsForRoute.indexOf(building.id) : -1
+        const icon = createBuildingIcon(building, isSelected, isHovered, isInRoute, routeIndex)
+
+        const marker = L.marker([building.latitude, building.longitude], { icon })
+          .addTo(buildingsLayer.current!)
+
+        // Преобразуем image_url в полный URL Supabase Storage
+        const imageUrl = building.image_url ? getStorageUrl(building.image_url, 'photos') : null
+
+        // Создаем базовый popup для hover
+        const hoverPopupContent = `
         <div class="building-hover-popup" style="width: 200px; max-width: 88vw;">
           <div style="display: flex; align-items: center; gap: 10px;">
             ${imageUrl ? `
@@ -579,8 +579,8 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
         </div>
       `
 
-      // Создаем развернутый popup для клика - компактная улучшенная версия
-      const detailedPopupContent = `
+        // Создаем развернутый popup для клика - компактная улучшенная версия
+        const detailedPopupContent = `
         <div class="building-detailed-popup" style="width: 270px; max-width: 90vw;">
           ${imageUrl ? `
             <div style="margin-bottom: 8px;">
@@ -662,7 +662,7 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
               onmouseover="this.style.background='#2563EB'"
               onmouseout="this.style.background='#3B82F6'"
             >
-              Подробнее →
+              Learn More →
             </button>
           </div>
 
@@ -681,87 +681,67 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
         </div>
       `
 
-      // Привязываем hover popup
-      marker.bindPopup(hoverPopupContent, {
-        maxWidth: 210,
-        className: 'building-hover-popup-container',
-        closeOnClick: false,
-        autoClose: false,
-        closeOnEscapeKey: false,
-        autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
-        // popupAnchor уже настроен в createBuildingIcon
-      })
-      
-      // Убрали сложную логику счетчиков попапов
+        // Привязываем hover popup
+        marker.bindPopup(hoverPopupContent, {
+          maxWidth: 210,
+          className: 'building-hover-popup-container',
+          closeOnClick: false,
+          autoClose: false,
+          closeOnEscapeKey: false,
+          autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
+          // popupAnchor уже настроен в createBuildingIcon
+        })
 
-      // Обработчики событий
-      let hoverTimeout: NodeJS.Timeout | null = null
+        // Убрали сложную логику счетчиков попапов
 
-      marker.on('mouseover', (e) => {
-        // Предотвращаем всплытие события
-        e.originalEvent.stopPropagation()
+        // Обработчики событий
+        let hoverTimeout: NodeJS.Timeout | null = null
 
-        if (hoverTimeout) {
-          clearTimeout(hoverTimeout)
-          hoverTimeout = null
-        }
-        marker.openPopup()
-
-        // НЕ центрируем карту при наведении на объект на карте (только показываем попап)
-      })
-
-      marker.on('mouseout', (e) => {
-        // Предотвращаем всплытие события
-        e.originalEvent.stopPropagation()
-
-        // Не закрываем popup если это здание уже было кликнуто (ждем второго клика)
-        const isMobile = window.innerWidth < 768
-        if (!isMobile && lastClickedBuildingRef.current === building.id) {
-          return // Не закрываем popup после первого клика
-        }
-
-        hoverTimeout = setTimeout(() => {
-          if (marker.isPopupOpen()) {
-            marker.closePopup()
-          }
-        }, 200) // Уменьшили задержку для лучшей отзывчивости
-      })
-
-      marker.on('click', (e) => {
-        // Отменяем таймаут закрытия при клике
-        if (hoverTimeout) {
-          clearTimeout(hoverTimeout)
-          hoverTimeout = null
-        }
-
-        // Предотвращаем всплытие события при первом клике в десктопе
-        const isMobile = window.innerWidth < 768
-        if (!isMobile && lastClickedBuildingRef.current !== building.id) {
+        marker.on('mouseover', (e) => {
+          // Предотвращаем всплытие события
           e.originalEvent.stopPropagation()
-        }
 
-        if (isMobile) {
-          // На мобильных - сразу открываем большой детальный popup
-          marker.closePopup()
-
-          const detailedPopup = L.popup({
-            maxWidth: 280,
-            className: 'building-detailed-popup-container',
-            autoPan: true,
-            autoPanPadding: [50, 50]
-          })
-          .setContent(detailedPopupContent)
-          .setLatLng(marker.getLatLng())
-
-          detailedPopup.openOn(mapInstance.current!)
-
-          if (onBuildingClick) {
-            onBuildingClick(building.id)
+          if (hoverTimeout) {
+            clearTimeout(hoverTimeout)
+            hoverTimeout = null
           }
-        } else {
-          // На десктопе - двухуровневая логика попапов (как в мобильной версии)
-          if (lastClickedBuildingRef.current === building.id) {
-            // Второй клик на то же здание - показываем БОЛЬШОЙ детальный popup
+          marker.openPopup()
+
+          // НЕ центрируем карту при наведении на объект на карте (только показываем попап)
+        })
+
+        marker.on('mouseout', (e) => {
+          // Предотвращаем всплытие события
+          e.originalEvent.stopPropagation()
+
+          // Не закрываем popup если это здание уже было кликнуто (ждем второго клика)
+          const isMobile = window.innerWidth < 768
+          if (!isMobile && lastClickedBuildingRef.current === building.id) {
+            return // Не закрываем popup после первого клика
+          }
+
+          hoverTimeout = setTimeout(() => {
+            if (marker.isPopupOpen()) {
+              marker.closePopup()
+            }
+          }, 200) // Уменьшили задержку для лучшей отзывчивости
+        })
+
+        marker.on('click', (e) => {
+          // Отменяем таймаут закрытия при клике
+          if (hoverTimeout) {
+            clearTimeout(hoverTimeout)
+            hoverTimeout = null
+          }
+
+          // Предотвращаем всплытие события при первом клике в десктопе
+          const isMobile = window.innerWidth < 768
+          if (!isMobile && lastClickedBuildingRef.current !== building.id) {
+            e.originalEvent.stopPropagation()
+          }
+
+          if (isMobile) {
+            // На мобильных - сразу открываем большой детальный popup
             marker.closePopup()
 
             const detailedPopup = L.popup({
@@ -770,121 +750,141 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
               autoPan: true,
               autoPanPadding: [50, 50]
             })
-            .setContent(detailedPopupContent)
-            .setLatLng(marker.getLatLng())
+              .setContent(detailedPopupContent)
+              .setLatLng(marker.getLatLng())
 
             detailedPopup.openOn(mapInstance.current!)
 
-            // НЕ вызываем onBuildingClick при втором клике в десктопе
-            // Это предотвращает вызов openBuildingPopup из MapClient, который переоткрывает маленький попап
-
-            // Сбрасываем последний кликнутый ID
-            lastClickedBuildingRef.current = null
+            if (onBuildingClick) {
+              onBuildingClick(building.id)
+            }
           } else {
-            // Первый клик - показываем МАЛЕНЬКИЙ hover popup
-            // Закрываем все другие попапы
-            mapInstance.current?.closePopup()
+            // На десктопе - двухуровневая логика попапов (как в мобильной версии)
+            if (lastClickedBuildingRef.current === building.id) {
+              // Второй клик на то же здание - показываем БОЛЬШОЙ детальный popup
+              marker.closePopup()
 
-            // Открываем маленький hover popup для этого маркера
-            marker.openPopup()
+              const detailedPopup = L.popup({
+                maxWidth: 280,
+                className: 'building-detailed-popup-container',
+                autoPan: true,
+                autoPanPadding: [50, 50]
+              })
+                .setContent(detailedPopupContent)
+                .setLatLng(marker.getLatLng())
 
-            // Запоминаем ID этого здания для следующего клика
-            lastClickedBuildingRef.current = building.id
+              detailedPopup.openOn(mapInstance.current!)
 
-            // НЕ вызываем onBuildingClick при первом клике в десктопе
-            // Это предотвращает вызов openBuildingPopup из MapClient
+              // НЕ вызываем onBuildingClick при втором клике в десктопе
+              // Это предотвращает вызов openBuildingPopup из MapClient, который переоткрывает маленький попап
+
+              // Сбрасываем последний кликнутый ID
+              lastClickedBuildingRef.current = null
+            } else {
+              // Первый клик - показываем МАЛЕНЬКИЙ hover popup
+              // Закрываем все другие попапы
+              mapInstance.current?.closePopup()
+
+              // Открываем маленький hover popup для этого маркера
+              marker.openPopup()
+
+              // Запоминаем ID этого здания для следующего клика
+              lastClickedBuildingRef.current = building.id
+
+              // НЕ вызываем onBuildingClick при первом клике в десктопе
+              // Это предотвращает вызов openBuildingPopup из MapClient
+            }
           }
-        }
+        })
+
+        buildingMarkersRef.current[building.id] = marker
       })
 
-      buildingMarkersRef.current[building.id] = marker
-    })
-
-    // Автоматическое определение границ карты только при первой загрузке
-    if (buildings.length > 0 && isFirstBuildingsLoad.current) {
-      const group = L.featureGroup(Object.values(buildingMarkersRef.current))
-      if (mapInstance.current && group.getBounds().isValid()) {
-        mapInstance.current.fitBounds(group.getBounds().pad(0.1))
-        isFirstBuildingsLoad.current = false // Больше не вызываем fitBounds
+      // Автоматическое определение границ карты только при первой загрузке
+      if (buildings.length > 0 && isFirstBuildingsLoad.current) {
+        const group = L.featureGroup(Object.values(buildingMarkersRef.current))
+        if (mapInstance.current && group.getBounds().isValid()) {
+          mapInstance.current.fitBounds(group.getBounds().pad(0.1))
+          isFirstBuildingsLoad.current = false // Больше не вызываем fitBounds
+        }
       }
-    }
 
-  }, [buildings, selectedBuilding, hoveredBuilding, showBuildings, mapInitialized, onBuildingClick, selectedBuildingsForRoute, routeCreationMode])
+    }, [buildings, selectedBuilding, hoveredBuilding, showBuildings, mapInitialized, onBuildingClick, selectedBuildingsForRoute, routeCreationMode])
 
-  // Центрирование на выбранном здании - ОТКЛЮЧЕНО
-  // useEffect(() => {
-  //   if (!mapInitialized || !selectedBuilding || !mapInstance.current) return
+    // Центрирование на выбранном здании - ОТКЛЮЧЕНО
+    // useEffect(() => {
+    //   if (!mapInitialized || !selectedBuilding || !mapInstance.current) return
 
-  //   const building = buildings.find(b => b.id === selectedBuilding)
-  //   if (building && building.latitude && building.longitude) {
-  //     mapInstance.current.setView([building.latitude, building.longitude], 16, {
-  //       animate: true,
-  //       duration: 1
-  //     })
-  //   }
-  // }, [selectedBuilding, buildings, mapInitialized])
+    //   const building = buildings.find(b => b.id === selectedBuilding)
+    //   if (building && building.latitude && building.longitude) {
+    //     mapInstance.current.setView([building.latitude, building.longitude], 16, {
+    //       animate: true,
+    //       duration: 1
+    //     })
+    //   }
+    // }, [selectedBuilding, buildings, mapInitialized])
 
-  // Центрирование на выбранном маршруте - ОТКЛЮЧЕНО
-  // useEffect(() => {
-  //   if (!mapInitialized || !selectedRoute || !mapInstance.current) return
+    // Центрирование на выбранном маршруте - ОТКЛЮЧЕНО
+    // useEffect(() => {
+    //   if (!mapInitialized || !selectedRoute || !mapInstance.current) return
 
-  //   const route = routes.find(r => r.id === selectedRoute)
-  //   if (route && route.route_geometry && route.route_geometry.coordinates && route.route_geometry.coordinates.length > 0) {
-  //     // Находим центр маршрута
-  //     const coordinates = route.route_geometry.coordinates
-  //     const lats = coordinates.map((coord: number[]) => coord[1]).filter(Boolean)
-  //     const lngs = coordinates.map((coord: number[]) => coord[0]).filter(Boolean)
-      
-  //     if (lats.length > 0 && lngs.length > 0) {
-  //       const centerLat = lats.reduce((a, b) => a + b, 0) / lats.length
-  //       const centerLng = lngs.reduce((a, b) => a + b, 0) / lngs.length
-        
-  //       mapInstance.current.setView([centerLat, centerLng], 14, {
-  //         animate: true,
-  //         duration: 1
-  //       })
-  //     }
-  //   }
-  // }, [selectedRoute, routes, mapInitialized])
+    //   const route = routes.find(r => r.id === selectedRoute)
+    //   if (route && route.route_geometry && route.route_geometry.coordinates && route.route_geometry.coordinates.length > 0) {
+    //     // Находим центр маршрута
+    //     const coordinates = route.route_geometry.coordinates
+    //     const lats = coordinates.map((coord: number[]) => coord[1]).filter(Boolean)
+    //     const lngs = coordinates.map((coord: number[]) => coord[0]).filter(Boolean)
 
-  // Визуализация радиуса поиска
-  useEffect(() => {
-    if (!mapInitialized || !mapInstance.current) return
+    //     if (lats.length > 0 && lngs.length > 0) {
+    //       const centerLat = lats.reduce((a, b) => a + b, 0) / lats.length
+    //       const centerLng = lngs.reduce((a, b) => a + b, 0) / lngs.length
 
-    // Удаляем предыдущий круг
-    if (radiusCircleRef.current) {
-      mapInstance.current.removeLayer(radiusCircleRef.current)
-      radiusCircleRef.current = null
-    }
+    //       mapInstance.current.setView([centerLat, centerLng], 14, {
+    //         animate: true,
+    //         duration: 1
+    //       })
+    //     }
+    //   }
+    // }, [selectedRoute, routes, mapInitialized])
 
-    // Добавляем новый круг если есть центр и радиус
-    if (radiusCenter && radiusKm > 0) {
-      radiusCircleRef.current = L.circle([radiusCenter.lat, radiusCenter.lng] as [number, number], {
-        radius: radiusKm * 1000, // Конвертируем км в метры
-        color: '#3B82F6',
-        fillColor: '#3B82F6',
-        fillOpacity: 0.1,
-        weight: 2,
-        dashArray: '5, 5'
-      }).addTo(mapInstance.current)
-    }
-  }, [radiusCenter, radiusKm, mapInitialized])
+    // Визуализация радиуса поиска
+    useEffect(() => {
+      if (!mapInitialized || !mapInstance.current) return
 
-  // Визуализация местоположения пользователя
-  useEffect(() => {
-    if (!mapInitialized || !mapInstance.current) return
+      // Удаляем предыдущий круг
+      if (radiusCircleRef.current) {
+        mapInstance.current.removeLayer(radiusCircleRef.current)
+        radiusCircleRef.current = null
+      }
 
-    // Удаляем предыдущий маркер
-    if (locationMarkerRef.current) {
-      mapInstance.current.removeLayer(locationMarkerRef.current)
-      locationMarkerRef.current = null
-    }
+      // Добавляем новый круг если есть центр и радиус
+      if (radiusCenter && radiusKm > 0) {
+        radiusCircleRef.current = L.circle([radiusCenter.lat, radiusCenter.lng] as [number, number], {
+          radius: radiusKm * 1000, // Конвертируем км в метры
+          color: '#3B82F6',
+          fillColor: '#3B82F6',
+          fillOpacity: 0.1,
+          weight: 2,
+          dashArray: '5, 5'
+        }).addTo(mapInstance.current)
+      }
+    }, [radiusCenter, radiusKm, mapInitialized])
 
-    // Добавляем маркер местоположения если есть центр и режим геолокации
-    if (radiusCenter && radiusMode === 'location') {
-      const locationIcon = L.divIcon({
-        className: 'user-location-marker',
-        html: `
+    // Визуализация местоположения пользователя
+    useEffect(() => {
+      if (!mapInitialized || !mapInstance.current) return
+
+      // Удаляем предыдущий маркер
+      if (locationMarkerRef.current) {
+        mapInstance.current.removeLayer(locationMarkerRef.current)
+        locationMarkerRef.current = null
+      }
+
+      // Добавляем маркер местоположения если есть центр и режим геолокации
+      if (radiusCenter && radiusMode === 'location') {
+        const locationIcon = L.divIcon({
+          className: 'user-location-marker',
+          html: `
           <div style="
             width: 20px;
             height: 20px;
@@ -895,96 +895,96 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
             animation: pulse-location 2s infinite;
           "></div>
         `,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
-        popupAnchor: [0, -10]
-      })
+          iconSize: [20, 20],
+          iconAnchor: [10, 10],
+          popupAnchor: [0, -10]
+        })
 
-      locationMarkerRef.current = L.marker([radiusCenter.lat, radiusCenter.lng], {
-        icon: locationIcon
-      }).addTo(mapInstance.current)
+        locationMarkerRef.current = L.marker([radiusCenter.lat, radiusCenter.lng], {
+          icon: locationIcon
+        }).addTo(mapInstance.current)
 
-      // Добавляем popup с информацией о местоположении
-      locationMarkerRef.current.bindPopup(`
+        // Добавляем popup с информацией о местоположении
+        locationMarkerRef.current.bindPopup(`
         <div style="text-align: center; padding: 8px;">
           <div style="font-size: 20px; margin-bottom: 4px;">📍</div>
-          <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">Ваше местоположение</div>
+          <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">Your Location</div>
           <div style="font-size: 11px; color: #6B7280;">
             Широта: ${radiusCenter.lat.toFixed(6)}<br>
             Долгота: ${radiusCenter.lng.toFixed(6)}
           </div>
         </div>
       `, {
-        maxWidth: 200,
-        className: 'user-location-popup'
-      })
-    }
-  }, [radiusCenter, radiusMode, mapInitialized])
-
-  // Управление курсором для выбора радиуса и добавления объекта
-  useEffect(() => {
-    if (!mapInitialized || !mapRef.current) return
-
-    const mapContainer = mapRef.current.querySelector('.leaflet-container') as HTMLElement
-    if (mapContainer) {
-      // Удаляем все классы режимов
-      mapContainer.classList.remove('radius-selection-mode', 'add-building-mode')
-      
-      // Добавляем нужный класс
-      if (radiusMode === 'map') {
-        mapContainer.classList.add('radius-selection-mode')
-      } else if (addBuildingMode) {
-        mapContainer.classList.add('add-building-mode')
+          maxWidth: 200,
+          className: 'user-location-popup'
+        })
       }
-    }
-  }, [radiusMode, addBuildingMode, mapInitialized])
+    }, [radiusCenter, radiusMode, mapInitialized])
 
-  // Обновление маркеров маршрутов
-  useEffect(() => {
-    if (!mapInitialized || !routesLayer.current) return
+    // Управление курсором для выбора радиуса и добавления объекта
+    useEffect(() => {
+      if (!mapInitialized || !mapRef.current) return
 
-    // Очищаем существующие маркеры и линии
-    routesLayer.current.clearLayers()
-    routeMarkersRef.current = {}
-    routeLinesRef.current = {}
+      const mapContainer = mapRef.current.querySelector('.leaflet-container') as HTMLElement
+      if (mapContainer) {
+        // Удаляем все классы режимов
+        mapContainer.classList.remove('radius-selection-mode', 'add-building-mode')
 
-    // Добавляем маршруты только если они выделены или наведены
-    const routesToShow = routes.filter(route => 
-      selectedRoute === route.id || hoveredRoute === route.id
-    )
-    
-    routesToShow.forEach(route => {
-      if (!route.route_geometry || !route.route_geometry.coordinates || route.route_geometry.coordinates.length === 0) return
-
-      const isSelected = selectedRoute === route.id
-      const isHovered = hoveredRoute === route.id
-      const routeColor = getRouteColor(route.transport_mode)
-
-      // Создаем линию маршрута - используем реальную геометрию если есть
-      let routeCoordinates: [number, number][] = []
-      
-      if (route.route_geometry && route.route_geometry.coordinates) {
-        // Используем сохраненную реальную геометрию маршрута
-        routeCoordinates = route.route_geometry.coordinates.map((coord: number[]) => 
-          [coord[1], coord[0]] as [number, number] // Leaflet использует [lat, lng]
-        )
-        console.log('🗺️ Using real route geometry for route:', route.id)
-      } else {
-        // Fallback к прямым линиям между точками (если нет геометрии)
-        routeCoordinates = []
-        console.log('⚠️ Using straight lines for route:', route.id, '(no geometry saved)')
+        // Добавляем нужный класс
+        if (radiusMode === 'map') {
+          mapContainer.classList.add('radius-selection-mode')
+        } else if (addBuildingMode) {
+          mapContainer.classList.add('add-building-mode')
+        }
       }
+    }, [radiusMode, addBuildingMode, mapInitialized])
 
-      if (routeCoordinates.length > 1) {
-        const polyline = L.polyline(routeCoordinates, {
-          color: routeColor,
-          weight: isSelected ? 4 : 3,
-          opacity: isSelected ? 0.8 : 0.6,
-          dashArray: route.transport_mode === 'walking' ? '5, 10' : undefined
-        }).addTo(routesLayer.current!)
+    // Обновление маркеров маршрутов
+    useEffect(() => {
+      if (!mapInitialized || !routesLayer.current) return
 
-        // Создаем hover popup для маршрута
-        const hoverPopupContent = `
+      // Очищаем существующие маркеры и линии
+      routesLayer.current.clearLayers()
+      routeMarkersRef.current = {}
+      routeLinesRef.current = {}
+
+      // Добавляем маршруты только если они выделены или наведены
+      const routesToShow = routes.filter(route =>
+        selectedRoute === route.id || hoveredRoute === route.id
+      )
+
+      routesToShow.forEach(route => {
+        if (!route.route_geometry || !route.route_geometry.coordinates || route.route_geometry.coordinates.length === 0) return
+
+        const isSelected = selectedRoute === route.id
+        const isHovered = hoveredRoute === route.id
+        const routeColor = getRouteColor(route.transport_mode)
+
+        // Создаем линию маршрута - используем реальную геометрию если есть
+        let routeCoordinates: [number, number][] = []
+
+        if (route.route_geometry && route.route_geometry.coordinates) {
+          // Используем сохраненную реальную геометрию маршрута
+          routeCoordinates = route.route_geometry.coordinates.map((coord: number[]) =>
+            [coord[1], coord[0]] as [number, number] // Leaflet использует [lat, lng]
+          )
+          console.log('🗺️ Using real route geometry for route:', route.id)
+        } else {
+          // Fallback к прямым линиям между точками (если нет геометрии)
+          routeCoordinates = []
+          console.log('⚠️ Using straight lines for route:', route.id, '(no geometry saved)')
+        }
+
+        if (routeCoordinates.length > 1) {
+          const polyline = L.polyline(routeCoordinates, {
+            color: routeColor,
+            weight: isSelected ? 4 : 3,
+            opacity: isSelected ? 0.8 : 0.6,
+            dashArray: route.transport_mode === 'walking' ? '5, 10' : undefined
+          }).addTo(routesLayer.current!)
+
+          // Создаем hover popup для маршрута
+          const hoverPopupContent = `
           <div class="route-hover-popup" style="min-width: 200px;">
             <h3 class="font-semibold text-gray-900 text-sm mb-2">${route.title}</h3>
             
@@ -996,13 +996,12 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
               ${route.difficulty_level ? `
                 <div class="mb-1">
                   <strong>Сложность:</strong> 
-                  <span class="px-2 py-1 rounded text-xs ${
-                    route.difficulty_level === 'easy' ? 'bg-green-100 text-green-800' :
-                    route.difficulty_level === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }">
+                  <span class="px-2 py-1 rounded text-xs ${route.difficulty_level === 'easy' ? 'bg-green-100 text-green-800' :
+                route.difficulty_level === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+              }">
                     ${route.difficulty_level === 'easy' ? 'Легкий' :
-                      route.difficulty_level === 'medium' ? 'Средний' : 'Сложный'}
+                route.difficulty_level === 'medium' ? 'Средний' : 'Сложный'}
                   </span>
                 </div>
               ` : ''}
@@ -1025,8 +1024,8 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
           </div>
         `
 
-        // Создаем детальный popup для маршрута
-        const detailedPopupContent = `
+          // Создаем детальный popup для маршрута
+          const detailedPopupContent = `
           <div class="route-detailed-popup" style="min-width: 300px;">
             <div class="flex items-start mb-3">
               ${route.thumbnail_url ? `
@@ -1059,8 +1058,8 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
                 <div class="flex items-center">
                   <span class="mr-1">🚶</span>
                   <span>${route.transport_mode === 'walking' ? 'Пешком' :
-                    route.transport_mode === 'cycling' ? 'Велосипед' :
-                    route.transport_mode === 'driving' ? 'Авто' :
+                route.transport_mode === 'cycling' ? 'Велосипед' :
+                  route.transport_mode === 'driving' ? 'Авто' :
                     route.transport_mode === 'public_transport' ? 'Общ. транспорт' : route.transport_mode}</span>
                 </div>
               ` : ''}
@@ -1079,86 +1078,86 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
                 onclick="window.routeDetailsHandler && window.routeDetailsHandler('${route.id}')"
                 class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
               >
-                Подробнее →
+                Learn More →
               </button>
             </div>
           </div>
         `
 
-        // Привязываем hover popup
-        polyline.bindPopup(hoverPopupContent, {
-          maxWidth: 250,
-          className: 'custom-popup',
-          autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
-        })
-
-        // Обработчики событий для двухуровневых попапов
-        let hoverTimeout: NodeJS.Timeout | null = null
-
-        polyline.on('mouseover', (e) => {
-          // Предотвращаем всплытие события
-          e.originalEvent.stopPropagation()
-          
-          // Очищаем таймаут если есть
-          if (hoverTimeout) {
-            clearTimeout(hoverTimeout)
-            hoverTimeout = null
-          }
-          
-          // Показываем hover popup
-          polyline.openPopup()
-        })
-
-        polyline.on('mouseout', (e) => {
-          // Предотвращаем всплытие события
-          e.originalEvent.stopPropagation()
-          
-          hoverTimeout = setTimeout(() => {
-            if (polyline.isPopupOpen()) {
-              polyline.closePopup()
-            }
-          }, 200) // Уменьшили задержку для лучшей отзывчивости
-        })
-
-        polyline.on('click', () => {
-          // Закрываем hover popup
-          polyline.closePopup()
-
-          // Создаем и показываем детальный popup
-          const detailedPopup = L.popup({
-            maxWidth: 350,
-            className: 'route-detailed-popup-container',
-            autoPan: true,  // Включаем автоматическое смещение чтобы попап был виден
-            autoPanPadding: [50, 50]  // Отступ от краев экрана
+          // Привязываем hover popup
+          polyline.bindPopup(hoverPopupContent, {
+            maxWidth: 250,
+            className: 'custom-popup',
+            autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
           })
-          .setContent(detailedPopupContent)
-          .setLatLng(polyline.getCenter())
 
-          detailedPopup.openOn(mapInstance.current!)
+          // Обработчики событий для двухуровневых попапов
+          let hoverTimeout: NodeJS.Timeout | null = null
 
-          // Вызываем callback если есть
-          if (onRouteClick) {
-            onRouteClick(route.id)
-          }
-        })
+          polyline.on('mouseover', (e) => {
+            // Предотвращаем всплытие события
+            e.originalEvent.stopPropagation()
 
-        routeLinesRef.current[route.id] = polyline
-      }
+            // Очищаем таймаут если есть
+            if (hoverTimeout) {
+              clearTimeout(hoverTimeout)
+              hoverTimeout = null
+            }
 
-      // Добавляем маркеры для начальной и конечной точек маршрута
-      if (routeCoordinates.length > 0) {
-        // Маркер начала маршрута
-        const startIcon = L.divIcon({
-          html: '<div style="background-color: #10B981; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>',
-          className: 'custom-div-icon',
-          iconSize: [20, 20],
-          iconAnchor: [10, 10]
-        })
-        
-        const startMarker = L.marker(routeCoordinates[0], { icon: startIcon })
-          .addTo(routesLayer.current!)
+            // Показываем hover popup
+            polyline.openPopup()
+          })
 
-        const startPopupContent = `
+          polyline.on('mouseout', (e) => {
+            // Предотвращаем всплытие события
+            e.originalEvent.stopPropagation()
+
+            hoverTimeout = setTimeout(() => {
+              if (polyline.isPopupOpen()) {
+                polyline.closePopup()
+              }
+            }, 200) // Уменьшили задержку для лучшей отзывчивости
+          })
+
+          polyline.on('click', () => {
+            // Закрываем hover popup
+            polyline.closePopup()
+
+            // Создаем и показываем детальный popup
+            const detailedPopup = L.popup({
+              maxWidth: 350,
+              className: 'route-detailed-popup-container',
+              autoPan: true,  // Включаем автоматическое смещение чтобы попап был виден
+              autoPanPadding: [50, 50]  // Отступ от краев экрана
+            })
+              .setContent(detailedPopupContent)
+              .setLatLng(polyline.getCenter())
+
+            detailedPopup.openOn(mapInstance.current!)
+
+            // Вызываем callback если есть
+            if (onRouteClick) {
+              onRouteClick(route.id)
+            }
+          })
+
+          routeLinesRef.current[route.id] = polyline
+        }
+
+        // Добавляем маркеры для начальной и конечной точек маршрута
+        if (routeCoordinates.length > 0) {
+          // Маркер начала маршрута
+          const startIcon = L.divIcon({
+            html: '<div style="background-color: #10B981; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>',
+            className: 'custom-div-icon',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          })
+
+          const startMarker = L.marker(routeCoordinates[0], { icon: startIcon })
+            .addTo(routesLayer.current!)
+
+          const startPopupContent = `
           <div class="route-point-popup" style="min-width: 150px;">
             <div class="flex items-center mb-1">
               <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mr-2">
@@ -1175,39 +1174,39 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
                 onclick="window.routeClickHandler && window.routeClickHandler('${route.id}')"
                 class="text-blue-600 hover:text-blue-700 font-medium"
               >
-                Подробнее →
+                Learn More →
               </button>
             </div>
           </div>
         `
 
-        startMarker.bindPopup(startPopupContent, {
-          maxWidth: 200,
-          className: 'custom-popup',
-          autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
-        })
-        
-        // Убрали сложную логику счетчиков попапов
-
-        startMarker.on('click', () => {
-          if (onRouteClick) {
-            onRouteClick(route.id)
-          }
-        })
-
-        // Маркер конца маршрута
-        if (routeCoordinates.length > 1) {
-          const endIcon = L.divIcon({
-            html: '<div style="background-color: #EF4444; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>',
-            className: 'custom-div-icon',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
+          startMarker.bindPopup(startPopupContent, {
+            maxWidth: 200,
+            className: 'custom-popup',
+            autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
           })
-          
-          const endMarker = L.marker(routeCoordinates[routeCoordinates.length - 1], { icon: endIcon })
-            .addTo(routesLayer.current!)
 
-          const endPopupContent = `
+          // Убрали сложную логику счетчиков попапов
+
+          startMarker.on('click', () => {
+            if (onRouteClick) {
+              onRouteClick(route.id)
+            }
+          })
+
+          // Маркер конца маршрута
+          if (routeCoordinates.length > 1) {
+            const endIcon = L.divIcon({
+              html: '<div style="background-color: #EF4444; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>',
+              className: 'custom-div-icon',
+              iconSize: [20, 20],
+              iconAnchor: [10, 10]
+            })
+
+            const endMarker = L.marker(routeCoordinates[routeCoordinates.length - 1], { icon: endIcon })
+              .addTo(routesLayer.current!)
+
+            const endPopupContent = `
             <div class="route-point-popup" style="min-width: 150px;">
               <div class="flex items-center mb-1">
                 <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full mr-2">
@@ -1224,215 +1223,213 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
                   onclick="window.routeClickHandler && window.routeClickHandler('${route.id}')"
                   class="text-blue-600 hover:text-blue-700 font-medium"
                 >
-                  Подробнее →
+                  Learn More →
                 </button>
               </div>
             </div>
           `
 
-          endMarker.bindPopup(endPopupContent, {
-            maxWidth: 200,
-            className: 'custom-popup',
-            autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
-          })
-          
-          // Убрали сложную логику счетчиков попапов
+            endMarker.bindPopup(endPopupContent, {
+              maxWidth: 200,
+              className: 'custom-popup',
+              autoPan: false  // Ключевая опция - отключаем автоматическое центрирование
+            })
 
-          endMarker.on('click', () => {
-            if (onRouteClick) {
-              onRouteClick(route.id)
-            }
-          })
+            // Убрали сложную логику счетчиков попапов
 
-          routeMarkersRef.current[`${route.id}_end`] = endMarker
+            endMarker.on('click', () => {
+              if (onRouteClick) {
+                onRouteClick(route.id)
+              }
+            })
+
+            routeMarkersRef.current[`${route.id}_end`] = endMarker
+          }
+
+          routeMarkersRef.current[`${route.id}_start`] = startMarker
         }
+      })
 
-        routeMarkersRef.current[`${route.id}_start`] = startMarker
+    }, [routes, selectedRoute, hoveredRoute, mapInitialized, onRouteClick])
+
+    // Обновление стиля карты
+    useEffect(() => {
+      if (!mapInstance.current) return
+
+      // Удаляем все существующие tile layers
+      mapInstance.current.eachLayer((layer) => {
+        if (layer instanceof L.TileLayer) {
+          mapInstance.current!.removeLayer(layer)
+        }
+      })
+
+      // Добавляем новый tile layer
+      const newTileLayer = L.tileLayer(MAP_STYLES[currentStyle as keyof typeof MAP_STYLES].url, {
+        attribution: MAP_STYLES[currentStyle as keyof typeof MAP_STYLES].attribution,
+        maxZoom: 19
+      })
+
+      newTileLayer.addTo(mapInstance.current)
+    }, [currentStyle])
+
+    // Глобальные обработчики для popup
+    useEffect(() => {
+      if (typeof window !== 'undefined') {
+        (window as any).buildingClickHandler = onBuildingClick
+          ; (window as any).routeClickHandler = onRouteClick
+          ; (window as any).addToRouteHandler = onAddToRoute
+          ; (window as any).startRouteFromHandler = onStartRouteFrom
+          ; (window as any).buildingDetailsHandler = onBuildingDetails
+          ; (window as any).routeDetailsHandler = onRouteDetails
       }
-    })
+    }, [onBuildingClick, onRouteClick, onAddToRoute, onStartRouteFrom, onBuildingDetails, onRouteDetails])
 
-  }, [routes, selectedRoute, hoveredRoute, mapInitialized, onRouteClick])
+    // Обновляем обработчик клика на карту при изменении radiusMode или addBuildingMode
+    useEffect(() => {
+      if (!mapInstance.current || !onMapClick) return
 
-  // Обновление стиля карты
-  useEffect(() => {
-    if (!mapInstance.current) return
+      const handleMapClick = (e: L.LeafletMouseEvent) => {
+        console.log('🗺️ Map clicked:', e.latlng.lat, e.latlng.lng, 'radiusMode:', radiusMode, 'addBuildingMode:', addBuildingMode)
 
-    // Удаляем все существующие tile layers
-    mapInstance.current.eachLayer((layer) => {
-      if (layer instanceof L.TileLayer) {
-        mapInstance.current!.removeLayer(layer)
+        if (radiusMode === 'map') {
+          onMapClick(e.latlng.lat, e.latlng.lng)
+        } else if (addBuildingMode) {
+          onMapClick(e.latlng.lat, e.latlng.lng)
+        }
       }
-    })
 
-    // Добавляем новый tile layer
-    const newTileLayer = L.tileLayer(MAP_STYLES[currentStyle as keyof typeof MAP_STYLES].url, {
-      attribution: MAP_STYLES[currentStyle as keyof typeof MAP_STYLES].attribution,
-      maxZoom: 19
-    })
-    
-    newTileLayer.addTo(mapInstance.current)
-  }, [currentStyle])
+      // Удаляем старый обработчик и добавляем новый
+      mapInstance.current.off('click')
+      mapInstance.current.on('click', handleMapClick)
 
-  // Глобальные обработчики для popup
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).buildingClickHandler = onBuildingClick
-      ;(window as any).routeClickHandler = onRouteClick
-      ;(window as any).addToRouteHandler = onAddToRoute
-      ;(window as any).startRouteFromHandler = onStartRouteFrom
-      ;(window as any).buildingDetailsHandler = onBuildingDetails
-      ;(window as any).routeDetailsHandler = onRouteDetails
-    }
-  }, [onBuildingClick, onRouteClick, onAddToRoute, onStartRouteFrom, onBuildingDetails, onRouteDetails])
-
-  // Обновляем обработчик клика на карту при изменении radiusMode или addBuildingMode
-  useEffect(() => {
-    if (!mapInstance.current || !onMapClick) return
-
-    const handleMapClick = (e: L.LeafletMouseEvent) => {
-      console.log('🗺️ Map clicked:', e.latlng.lat, e.latlng.lng, 'radiusMode:', radiusMode, 'addBuildingMode:', addBuildingMode)
-      
-      if (radiusMode === 'map') {
-        onMapClick(e.latlng.lat, e.latlng.lng)
-      } else if (addBuildingMode) {
-        onMapClick(e.latlng.lat, e.latlng.lng)
+      return () => {
+        if (mapInstance.current) {
+          mapInstance.current.off('click', handleMapClick)
+        }
       }
-    }
+    }, [radiusMode, addBuildingMode, onMapClick])
 
-    // Удаляем старый обработчик и добавляем новый
-    mapInstance.current.off('click')
-    mapInstance.current.on('click', handleMapClick)
+    // Убрали логирование попапов
 
-    return () => {
-      if (mapInstance.current) {
-        mapInstance.current.off('click', handleMapClick)
-      }
-    }
-  }, [radiusMode, addBuildingMode, onMapClick])
-
-  // Убрали логирование попапов
-
-  return (
-    <div className={`relative ${className}`}>
-      {/* Overlay подсказка для режима добавления объекта */}
-      {addBuildingMode && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-green-600 text-white px-6 py-3 rounded-lg shadow-2xl border-2 border-green-400 animate-pulse">
-          <div className="flex items-center space-x-3">
-            <span className="text-2xl">📍</span>
-            <div>
-              <p className="font-semibold">Выберите местоположение объекта</p>
-              <p className="text-xs text-green-100">Кликните на карту в нужном месте</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Overlay подсказка для режима создания маршрута */}
-      {routeCreationMode && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-2xl border-2 border-purple-400">
-          <div className="flex items-center space-x-3">
-            <span className="text-2xl">🗺️</span>
-            <div>
-              <p className="font-semibold">Режим создания маршрута</p>
-              <p className="text-xs text-purple-100">Кликайте на здания для добавления в маршрут</p>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Панель управления стилем карты - адаптивная */}
-      <div className={`absolute ${compactControls ? 'top-4' : 'top-28'} right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-2`}>
-        {/* Desktop: горизонтально с текстом */}
-        <div className="hidden md:flex space-x-1">
-          {Object.keys(MAP_STYLES).map(style => (
-            <button
-              key={style}
-              onClick={() => setCurrentStyle(style)}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
-                currentStyle === style
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-              title={`${style === 'light' ? 'Светлая' : style === 'dark' ? 'Тёмная' : 'Спутник'} тема карты`}
-            >
-              {style === 'light' ? '☀️ Светлая' :
-               style === 'dark' ? '🌙 Тёмная' :
-               style === 'satellite' ? '🛰️ Спутник' : style}
-            </button>
-          ))}
-        </div>
-
-        {/* Mobile: вертикально, только иконки, справа */}
-        <div className="flex md:hidden flex-col space-y-1">
-          {Object.keys(MAP_STYLES).map(style => (
-            <button
-              key={style}
-              onClick={() => setCurrentStyle(style)}
-              className={`p-2 text-base rounded transition-colors ${
-                currentStyle === style
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-              title={`${style === 'light' ? 'Светлая' : style === 'dark' ? 'Тёмная' : 'Спутник'} тема карты`}
-            >
-              {style === 'light' ? '☀️' :
-               style === 'dark' ? '🌙' :
-               style === 'satellite' ? '🛰️' : style}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Легенда - ТОЛЬКО НА DESKTOP */}
-      {!hideLegend && (
-        <div className="hidden md:block absolute bottom-4 right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-xs">
-        <h4 className="font-semibold text-gray-900 text-sm mb-3">Легенда</h4>
-        
-        {showBuildings && (
-          <div className="mb-3">
-            <h5 className="text-xs font-medium text-gray-700 mb-2">Здания</h5>
-            <div className="flex items-center space-x-2 mb-1">
-              <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-              <span className="text-xs text-gray-600">Архитектурные объекты</span>
-            </div>
-          </div>
-        )}
-        
-        {showRoutes && (
-          <div>
-            <h5 className="text-xs font-medium text-gray-700 mb-2">Маршруты</h5>
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-1 bg-green-500 rounded"></div>
-                <span className="text-xs text-gray-600">Пешком</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-1 bg-blue-500 rounded"></div>
-                <span className="text-xs text-gray-600">Велосипед</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-1 bg-red-500 rounded"></div>
-                <span className="text-xs text-gray-600">Автомобиль</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-1 bg-purple-500 rounded"></div>
-                <span className="text-xs text-gray-600">Общ. транспорт</span>
+    return (
+      <div className={`relative ${className}`}>
+        {/* Overlay подсказка для режима добавления объекта */}
+        {addBuildingMode && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-green-600 text-white px-6 py-3 rounded-lg shadow-2xl border-2 border-green-400 animate-pulse">
+            <div className="flex items-center space-x-3">
+              <span className="text-2xl">📍</span>
+              <div>
+                <p className="font-semibold">Выберите местоположение объекта</p>
+                <p className="text-xs text-green-100">Кликните на карту в нужном месте</p>
               </div>
             </div>
           </div>
         )}
+
+        {/* Overlay подсказка для режима создания маршрута */}
+        {routeCreationMode && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-2xl border-2 border-purple-400">
+            <div className="flex items-center space-x-3">
+              <span className="text-2xl">🗺️</span>
+              <div>
+                <p className="font-semibold">Режим создания маршрута</p>
+                <p className="text-xs text-purple-100">Кликайте на здания для добавления в маршрут</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Панель управления стилем карты - адаптивная */}
+        <div className={`absolute ${compactControls ? 'top-4' : 'top-28'} right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-2`}>
+          {/* Desktop: горизонтально с текстом */}
+          <div className="hidden md:flex space-x-1">
+            {Object.keys(MAP_STYLES).map(style => (
+              <button
+                key={style}
+                onClick={() => setCurrentStyle(style)}
+                className={`px-3 py-1 text-xs rounded transition-colors ${currentStyle === style
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                title={`${style === 'light' ? 'Light' : style === 'dark' ? 'Dark' : 'Satellite'} map theme`}
+              >
+                {style === 'light' ? '☀️ Light' :
+                  style === 'dark' ? '🌙 Dark' :
+                    style === 'satellite' ? '🛰️ Satellite' : style}
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile: вертикально, только иконки, справа */}
+          <div className="flex md:hidden flex-col space-y-1">
+            {Object.keys(MAP_STYLES).map(style => (
+              <button
+                key={style}
+                onClick={() => setCurrentStyle(style)}
+                className={`p-2 text-base rounded transition-colors ${currentStyle === style
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                title={`${style === 'light' ? 'Light' : style === 'dark' ? 'Dark' : 'Satellite'} map theme`}
+              >
+                {style === 'light' ? '☀️' :
+                  style === 'dark' ? '🌙' :
+                    style === 'satellite' ? '🛰️' : style}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
 
-      {/* Карта */}
-      <div 
-        ref={mapRef} 
-        className="w-full h-full rounded-lg overflow-hidden"
-        style={{ minHeight: '400px' }}
-      />
+        {/* Легенда - ТОЛЬКО НА DESKTOP */}
+        {!hideLegend && (
+          <div className="hidden md:block absolute bottom-4 right-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-xs">
+            <h4 className="font-semibold text-gray-900 text-sm mb-3">Legend</h4>
 
-      {/* CSS стили с исправленными z-index для попапов */}
-      <style jsx global>{`
+            {showBuildings && (
+              <div className="mb-3">
+                <h5 className="text-xs font-medium text-gray-700 mb-2">Buildings</h5>
+                <div className="flex items-center space-x-2 mb-1">
+                  <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                  <span className="text-xs text-gray-600">Architectural objects</span>
+                </div>
+              </div>
+            )}
+
+            {showRoutes && (
+              <div>
+                <h5 className="text-xs font-medium text-gray-700 mb-2">Routes</h5>
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-1 bg-green-500 rounded"></div>
+                    <span className="text-xs text-gray-600">Walking</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-1 bg-blue-500 rounded"></div>
+                    <span className="text-xs text-gray-600">Cycling</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-1 bg-red-500 rounded"></div>
+                    <span className="text-xs text-gray-600">Car</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-1 bg-purple-500 rounded"></div>
+                    <span className="text-xs text-gray-600">Public transp.</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Карта */}
+        <div
+          ref={mapRef}
+          className="w-full h-full rounded-lg overflow-hidden"
+          style={{ minHeight: '400px' }}
+        />
+
+        {/* CSS стили с исправленными z-index для попапов */}
+        <style jsx global>{`
         /* Стили для hover попапов */
         .building-hover-popup-container .leaflet-popup-content-wrapper {
           border-radius: 8px;
@@ -1711,8 +1708,8 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
           z-index: 1000 !important;
         }
       `}</style>
-    </div>
-  )
+      </div>
+    )
   }
 )
 

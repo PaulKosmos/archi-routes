@@ -92,11 +92,11 @@ export default function SeriesManager({
 
   const validateForm = () => {
     if (!formData.title.trim()) {
-      setError('Название серии обязательно')
+      setError('Series title is required')
       return false
     }
     if (!formData.slug.trim()) {
-      setError('Slug обязателен')
+      setError('Slug is required')
       return false
     }
     return true
@@ -118,7 +118,7 @@ export default function SeriesManager({
           .from('podcasts')
           .upload(`series/${fileName}`, coverImageFile)
 
-        if (uploadError) throw new Error(`Ошибка загрузки обложки: ${uploadError.message}`)
+        if (uploadError) throw new Error(`Cover upload error: ${uploadError.message}`)
         coverImageUrl = `series/${fileName}`
       }
 
@@ -163,14 +163,14 @@ export default function SeriesManager({
       resetForm()
     } catch (err) {
       console.error('Error saving series:', err)
-      setError(err instanceof Error ? err.message : 'Ошибка при сохранении серии')
+      setError(err instanceof Error ? err.message : 'Error saving series')
     } finally {
       setLoading(false)
     }
   }
 
   const handleDelete = async (seriesId: string) => {
-    if (!confirm('Удалить эту серию? Это действие нельзя отменить.')) {
+    if (!confirm('Delete this series? This action cannot be undone.')) {
       return
     }
 
@@ -191,7 +191,7 @@ export default function SeriesManager({
       }
     } catch (err) {
       console.error('Error deleting series:', err)
-      setError(err instanceof Error ? err.message : 'Ошибка при удалении серии')
+      setError(err instanceof Error ? err.message : 'Error deleting series')
     } finally {
       setLoading(false)
     }
@@ -201,7 +201,7 @@ export default function SeriesManager({
     const file = e.target.files?.[0]
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        setError('Размер файла не должен превышать 5MB')
+        setError('File size must not exceed 5MB')
         return
       }
       setCoverImageFile(file)
@@ -213,7 +213,7 @@ export default function SeriesManager({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <label className="block text-sm font-medium text-gray-700">
-          Серия
+          Series
         </label>
         {!isCreating && !editingId && (
           <button
@@ -223,7 +223,7 @@ export default function SeriesManager({
             disabled={loading}
           >
             <Plus size={16} />
-            Создать серию
+            Create Series
           </button>
         )}
       </div>
@@ -243,7 +243,7 @@ export default function SeriesManager({
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             disabled={loading}
           >
-            <option value="">Без серии</option>
+            <option value="">No series</option>
             {series.map(s => (
               <option key={s.id} value={s.id}>
                 {s.title}
@@ -255,7 +255,7 @@ export default function SeriesManager({
           {series.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                Управление сериями
+                Series Management
               </p>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {series.map(s => (
@@ -279,7 +279,7 @@ export default function SeriesManager({
                         onClick={() => handleStartEdit(s)}
                         className="p-1 text-gray-600 hover:text-purple-600 transition-colors"
                         disabled={loading}
-                        title="Редактировать"
+                        title="Edit"
                       >
                         <Edit2 size={16} />
                       </button>
@@ -288,7 +288,7 @@ export default function SeriesManager({
                         onClick={() => handleDelete(s.id)}
                         className="p-1 text-gray-600 hover:text-red-600 transition-colors"
                         disabled={loading}
-                        title="Удалить"
+                        title="Delete"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -305,18 +305,18 @@ export default function SeriesManager({
       {(isCreating || editingId) && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-4">
           <h4 className="font-semibold text-gray-900">
-            {editingId ? 'Редактировать серию' : 'Новая серия'}
+            {editingId ? 'Edit Series' : 'New Series'}
           </h4>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Название <span className="text-red-500">*</span>
+              Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              placeholder="Название серии"
+              placeholder="Series title"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               disabled={loading}
             />
@@ -335,18 +335,18 @@ export default function SeriesManager({
               disabled={loading}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Генерируется автоматически из названия
+              Auto-generated from title
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Описание
+              Description
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Краткое описание серии..."
+              placeholder="Brief series description..."
               rows={3}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               disabled={loading}
@@ -355,7 +355,7 @@ export default function SeriesManager({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Обложка серии
+              Series Cover
             </label>
             <input
               type="file"
@@ -366,7 +366,7 @@ export default function SeriesManager({
             />
             {coverImageFile && (
               <p className="text-xs text-green-600 mt-1">
-                Выбран файл: {coverImageFile.name}
+                File selected: {coverImageFile.name}
               </p>
             )}
           </div>
@@ -381,12 +381,12 @@ export default function SeriesManager({
               {loading ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  Сохранение...
+                  Saving...
                 </>
               ) : (
                 <>
                   <Save size={18} />
-                  Сохранить
+                  Save
                 </>
               )}
             </button>
@@ -397,7 +397,7 @@ export default function SeriesManager({
               className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <X size={18} />
-              Отменить
+              Cancel
             </button>
           </div>
         </div>

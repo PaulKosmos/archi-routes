@@ -53,10 +53,10 @@ export default function ImageUploader({
         const uploadPromises = Array.from(files).map(async (file) => {
           // Валидация файла
           if (!file.type.startsWith('image/')) {
-            throw new Error('Файл должен быть изображением');
+            throw new Error('File must be an image');
           }
           if (file.size > 10 * 1024 * 1024) {
-            throw new Error('Размер файла не должен превышать 10MB');
+            throw new Error('File size must not exceed 10MB');
           }
 
           // Загрузка в Supabase Storage (используем bucket 'photos', папка 'blog')

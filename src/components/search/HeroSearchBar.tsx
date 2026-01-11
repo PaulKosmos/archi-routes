@@ -37,7 +37,7 @@ export function HeroSearchBar({ className = '' }: HeroSearchBarProps) {
       // Переходим на поиск с соответствующим фильтром
       const params = new URLSearchParams()
       params.set('q', suggestion.value)
-      
+
       if (suggestion.type === 'architect') {
         params.set('architects', suggestion.value)
       } else if (suggestion.type === 'style') {
@@ -45,7 +45,7 @@ export function HeroSearchBar({ className = '' }: HeroSearchBarProps) {
       } else if (suggestion.type === 'city') {
         params.set('cities', suggestion.value)
       }
-      
+
       router.push(`/buildings?${params.toString()}`)
     }
   }, [router])
@@ -101,25 +101,25 @@ export function HeroSearchBar({ className = '' }: HeroSearchBarProps) {
           activeFiltersCount={0}
           onFiltersToggle={handleFiltersToggle}
           size="lg"
-          placeholder="Найти здания, архитекторов, стили..."
+          placeholder="Find buildings, architects, styles..."
           showFiltersButton={true}
           className="w-full"
         />
-        
+
         {/* Кнопка поиска для мобильных */}
         <div className="mt-4 text-center sm:hidden">
           <button
             onClick={handleSearch}
             className="w-full bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-lg hover:bg-white/30 transition-colors font-medium border border-white/30"
           >
-            Найти архитектуру
+            Find Architecture
           </button>
         </div>
-        
+
         {/* Популярные поиски */}
         {!searchInitiated && metadata.styles.length > 0 && (
           <div className="mt-6 text-center">
-            <div className="text-blue-100 text-sm mb-3">Популярные стили:</div>
+            <div className="text-blue-100 text-sm mb-3">Popular Styles:</div>
             <div className="flex flex-wrap justify-center gap-2">
               {metadata.styles.slice(0, 4).map((style) => (
                 <button

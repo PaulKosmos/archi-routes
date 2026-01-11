@@ -130,7 +130,7 @@ export default function OptimizedImage({
         {fallback || (
           <div className="text-center text-gray-500">
             <div className="text-2xl mb-1">🖼️</div>
-            <div className="text-xs">Ошибка загрузки</div>
+            <div className="text-xs">Load Error</div>
           </div>
         )}
       </div>
@@ -153,9 +153,8 @@ export default function OptimizedImage({
         quality={quality}
         onLoad={handleLoad}
         onError={handleError}
-        className={`transition-opacity duration-300 ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
-        } ${className}`}
+        className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'
+          } ${className}`}
         style={fill ? {
           objectFit,
           objectPosition

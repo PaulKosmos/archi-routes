@@ -39,7 +39,7 @@ export interface RouteInstruction {
 // Маппинг типов транспорта в профили MapBox
 const MAPBOX_PROFILES = {
   walking: 'walking',
-  cycling: 'cycling', 
+  cycling: 'cycling',
   driving: 'driving',
   public_transport: 'walking' // Fallback
 }
@@ -52,9 +52,9 @@ export async function buildRoute(
   options: RouteOptions = { transportMode: 'walking' }
 ): Promise<RouteResult> {
   console.log('🔍 DEBUG: Starting buildRoute (SIMPLIFIED VERSION)')
-  
+
   if (points.length < 2) {
-    throw new Error('Требуется минимум 2 точки для построения маршрута')
+    throw new Error('At least 2 points required to build a route')
   }
 
   // 🔧 ОПТИМИЗАЦИЯ: Ограничиваем количество точек для экономии API
@@ -107,13 +107,13 @@ async function buildRouteFromAPI(
   const coordinates = points
     .map(point => `${point.longitude},${point.latitude}`)
     .join(';')
-  
+
   console.log('🔍 DEBUG: Coordinates string:', coordinates.substring(0, 100) + '...')
-  
+
   // Выбираем профиль транспорта
   const profile = MAPBOX_PROFILES[options.transportMode]
   console.log('🔍 DEBUG: Selected profile:', profile)
-  
+
   // Строим URL с параметрами
   const params = new URLSearchParams({
     access_token: MAPBOX_TOKEN,
@@ -142,7 +142,7 @@ async function buildRouteFromAPI(
   if (!response.ok) {
     const errorData = await response.json()
     console.error('❌ MapBox API Error:', response.status, errorData)
-    
+
     if (response.status === 401) {
       throw new Error('Неверный MapBox Access Token')
     } else if (response.status === 422) {
@@ -150,7 +150,7 @@ async function buildRouteFromAPI(
     } else if (response.status === 429) {
       throw new Error('Превышен лимит запросов к MapBox API. Попробуйте позже.')
     }
-    
+
     throw new Error(`MapBox API Error: ${response.status} - ${JSON.stringify(errorData)}`)
   }
 
@@ -163,7 +163,7 @@ async function buildRouteFromAPI(
   }
 
   const route = data.routes[0]
-  
+
   // Извлекаем геометрию
   const geometry: GeoJSON.LineString = route.geometry
 
@@ -201,13 +201,13 @@ async function buildRouteFromAPI(
  * Fallback: построить маршрут по прямым линиям
  */
 function buildStraightLineRoute(
-  points: RoutePoint[], 
+  points: RoutePoint[],
   options: RouteOptions
 ): RouteResult {
   console.log('📏 Building straight line route as fallback')
-  
+
   const coordinates = points.map(point => [point.longitude, point.latitude])
-  
+
   // Приблизительный расчет расстояния
   let totalDistance = 0
   for (let i = 0; i < coordinates.length - 1; i++) {
@@ -236,7 +236,7 @@ function buildStraightLineRoute(
     distance: totalDistance,
     duration,
     instructions: [{
-      instruction: `Следуйте ${totalDistance > 1000 ? (totalDistance/1000).toFixed(1) + ' км' : Math.round(totalDistance) + ' м'} до пункта назначения`,
+      instruction: `Следуйте ${totalDistance > 1000 ? (totalDistance / 1000).toFixed(1) + ' км' : Math.round(totalDistance) + ' м'} до пункта назначения`,
       distance: totalDistance,
       duration,
       type: 'depart',
@@ -264,7 +264,7 @@ export async function optimizeRoute(
   options: RouteOptions = { transportMode: 'walking' }
 ): Promise<{ optimizedPoints: RoutePoint[], route: RouteResult }> {
   console.log('🔧 Route optimization requested for', points.length, 'points')
-  
+
   // 🔧 ОПТИМИЗАЦИЯ: Ограничиваем оптимизацию для больших маршрутов
   if (points.length > 12) {
     console.log('⚠️ Too many points for optimization, using simple ordering')
@@ -291,7 +291,7 @@ async function simpleOptimization(
   options: RouteOptions
 ): Promise<{ optimizedPoints: RoutePoint[], route: RouteResult }> {
   console.log('🔧 Applying simple nearest neighbor optimization')
-  
+
   if (points.length < 3) {
     const route = await buildRoute(points, options)
     return { optimizedPoints: points, route }
@@ -321,15 +321,15 @@ async function simpleOptimization(
  */
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371e3 // радиус Земли в метрах
-  const φ1 = lat1 * Math.PI/180
-  const φ2 = lat2 * Math.PI/180
-  const Δφ = (lat2-lat1) * Math.PI/180
-  const Δλ = (lon2-lon1) * Math.PI/180
+  const φ1 = lat1 * Math.PI / 180
+  const φ2 = lat2 * Math.PI / 180
+  const Δφ = (lat2 - lat1) * Math.PI / 180
+  const Δλ = (lon2 - lon1) * Math.PI / 180
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ/2) * Math.sin(Δλ/2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
   return R * c
 }
@@ -345,7 +345,7 @@ export function formatDistance(meters: number): string {
 export function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
-  
+
   if (hours > 0) {
     return `${hours} ч ${minutes} мин`
   }

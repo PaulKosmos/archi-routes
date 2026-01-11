@@ -65,14 +65,14 @@ export default function ProfileArticlesPage() {
 
       if (error) {
         console.error('Error loading user articles:', error)
-        toast.error('Ошибка при загрузке статей')
+        toast.error('Error loading articles')
         return
       }
 
       setArticles(data || [])
     } catch (error) {
       console.error('Exception loading user articles:', error)
-      toast.error('Произошла ошибка')
+      toast.error('An error occurred')
     } finally {
       setIsLoading(false)
     }
@@ -108,7 +108,7 @@ export default function ProfileArticlesPage() {
   }
 
   const handleDeleteArticle = async (articleId: string) => {
-    if (!confirm('Вы уверены, что хотите удалить эту статью?')) {
+    if (!confirm('Are you sure you want to delete this article?')) {
       return
     }
 
@@ -135,11 +135,11 @@ export default function ProfileArticlesPage() {
         throw error
       }
 
-      toast.success('Статья удалена')
+      toast.success('Article deleted')
       setArticles(prev => prev.filter(article => article.id !== articleId))
     } catch (error) {
       console.error('Error deleting article:', error)
-      toast.error('Ошибка при удалении статьи')
+      toast.error('Error deleting article')
     }
   }
 
@@ -155,18 +155,18 @@ export default function ProfileArticlesPage() {
 
       if (error) throw error
 
-      toast.success('Статья опубликована')
+      toast.success('Article published')
       loadUserArticles()
     } catch (error) {
       console.error('Error publishing article:', error)
-      toast.error('Ошибка при публикации статьи')
+      toast.error('Error publishing article')
     }
   }
 
   const handleArchiveArticle = async (articleId: string) => {
     // Только админы могут архивировать
     if (profile?.role !== 'admin') {
-      toast.error('Только админы могут архивировать статьи')
+      toast.error('Only admins can archive articles')
       return
     }
 
@@ -178,11 +178,11 @@ export default function ProfileArticlesPage() {
 
       if (error) throw error
 
-      toast.success('Статья архивирована')
+      toast.success('Article archived')
       loadUserArticles()
     } catch (error) {
       console.error('Error archiving article:', error)
-      toast.error('Ошибка при архивировании статьи')
+      toast.error('Error archiving article')
     }
   }
 
@@ -195,11 +195,11 @@ export default function ProfileArticlesPage() {
 
       if (error) throw error
 
-      toast.success('Статья восстановлена в черновики')
+      toast.success('Article restored to drafts')
       loadUserArticles()
     } catch (error) {
       console.error('Error unarchiving article:', error)
-      toast.error('Ошибка при восстановлении статьи')
+      toast.error('Error restoring article')
     }
   }
 
@@ -231,7 +231,7 @@ export default function ProfileArticlesPage() {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Загрузка...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </main>
         <EnhancedFooter />
@@ -249,16 +249,16 @@ export default function ProfileArticlesPage() {
           <div className="text-center">
             <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="text-2xl font-heading font-bold mb-2">
-              Войдите в систему
+              Sign In
             </h1>
             <p className="text-muted-foreground mb-6">
-              Для просмотра статей необходимо войти в свою учетную запись
+              You need to sign in to view articles
             </p>
             <Link
               href="/auth/login"
               className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
             >
-              Войти в систему
+              Sign In
             </Link>
           </div>
         </main>
@@ -268,7 +268,7 @@ export default function ProfileArticlesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex-col">
       <Suspense fallback={<div className="h-16 bg-card border-b border-border" />}>
         <Header buildings={[]} />
       </Suspense>
@@ -287,10 +287,10 @@ export default function ProfileArticlesPage() {
               <div className="flex-1">
                 <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
                   <FileText className="w-6 h-6" />
-                  Мои блоги
+                  My Blogs
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  Управляйте своими блогами
+                  Manage your blog posts
                 </p>
               </div>
               <Link
@@ -298,7 +298,7 @@ export default function ProfileArticlesPage() {
                 className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Создать статью
+                Create Article
               </Link>
             </div>
           </div>
@@ -310,7 +310,7 @@ export default function ProfileArticlesPage() {
                 <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Поиск по названию или описанию..."
+                  placeholder="Search by title or description..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 text-sm border border-border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -321,9 +321,9 @@ export default function ProfileArticlesPage() {
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="text-sm border border-border rounded-[var(--radius)] px-4 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
               >
-                <option value="created_at">По дате создания</option>
-                <option value="published_at">По дате публикации</option>
-                <option value="view_count">По просмотрам</option>
+                <option value="created_at">By creation date</option>
+                <option value="published_at">By publication date</option>
+                <option value="view_count">By views</option>
               </select>
             </div>
           </div>
@@ -333,19 +333,18 @@ export default function ProfileArticlesPage() {
             <div className="border-b border-border">
               <nav className="flex gap-8 px-6">
                 {[
-                  { key: 'all', label: 'Все статьи', count: counts.all },
-                  { key: 'draft', label: 'Черновики', count: counts.draft },
-                  { key: 'published', label: 'Опубликованные', count: counts.published },
-                  { key: 'archived', label: 'Архивные', count: counts.archived }
+                  { key: 'all', label: 'All Articles', count: counts.all },
+                  { key: 'draft', label: 'Drafts', count: counts.draft },
+                  { key: 'published', label: 'Published', count: counts.published },
+                  { key: 'archived', label: 'Archived', count: counts.archived }
                 ].map(tab => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key as TabType)}
-                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                      activeTab === tab.key
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.key
                         ? 'border-primary text-primary'
                         : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                    }`}
+                      }`}
                   >
                     {tab.label} ({tab.count})
                   </button>
@@ -359,14 +358,14 @@ export default function ProfileArticlesPage() {
             <div className="text-center py-12">
               <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium mb-2">
-                {articles.length === 0 ? 'Нет созданных статей' : 'Нет статей в этой категории'}
+                {articles.length === 0 ? 'No articles created' : 'No articles in this category'}
               </h3>
               <p className="text-muted-foreground mb-6">
                 {articles.length === 0
-                  ? 'Создайте свою первую статью, чтобы поделиться знаниями'
+                  ? 'Create your first article to share knowledge'
                   : searchQuery
-                  ? 'Попробуйте изменить поисковый запрос'
-                  : 'Попробуйте выбрать другую категорию'
+                    ? 'Try changing your search query'
+                    : 'Try selecting another category'
                 }
               </p>
               {articles.length === 0 && (
@@ -375,7 +374,7 @@ export default function ProfileArticlesPage() {
                   className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Создать первую статью
+                  Create First Article
                 </Link>
               )}
             </div>
@@ -434,9 +433,9 @@ function ArticleCard({
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'published': return 'Опубликовано'
-      case 'draft': return 'Черновик'
-      case 'archived': return 'Архив'
+      case 'published': return 'Published'
+      case 'draft': return 'Draft'
+      case 'archived': return 'Archived'
       default: return status
     }
   }
@@ -483,7 +482,7 @@ function ArticleCard({
           {article.reading_time_minutes && (
             <div className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              <span>{article.reading_time_minutes} мин</span>
+              <span>{article.reading_time_minutes} min</span>
             </div>
           )}
 
@@ -501,7 +500,7 @@ function ArticleCard({
                 className="inline-flex items-center px-3 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
               >
                 <Eye className="w-3 h-3 mr-1" />
-                Открыть
+                View
               </Link>
             ) : (
               <Link
@@ -509,7 +508,7 @@ function ArticleCard({
                 className="inline-flex items-center px-3 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
               >
                 <Edit className="w-3 h-3 mr-1" />
-                Редактировать
+                Edit
               </Link>
             )}
           </div>
@@ -519,7 +518,7 @@ function ArticleCard({
               <button
                 onClick={onPublish}
                 className="inline-flex items-center p-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
-                title="Опубликовать"
+                title="Publish"
               >
                 <Send className="w-3 h-3" />
               </button>
@@ -529,7 +528,7 @@ function ArticleCard({
               <button
                 onClick={onArchive}
                 className="inline-flex items-center p-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
-                title="Архивировать (только для админов)"
+                title="Archive (admins only)"
               >
                 <Archive className="w-3 h-3" />
               </button>
@@ -539,7 +538,7 @@ function ArticleCard({
               <button
                 onClick={onUnarchive}
                 className="inline-flex items-center p-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
-                title="Разархивировать"
+                title="Unarchive"
               >
                 <Archive className="w-3 h-3" />
               </button>
@@ -548,7 +547,7 @@ function ArticleCard({
             <button
               onClick={onDelete}
               className="inline-flex items-center p-1.5 text-xs border border-destructive/50 text-destructive rounded-[var(--radius)] hover:bg-destructive/10 transition-colors"
-              title="Удалить"
+              title="Delete"
             >
               <Trash2 className="w-3 h-3" />
             </button>

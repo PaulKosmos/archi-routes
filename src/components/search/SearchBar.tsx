@@ -38,7 +38,7 @@ export function SearchBar({
   activeFiltersCount,
   onFiltersToggle,
   size = 'md',
-  placeholder = 'Поиск зданий, архитекторов...',
+  placeholder = 'Search buildings, architects...',
   showFiltersButton = true,
   autoFocus = false,
   className = ''
@@ -84,7 +84,7 @@ export function SearchBar({
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault()
-          setSelectedIndex(prev => 
+          setSelectedIndex(prev =>
             prev < dropdownItems.length - 1 ? prev + 1 : prev
           )
           break
@@ -173,10 +173,10 @@ export function SearchBar({
     const date = new Date(timestamp)
     const now = new Date()
     const diffHours = Math.round((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-    
-    if (diffHours < 1) return 'только что'
-    if (diffHours < 24) return `${diffHours}ч назад`
-    return `${Math.round(diffHours / 24)}д назад`
+
+    if (diffHours < 1) return 'just now'
+    if (diffHours < 24) return `${diffHours}h ago`
+    return `${Math.round(diffHours / 24)}d ago`
   }
 
   return (
@@ -200,7 +200,7 @@ export function SearchBar({
               ${query ? 'pr-10' : ''}
             `}
           />
-          
+
           {/* Кнопка очистки */}
           {query && (
             <button
@@ -225,7 +225,7 @@ export function SearchBar({
             `}
           >
             <Filter className="w-4 h-4" />
-            Фильтры
+            Filters
             {activeFiltersCount > 0 && (
               <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {activeFiltersCount}
@@ -244,7 +244,7 @@ export function SearchBar({
           {/* Предложения поиска */}
           {query.trim() && suggestions.length > 0 && (
             <div className="p-2">
-              <div className="text-xs text-gray-500 font-medium mb-2 px-2">Предложения</div>
+              <div className="text-xs text-gray-500 font-medium mb-2 px-2">Suggestions</div>
               {suggestions.map((suggestion, index) => (
                 <button
                   key={`suggestion-${index}`}
@@ -269,7 +269,7 @@ export function SearchBar({
           {/* Загрузка предложений */}
           {query.trim() && suggestionsLoading && (
             <div className="p-4 text-center text-gray-500 text-sm">
-              Поиск...
+              Searching...
             </div>
           )}
 
@@ -278,7 +278,7 @@ export function SearchBar({
             <div className="p-2">
               <div className="text-xs text-gray-500 font-medium mb-2 px-2 flex items-center gap-2">
                 <Clock className="w-3 h-3" />
-                Недавние поиски
+                Recent Searches
               </div>
               {searchHistory.slice(0, 5).map((item, index) => (
                 <button
@@ -292,15 +292,15 @@ export function SearchBar({
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium text-gray-900">
-                        {item.query || 'Поиск с фильтрами'}
+                        {item.query || 'Search with filters'}
                       </div>
-                      {Object.values(item.filters).some(v => 
+                      {Object.values(item.filters).some(v =>
                         Array.isArray(v) ? v.length > 0 : v !== null && v !== 0
                       ) && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          С фильтрами
-                        </div>
-                      )}
+                          <div className="text-xs text-gray-500 mt-1">
+                            With filters
+                          </div>
+                        )}
                     </div>
                     <div className="text-xs text-gray-400">
                       {formatHistoryTime(item.timestamp)}
@@ -314,7 +314,7 @@ export function SearchBar({
           {/* Пустое состояние */}
           {query.trim() && !suggestionsLoading && suggestions.length === 0 && (
             <div className="p-4 text-center text-gray-500 text-sm">
-              Ничего не найдено
+              Nothing found
             </div>
           )}
 
@@ -325,10 +325,10 @@ export function SearchBar({
                 <div className="flex items-center gap-1">
                   <ArrowUp className="w-3 h-3" />
                   <ArrowDown className="w-3 h-3" />
-                  навигация
+                  navigate
                 </div>
-                <div>Enter выбор</div>
-                <div>Esc закрыть</div>
+                <div>Enter select</div>
+                <div>Esc close</div>
               </div>
             </div>
           )}

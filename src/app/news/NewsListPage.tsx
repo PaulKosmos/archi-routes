@@ -89,7 +89,7 @@ export default function NewsListPage() {
       });
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Произошла ошибка');
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -244,7 +244,7 @@ export default function NewsListPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Искать новости..."
+              placeholder="Search news..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full pl-12 h-12 border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--news-primary))] transition-colors"
@@ -255,7 +255,7 @@ export default function NewsListPage() {
         {/* Информация и кнопки управления */}
         <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-border">
           <span className="text-sm font-medium">
-            Найдено новостей: <span className="font-bold text-[hsl(var(--news-primary))]">
+            News found: <span className="font-bold text-[hsl(var(--news-primary))]">
               {(filteredFeaturedNews ? 1 : 0) + filteredGridCards.length + filteredNews.length}
             </span>
           </span>
@@ -347,8 +347,8 @@ export default function NewsListPage() {
                 <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="h-12 w-12 text-muted-foreground" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">Новостей не найдено</h3>
-                <p className="text-muted-foreground">Попробуйте изменить фильтры или поисковый запрос</p>
+                <h3 className="text-xl font-bold mb-2">No News Found</h3>
+                <p className="text-muted-foreground">Try changing filters or search query</p>
               </div>
             )}
 

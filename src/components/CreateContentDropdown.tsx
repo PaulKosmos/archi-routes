@@ -9,9 +9,9 @@ interface CreateContentDropdownProps {
   className?: string
 }
 
-export function CreateContentDropdown({ 
+export function CreateContentDropdown({
   onCreateRoute,
-  className = '' 
+  className = ''
 }: CreateContentDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -41,7 +41,7 @@ export function CreateContentDropdown({
         className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 font-medium"
       >
         <PlusCircle className="w-5 h-5" />
-        <span>Создать</span>
+        <span>Create</span>
         <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 

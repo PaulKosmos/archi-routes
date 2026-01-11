@@ -71,7 +71,7 @@ export default function EditNewsPage() {
 
   // ✅ Preview State
   const [showPreview, setShowPreview] = useState(false);
-  
+
   // Form data
   const [formData, setFormData] = useState<UpdateNewsArticle>({
     id: newsId,
@@ -247,7 +247,7 @@ export default function EditNewsPage() {
 
       if (data) {
         console.log('✅ Article loaded:', data.title);
-        
+
         // Проверяем права доступа к редактированию
         const canEdit = user && (
           ['admin', 'moderator', 'editor'].includes(profile?.role || '') ||
@@ -259,7 +259,7 @@ export default function EditNewsPage() {
         }
 
         setArticle(data);
-        
+
         // Заполняем форму
         setFormData({
           id: data.id,
@@ -317,7 +317,7 @@ export default function EditNewsPage() {
 
     try {
       console.log('💾 Saving article:', newsId);
-      
+
       const updateData = {
         title: formData.title.trim(),
         slug: formData.slug,
@@ -405,7 +405,7 @@ export default function EditNewsPage() {
 
     try {
       console.log('🔍 Searching buildings:', query);
-      
+
       const { data, error } = await supabase
         .from('buildings')
         .select('id, name, architect, city, main_image_url')
@@ -431,7 +431,7 @@ export default function EditNewsPage() {
     console.log('Images changed:', urls);
     setFormData(prev => {
       const newData = { ...prev };
-      
+
       // Первое изображение становится главным
       if (urls.length > 0) {
         newData.featured_image_url = urls[0];
@@ -442,10 +442,10 @@ export default function EditNewsPage() {
         newData.featured_image_url = '';
         newData.featured_image_alt = '';
       }
-      
+
       // Остальные изображения в галерею
       newData.gallery_images = urls.slice(1);
-      
+
       return newData;
     });
   };
@@ -589,7 +589,7 @@ export default function EditNewsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        
+
         {/* Header - Sticky */}
         <div className="sticky top-0 z-10 bg-gray-50 py-4 mb-4 flex items-center justify-between border-b border-gray-200">
           <div className="flex items-center gap-4">
@@ -646,7 +646,7 @@ export default function EditNewsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-blue-800">
-                  <strong>Статус:</strong> {article.status} | 
+                  <strong>Статус:</strong> {article.status} |
                   <strong> Создано:</strong> {new Date(article.created_at).toLocaleDateString('ru-RU')}
                 </p>
                 {article.published_at && (
@@ -668,11 +668,11 @@ export default function EditNewsPage() {
 
         {/* Main Form */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          
+
           {/* Basic Info */}
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Основная информация</h2>
-            
+
             <div className="space-y-4">
               {/* Title */}
               <div>
@@ -770,12 +770,12 @@ export default function EditNewsPage() {
               <ImageIcon className="w-5 h-5" />
               Изображения
             </h2>
-            
+
             <div className="space-y-4">
               <div>
                 <ImageUploader
                   maxFiles={6}
-                  folder="news" 
+                  folder="news"
                   onImagesChange={handleImagesChange}
                   existingImages={[
                     ...(formData.featured_image_url ? [formData.featured_image_url] : []),
@@ -783,7 +783,7 @@ export default function EditNewsPage() {
                   ]}
                 />
               </div>
-              
+
               {/* Описание главного изображения */}
               {formData.featured_image_url && (
                 <div>
@@ -793,11 +793,11 @@ export default function EditNewsPage() {
                   <input
                     type="text"
                     value={formData.featured_image_alt || ''}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      featured_image_alt: e.target.value 
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      featured_image_alt: e.target.value
                     }))}
-                    placeholder="Описание изображения для SEO и доступности..."
+                    placeholder="Image description for SEO and accessibility..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -816,22 +816,20 @@ export default function EditNewsPage() {
                 <button
                   type="button"
                   onClick={() => setUseBlockEditor(false)}
-                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                    !useBlockEditor
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${!useBlockEditor
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   Простой
                 </button>
                 <button
                   type="button"
                   onClick={() => setUseBlockEditor(true)}
-                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                    useBlockEditor
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${useBlockEditor
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   Блочный
                 </button>
@@ -847,7 +845,7 @@ export default function EditNewsPage() {
                 <NewsEditor
                   content={formData.content}
                   onChange={(content) => setFormData(prev => ({ ...prev, content }))}
-                  placeholder="Введите текст новости..."
+                  placeholder="Enter news text..."
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   Используйте простой редактор для быстрого создания текстового контента
@@ -873,7 +871,7 @@ export default function EditNewsPage() {
           {/* Tags */}
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Теги</h2>
-            
+
             <div className="space-y-3">
               <div className="flex gap-2">
                 <input
@@ -897,7 +895,7 @@ export default function EditNewsPage() {
                   Добавить
                 </button>
               </div>
-              
+
               {formData.tags && formData.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {formData.tags.map((tag, index) => (
@@ -922,7 +920,7 @@ export default function EditNewsPage() {
           {/* Settings */}
           <div className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Настройки</h2>
-            
+
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <input

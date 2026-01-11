@@ -26,7 +26,7 @@ export default function PhotoGallery({ photos, className = '', maxPhotos = 6 }: 
       return url
     })
     .filter(url => url && url !== '')
-  
+
   console.log('📷 PhotoGallery:', { originalPhotos: photos, processedUrls: photoUrls })
   const displayPhotos = photoUrls.slice(0, maxPhotos)
   const remainingCount = photoUrls.length - maxPhotos
@@ -49,7 +49,7 @@ export default function PhotoGallery({ photos, className = '', maxPhotos = 6 }: 
           >
             <img
               src={photo}
-              alt={`Фото ${index + 1}`}
+              alt={`Photo ${index + 1}`}
               className="w-full h-24 object-cover transition-transform duration-200 group-hover:scale-105"
               onError={(e) => {
                 console.error('🖼️ Photo loading error:', photo)
@@ -57,7 +57,7 @@ export default function PhotoGallery({ photos, className = '', maxPhotos = 6 }: 
                 target.style.display = 'none'
               }}
             />
-            
+
             {/* Overlay при наведении */}
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity duration-200 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -66,7 +66,7 @@ export default function PhotoGallery({ photos, className = '', maxPhotos = 6 }: 
                 </div>
               </div>
             </div>
-            
+
             {/* Показываем количество оставшихся фото на последнем изображении */}
             {index === maxPhotos - 1 && remainingCount > 0 && (
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">

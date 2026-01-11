@@ -37,11 +37,11 @@ export default function ImageUploader({
     const newUrls = images
       .filter(img => img.url && !img.uploading)
       .map(img => img.url!)
-    
+
     // Только вызываем callback если URLs действительно изменились
     const currentUrls = JSON.stringify(newUrls.sort())
     const existingUrls = JSON.stringify([...existingImages].sort())
-    
+
     if (currentUrls !== existingUrls && newUrls.length > 0) {
       onImagesChange?.(newUrls)
     }
@@ -50,16 +50,16 @@ export default function ImageUploader({
   // Обработка выбора файлов
   const handleFiles = async (files: FileList) => {
     const fileArray = Array.from(files)
-    
+
     // Проверяем лимит файлов
     if (images.length + fileArray.length > maxFiles) {
-      alert(`Максимум ${maxFiles} изображений`)
+      alert(`Maximum ${maxFiles} images`)
       return
     }
 
     // Создаем объекты изображений
     const newImages: ImageFile[] = []
-    
+
     for (const file of fileArray) {
       if (file.type.startsWith('image/')) {
         const preview = await createImagePreview(file)
@@ -75,7 +75,7 @@ export default function ImageUploader({
 
     // Добавляем новые изображения и начинаем загрузку
     setImages(prev => [...prev, ...newImages])
-    
+
     // Загружаем каждое изображение
     for (const newImage of newImages) {
       uploadSingleImage(newImage)
@@ -85,8 +85,8 @@ export default function ImageUploader({
   // Загрузка одного изображения
   const uploadSingleImage = async (imageToUpload: ImageFile) => {
     // Помечаем как загружающееся
-    setImages(prev => prev.map(img => 
-      img.id === imageToUpload.id 
+    setImages(prev => prev.map(img =>
+      img.id === imageToUpload.id
         ? { ...img, uploading: true, progress: 0, error: undefined }
         : img
     ))
@@ -94,11 +94,11 @@ export default function ImageUploader({
     try {
       // Сжимаем изображение
       const compressedFile = await compressImage(imageToUpload.file)
-      
+
       // Загружаем с отслеживанием прогресса
       const result = await uploadImage(compressedFile, folder, (progress) => {
-        setImages(prev => prev.map(img => 
-          img.id === imageToUpload.id 
+        setImages(prev => prev.map(img =>
+          img.id === imageToUpload.id
             ? { ...img, progress }
             : img
         ))
@@ -106,22 +106,22 @@ export default function ImageUploader({
 
       if (result.success && result.url) {
         // Успешная загрузка
-        setImages(prev => prev.map(img => 
-          img.id === imageToUpload.id 
+        setImages(prev => prev.map(img =>
+          img.id === imageToUpload.id
             ? { ...img, uploading: false, url: result.url, progress: 100 }
             : img
         ))
       } else {
         // Ошибка загрузки
-        setImages(prev => prev.map(img => 
-          img.id === imageToUpload.id 
+        setImages(prev => prev.map(img =>
+          img.id === imageToUpload.id
             ? { ...img, uploading: false, error: result.error }
             : img
         ))
       }
     } catch (error) {
-      setImages(prev => prev.map(img => 
-        img.id === imageToUpload.id 
+      setImages(prev => prev.map(img =>
+        img.id === imageToUpload.id
           ? { ...img, uploading: false, error: 'Ошибка загрузки' }
           : img
       ))
@@ -159,7 +159,7 @@ export default function ImageUploader({
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFiles(e.dataTransfer.files)
     }
@@ -172,11 +172,10 @@ export default function ImageUploader({
     <div className={`space-y-4 ${className}`}>
       {/* Область загрузки */}
       <div
-        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-          dragActive
+        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-300 hover:border-gray-400'
-        }`}
+          }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -261,7 +260,7 @@ export default function ImageUploader({
                   alt="Превью"
                   className="w-full h-24 object-cover rounded-lg border"
                 />
-                
+
                 {/* Индикатор загрузки */}
                 {image.uploading && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">

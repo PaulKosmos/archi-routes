@@ -61,7 +61,7 @@ export default function RouteFavoriteButton({
 
   const handleToggleFavorite = async () => {
     if (!user) {
-      toast.error('Войдите в систему для добавления в избранное')
+      toast.error('Sign in to add to favorites')
       return
     }
 
@@ -73,23 +73,23 @@ export default function RouteFavoriteButton({
         const success = await UserRouteFavorites.removeFromFavorites(user.id, routeId)
         if (success) {
           setIsFavorite(false)
-          toast.success('Маршрут удален из избранного')
+          toast.success('Route removed from favorites')
         } else {
-          toast.error('Ошибка при удалении из избранного')
+          toast.error('Error removing from favorites')
         }
       } else {
         // Добавляем в избранное
         const success = await UserRouteFavorites.addToFavorites(user.id, routeId)
         if (success) {
           setIsFavorite(true)
-          toast.success(`"${routeTitle}" добавлен в избранное!`)
+          toast.success(`"${routeTitle}" added to favorites!`)
         } else {
-          toast.error('Ошибка при добавлении в избранное')
+          toast.error('Error adding to favorites')
         }
       }
     } catch (error) {
       console.error('Error toggling favorite:', error)
-      toast.error('Произошла ошибка')
+      toast.error('An error occurred')
     } finally {
       setIsLoading(false)
     }
@@ -100,7 +100,7 @@ export default function RouteFavoriteButton({
       <div className={`text-gray-400 ${currentSize.text} ${currentSize.padding}`}>
         <div className="flex items-center gap-2">
           <Heart className={currentSize.icon} />
-          {showText && <span>Войдите для избранного</span>}
+          {showText && <span>Sign in for favorites</span>}
         </div>
       </div>
     )
@@ -111,7 +111,7 @@ export default function RouteFavoriteButton({
       <div className={`text-gray-400 ${currentSize.text} ${currentSize.padding}`}>
         <div className="flex items-center gap-2">
           <Loader2 className={`${currentSize.icon} animate-spin`} />
-          {showText && <span>Проверка...</span>}
+          {showText && <span>Checking...</span>}
         </div>
       </div>
     )
@@ -127,21 +127,20 @@ export default function RouteFavoriteButton({
           ${currentSize.padding}
           rounded-full
           transition-all duration-200
-          ${isFavorite 
-            ? 'bg-red-50 text-red-600 hover:bg-red-100' 
+          ${isFavorite
+            ? 'bg-red-50 text-red-600 hover:bg-red-100'
             : 'bg-gray-50 text-gray-600 hover:bg-red-50 hover:text-red-600'
           }
           ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'}
         `}
-        title={isFavorite ? 'Удалить из избранного' : 'Добавить в избранное'}
+        title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
       >
         {isLoading ? (
           <Loader2 className={`${currentSize.icon} animate-spin`} />
         ) : (
-          <Heart 
-            className={`${currentSize.icon} transition-all duration-200 ${
-              isFavorite ? 'fill-current' : ''
-            }`} 
+          <Heart
+            className={`${currentSize.icon} transition-all duration-200 ${isFavorite ? 'fill-current' : ''
+              }`}
           />
         )}
       </button>
@@ -157,8 +156,8 @@ export default function RouteFavoriteButton({
         ${currentSize.padding} ${currentSize.text}
         font-medium rounded-xl 
         transition-all duration-200
-        ${isFavorite 
-          ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100' 
+        ${isFavorite
+          ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100'
           : 'bg-white text-gray-700 border-2 border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
         }
         ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}
@@ -168,16 +167,15 @@ export default function RouteFavoriteButton({
       {isLoading ? (
         <Loader2 className={`${currentSize.icon} animate-spin`} />
       ) : (
-        <Heart 
-          className={`${currentSize.icon} transition-all duration-200 ${
-            isFavorite ? 'fill-current' : ''
-          }`} 
+        <Heart
+          className={`${currentSize.icon} transition-all duration-200 ${isFavorite ? 'fill-current' : ''
+            }`}
         />
       )}
-      
+
       {showText && (
         <span>
-          {isFavorite ? 'В избранном' : 'В избранное'}
+          {isFavorite ? 'In Favorites' : 'Add to Favorites'}
         </span>
       )}
     </button>
@@ -211,7 +209,7 @@ export function RouteCompletedButton({
 
   const handleMarkCompleted = async () => {
     if (!user) {
-      toast.error('Войдите в систему')
+      toast.error('Please log in')
       return
     }
 
@@ -225,22 +223,22 @@ export function RouteCompletedButton({
 
     try {
       const success = await UserRouteFavorites.markAsCompleted(
-        user.id, 
-        routeId, 
-        rating, 
+        user.id,
+        routeId,
+        rating,
         notes
       )
-      
+
       if (success) {
         setIsCompleted(true)
         setShowRatingModal(false)
-        toast.success('Маршрут отмечен как пройденный!')
+        toast.success('Route marked as completed!')
       } else {
-        toast.error('Ошибка при сохранении')
+        toast.error('Error saving')
       }
     } catch (error) {
       console.error('Error marking as completed:', error)
-      toast.error('Произошла ошибка')
+      toast.error('An error occurred')
     } finally {
       setIsLoading(false)
     }
@@ -260,8 +258,8 @@ export function RouteCompletedButton({
           ${currentSize.padding} ${currentSize.text}
           font-medium rounded-xl 
           transition-all duration-200
-          ${isCompleted 
-            ? 'bg-green-50 text-green-600 border-2 border-green-200' 
+          ${isCompleted
+            ? 'bg-green-50 text-green-600 border-2 border-green-200'
             : 'bg-white text-gray-700 border-2 border-gray-200 hover:bg-green-50 hover:text-green-600 hover:border-green-200'
           }
           ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}
@@ -285,7 +283,7 @@ export function RouteCompletedButton({
             <h3 className="text-lg font-semibold mb-4">
               Оцените маршрут "{routeTitle}"
             </h3>
-            
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Ваша оценка:
@@ -295,9 +293,8 @@ export function RouteCompletedButton({
                   <button
                     key={star}
                     onClick={() => setRating(star)}
-                    className={`text-2xl transition-colors ${
-                      star <= rating ? 'text-yellow-400' : 'text-gray-300'
-                    }`}
+                    className={`text-2xl transition-colors ${star <= rating ? 'text-yellow-400' : 'text-gray-300'
+                      }`}
                   >
                     ★
                   </button>
@@ -312,7 +309,7 @@ export function RouteCompletedButton({
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Ваши впечатления от маршрута..."
+                placeholder="Your impressions of the route..."
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />

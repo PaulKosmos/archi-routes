@@ -163,7 +163,7 @@ export default function CitiesExploreSection() {
                 {/* Индикатор перехода */}
                 <div className="mt-4 flex items-center space-x-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <MapPin size={16} />
-                  <span>Открыть карту</span>
+                  <span>Open Map</span>
                 </div>
               </div>
 
@@ -180,7 +180,7 @@ export default function CitiesExploreSection() {
               onClick={() => router.push('/buildings')}
               className="inline-flex items-center space-x-2 px-8 py-3 bg-blue-600 text-white font-medium rounded-full hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
             >
-              <span>Смотреть все города</span>
+              <span>View All Cities</span>
               <svg
                 className="w-5 h-5 transition-transform group-hover:translate-x-1"
                 fill="none"

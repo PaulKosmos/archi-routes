@@ -248,11 +248,10 @@ export default function OverlayGridEditor({
                 <button
                   onClick={handleSave}
                   disabled={!hasChanges}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-                    hasChanges
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${hasChanges
                       ? 'bg-blue-600 text-white hover:bg-blue-700'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   <Save className="w-4 h-4" />
                   Сохранить и выйти
@@ -332,8 +331,8 @@ export default function OverlayGridEditor({
         excludeIds={
           editingBlockId
             ? usedNewsIds.filter(
-                (id) => !blocks.find((b) => b.id === editingBlockId)?.news_ids.includes(id)
-              )
+              (id) => !blocks.find((b) => b.id === editingBlockId)?.news_ids.includes(id)
+            )
             : usedNewsIds
         }
       />
@@ -380,21 +379,21 @@ function OverlayBlock({ block, onEdit, onDelete }: OverlayBlockProps) {
           {...attributes}
           {...listeners}
           className="p-2.5 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-500 cursor-grab active:cursor-grabbing shadow-lg transition-all"
-          aria-label="Перетащить"
+          aria-label="Drag"
         >
           <GripVertical className="w-5 h-5 text-gray-700" />
         </button>
         <button
           onClick={() => onEdit(block.id)}
           className="p-2.5 bg-white border-2 border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-500 shadow-lg transition-all"
-          aria-label="Редактировать"
+          aria-label="Edit"
         >
           <Edit className="w-5 h-5 text-gray-700 hover:text-blue-600" />
         </button>
         <button
           onClick={() => onDelete(block.id)}
           className="p-2.5 bg-white border-2 border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-500 shadow-lg transition-all"
-          aria-label="Удалить"
+          aria-label="Delete"
         >
           <Trash2 className="w-5 h-5 text-gray-700 hover:text-red-600" />
         </button>

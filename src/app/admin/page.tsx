@@ -39,7 +39,7 @@ export default function AdminDashboard() {
   const loadStats = useCallback(async () => {
     try {
       setIsLoading(true)
-      
+
       const [usersResult, buildingsResult, reviewsResult, routesResult] = await Promise.all([
         supabase.from('profiles').select('role'),
         supabase.from('buildings').select('id'),
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
         guides_count: users.filter(u => u.role === 'guide').length
       })
     } catch (error) {
-      console.error('Ошибка загрузки статистики:', error)
+      console.error('Error loading statistics:', error)
     } finally {
       setIsLoading(false)
     }
@@ -98,32 +98,32 @@ export default function AdminDashboard() {
 
   const quickActions = [
     {
-      name: 'Управление пользователями',
-      description: 'Просмотр и изменение ролей пользователей',
+      name: 'User Management',
+      description: 'View and change user roles',
       href: '/admin/users',
       icon: Users
     },
     {
-      name: 'Модерация контента',
-      description: 'Проверка и одобрение контента',
+      name: 'Content Moderation',
+      description: 'Review and approve content',
       href: '/admin/moderation',
       icon: Shield
     },
     {
-      name: 'Новости',
-      description: 'Управление архитектурными новостями',
+      name: 'News',
+      description: 'Manage architecture news',
       href: '/admin/news',
       icon: Newspaper
     },
     {
-      name: 'Подкасты',
-      description: 'Управление аудио подкастами',
+      name: 'Podcasts',
+      description: 'Manage audio podcasts',
       href: '/admin/podcasts',
       icon: Podcast
     },
     {
-      name: 'Автогенерация',
-      description: 'Массовое создание контента',
+      name: 'Auto-generation',
+      description: 'Bulk content creation',
       href: '/admin/autogeneration',
       icon: Bot
     }
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
             Dashboard
           </h1>
           <p className="text-muted-foreground mt-2">
-            Обзор системы и быстрый доступ к инструментам управления
+            System overview and quick access to management tools
           </p>
         </div>
 
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
           <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Пользователи</p>
+                <p className="text-sm font-medium text-muted-foreground">Users</p>
                 <p className="text-3xl font-metrics font-bold text-foreground mt-2">{stats?.users_count || 0}</p>
               </div>
               <div className="p-3 bg-primary/10 rounded-[var(--radius)]">
@@ -156,14 +156,14 @@ export default function AdminDashboard() {
             </div>
             <div className="mt-4 flex items-center text-sm text-muted-foreground">
               <TrendingUp className="w-4 h-4 mr-1" />
-              Всего зарегистрировано
+              Total Registered
             </div>
           </div>
 
           <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Здания</p>
+                <p className="text-sm font-medium text-muted-foreground">Buildings</p>
                 <p className="text-3xl font-metrics font-bold text-foreground mt-2">{stats?.buildings_count || 0}</p>
               </div>
               <div className="p-3 bg-primary/10 rounded-[var(--radius)]">
@@ -172,14 +172,14 @@ export default function AdminDashboard() {
             </div>
             <div className="mt-4 flex items-center text-sm text-muted-foreground">
               <TrendingUp className="w-4 h-4 mr-1" />
-              В базе данных
+              In Database
             </div>
           </div>
 
           <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Обзоры</p>
+                <p className="text-sm font-medium text-muted-foreground">Reviews</p>
                 <p className="text-3xl font-metrics font-bold text-foreground mt-2">{stats?.reviews_count || 0}</p>
               </div>
               <div className="p-3 bg-primary/10 rounded-[var(--radius)]">
@@ -188,14 +188,14 @@ export default function AdminDashboard() {
             </div>
             <div className="mt-4 flex items-center text-sm text-muted-foreground">
               <Activity className="w-4 h-4 mr-1" />
-              Пользовательских обзоров
+              User Reviews
             </div>
           </div>
 
           <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Маршруты</p>
+                <p className="text-sm font-medium text-muted-foreground">Routes</p>
                 <p className="text-3xl font-metrics font-bold text-foreground mt-2">{stats?.routes_count || 0}</p>
               </div>
               <div className="p-3 bg-primary/10 rounded-[var(--radius)]">
@@ -204,37 +204,37 @@ export default function AdminDashboard() {
             </div>
             <div className="mt-4 flex items-center text-sm text-muted-foreground">
               <TrendingUp className="w-4 h-4 mr-1" />
-              Создано маршрутов
+              Routes Created
             </div>
           </div>
         </div>
 
         {/* Распределение ролей */}
         <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm p-6 mb-8">
-          <h2 className="text-lg font-semibold text-foreground mb-6">Распределение ролей</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-6">Role Distribution</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center p-4 bg-muted/30 rounded-[var(--radius)]">
               <div className="text-3xl font-metrics font-bold text-primary mb-1">{stats?.admins_count || 0}</div>
-              <div className="text-sm text-muted-foreground">Администраторы</div>
+              <div className="text-sm text-muted-foreground">Administrators</div>
             </div>
             <div className="text-center p-4 bg-muted/30 rounded-[var(--radius)]">
               <div className="text-3xl font-metrics font-bold text-primary mb-1">{stats?.moderators_count || 0}</div>
-              <div className="text-sm text-muted-foreground">Модераторы</div>
+              <div className="text-sm text-muted-foreground">Moderators</div>
             </div>
             <div className="text-center p-4 bg-muted/30 rounded-[var(--radius)]">
               <div className="text-3xl font-metrics font-bold text-primary mb-1">{stats?.experts_count || 0}</div>
-              <div className="text-sm text-muted-foreground">Эксперты</div>
+              <div className="text-sm text-muted-foreground">Experts</div>
             </div>
             <div className="text-center p-4 bg-muted/30 rounded-[var(--radius)]">
               <div className="text-3xl font-metrics font-bold text-primary mb-1">{stats?.guides_count || 0}</div>
-              <div className="text-sm text-muted-foreground">Гиды</div>
+              <div className="text-sm text-muted-foreground">Guides</div>
             </div>
           </div>
         </div>
 
         {/* Быстрые действия */}
         <div>
-          <h2 className="text-lg font-semibold text-foreground mb-6">Быстрые действия</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-6">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {quickActions.map((action) => {
               const Icon = action.icon

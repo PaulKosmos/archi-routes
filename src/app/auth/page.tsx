@@ -33,7 +33,7 @@ export default function AuthPage() {
 
     try {
       const { error } = await signIn(email, password)
-      
+
       if (error) {
         setError(error.message)
       } else {
@@ -70,7 +70,7 @@ export default function AuthPage() {
             Архитектурная платформа
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSignIn}>
           <div className="space-y-4">
             <div>
@@ -84,10 +84,10 @@ export default function AuthPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Введите email"
+                placeholder="Enter email"
               />
             </div>
-            
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Пароль
@@ -99,7 +99,7 @@ export default function AuthPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Введите пароль"
+                placeholder="Enter password"
               />
             </div>
           </div>

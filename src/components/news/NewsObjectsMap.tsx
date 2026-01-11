@@ -128,7 +128,7 @@ export default function NewsObjectsMap({
       <div
         className="relative h-[400px] cursor-pointer group"
         onClick={handleMapClick}
-        title="Нажмите, чтобы открыть на полной карте"
+        title="Click to open on full map"
       >
         {/* Overlay для hover эффекта */}
         <div className="absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-10 transition-opacity z-10 pointer-events-none" />

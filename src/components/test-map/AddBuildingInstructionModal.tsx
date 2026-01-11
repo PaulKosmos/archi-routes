@@ -8,24 +8,24 @@ interface AddBuildingInstructionModalProps {
   onCancel: () => void
 }
 
-export default function AddBuildingInstructionModal({ 
-  isOpen, 
-  onConfirm, 
-  onCancel 
+export default function AddBuildingInstructionModal({
+  isOpen,
+  onConfirm,
+  onCancel
 }: AddBuildingInstructionModalProps) {
   if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Фон с затемнением */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onCancel}
       />
-      
+
       {/* Модальное окно */}
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
-        
+
         {/* Заголовок */}
         <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white">
           <div className="flex items-center justify-between">
@@ -38,7 +38,7 @@ export default function AddBuildingInstructionModal({
             <button
               onClick={onCancel}
               className="p-1 hover:bg-white/20 rounded-full transition-colors"
-              title="Отмена"
+              title="Cancel"
             >
               <X className="w-5 h-5" />
             </button>
@@ -55,7 +55,7 @@ export default function AddBuildingInstructionModal({
 
           <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
             <p className="text-gray-700 leading-relaxed">
-              Или нажмите <strong>"Добавить объект"</strong> еще раз для выхода из режима.
+              Or press <strong>"Add Building"</strong> again to exit mode.
             </p>
           </div>
 

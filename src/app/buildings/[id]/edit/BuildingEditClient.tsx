@@ -18,14 +18,14 @@ interface BuildingEditClientProps {
   }
 }
 
-export default function BuildingEditClient({ 
+export default function BuildingEditClient({
   building
 }: BuildingEditClientProps) {
   const router = useRouter()
-  
+
   // Получаем права доступа для отображения роли (новый API без userId)
   const permissions = useEditPermissions('building', building.id)
-  
+
   // Форма данных
   const [formData, setFormData] = useState({
     name: building.name || '',
@@ -63,7 +63,7 @@ export default function BuildingEditClient({
     try {
       const fileExt = file.name.split('.').pop()
       const fileName = `building_${building.id}_${Date.now()}.${fileExt}`
-      
+
       const { data, error } = await supabase.storage
         .from('building-images')
         .upload(fileName, file)
@@ -122,7 +122,7 @@ export default function BuildingEditClient({
       }
 
       setSuccess(true)
-      
+
       // Редирект на страницу здания через 2 секунды
       setTimeout(() => {
         router.push(`/buildings/${building.id}`)
@@ -220,7 +220,7 @@ export default function BuildingEditClient({
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Название здания"
+                placeholder="Building name"
               />
             </div>
 
@@ -233,7 +233,7 @@ export default function BuildingEditClient({
                 value={formData.architect}
                 onChange={(e) => handleInputChange('architect', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Имя архитектора"
+                placeholder="Architect name"
               />
             </div>
           </div>
@@ -248,7 +248,7 @@ export default function BuildingEditClient({
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Описание здания, его истории и особенностей"
+              placeholder="Building description, its history and features"
             />
           </div>
 
@@ -276,7 +276,7 @@ export default function BuildingEditClient({
                 value={formData.architectural_style}
                 onChange={(e) => handleInputChange('architectural_style', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Барокко, Модерн, Брутализм..."
+                placeholder="Baroque, Modern, Brutalism..."
               />
             </div>
 
@@ -289,7 +289,7 @@ export default function BuildingEditClient({
                 value={formData.building_type}
                 onChange={(e) => handleInputChange('building_type', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Жилой, Офисный, Культурный..."
+                placeholder="Residential, Office, Cultural..."
               />
             </div>
           </div>
@@ -305,7 +305,7 @@ export default function BuildingEditClient({
                 value={formData.address}
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Улица, дом"
+                placeholder="Street, house number"
               />
             </div>
 
@@ -318,7 +318,7 @@ export default function BuildingEditClient({
                 value={formData.city}
                 onChange={(e) => handleInputChange('city', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Город"
+                placeholder="City"
               />
             </div>
 
@@ -331,7 +331,7 @@ export default function BuildingEditClient({
                 value={formData.country}
                 onChange={(e) => handleInputChange('country', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Страна"
+                placeholder="Country"
               />
             </div>
           </div>
@@ -377,13 +377,13 @@ export default function BuildingEditClient({
                 <div>
                   <img
                     src={formData.image_url}
-                    alt="Текущее изображение"
+                    alt="Current image"
                     className="w-48 h-32 object-cover rounded-lg"
                   />
                   <p className="text-sm text-gray-600 mt-1">Текущее изображение</p>
                 </div>
               )}
-              
+
               <div>
                 <input
                   type="file"
@@ -424,7 +424,7 @@ export default function BuildingEditClient({
                 value={formData.entry_fee}
                 onChange={(e) => handleInputChange('entry_fee', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Бесплатно, €5, €10-15..."
+                placeholder="Free, €5, €10-15..."
               />
             </div>
           </div>

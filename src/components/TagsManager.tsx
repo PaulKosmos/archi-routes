@@ -81,11 +81,11 @@ export default function TagsManager({
 
   const validateForm = () => {
     if (!formData.name.trim()) {
-      setError('Название тега обязательно')
+      setError('Tag name is required')
       return false
     }
     if (!formData.slug.trim()) {
-      setError('Slug обязателен')
+      setError('Slug is required')
       return false
     }
     return true
@@ -136,14 +136,14 @@ export default function TagsManager({
       resetForm()
     } catch (err) {
       console.error('Error saving tag:', err)
-      setError(err instanceof Error ? err.message : 'Ошибка при сохранении тега')
+      setError(err instanceof Error ? err.message : 'Error saving tag')
     } finally {
       setLoading(false)
     }
   }
 
   const handleDelete = async (tagId: string) => {
-    if (!confirm('Удалить этот тег? Это действие нельзя отменить.')) {
+    if (!confirm('Delete this tag? This action cannot be undone.')) {
       return
     }
 
@@ -165,7 +165,7 @@ export default function TagsManager({
       }
     } catch (err) {
       console.error('Error deleting tag:', err)
-      setError(err instanceof Error ? err.message : 'Ошибка при удалении тега')
+      setError(err instanceof Error ? err.message : 'Error deleting tag')
     } finally {
       setLoading(false)
     }
@@ -223,11 +223,10 @@ export default function TagsManager({
                       <button
                         type="button"
                         onClick={() => handleToggleTag(tag.id)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
-                          isSelected
-                            ? 'bg-purple-100 border-purple-300 text-purple-700'
-                            : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
-                        }`}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${isSelected
+                          ? 'bg-purple-100 border-purple-300 text-purple-700'
+                          : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+                          }`}
                         disabled={loading}
                       >
                         <Tag size={14} />
@@ -261,7 +260,7 @@ export default function TagsManager({
                           onClick={() => handleStartEdit(tag)}
                           className="p-1 text-gray-600 hover:text-purple-600 transition-colors"
                           disabled={loading}
-                          title="Редактировать"
+                          title="Edit"
                         >
                           <Edit2 size={16} />
                         </button>
@@ -270,7 +269,7 @@ export default function TagsManager({
                           onClick={() => handleDelete(tag.id)}
                           className="p-1 text-gray-600 hover:text-red-600 transition-colors"
                           disabled={loading}
-                          title="Удалить"
+                          title="Delete"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -295,7 +294,7 @@ export default function TagsManager({
       {(isCreating || editingId) && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-4">
           <h4 className="font-semibold text-gray-900">
-            {editingId ? 'Редактировать тег' : 'Новый тег'}
+            {editingId ? 'Edit Tag' : 'New Tag'}
           </h4>
 
           <div>
@@ -306,7 +305,7 @@ export default function TagsManager({
               type="text"
               value={formData.name}
               onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="Название тега"
+              placeholder="Tag name"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               disabled={loading}
             />

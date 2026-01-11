@@ -67,7 +67,7 @@ export default function PodcastNewPage() {
         setTags(tagsData || [])
       } catch (err) {
         console.error('Error fetching data:', err)
-        setError('Ошибка при загрузке данных')
+        setError('Error loading data')
       } finally {
         setLoading(false)
       }
@@ -167,7 +167,7 @@ export default function PodcastNewPage() {
       }, 2000)
     } catch (err) {
       console.error('Upload error:', err)
-      setError(err instanceof Error ? err.message : 'Ошибка при загрузке')
+      setError(err instanceof Error ? err.message : 'Error uploading')
     } finally {
       setSubmitting(false)
     }
@@ -193,9 +193,9 @@ export default function PodcastNewPage() {
           <div className="max-w-7xl mx-auto">
             <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
               <CheckCircle className="mx-auto text-green-600 mb-4" size={48} />
-              <h2 className="text-2xl font-bold text-green-900 mb-2">Успешно загружено!</h2>
+              <h2 className="text-2xl font-bold text-green-900 mb-2">Successfully Created!</h2>
               <p className="text-green-700 mb-6">
-                Ваш подкаст был загружен. Вы будете перенаправлены на страницу эпизода...
+                Podcast created. Redirecting...
               </p>
             </div>
           </div>
@@ -214,13 +214,13 @@ export default function PodcastNewPage() {
           {/* Back button */}
           <Link href="/podcasts" className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8 group">
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-            Вернуться к подкастам
+            Back to Podcasts
           </Link>
 
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Загрузить новый подкаст</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">New Podcast</h1>
             <p className="text-gray-600">
-              Загрузите новый эпизод подкаста с аудиофайлом и обложкой
+              Create a new podcast episode
             </p>
           </div>
 
@@ -228,7 +228,7 @@ export default function PodcastNewPage() {
             <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 max-w-3xl">
               <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
               <div>
-                <p className="text-red-700 font-semibold">Ошибка</p>
+                <p className="text-red-700 font-semibold">Error</p>
                 <p className="text-red-700 text-sm">{error}</p>
               </div>
             </div>
@@ -250,13 +250,13 @@ export default function PodcastNewPage() {
             {/* Tips sidebar - Takes 1 column on large screens */}
             <div className="lg:col-span-1">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 sticky top-4">
-                <h3 className="font-semibold text-blue-900 mb-3">Советы по загрузке:</h3>
-                <ul className="text-sm text-blue-800 space-y-2">
-                  <li>• Поддерживаемые форматы аудио: MP3, WAV, OGG, FLAC</li>
-                  <li>• Максимальный размер файла: 500MB</li>
-                  <li>• Рекомендуемый размер обложки: 1:1 (например, 600x600px)</li>
-                  <li>• Вы можете добавить несколько тегов для лучшей категоризации</li>
-                  <li>• Сохраняйте информацию в черновике перед публикацией</li>
+                <h3 className="font-semibold text-blue-900 mb-3">Required:</h3>
+                <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                  <li>Upload audio file (MP3 or M4A format recommended)</li>
+                  <li>Cover image (16:9 format recommended)</li>
+                  <li>Title and description of the episode</li>
+                  <li>Choose a series or create a new one</li>
+                  <li>Save as draft before publishing</li>
                 </ul>
               </div>
             </div>

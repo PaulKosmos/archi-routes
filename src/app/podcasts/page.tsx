@@ -125,7 +125,7 @@ export default function PodcastsPage() {
         setEpisodes(mappedEpisodes)
       } catch (err) {
         console.error('Error fetching podcast data:', err)
-        setError('Ошибка при загрузке подкастов')
+        setError('Error loading podcasts')
       } finally {
         setLoading(false)
       }
@@ -163,9 +163,9 @@ export default function PodcastsPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Искать эпизоды..."
+              placeholder="Search episodes..."
               value={filters.search || ''}
-              onChange={(e) => setFilters({...filters, search: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
               disabled={loading}
               className="w-full pl-12 h-12 border-2 border-border bg-card text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--podcast-primary))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             />
@@ -174,21 +174,19 @@ export default function PodcastsPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setViewMode('grid')}
-              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${
-                viewMode === 'grid'
+              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${viewMode === 'grid'
                   ? 'bg-[hsl(var(--podcast-primary))] text-white'
                   : 'bg-card border-2 border-border text-foreground hover:bg-muted'
-              }`}
+                }`}
             >
               <Grid className="h-5 w-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${
-                viewMode === 'list'
+              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${viewMode === 'list'
                   ? 'bg-[hsl(var(--podcast-primary))] text-white'
                   : 'bg-card border-2 border-border text-foreground hover:bg-muted'
-              }`}
+                }`}
             >
               <List className="h-5 w-5" />
             </button>
@@ -198,9 +196,9 @@ export default function PodcastsPage() {
         {/* Info bar with count and add button */}
         <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-border">
           <span className="text-sm font-medium text-foreground">
-            {loading ? 'Загрузка...' : (
+            {loading ? 'Loading...' : (
               <>
-                Найдено эпизодов: <span className="font-bold text-[hsl(var(--podcast-primary))]">{episodes.length}</span>
+                Episodes found: <span className="font-bold text-[hsl(var(--podcast-primary))]">{episodes.length}</span>
               </>
             )}
           </span>
@@ -210,7 +208,7 @@ export default function PodcastsPage() {
               className="flex items-center gap-2 px-6 py-3 bg-[hsl(var(--podcast-primary))] text-white font-semibold rounded-[var(--radius)] hover:bg-[hsl(var(--podcast-primary))]/90 transition-colors"
             >
               <Plus size={20} />
-              Добавить подкаст
+              Add Podcast
             </Link>
           )}
         </div>
@@ -239,7 +237,7 @@ export default function PodcastsPage() {
             <div className="sticky top-4 bg-card border border-border p-6 space-y-6">
               {/* Серии Section */}
               <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Серии</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Series</h3>
                 <div className="space-y-2">
                   {series.map(s => (
                     <label key={s.id} className="flex items-center gap-3 cursor-pointer group">
@@ -248,9 +246,9 @@ export default function PodcastsPage() {
                         checked={filters.series_id === s.id}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setFilters({...filters, series_id: s.id})
+                            setFilters({ ...filters, series_id: s.id })
                           } else {
-                            setFilters({...filters, series_id: undefined})
+                            setFilters({ ...filters, series_id: undefined })
                           }
                         }}
                         className="w-4 h-4 rounded border-border text-[hsl(var(--podcast-primary))] focus:ring-[hsl(var(--podcast-primary))] cursor-pointer"
@@ -266,7 +264,7 @@ export default function PodcastsPage() {
 
               {/* Теги Section */}
               <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Теги</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">Tags</h3>
                 <div className="space-y-2">
                   {tags.map(tag => (
                     <label key={tag.id} className="flex items-center gap-3 cursor-pointer group">
@@ -275,9 +273,9 @@ export default function PodcastsPage() {
                         checked={filters.tag_ids?.includes(tag.id) || false}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setFilters({...filters, tag_ids: [...(filters.tag_ids || []), tag.id]})
+                            setFilters({ ...filters, tag_ids: [...(filters.tag_ids || []), tag.id] })
                           } else {
-                            setFilters({...filters, tag_ids: filters.tag_ids?.filter(id => id !== tag.id) || []})
+                            setFilters({ ...filters, tag_ids: filters.tag_ids?.filter(id => id !== tag.id) || [] })
                           }
                         }}
                         className="w-4 h-4 rounded border-border text-[hsl(var(--podcast-primary))] focus:ring-[hsl(var(--podcast-primary))] cursor-pointer"
@@ -304,8 +302,8 @@ export default function PodcastsPage() {
             ) : episodes.length === 0 ? (
               <div className="bg-card p-12 text-center border border-border">
                 <Headphones size={48} className="mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">Эпизодов не найдено</h3>
-                <p className="text-muted-foreground">Попробуйте изменить фильтры или вернитесь позже</p>
+                <h3 className="text-xl font-semibold text-foreground mb-2">No Episodes Found</h3>
+                <p className="text-muted-foreground">Try changing filters or come back later</p>
               </div>
             ) : viewMode === 'list' ? (
               <div className="space-y-4">

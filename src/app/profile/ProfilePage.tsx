@@ -107,8 +107,8 @@ export default function ProfilePage() {
 
       // Рассчитываем общие просмотры и средний рейтинг
       const totalViews = buildingsRes.data?.reduce((sum, building) => sum + (building.view_count || 0), 0) || 0
-      const avgRating = reviewsRes.data?.length > 0 
-        ? reviewsRes.data.reduce((sum, review) => sum + review.rating, 0) / reviewsRes.data.length 
+      const avgRating = reviewsRes.data?.length > 0
+        ? reviewsRes.data.reduce((sum, review) => sum + review.rating, 0) / reviewsRes.data.length
         : 0
 
       setStats({
@@ -162,32 +162,32 @@ export default function ProfilePage() {
         ...(buildingsRes.data?.map(building => ({
           id: building.id,
           type: 'building' as const,
-          title: `Добавил здание "${building.name}"`,
-          description: 'Новое архитектурное открытие',
+          title: `Added building "${building.name}"`,
+          description: 'New architectural discovery',
           created_at: building.created_at,
           url: `/buildings/${building.id}`
         })) || []),
         ...(reviewsRes.data?.map(review => ({
           id: review.id,
           type: 'review' as const,
-          title: `Написал обзор на "${(review.buildings as any).name}"`,
-          description: review.title || 'Новый обзор здания',
+          title: `Wrote review for "${(review.buildings as any).name}"`,
+          description: review.title || 'New building review',
           created_at: review.created_at,
           url: `/buildings/${review.id}`
         })) || []),
         ...(favoritesRes.data?.map(favorite => ({
           id: favorite.id,
           type: 'favorite' as const,
-          title: `Добавил в избранное "${(favorite.buildings as any).name}"`,
-          description: 'Новое здание в коллекции',
+          title: `Added to favorites "${(favorite.buildings as any).name}"`,
+          description: 'New building in collection',
           created_at: favorite.created_at,
           url: `/buildings/${favorite.id}`
         })) || []),
         ...(routesRes.data?.map(route => ({
           id: route.id,
           type: 'route' as const,
-          title: `Создал маршрут "${route.title}"`,
-          description: 'Новый архитектурный маршрут',
+          title: `Created route "${route.title}"`,
+          description: 'New architecture route',
           created_at: route.created_at,
           url: `/routes/${route.id}`
         })) || [])
@@ -225,14 +225,14 @@ export default function ProfilePage() {
 
   const getRoleDisplayName = (role: string) => {
     const roleNames = {
-      'guest': 'Гость',
-      'explorer': 'Исследователь',
-      'guide': 'Гид',
-      'expert': 'Эксперт',
-      'moderator': 'Модератор',
-      'admin': 'Администратор'
+      'guest': 'Guest',
+      'explorer': 'Explorer',
+      'guide': 'Guide',
+      'expert': 'Expert',
+      'moderator': 'Moderator',
+      'admin': 'Administrator'
     }
-    return roleNames[role as keyof typeof roleNames] || 'Исследователь'
+    return roleNames[role as keyof typeof roleNames] || 'Explorer'
   }
 
   const getRoleColor = (role: string) => {
@@ -252,7 +252,7 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка профиля...</p>
+          <p className="text-gray-600">Loading profile...</p>
         </div>
       </div>
     )
@@ -263,20 +263,20 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Вход необходим</h1>
-          <p className="text-gray-600 mb-6">Для просмотра профиля необходимо войти в систему</p>
-          <Link 
-            href="/auth" 
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Sign In Required</h1>
+          <p className="text-gray-600 mb-6">You must sign in to view your profile</p>
+          <Link
+            href="/auth"
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Войти
+            Sign In
           </Link>
         </div>
       </div>
     )
   }
 
-  const displayName = profile?.display_name || profile?.full_name || user.user_metadata?.full_name || 'Пользователь'
+  const displayName = profile?.display_name || profile?.full_name || user.user_metadata?.full_name || 'User'
   const avatar = profile?.avatar_url || user.user_metadata?.avatar_url
 
   return (
@@ -289,7 +289,7 @@ export default function ProfilePage() {
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>На главную</span>
+            <span>To Home</span>
           </Link>
         </div>
 
@@ -300,8 +300,8 @@ export default function ProfilePage() {
               {/* Аватар */}
               <div className="w-20 h-20 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center flex-shrink-0">
                 {avatar ? (
-                  <img 
-                    src={avatar} 
+                  <img
+                    src={avatar}
                     alt={displayName}
                     className="w-full h-full object-cover"
                   />
@@ -318,22 +318,22 @@ export default function ProfilePage() {
                   {displayName}
                 </h1>
                 <p className="text-gray-600 mb-2">{user.email}</p>
-                
+
                 <div className="flex flex-wrap items-center gap-3">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRoleColor(profile?.role || 'explorer')}`}>
                     {getRoleDisplayName(profile?.role || 'explorer')}
                   </span>
-                  
+
                   {profile?.city && (
                     <div className="flex items-center text-sm text-gray-500">
                       <MapPin className="w-4 h-4 mr-1" />
                       {profile.city}
                     </div>
                   )}
-                  
+
                   <div className="flex items-center text-sm text-gray-500">
                     <Calendar className="w-4 h-4 mr-1" />
-                    На платформе с {formatDate(profile?.created_at || user.created_at)}
+                    On platform since {formatDate(profile?.created_at || user.created_at)}
                   </div>
                 </div>
 
@@ -351,7 +351,7 @@ export default function ProfilePage() {
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 flex-shrink-0"
             >
               <Edit3 className="w-4 h-4" />
-              <span>Редактировать</span>
+              <span>Edit</span>
             </Link>
           </div>
         </div>
@@ -367,7 +367,7 @@ export default function ProfilePage() {
                 <p className="text-2xl font-bold text-gray-900">
                   {loading ? '...' : stats.buildings_count}
                 </p>
-                <p className="text-sm text-gray-600">Зданий</p>
+                <p className="text-sm text-gray-600">Buildings</p>
               </div>
             </div>
           </div>
@@ -381,7 +381,7 @@ export default function ProfilePage() {
                 <p className="text-2xl font-bold text-gray-900">
                   {loading ? '...' : stats.routes_count}
                 </p>
-                <p className="text-sm text-gray-600">Маршрутов</p>
+                <p className="text-sm text-gray-600">Routes</p>
               </div>
             </div>
           </div>
@@ -395,7 +395,7 @@ export default function ProfilePage() {
                 <p className="text-2xl font-bold text-gray-900">
                   {loading ? '...' : stats.reviews_count}
                 </p>
-                <p className="text-sm text-gray-600">Обзоров</p>
+                <p className="text-sm text-gray-600">Reviews</p>
               </div>
             </div>
           </div>
@@ -409,7 +409,7 @@ export default function ProfilePage() {
                 <p className="text-2xl font-bold text-gray-900">
                   {loading ? '...' : stats.favorites_count}
                 </p>
-                <p className="text-sm text-gray-600">Избранное</p>
+                <p className="text-sm text-gray-600">Favorites</p>
               </div>
             </div>
           </div>
@@ -423,7 +423,7 @@ export default function ProfilePage() {
                 <p className="text-2xl font-bold text-gray-900">
                   {loading ? '...' : stats.collections_count}
                 </p>
-                <p className="text-sm text-gray-600">Коллекций</p>
+                <p className="text-sm text-gray-600">Collections</p>
               </div>
             </div>
           </div>
@@ -436,10 +436,10 @@ export default function ProfilePage() {
               <div className="p-6 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                   <Clock className="w-5 h-5 mr-2" />
-                  Последняя активность
+                  Recent Activity
                 </h2>
               </div>
-              
+
               <div className="p-6">
                 {loading ? (
                   <div className="space-y-4">
@@ -472,7 +472,7 @@ export default function ProfilePage() {
                           href={activity.url}
                           className="text-blue-600 hover:text-blue-700 text-sm font-medium flex-shrink-0"
                         >
-                          Посмотреть
+                          View
                         </Link>
                       </div>
                     ))}
@@ -480,15 +480,15 @@ export default function ProfilePage() {
                 ) : (
                   <div className="text-center py-8">
                     <Clock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Пока нет активности</h3>
-                    <p className="text-gray-500 mb-4">Начните создавать маршруты и добавлять здания!</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Activity Yet</h3>
+                    <p className="text-gray-500 mb-4">Start creating routes and adding buildings!</p>
                     <div className="space-x-3">
                       <Link
                         href="/buildings/new"
                         className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors inline-flex items-center space-x-2"
                       >
                         <Building2 className="w-4 h-4" />
-                        <span>Добавить здание</span>
+                        <span>Add Building</span>
                       </Link>
                     </div>
                   </div>
@@ -503,20 +503,20 @@ export default function ProfilePage() {
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <TrendingUp className="w-5 h-5 mr-2" />
-                Статистика
+                Statistics
               </h3>
-              
+
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Общие просмотры</span>
+                  <span className="text-sm text-gray-600">Total Views</span>
                   <span className="font-semibold text-gray-900">
                     {loading ? '...' : stats.total_views.toLocaleString()}
                   </span>
                 </div>
-                
+
                 {stats.reviews_count > 0 && (
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Средний рейтинг</span>
+                    <span className="text-sm text-gray-600">Average Rating</span>
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
                       <span className="font-semibold text-gray-900">
@@ -530,8 +530,8 @@ export default function ProfilePage() {
 
             {/* Быстрая навигация */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Мои разделы</h3>
-              
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">My Sections</h3>
+
               <div className="space-y-3">
                 <Link
                   href="/profile/buildings"
@@ -539,7 +539,7 @@ export default function ProfilePage() {
                 >
                   <div className="flex items-center space-x-3">
                     <Building2 className="w-5 h-5 text-green-600" />
-                    <span className="font-medium text-gray-900">Объекты</span>
+                    <span className="font-medium text-gray-900">Buildings</span>
                   </div>
                   <span className="text-sm text-gray-500">{stats.buildings_count}</span>
                 </Link>
@@ -550,7 +550,7 @@ export default function ProfilePage() {
                 >
                   <div className="flex items-center space-x-3">
                     <MapPin className="w-5 h-5 text-blue-600" />
-                    <span className="font-medium text-gray-900">Мои маршруты</span>
+                    <span className="font-medium text-gray-900">My Routes</span>
                   </div>
                   <span className="text-sm text-gray-500">{stats.routes_count}</span>
                 </Link>
@@ -561,7 +561,7 @@ export default function ProfilePage() {
                 >
                   <div className="flex items-center space-x-3">
                     <MessageSquare className="w-5 h-5 text-purple-600" />
-                    <span className="font-medium text-gray-900">Мои обзоры</span>
+                    <span className="font-medium text-gray-900">My Reviews</span>
                   </div>
                   <span className="text-sm text-gray-500">{stats.reviews_count}</span>
                 </Link>
@@ -572,7 +572,7 @@ export default function ProfilePage() {
                 >
                   <div className="flex items-center space-x-3">
                     <Heart className="w-5 h-5 text-red-600" />
-                    <span className="font-medium text-gray-900">Избранное</span>
+                    <span className="font-medium text-gray-900">Favorites</span>
                   </div>
                   <span className="text-sm text-gray-500">{stats.favorites_count}</span>
                 </Link>
@@ -583,7 +583,7 @@ export default function ProfilePage() {
                 >
                   <div className="flex items-center space-x-3">
                     <Folder className="w-5 h-5 text-indigo-600" />
-                    <span className="font-medium text-gray-900">Коллекции</span>
+                    <span className="font-medium text-gray-900">Collections</span>
                   </div>
                   <span className="text-sm text-gray-500">{stats.collections_count}</span>
                 </Link>

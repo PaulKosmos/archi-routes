@@ -36,12 +36,12 @@ export default function PersonalRouteCreationModal({
 
   const handleSave = async () => {
     if (!routeName.trim()) {
-      alert('Пожалуйста, введите название маршрута')
+      alert('Please enter route name')
       return
     }
 
     if (localBuildings.length < 2) {
-      alert('Добавьте минимум 2 здания для создания маршрута')
+      alert('Add at least 2 buildings to create a route')
       return
     }
 
@@ -65,7 +65,7 @@ export default function PersonalRouteCreationModal({
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault()
-    
+
     if (draggedIndex === null || draggedIndex === index) return
 
     const newBuildings = [...localBuildings]
@@ -80,7 +80,7 @@ export default function PersonalRouteCreationModal({
   const handleDragEnd = () => {
     setDraggedIndex(null)
   }
-  
+
   const handleRemove = (buildingId: string) => {
     setLocalBuildings(prev => prev.filter(b => b.id !== buildingId))
     onRemoveBuilding(buildingId)
@@ -126,9 +126,8 @@ export default function PersonalRouteCreationModal({
                   onDragStart={() => handleDragStart(index)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDragEnd={handleDragEnd}
-                  className={`flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-all cursor-move ${
-                    draggedIndex === index ? 'opacity-50' : ''
-                  }`}
+                  className={`flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-all cursor-move ${draggedIndex === index ? 'opacity-50' : ''
+                    }`}
                 >
                   {/* Grip icon */}
                   <GripVertical className="w-5 h-5 text-gray-400 flex-shrink-0" />
@@ -161,7 +160,7 @@ export default function PersonalRouteCreationModal({
                   <button
                     onClick={() => handleRemove(building.id)}
                     className="p-2 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
-                    title="Удалить из маршрута"
+                    title="Remove from route"
                   >
                     <Trash2 className="w-4 h-4 text-red-600" />
                   </button>
@@ -180,7 +179,7 @@ export default function PersonalRouteCreationModal({
                 type="text"
                 value={routeName}
                 onChange={(e) => setRouteName(e.target.value)}
-                placeholder="Например: Моя прогулка по Берлину"
+                placeholder="E.g.: My Berlin Walk"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 maxLength={100}
               />

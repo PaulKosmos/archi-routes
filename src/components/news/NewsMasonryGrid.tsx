@@ -69,7 +69,7 @@ export default function NewsMasonryGrid({
       {/* Featured новости - полная ширина */}
       {featuredNews.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Главные новости</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Top News</h2>
           <div className="space-y-6">
             {featuredNews.map(article => (
               <NewsCard

@@ -119,7 +119,7 @@ export default function NewsSelector({
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            aria-label="Закрыть"
+            aria-label="Close"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
@@ -135,7 +135,7 @@ export default function NewsSelector({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Поиск по заголовку или описанию..."
+                placeholder="Search by title or description..."
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -178,15 +178,14 @@ export default function NewsSelector({
                     key={newsItem.id}
                     onClick={() => canSelect && handleToggleNews(newsItem.id)}
                     disabled={isExcluded || (!isSelected && selectedIds.length >= requiredCount)}
-                    className={`relative flex gap-4 p-4 rounded-xl border-2 transition-all text-left ${
-                      isSelected
-                        ? 'border-blue-600 bg-blue-50 shadow-md'
-                        : isExcluded
+                    className={`relative flex gap-4 p-4 rounded-xl border-2 transition-all text-left ${isSelected
+                      ? 'border-blue-600 bg-blue-50 shadow-md'
+                      : isExcluded
                         ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
                         : canSelect
-                        ? 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
-                        : 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
-                    }`}
+                          ? 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
+                          : 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
+                      }`}
                   >
                     {/* Image */}
                     {newsItem.featured_image_url && (
@@ -265,11 +264,10 @@ export default function NewsSelector({
             <button
               onClick={handleConfirm}
               disabled={selectedIds.length !== requiredCount}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-colors ${
-                selectedIds.length === requiredCount
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-colors ${selectedIds.length === requiredCount
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
             >
               Подтвердить выбор
             </button>

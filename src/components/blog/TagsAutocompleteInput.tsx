@@ -17,7 +17,7 @@ interface TagsAutocompleteInputProps {
 export default function TagsAutocompleteInput({
   selectedTags,
   onTagsChange,
-  placeholder = 'Введите тег...',
+  placeholder = 'Enter tag...',
 }: TagsAutocompleteInputProps) {
   const supabase = useMemo(() => createClient(), []);
   const [inputValue, setInputValue] = useState('');

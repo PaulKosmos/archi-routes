@@ -33,7 +33,7 @@ export default function CollectionIndicator({ buildingId, className = '' }: Coll
 
     try {
       setLoading(true)
-      
+
       const { data, error } = await supabase
         .from('collection_buildings')
         .select(`
@@ -67,11 +67,11 @@ export default function CollectionIndicator({ buildingId, className = '' }: Coll
   return (
     <div className={`flex items-center gap-2 text-sm text-gray-600 ${className}`}>
       <BookOpen className="w-4 h-4" />
-      <span>В коллекциях:</span>
+      <span>In Collections:</span>
       <div className="flex items-center gap-1">
         {collections.slice(0, 2).map((collection, index) => (
           <span key={collection.id}>
-            <Link 
+            <Link
               href={`/collections/${collection.id}`}
               className="text-blue-600 hover:text-blue-700 transition-colors"
             >

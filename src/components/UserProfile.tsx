@@ -93,14 +93,14 @@ export default function UserProfile({ user, onLogout }: UserProfileProps) {
 
   const getRoleBadge = (role: string) => {
     const badges = {
-      explorer: { label: 'Исследователь', color: 'bg-blue-100 text-blue-800', icon: '🔍' },
-      guide: { label: 'Гид', color: 'bg-green-100 text-green-800', icon: '🗺️' },
-      expert: { label: 'Эксперт', color: 'bg-purple-100 text-purple-800', icon: '🎓' },
-      moderator: { label: 'Модератор', color: 'bg-red-100 text-red-800', icon: '⚡' }
+      explorer: { label: 'Explorer', color: 'bg-blue-100 text-blue-800', icon: '🔍' },
+      guide: { label: 'Guide', color: 'bg-green-100 text-green-800', icon: '🗺️' },
+      expert: { label: 'Expert', color: 'bg-purple-100 text-purple-800', icon: '🎓' },
+      moderator: { label: 'Moderator', color: 'bg-red-100 text-red-800', icon: '⚡' }
     }
-    
+
     const badge = badges[role as keyof typeof badges] || badges.explorer
-    
+
     return (
       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${badge.color}`}>
         <span className="mr-1">{badge.icon}</span>
@@ -125,7 +125,7 @@ export default function UserProfile({ user, onLogout }: UserProfileProps) {
     return (
       <div className="bg-white rounded-xl shadow-sm border p-6">
         <div className="text-center text-red-600">
-          Ошибка загрузки профиля
+          Error loading profile
         </div>
       </div>
     )
@@ -142,7 +142,7 @@ export default function UserProfile({ user, onLogout }: UserProfileProps) {
             </div>
             <div>
               <h3 className="text-xl font-semibold text-gray-900">
-                {profile.full_name || 'Пользователь'}
+                {profile.full_name || 'User'}
               </h3>
               <p className="text-gray-600">{profile.email}</p>
               <div className="mt-2 flex items-center space-x-2">
@@ -156,7 +156,7 @@ export default function UserProfile({ user, onLogout }: UserProfileProps) {
               </div>
             </div>
           </div>
-          
+
           <div className="flex space-x-2">
             <button
               onClick={() => setIsEditing(!isEditing)}
@@ -177,7 +177,7 @@ export default function UserProfile({ user, onLogout }: UserProfileProps) {
       {/* Форма редактирования */}
       {isEditing && (
         <div className="p-6 border-b bg-gray-50">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">Редактировать профиль</h4>
+          <h4 className="text-lg font-medium text-gray-900 mb-4">Edit Profile</h4>
           <form onSubmit={(e) => {
             e.preventDefault()
             const formData = new FormData(e.currentTarget)
@@ -189,7 +189,7 @@ export default function UserProfile({ user, onLogout }: UserProfileProps) {
           }} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Полное имя
+                Full Name
               </label>
               <input
                 name="full_name"
@@ -198,10 +198,10 @@ export default function UserProfile({ user, onLogout }: UserProfileProps) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Город
+                City
               </label>
               <input
                 name="city"
@@ -210,33 +210,33 @@ export default function UserProfile({ user, onLogout }: UserProfileProps) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                О себе
+                About
               </label>
               <textarea
                 name="bio"
                 rows={3}
                 defaultValue={profile.bio || ''}
-                placeholder="Расскажите о своих интересах в архитектуре..."
+                placeholder="Tell us about your interests in architecture..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            
+
             <div className="flex space-x-3">
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Сохранить
+                Save
               </button>
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
               >
-                Отмена
+                Cancel
               </button>
             </div>
           </form>
@@ -245,25 +245,25 @@ export default function UserProfile({ user, onLogout }: UserProfileProps) {
 
       {/* Статистика пользователя */}
       <div className="p-6">
-        <h4 className="text-lg font-medium text-gray-900 mb-4">Активность</h4>
+        <h4 className="text-lg font-medium text-gray-900 mb-4">Activity</h4>
         <div className="grid grid-cols-3 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">0</div>
-            <div className="text-sm text-gray-600">Маршрутов</div>
+            <div className="text-sm text-gray-600">Routes</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600">0</div>
-            <div className="text-sm text-gray-600">Отзывов</div>
+            <div className="text-sm text-gray-600">Reviews</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600">0</div>
-            <div className="text-sm text-gray-600">Избранных</div>
+            <div className="text-sm text-gray-600">Favorites</div>
           </div>
         </div>
-        
+
         {profile.bio && (
           <div className="mt-6">
-            <h5 className="font-medium text-gray-900 mb-2">О себе</h5>
+            <h5 className="font-medium text-gray-900 mb-2">About</h5>
             <p className="text-gray-600 text-sm leading-relaxed">{profile.bio}</p>
           </div>
         )}

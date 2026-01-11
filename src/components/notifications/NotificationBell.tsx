@@ -20,7 +20,7 @@ interface Notification {
 export default function NotificationBell() {
   // ✅ Создаем НОВЫЙ Supabase клиент для этого компонента
   const supabase = useMemo(() => createClient(), [])
-  
+
   const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -31,13 +31,13 @@ export default function NotificationBell() {
   // Загрузка уведомлений и подписка на realtime
   useEffect(() => {
     if (!user) return
-    
+
     console.log('🔔 NotificationBell: Загрузка уведомлений для user:', user.id)
     loadNotifications()
-    
+
     // Подписываемся на realtime И СОХРАНЯЕМ cleanup функцию
     const cleanup = setupRealtimeSubscription()
-    
+
     // Cleanup функция вызывается при unmount или смене user
     return cleanup
   }, [user?.id])  // user?.id вместо user
@@ -89,7 +89,7 @@ export default function NotificationBell() {
     if (!user) return
 
     console.log('🔔 NotificationBell: Создаем Realtime канал для user:', user.id)
-    
+
     const channel = supabase
       .channel(`user-notifications-${user.id}`)  // Уникальное имя канала
       .on(
@@ -104,7 +104,7 @@ export default function NotificationBell() {
           console.log('🔔 New notification:', payload.new)
           setNotifications(prev => [payload.new as Notification, ...prev])
           setUnreadCount(prev => prev + 1)
-          
+
           // Toast уведомление
           const notification = payload.new as Notification
           if ('Notification' in window && Notification.permission === 'granted') {
@@ -146,7 +146,7 @@ export default function NotificationBell() {
   const markAllAsRead = async () => {
     try {
       const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id)
-      
+
       if (unreadIds.length === 0) return
 
       const { error } = await supabase
@@ -209,13 +209,13 @@ export default function NotificationBell() {
 
     if (diffInHours < 1) {
       const minutes = Math.floor(diffInHours * 60)
-      return `${minutes} мин назад`
+      return `${minutes} min ago`
     } else if (diffInHours < 24) {
-      return `${Math.floor(diffInHours)} ч назад`
+      return `${Math.floor(diffInHours)} hr ago`
     } else if (diffInHours < 48) {
-      return 'вчера'
+      return 'yesterday'
     } else {
-      return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+      return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
     }
   }
 
@@ -227,10 +227,10 @@ export default function NotificationBell() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-        title="Уведомления"
+        title="Notifications"
       >
         <Bell className="w-5 h-5" />
-        
+
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
             {unreadCount > 99 ? '99+' : unreadCount}
@@ -243,13 +243,13 @@ export default function NotificationBell() {
         <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-2xl border border-gray-200 z-50">
           {/* Заголовок */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <h3 className="font-semibold text-gray-900">Уведомления</h3>
+            <h3 className="font-semibold text-gray-900">Notifications</h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
                 className="text-xs text-blue-600 hover:text-blue-700 font-medium"
               >
-                Отметить все прочитанными
+                Mark all as read
               </button>
             )}
           </div>
@@ -259,21 +259,20 @@ export default function NotificationBell() {
             {loading ? (
               <div className="p-8 text-center">
                 <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                <p className="text-sm text-gray-500">Загрузка...</p>
+                <p className="text-sm text-gray-500">Loading...</p>
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
                 <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-500">Нет уведомлений</p>
+                <p className="text-sm text-gray-500">No notifications</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 hover:bg-gray-50 transition-colors ${
-                      !notification.is_read ? 'bg-blue-50' : ''
-                    }`}
+                    className={`p-4 hover:bg-gray-50 transition-colors ${!notification.is_read ? 'bg-blue-50' : ''
+                      }`}
                   >
                     <div className="flex items-start space-x-3">
                       {/* Иконка */}
@@ -284,17 +283,16 @@ export default function NotificationBell() {
                       {/* Контент */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
-                          <h4 className={`text-sm font-medium ${
-                            !notification.is_read ? 'text-gray-900' : 'text-gray-700'
-                          }`}>
+                          <h4 className={`text-sm font-medium ${!notification.is_read ? 'text-gray-900' : 'text-gray-700'
+                            }`}>
                             {notification.title}
                           </h4>
-                          
+
                           {!notification.is_read && (
                             <button
                               onClick={() => markAsRead(notification.id)}
                               className="ml-2 p-1 text-blue-600 hover:text-blue-700"
-                              title="Отметить как прочитанное"
+                              title="Mark as read"
                             >
                               <Check className="w-4 h-4" />
                             </button>
@@ -319,7 +317,7 @@ export default function NotificationBell() {
                                 setIsOpen(false)
                               }}
                             >
-                              Перейти →
+                              Go to →
                             </Link>
                           )}
                         </div>
@@ -338,7 +336,7 @@ export default function NotificationBell() {
                 onClick={() => setIsOpen(false)}
                 className="text-sm text-gray-600 hover:text-gray-900"
               >
-                Закрыть
+                Close
               </button>
             </div>
           )}

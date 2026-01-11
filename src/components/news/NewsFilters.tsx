@@ -60,14 +60,14 @@ export default function NewsFiltersComponent({
         {/* Город */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Город
+            City
           </label>
           <select
             value={filters.city || ''}
             onChange={(e) => handleCityChange(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Все города</option>
+            <option value="">All Cities</option>
             {availableCities.map((city) => (
               <option key={city} value={city}>{city}</option>
             ))}
@@ -77,24 +77,24 @@ export default function NewsFiltersComponent({
         {/* Период */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Период
+            Period
           </label>
           <select
             value={
               filters.date_from ? (
                 filters.date_from.includes(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]) ? 'week' :
-                filters.date_from.includes(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]) ? 'month' :
-                filters.date_from.includes(new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]) ? '3months' :
-                'custom'
+                  filters.date_from.includes(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]) ? 'month' :
+                    filters.date_from.includes(new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]) ? '3months' :
+                      'custom'
               ) : ''
             }
             onChange={(e) => handleDateChange(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Все время</option>
-            <option value="week">Последняя неделя</option>
-            <option value="month">Последний месяц</option>
-            <option value="3months">Последние 3 месяца</option>
+            <option value="">All Time</option>
+            <option value="week">Last Week</option>
+            <option value="month">Last Month</option>
+            <option value="3months">Last 3 Months</option>
           </select>
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function NewsFiltersComponent({
             onChange={(e) => handleFeaturedChange(e.target.checked)}
             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
           />
-          <span className="text-sm text-gray-700">Только главные новости</span>
+          <span className="text-sm text-gray-700">Featured News Only</span>
         </label>
 
         <label className="flex items-center gap-2 cursor-pointer">
@@ -118,7 +118,7 @@ export default function NewsFiltersComponent({
             onChange={(e) => handleBuildingsChange(e.target.checked)}
             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
           />
-          <span className="text-sm text-gray-700">С упоминанием зданий</span>
+          <span className="text-sm text-gray-700">With Buildings Mentioned</span>
         </label>
       </div>
     </div>

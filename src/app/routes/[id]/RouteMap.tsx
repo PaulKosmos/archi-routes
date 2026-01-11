@@ -64,7 +64,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
   const decoratorLayer = useRef<any>(null)
   const userLocationMarker = useRef<L.CircleMarker | null>(null)
   const userAccuracyCircle = useRef<L.Circle | null>(null)
-  
+
   // 🔧 УПРОЩЕННОЕ УПРАВЛЕНИЕ ПОПАПАМИ
   const markersRef = useRef<Map<number, L.Marker>>(new Map())
   const popupTimers = useRef<Map<number, NodeJS.Timeout>>(new Map())
@@ -74,7 +74,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
     const bgColor = isActive ? '#3B82F6' : (hasBuilding ? '#10B981' : '#6B7280')
     const textColor = 'white'
     const borderColor = isActive ? '#1D4ED8' : (hasBuilding ? '#059669' : '#374151')
-    
+
     return L.divIcon({
       html: `
         <div style="
@@ -132,7 +132,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
       // Очищаем все таймеры
       popupTimers.current.forEach(timer => clearTimeout(timer))
       popupTimers.current.clear()
-      
+
       if (mapInstance.current) {
         mapInstance.current.remove()
         mapInstance.current = null
@@ -154,7 +154,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
     markersRef.current.clear()
     popupTimers.current.forEach(timer => clearTimeout(timer))
     popupTimers.current.clear()
-    
+
     if (routeLayer.current) {
       mapInstance.current.removeLayer(routeLayer.current)
     }
@@ -162,7 +162,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
       mapInstance.current.removeLayer(decoratorLayer.current)
     }
 
-    const validPoints = route.route_points.filter((point: any) => 
+    const validPoints = route.route_points.filter((point: any) =>
       point.latitude && point.longitude
     )
 
@@ -175,15 +175,15 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
     validPoints.forEach((point: any, index: number) => {
       const isActive = index === currentPointIndex
       const hasBuilding = !!point.buildings
-      
+
       const marker = L.marker(
         [point.latitude, point.longitude],
-        { 
+        {
           icon: createNumberedIcon(index + 1, isActive, hasBuilding),
           zIndexOffset: isActive ? 1000 : 0
         }
       )
-      
+
       // 🔧 ИСПРАВЛЕННОЕ СОДЕРЖИМОЕ ПОПАПА
       const popupContent = `
         <div class="route-popup-content" style="min-width: 250px; max-width: 300px;">
@@ -203,7 +203,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
                   🏛️ ${point.buildings.name}
                 </h4>
                 <p style="margin: 2px 0; font-size: 12px; color: #047857;">
-                  ${point.buildings.architect || 'Архитектор неизвестен'} • ${point.buildings.year_built || 'Год неизвестен'}
+                  ${point.buildings.architect || 'Architect unknown'} • ${point.buildings.year_built || 'Year unknown'}
                 </p>
                 ${point.buildings.architectural_style ? `
                   <p style="margin: 2px 0; font-size: 12px; color: #047857;">
@@ -254,7 +254,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
           ` : ''}
         </div>
       `
-      
+
       marker.bindPopup(popupContent, {
         maxWidth: 350,
         className: 'route-point-popup',
@@ -262,50 +262,50 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
         autoClose: false,
         closeOnClick: false
       })
-      
+
       // 🔧 ИСПРАВЛЕННЫЕ ОБРАБОТЧИКИ СОБЫТИЙ МАРКЕРОВ
       marker.on('mouseover', () => {
         console.log('🖱️ Mouse ENTER на точку', index, point.title)
-        
+
         // Очищаем все таймеры для этой точки
         const timer = popupTimers.current.get(index)
         if (timer) {
           clearTimeout(timer)
           popupTimers.current.delete(index)
         }
-        
+
         // Открываем попап с небольшой задержкой
         const openTimer = setTimeout(() => {
           if (!marker.getPopup()?.isOpen()) {
             marker.openPopup()
           }
         }, 150)
-        
+
         popupTimers.current.set(index, openTimer)
       })
 
       marker.on('mouseout', () => {
         console.log('🖱️ Mouse LEAVE точки', index, point.title)
-        
+
         // 🔧 ИСПРАВЛЕНО: Закрываем ВСЕ точки, включая первую
         const closeTimer = setTimeout(() => {
           if (marker.getPopup()?.isOpen()) {
             marker.closePopup()
           }
         }, 300)
-        
+
         popupTimers.current.set(index, closeTimer)
       })
-      
+
       // 🔧 ИСПРАВЛЕННЫЕ ОБРАБОТЧИКИ ПОПАПОВ
       marker.on('popupopen', () => {
         console.log('📋 Попап открыт для точки', index)
-        
+
         // Небольшая задержка для рендера DOM
         setTimeout(() => {
           const popupElement = marker.getPopup()?.getElement()
           if (popupElement) {
-            
+
             // Функция для обработки наведения на попап
             const handlePopupMouseEnter = () => {
               console.log('🖱️ Mouse ENTER на попап точки', index)
@@ -316,23 +316,23 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
                 popupTimers.current.delete(index)
               }
             }
-            
+
             // Функция для обработки ухода с попапа
             const handlePopupMouseLeave = () => {
               console.log('🖱️ Mouse LEAVE попапа точки', index)
-              
+
               // 🔧 ИСПРАВЛЕНО: Закрываем все попапы
               const closeTimer = setTimeout(() => {
                 marker.closePopup()
               }, 200)
-              
+
               popupTimers.current.set(index, closeTimer)
             }
-            
+
             // Добавляем обработчики к попапу
             popupElement.addEventListener('mouseenter', handlePopupMouseEnter)
             popupElement.addEventListener('mouseleave', handlePopupMouseLeave)
-            
+
             // Убираем обработчики при закрытии попапа
             marker.once('popupclose', () => {
               popupElement.removeEventListener('mouseenter', handlePopupMouseEnter)
@@ -341,12 +341,12 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
           }
         }, 100)
       })
-      
+
       // Автоматически открываем попап для активной точки
       if (isActive && index > 0) {
         setTimeout(() => marker.openPopup(), 100)
       }
-      
+
       // Сохраняем маркер и добавляем на карту
       markersRef.current.set(index, marker)
       markersLayer.current?.addLayer(marker)
@@ -358,7 +358,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
     if (route.route_geometry && route.route_geometry.coordinates && route.route_geometry.coordinates.length > 0) {
       console.log('✅ Using real route geometry with', route.route_geometry.coordinates.length, 'points')
       routeCoordinates = route.route_geometry.coordinates.map(coord => [coord[1], coord[0]])
-      
+
       routeLayer.current = L.polyline(routeCoordinates, {
         color: getRouteColor(route.transport_mode),
         weight: getRouteWeight(route.transport_mode),
@@ -372,7 +372,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
       routeCoordinates = validPoints
         .filter(point => point.latitude !== null && point.longitude !== null)
         .map(point => [point.latitude!, point.longitude!])
-      
+
       if (routeCoordinates.length > 1) {
         routeLayer.current = L.polyline(routeCoordinates, {
           color: getRouteColor(route.transport_mode),
@@ -415,7 +415,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
     // Подгоняем карту под маршрут
     if (routeCoordinates.length > 0) {
       const bounds = L.latLngBounds(routeCoordinates)
-      mapInstance.current.fitBounds(bounds, { 
+      mapInstance.current.fitBounds(bounds, {
         padding: [20, 20],
         maxZoom: 16
       })
@@ -429,7 +429,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
 
     if (userLocation) {
       console.log('📍 Обновляем местоположение пользователя:', userLocation)
-      
+
       // Обновляем существующие маркеры вместо пересоздания
       if (userLocationMarker.current && userAccuracyCircle.current) {
         // Просто обновляем позицию
@@ -449,7 +449,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
             opacity: 0.3
           }
         ).addTo(mapInstance.current)
-        
+
         userLocationMarker.current = L.circleMarker(
           [userLocation.latitude, userLocation.longitude],
           {
@@ -461,7 +461,7 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
             opacity: 1
           }
         ).addTo(mapInstance.current)
-        
+
         userLocationMarker.current.bindPopup(`
           <div style="text-align: center; min-width: 200px;">
             <h4 style="margin: 0 0 8px 0; color: #3B82F6;">📍 Ваше местоположение</h4>
@@ -513,17 +513,17 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
   useEffect(() => {
     (window as any).startFromThisPoint = (pointIndex: number) => {
       console.log('🚀 Начинаем навигацию с точки:', pointIndex)
-      
+
       if (!userLocation) {
-        alert('Сначала включите GPS-навигацию')
+        alert('Please enable GPS navigation first')
         return
       }
-      
+
       if (!route.route_points || pointIndex >= route.route_points.length) {
-        alert('Некорректная точка маршрута')
+        alert('Invalid route point')
         return
       }
-      
+
       if (typeof (window as any).setCurrentStepFromMap === 'function') {
         (window as any).setCurrentStepFromMap(pointIndex)
       }
@@ -573,20 +573,20 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
           <span className="mr-2">{TransportModeHelper.getIcon(route.transport_mode || 'walking')}</span>
           Маршрут: {route.route_points?.length || 0} точек
         </div>
-        
+
         {route.route_summary && (
           <div className="text-xs text-gray-600 mt-1 space-y-1">
             <div>📏 {formatDistance(route.route_summary.distance)}</div>
             <div>⏱️ {formatDuration(route.route_summary.duration)}</div>
           </div>
         )}
-        
+
         {currentPointIndex >= 0 && route.route_points?.[currentPointIndex] && (
           <div className="text-xs text-blue-600 mt-1 pt-1 border-t">
             Точка {currentPointIndex + 1}: {route.route_points[currentPointIndex].title}
           </div>
         )}
-        
+
         {userLocation && (
           <div className="text-xs text-green-600 mt-1 pt-1 border-t">
             📍 GPS: ±{Math.round(userLocation.accuracy)}м
@@ -596,11 +596,11 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
 
       {/* Легенда */}
       <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-md border p-3">
-        <div className="text-sm font-medium text-gray-900 mb-2">Легенда</div>
+        <div className="text-sm font-medium text-gray-900 mb-2">Legend</div>
         <div className="space-y-2 text-xs">
           <div className="flex items-center">
             <div className="w-5 h-5 rounded-full bg-gray-500 border-2 border-gray-700 mr-2 flex items-center justify-center text-white text-[10px] font-bold">1</div>
-            <span>Точка маршрута</span>
+            <span>Route Point</span>
           </div>
           <div className="flex items-center">
             <div className="w-5 h-5 rounded-full bg-green-500 border-2 border-green-700 mr-2 flex items-center justify-center text-white text-[10px] font-bold">2</div>
@@ -609,22 +609,22 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
           {currentPointIndex >= 0 && (
             <div className="flex items-center">
               <div className="w-6 h-6 rounded-full bg-blue-500 border-2 border-blue-800 mr-2 flex items-center justify-center text-white text-[10px] font-bold transform scale-110">3</div>
-              <span>Текущая точка</span>
+              <span>Current Point</span>
             </div>
           )}
           {userLocation && (
             <div className="flex items-center">
               <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white mr-2 animate-pulse"></div>
-              <span>Ваше местоположение</span>
+              <span>Your Location</span>
             </div>
           )}
           <div className="flex items-center pt-1 border-t">
-            <div 
+            <div
               className="w-4 h-1 mr-2"
               style={{ backgroundColor: getRouteColor(route.transport_mode) }}
             ></div>
             <span>
-              {route.route_geometry ? 'Реальные дороги' : 'Прямые линии'}
+              {route.route_geometry ? 'Real roads' : 'Straight lines'}
             </span>
           </div>
           {!route.route_geometry && (
@@ -646,8 +646,8 @@ export default function RouteMap({ route, currentPointIndex = -1, showNavigation
       )}
 
       {/* Контейнер карты */}
-      <div 
-        ref={mapRef} 
+      <div
+        ref={mapRef}
         className="w-full h-[600px] rounded-lg"
         style={{ minHeight: '600px' }}
       />

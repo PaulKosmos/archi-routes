@@ -32,7 +32,7 @@ export class RouteGenerator {
 
   async generateRoute(params: GenerationParams): Promise<GenerationResult> {
     const startTime = Date.now()
-    
+
     try {
       // Создаем лог генерации
       await this.createGenerationLog(params)
@@ -41,7 +41,7 @@ export class RouteGenerator {
       console.log('🚀 Запуск генерации маршрута:', params)
 
       // 1. Получаем шаблон если указан
-      const template = params.template_id 
+      const template = params.template_id
         ? await this.getTemplate(params.template_id)
         : null
 
@@ -50,13 +50,13 @@ export class RouteGenerator {
       console.log(`🏢 Найдено ${buildings.length} подходящих зданий`)
 
       if (buildings.length < Math.min(params.max_points || 3, 3)) {
-        throw new Error(`Недостаточно зданий для создания маршрута. Найдено: ${buildings.length}, минимум нужно: ${Math.min(params.max_points || 3, 3)}`)
+        throw new Error(`Not enough buildings to create route. Found: ${buildings.length}, minimum needed: ${Math.min(params.max_points || 3, 3)}`)
       }
 
       // 3. Оптимизируем выбор точек
       const selectedBuildings = await this.optimizeBuildingSelection(
-        buildings, 
-        params, 
+        buildings,
+        params,
         template
       )
       console.log(`✅ Выбрано ${selectedBuildings.length} зданий для маршрута`)
@@ -112,7 +112,7 @@ export class RouteGenerator {
   // ======================================
 
   private async findSuitableBuildings(
-    params: GenerationParams, 
+    params: GenerationParams,
     template?: RouteTemplate
   ): Promise<Building[]> {
     console.log('🔍 Поиск зданий по критериям...')
@@ -131,7 +131,7 @@ export class RouteGenerator {
 
       if (criteria.architectural_style?.length) {
         // Поддержка многоязычных архитектурных стилей
-        const allStyleVariants = criteria.architectural_style.flatMap(style => 
+        const allStyleVariants = criteria.architectural_style.flatMap(style =>
           this.normalizeArchitecturalStyle(style)
         )
         query = query.in('architectural_style', allStyleVariants)
@@ -190,7 +190,7 @@ export class RouteGenerator {
     const { data, error } = await query
 
     if (error) {
-      throw new Error(`Ошибка поиска зданий: ${error.message}`)
+      throw new Error(`Building search error: ${error.message}`)
     }
 
     return data || []
@@ -201,7 +201,7 @@ export class RouteGenerator {
   // ======================================
 
   private async optimizeBuildingSelection(
-    buildings: Building[], 
+    buildings: Building[],
     params: GenerationParams,
     template?: RouteTemplate
   ): Promise<Building[]> {
@@ -242,7 +242,7 @@ export class RouteGenerator {
   // ======================================
 
   private optimizeGeographicalFlow(
-    buildings: Building[], 
+    buildings: Building[],
     rules: any
   ): Building[] {
     if (buildings.length < 3) return buildings
@@ -254,11 +254,11 @@ export class RouteGenerator {
     // Сортируем от центра по спирали (упрощенный алгоритм)
     return buildings.sort((a, b) => {
       const distA = this.calculateDistance(
-        centerLat, centerLng, 
+        centerLat, centerLng,
         a.latitude || 0, a.longitude || 0
       )
       const distB = this.calculateDistance(
-        centerLat, centerLng, 
+        centerLat, centerLng,
         b.latitude || 0, b.longitude || 0
       )
       return distA - distB
@@ -270,7 +270,7 @@ export class RouteGenerator {
   // ======================================
 
   private ensureDiversity(
-    buildings: Building[], 
+    buildings: Building[],
     maxPoints: number,
     template?: RouteTemplate
   ): Building[] {
@@ -314,7 +314,7 @@ export class RouteGenerator {
   // ======================================
 
   private async createRoutePoints(
-    buildings: Building[], 
+    buildings: Building[],
     params: GenerationParams,
     template?: RouteTemplate
   ): Promise<GeneratedPoint[]> {
@@ -340,7 +340,7 @@ export class RouteGenerator {
   // ======================================
 
   private async enhanceWithAI(
-    points: GeneratedPoint[], 
+    points: GeneratedPoint[],
     params: GenerationParams,
     template?: RouteTemplate
   ) {
@@ -348,7 +348,7 @@ export class RouteGenerator {
 
     // Генерируем название маршрута
     const title = await this.generateRouteTitle(params, template, points)
-    
+
     // Генерируем описание маршрута
     const description = await this.generateRouteDescription(params, template, points)
 
@@ -386,9 +386,9 @@ export class RouteGenerator {
     }
 
     // В реальной версии здесь будет вызов AI API
-    const prompt = template?.ai_prompts?.title_prompt || 
+    const prompt = template?.ai_prompts?.title_prompt ||
       `Создай привлекательное название для архитектурного маршрута в городе ${params.city}`
-    
+
     return this.mockAICall(prompt, 'title')
   }
 
@@ -401,15 +401,15 @@ export class RouteGenerator {
       // Мок-генерация
       const pointsCount = points?.length || 0
       const styleHint = template?.template_config.style || 'различных архитектурных стилей'
-      
+
       return `Увлекательный маршрут по ${pointsCount} архитектурным объектам в городе ${params.city}. ` +
-             `Вы познакомитесь с зданиями ${styleHint} и узнаете их историю. ` +
-             `Маршрут подходит для всех возрастов и займет около ${this.calculateTotalDuration(points || [])} минут.`
+        `Вы познакомитесь с зданиями ${styleHint} и узнаете их историю. ` +
+        `Маршрут подходит для всех возрастов и займет около ${this.calculateTotalDuration(points || [])} минут.`
     }
 
-    const prompt = template?.ai_prompts?.description_prompt || 
+    const prompt = template?.ai_prompts?.description_prompt ||
       `Напиши увлекательное описание архитектурного маршрута по ${points?.length || 0} зданиям в городе ${params.city}`
-    
+
     return this.mockAICall(prompt, 'description')
   }
 
@@ -554,10 +554,10 @@ export class RouteGenerator {
     const Δφ = (lat2 - lat1) * Math.PI / 180
     const Δλ = (lng2 - lng1) * Math.PI / 180
 
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ/2) * Math.sin(Δλ/2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) *
+      Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
     return R * c
   }
@@ -592,22 +592,22 @@ export class RouteGenerator {
     }
 
     const avgDistance = totalDistance / (buildings.length - 1)
-    
+
     // Оптимальная дистанция между точками 300-800м
     if (avgDistance >= 300 && avgDistance <= 800) return 1
     if (avgDistance < 100) return 0.3 // Слишком близко
     if (avgDistance > 2000) return 0.3 // Слишком далеко
-    
+
     return 0.7 // Приемлемо
   }
 
   private calculateDiversityScore(buildings: Building[]): number {
     const styles = new Set(buildings.map(b => b.architectural_style).filter(Boolean))
     const types = new Set(buildings.map(b => b.building_type).filter(Boolean))
-    
+
     const styleRatio = styles.size / buildings.length
     const typeRatio = types.size / buildings.length
-    
+
     return Math.min((styleRatio + typeRatio) / 2, 1)
   }
 
@@ -692,8 +692,8 @@ export class RouteGenerator {
   }
 
   private async updateLogStatus(
-    status: string, 
-    result?: GenerationResult, 
+    status: string,
+    result?: GenerationResult,
     processingTime?: number,
     errorMessage?: string
   ): Promise<void> {

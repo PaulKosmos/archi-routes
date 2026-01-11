@@ -86,7 +86,7 @@ const TRANSPORT_COLORS = {
 const createRoutePointIcon = (index: number, isSelected: boolean = false) => {
   const color = isSelected ? '#DC2626' : '#059669'
   const size = isSelected ? 32 : 24
-  
+
   return L.divIcon({
     html: `
       <div style="
@@ -108,17 +108,17 @@ const createRoutePointIcon = (index: number, isSelected: boolean = false) => {
     `,
     className: 'route-point-icon',
     iconSize: [size, size],
-    iconAnchor: [size/2, size/2],
-    popupAnchor: [0, -size/2]
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2]
   })
 }
 
-export default function LeafletMap({ 
-  buildings, 
-  routes = [], 
+export default function LeafletMap({
+  buildings,
+  routes = [],
   selectedRoute,
   selectedBuilding = null,
-  onBuildingClick 
+  onBuildingClick
 }: LeafletMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<L.Map | null>(null)
@@ -185,7 +185,7 @@ export default function LeafletMap({
       attribution: newStyle.attribution,
       maxZoom: 19
     }).addTo(mapInstance.current)
-    
+
     setCurrentTileLayer(newTileLayer)
   }, [currentStyle, mapInitialized])
 
@@ -202,7 +202,7 @@ export default function LeafletMap({
 
     // Очищаем предыдущие маркеры зданий
     markersLayer.current.clearLayers()
-    
+
     // Очищаем ссылки на маркеры
     Object.values(buildingMarkersRef.current).forEach(marker => {
       if (mapInstance.current && mapInstance.current.hasLayer(marker)) {
@@ -224,7 +224,7 @@ export default function LeafletMap({
       const isSelected = selectedBuilding === building.id
       const markerIcon = L.divIcon({
         className: 'custom-building-marker',
-        html: isSelected 
+        html: isSelected
           ? `<div class="building-marker-selected">
                <div class="pulse-ring"></div>
                <div class="building-icon">🏢</div>
@@ -235,13 +235,13 @@ export default function LeafletMap({
         iconSize: isSelected ? [30, 30] : [24, 24],
         iconAnchor: isSelected ? [15, 15] : [12, 12]
       })
-      
+
       const marker = L.marker([building.latitude, building.longitude], { icon: markerIcon })
       validCoordinates.push([building.latitude, building.longitude])
-      
+
       // Сохраняем маркер в ref
       buildingMarkersRef.current[building.id] = marker
-      
+
       // Создаем попап с информацией о здании
       const popupContent = `
         <div style="min-width: 280px; max-width: 350px;">
@@ -306,12 +306,12 @@ export default function LeafletMap({
               onmouseover="this.style.backgroundColor='#2563EB'"
               onmouseout="this.style.backgroundColor='#3B82F6'"
             >
-              Подробнее →
+              Learn More →
             </button>
           </div>
         </div>
       `
-      
+
       marker.bindPopup(popupContent, {
         maxWidth: 400,
         className: 'building-popup',
@@ -319,17 +319,17 @@ export default function LeafletMap({
         autoClose: false,
         autoPan: false
       })
-      
+
       // События для маркера - ИСПРАВЛЕНО
       let hoverTimeout: NodeJS.Timeout
       let closeTimeout: NodeJS.Timeout
-      
+
       marker.on('mouseover', () => {
         // Очищаем timeout закрытия если он есть
         if (closeTimeout) {
           clearTimeout(closeTimeout)
         }
-        
+
         hoverTimeout = setTimeout(() => {
           marker.openPopup()
         }, 200) // Немного увеличили задержку
@@ -340,11 +340,11 @@ export default function LeafletMap({
         if (hoverTimeout) {
           clearTimeout(hoverTimeout)
         }
-        
+
         // НЕ закрываем автоматически - пользователь может навестись на попап
         // Попап закроется только при клике или явном действии
       })
-      
+
       // Дополнительная обработка для попапа
       marker.on('popupopen', () => {
         const popup = marker.getPopup()
@@ -357,7 +357,7 @@ export default function LeafletMap({
                 clearTimeout(closeTimeout)
               }
             })
-            
+
             // При уходе с попапа - ставим задержку на закрытие
             popupEl.addEventListener('mouseleave', () => {
               closeTimeout = setTimeout(() => {
@@ -367,7 +367,7 @@ export default function LeafletMap({
           }
         }
       })
-      
+
       // Клик по маркеру
       marker.on('click', () => {
         if (onBuildingClick) {
@@ -376,7 +376,7 @@ export default function LeafletMap({
           window.location.href = `/buildings/${building.id}`
         }
       })
-      
+
       markersLayer.current?.addLayer(marker)
     })
 
@@ -402,7 +402,7 @@ export default function LeafletMap({
         const isSelected = building.id === selectedBuilding
         const markerIcon = L.divIcon({
           className: 'custom-building-marker',
-          html: isSelected 
+          html: isSelected
             ? `<div class="building-marker-selected">
                  <div class="pulse-ring"></div>
                  <div class="building-icon">🏢</div>
@@ -413,15 +413,15 @@ export default function LeafletMap({
           iconSize: isSelected ? [30, 30] : [24, 24],
           iconAnchor: isSelected ? [15, 15] : [12, 12]
         })
-        
+
         marker.setIcon(markerIcon)
-        
+
         // Центрируем карту на выбранном здании (только если нет маршрутов)
         if (isSelected && (!routes || routes.length === 0)) {
           const currentZoom = mapInstance.current.getZoom()
           mapInstance.current.setView(
-            [building.latitude, building.longitude], 
-            currentZoom < 15 ? 15 : currentZoom, 
+            [building.latitude, building.longitude],
+            currentZoom < 15 ? 15 : currentZoom,
             { animate: true }
           )
         }
@@ -446,10 +446,10 @@ export default function LeafletMap({
     const allRouteCoordinates: [number, number][] = []
 
     // Фильтруем маршруты: показываем только выбранный или все если включена опция
-    const routesToShow = selectedRouteId 
+    const routesToShow = selectedRouteId
       ? routes.filter(route => route.id === selectedRouteId)
-      : showAllRoutes 
-        ? routes 
+      : showAllRoutes
+        ? routes
         : routes.slice(0, 1) // По умолчанию показываем только первый
 
     console.log(`🎯 Showing ${routesToShow.length} routes (selected: ${selectedRouteId}, showAll: ${showAllRoutes})`)
@@ -458,7 +458,7 @@ export default function LeafletMap({
       const isSelected = selectedRoute === route.id
       const transportMode = route.transport_mode || 'walking'
       const routeColor = TRANSPORT_COLORS[transportMode as keyof typeof TRANSPORT_COLORS] || TRANSPORT_COLORS.walking
-      
+
       console.log(`🗺️ Processing route: ${route.title}`, {
         hasGeometry: !!route.route_geometry,
         pointsCount: route.route_points?.length || 0,
@@ -469,18 +469,18 @@ export default function LeafletMap({
       // 1. Отображаем РЕАЛЬНУЮ геометрию маршрута из MapBox
       if (route.route_geometry && route.route_geometry.coordinates) {
         console.log(`✅ Drawing real route geometry with ${route.route_geometry.coordinates.length} coordinates`)
-        
+
         // Конвертируем координаты GeoJSON (lng, lat) в Leaflet (lat, lng)
         const latLngs = route.route_geometry.coordinates.map(coord => [coord[1], coord[0]] as [number, number])
-        
+
         // Создаем полилинию с реальным маршрутом
         const routeLine = L.polyline(latLngs, {
           color: routeColor,
           weight: isSelected ? 6 : 4,
           opacity: isSelected ? 0.9 : 0.7,
-          dashArray: transportMode === 'walking' ? '5, 5' : 
-                    transportMode === 'cycling' ? '10, 5' : 
-                    undefined // Сплошная линия для driving и public_transport
+          dashArray: transportMode === 'walking' ? '5, 5' :
+            transportMode === 'cycling' ? '10, 5' :
+              undefined // Сплошная линия для driving и public_transport
         })
 
         // Добавляем попап для маршрута
@@ -491,8 +491,8 @@ export default function LeafletMap({
             </h4>
             <p style="margin: 4px 0; font-size: 13px; color: #6B7280;">
               🚶 ${transportMode === 'walking' ? 'Пешком' :
-                   transportMode === 'cycling' ? 'На велосипеде' :
-                   transportMode === 'driving' ? 'На автомобиле' : 'Общ. транспорт'}
+            transportMode === 'cycling' ? 'На велосипеде' :
+              transportMode === 'driving' ? 'На автомобиле' : 'Общ. транспорт'}
             </p>
             <p style="margin: 4px 0; font-size: 13px; color: #6B7280;">
               📍 ${route.route_points?.length || 0} точек
@@ -522,7 +522,7 @@ export default function LeafletMap({
 
       } else {
         console.log(`⚠️ No geometry for route ${route.title}, drawing straight lines`)
-        
+
         // Fallback: прямые линии между точками
         if (route.route_points && route.route_points.length > 1) {
           const coordinates = route.route_points
@@ -547,7 +547,7 @@ export default function LeafletMap({
           .sort((a, b) => a.order_index - b.order_index)
           .forEach((point, index) => {
             const pointMarker = L.marker(
-              [point.latitude, point.longitude], 
+              [point.latitude, point.longitude],
               { icon: createRoutePointIcon(index, isSelected) }
             )
 
@@ -622,8 +622,8 @@ export default function LeafletMap({
       </div>
 
       {/* Контейнер карты */}
-      <div 
-        ref={mapRef} 
+      <div
+        ref={mapRef}
         className="w-full h-[500px] rounded-lg"
         style={{ minHeight: '500px' }}
       />

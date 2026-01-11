@@ -62,7 +62,7 @@ export function FilterChips({
   if (filters.yearRange[0] > metadata.yearRange[0] || filters.yearRange[1] < metadata.yearRange[1]) {
     chips.push({
       id: 'year-range',
-      label: `Годы: ${formatYearRange(filters.yearRange)}`,
+      label: `Years: ${formatYearRange(filters.yearRange)}`,
       type: 'yearRange'
     })
   }
@@ -71,7 +71,7 @@ export function FilterChips({
   if (filters.minRating > 0) {
     chips.push({
       id: 'rating',
-      label: `От ${filters.minRating} звезд`,
+      label: `From ${filters.minRating} stars`,
       type: 'minRating'
     })
   }
@@ -80,7 +80,7 @@ export function FilterChips({
   if (filters.hasPhoto !== null) {
     chips.push({
       id: 'photo',
-      label: filters.hasPhoto ? 'С фотографиями' : 'Без фотографий',
+      label: filters.hasPhoto ? 'With photos' : 'Without photos',
       type: 'hasPhoto'
     })
   }
@@ -105,8 +105,8 @@ export function FilterChips({
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <span className="text-sm text-gray-600 font-medium">Фильтры:</span>
-      
+      <span className="text-sm text-gray-600 font-medium">Filters:</span>
+
       {chips.map(chip => (
         <div
           key={chip.id}
@@ -116,19 +116,19 @@ export function FilterChips({
           <button
             onClick={() => handleRemoveChip(chip)}
             className="ml-1 hover:bg-blue-300 rounded-full p-0.5 transition-colors"
-            title={`Убрать фильтр: ${chip.label}`}
+            title={`Remove filter: ${chip.label}`}
           >
             <X className="w-3 h-3" />
           </button>
         </div>
       ))}
-      
+
       {chips.length > 1 && (
         <button
           onClick={onClearAll}
           className="text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
         >
-          Очистить всё
+          Clear all
         </button>
       )}
     </div>

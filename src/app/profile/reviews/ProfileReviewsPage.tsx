@@ -104,7 +104,7 @@ export default function ProfileReviewsPage() {
   }
 
   const handleDeleteReview = async (reviewId: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этот обзор? Это действие нельзя отменить.')) {
+    if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
       return
     }
 
@@ -120,18 +120,18 @@ export default function ProfileReviewsPage() {
       setReviews(prev => prev.filter(r => r.id !== reviewId))
     } catch (error) {
       console.error('Error deleting review:', error)
-      alert('Ошибка при удалении обзора')
+      alert('Error deleting review')
     }
   }
 
   const filteredReviews = reviews.filter(review => {
     const matchesSearch = review.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         review.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         review.buildings.name.toLowerCase().includes(searchQuery.toLowerCase())
-    
+      review.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      review.buildings.name.toLowerCase().includes(searchQuery.toLowerCase())
+
     const matchesRating = !filterRating || review.rating.toString() === filterRating
     const matchesType = !filterType || review.review_type === filterType
-    
+
     return matchesSearch && matchesRating && matchesType
   })
 
@@ -145,10 +145,10 @@ export default function ProfileReviewsPage() {
 
   const getReviewTypeDisplayName = (type: string) => {
     const names = {
-      'general': 'Общий',
-      'expert': 'Экспертный',
-      'historical': 'Исторический',
-      'amateur': 'Любительский'
+      'general': 'General',
+      'expert': 'Expert',
+      'historical': 'Historical',
+      'amateur': 'Amateur'
     }
     return names[type as keyof typeof names] || type
   }
@@ -165,9 +165,9 @@ export default function ProfileReviewsPage() {
 
   const getModerationStatusLabel = (status: string) => {
     const labels = {
-      'pending': 'На рассмотрении',
-      'approved': 'Опубликовано',
-      'rejected': 'Не прошло модерацию'
+      'pending': 'Pending',
+      'approved': 'Published',
+      'rejected': 'Rejected'
     }
     return labels[status as keyof typeof labels] || status
   }
@@ -187,9 +187,8 @@ export default function ProfileReviewsPage() {
         {[1, 2, 3, 4, 5].map(star => (
           <Star
             key={star}
-            className={`w-3 h-3 ${
-              star <= rating ? 'text-yellow-400 fill-current' : 'text-muted-foreground/30'
-            }`}
+            className={`w-3 h-3 ${star <= rating ? 'text-yellow-400 fill-current' : 'text-muted-foreground/30'
+              }`}
           />
         ))}
         <span className="text-xs text-muted-foreground ml-1">
@@ -206,7 +205,7 @@ export default function ProfileReviewsPage() {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Загрузка...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </main>
         <EnhancedFooter />
@@ -221,13 +220,13 @@ export default function ProfileReviewsPage() {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <MessageSquare className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h1 className="text-2xl font-heading font-bold mb-2">Вход необходим</h1>
-            <p className="text-muted-foreground mb-6">Для просмотра ваших обзоров необходимо войти в систему</p>
+            <h1 className="text-2xl font-heading font-bold mb-2">Sign In Required</h1>
+            <p className="text-muted-foreground mb-6">You must sign in to view your reviews</p>
             <Link
               href="/auth"
               className="bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
             >
-              Войти
+              Sign In
             </Link>
           </div>
         </main>
@@ -252,10 +251,10 @@ export default function ProfileReviewsPage() {
               <div className="flex-1">
                 <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
                   <MessageSquare className="w-6 h-6" />
-                  Мои обзоры
+                  My Reviews
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  {reviews.length} {reviews.length === 1 ? 'обзор' : reviews.length < 5 ? 'обзора' : 'обзоров'}
+                  {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
                 </p>
               </div>
             </div>
@@ -268,7 +267,7 @@ export default function ProfileReviewsPage() {
                   <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Поиск по названию обзора или зданию..."
+                    placeholder="Search by review title or building..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 text-sm border border-border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -284,7 +283,7 @@ export default function ProfileReviewsPage() {
                     onChange={(e) => setFilterRating(e.target.value)}
                     className="text-sm border border-border rounded-[var(--radius)] px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
-                    <option value="">Все рейтинги</option>
+                    <option value="">All Ratings</option>
                     <option value="5">⭐⭐⭐⭐⭐ (5)</option>
                     <option value="4">⭐⭐⭐⭐ (4)</option>
                     <option value="3">⭐⭐⭐ (3)</option>
@@ -298,11 +297,11 @@ export default function ProfileReviewsPage() {
                   onChange={(e) => setFilterType(e.target.value)}
                   className="text-sm border border-border rounded-[var(--radius)] px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
-                  <option value="">Все типы</option>
-                  <option value="general">Общий</option>
-                  <option value="expert">Экспертный</option>
-                  <option value="historical">Исторический</option>
-                  <option value="amateur">Любительский</option>
+                  <option value="">All Types</option>
+                  <option value="general">General</option>
+                  <option value="expert">Expert</option>
+                  <option value="historical">Historical</option>
+                  <option value="amateur">Amateur</option>
                 </select>
 
                 <select
@@ -310,9 +309,9 @@ export default function ProfileReviewsPage() {
                   onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                   className="text-sm border border-border rounded-[var(--radius)] px-3 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
-                  <option value="created_at">По дате создания</option>
-                  <option value="rating">По рейтингу</option>
-                  <option value="helpful_count">По полезности</option>
+                  <option value="created_at">By Date Created</option>
+                  <option value="rating">By Rating</option>
+                  <option value="helpful_count">By Helpfulness</option>
                 </select>
 
                 <div className="flex items-center border border-border rounded-[var(--radius)]">
@@ -353,20 +352,20 @@ export default function ProfileReviewsPage() {
               <MessageSquare className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               {reviews.length === 0 ? (
                 <>
-                  <h3 className="text-xl font-medium mb-2">Пока нет обзоров</h3>
-                  <p className="text-muted-foreground mb-6">Начните оставлять обзоры на здания!</p>
+                  <h3 className="text-xl font-medium mb-2">No Reviews Yet</h3>
+                  <p className="text-muted-foreground mb-6">Start leaving reviews on buildings!</p>
                   <Link
                     href="/"
                     className="bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors inline-flex items-center gap-2"
                   >
                     <Building2 className="w-4 h-4" />
-                    <span>Изучить здания</span>
+                    <span>Explore Buildings</span>
                   </Link>
                 </>
               ) : (
                 <>
-                  <h3 className="text-xl font-medium mb-2">Ничего не найдено</h3>
-                  <p className="text-muted-foreground mb-6">Попробуйте изменить параметры поиска или фильтры</p>
+                  <h3 className="text-xl font-medium mb-2">Nothing Found</h3>
+                  <p className="text-muted-foreground mb-6">Try changing search parameters or filters</p>
                   <button
                     onClick={() => {
                       setSearchQuery('')
@@ -375,7 +374,7 @@ export default function ProfileReviewsPage() {
                     }}
                     className="bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
                   >
-                    Сбросить фильтры
+                    Reset Filters
                   </button>
                 </>
               )}
@@ -409,11 +408,11 @@ export default function ProfileReviewsPage() {
                     </div>
                     {review.moderation_status === 'rejected' && review.rejection_reason && (
                       <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
-                        <span className="font-medium">Причина:</span> {review.rejection_reason}
+                        <span className="font-medium">Reason:</span> {review.rejection_reason}
                       </div>
                     )}
                     <h3 className="font-semibold mb-2 line-clamp-1">
-                      {review.title || 'Обзор без названия'}
+                      {review.title || 'Review without title'}
                     </h3>
                     <Link
                       href={`/buildings/${review.buildings.id}`}
@@ -435,7 +434,7 @@ export default function ProfileReviewsPage() {
                         <Link
                           href={`/buildings/${review.buildings.id}`}
                           className="p-1.5 text-primary hover:bg-accent rounded-[var(--radius)] transition-colors"
-                          title="Посмотреть здание"
+                          title="View Building"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </Link>
@@ -443,7 +442,7 @@ export default function ProfileReviewsPage() {
                           <Link
                             href={`/buildings/${review.buildings.id}/review/${review.id}/edit`}
                             className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-[var(--radius)] transition-colors"
-                            title="Редактировать"
+                            title="Edit"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                           </Link>
@@ -451,7 +450,7 @@ export default function ProfileReviewsPage() {
                         <button
                           onClick={() => handleDeleteReview(review.id)}
                           className="p-1.5 text-destructive hover:bg-destructive/10 rounded-[var(--radius)] transition-colors"
-                          title="Удалить обзор"
+                          title="Delete Review"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -486,7 +485,7 @@ export default function ProfileReviewsPage() {
                           <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-2 mb-1">
                               <h3 className="text-base font-semibold line-clamp-1">
-                                {review.title || 'Обзор без названия'}
+                                {review.title || 'Review without title'}
                               </h3>
                               <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${getReviewTypeColor(review.review_type)}`}>
                                 {getReviewTypeDisplayName(review.review_type)}
@@ -498,12 +497,12 @@ export default function ProfileReviewsPage() {
 
                             {review.moderation_status === 'rejected' && review.rejection_reason && (
                               <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
-                                <span className="font-medium">Причина отклонения:</span> {review.rejection_reason}
+                                <span className="font-medium">Rejection Reason:</span> {review.rejection_reason}
                               </div>
                             )}
 
                             <p className="text-xs text-muted-foreground mb-2">
-                              Обзор на <Link
+                              Review of <Link
                                 href={`/buildings/${review.buildings.id}`}
                                 className="font-medium text-primary hover:underline"
                               >
@@ -526,19 +525,19 @@ export default function ProfileReviewsPage() {
                               {review.photos && review.photos.length > 0 && (
                                 <div className="flex items-center gap-1">
                                   <Image className="w-3 h-3" />
-                                  <span>{review.photos.length} фото</span>
+                                  <span>{review.photos.length} photos</span>
                                 </div>
                               )}
                               {review.audio_url && (
                                 <div className="flex items-center gap-1">
                                   <AudioLines className="w-3 h-3" />
-                                  <span>Аудио</span>
+                                  <span>Audio</span>
                                 </div>
                               )}
                               {review.helpful_count > 0 && (
                                 <div className="flex items-center gap-1">
                                   <Star className="w-3 h-3" />
-                                  <span>{review.helpful_count} полезно</span>
+                                  <span>{review.helpful_count} helpful</span>
                                 </div>
                               )}
                             </div>
@@ -552,7 +551,7 @@ export default function ProfileReviewsPage() {
                               <Link
                                 href={`/buildings/${review.buildings.id}`}
                                 className="p-2 text-primary hover:bg-accent rounded-[var(--radius)] transition-colors"
-                                title="Посмотреть здание"
+                                title="View Building"
                               >
                                 <Eye className="w-4 h-4" />
                               </Link>
@@ -560,7 +559,7 @@ export default function ProfileReviewsPage() {
                                 <Link
                                   href={`/buildings/${review.buildings.id}/review/${review.id}/edit`}
                                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-[var(--radius)] transition-colors"
-                                  title="Редактировать"
+                                  title="Edit"
                                 >
                                   <Edit3 className="w-4 h-4" />
                                 </Link>
@@ -568,7 +567,7 @@ export default function ProfileReviewsPage() {
                               <button
                                 onClick={() => handleDeleteReview(review.id)}
                                 className="p-2 text-destructive hover:bg-destructive/10 rounded-[var(--radius)] transition-colors"
-                                title="Удалить обзор"
+                                title="Delete Review"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
