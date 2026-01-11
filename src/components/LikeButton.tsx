@@ -266,7 +266,7 @@ export default function LikeButton({
     e.stopPropagation()
 
     if (!user) {
-      alert('Войдите, чтобы поставить лайк')
+      alert('Please log in to like')
       return
     }
 
@@ -309,12 +309,11 @@ export default function LikeButton({
         onClick={toggleLike}
         disabled={isLoading || !user}
         className={`inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
-        title={isLiked ? 'Убрать из избранного' : 'Добавить в избранное'}
+        title={isLiked ? 'Remove from favorites' : 'Add to favorites'}
       >
         <Heart
-          className={`h-4 w-4 transition-all ${
-            isLiked ? 'fill-primary text-primary' : ''
-          }`}
+          className={`h-4 w-4 transition-all ${isLiked ? 'fill-primary text-primary' : ''
+            }`}
         />
         {showCount && <span className="text-xs">{likeCount}</span>}
       </button>
@@ -327,17 +326,15 @@ export default function LikeButton({
       type="button"
       onClick={toggleLike}
       disabled={isLoading || !user}
-      className={`inline-flex items-center gap-2 px-4 py-2 rounded-[var(--radius)] font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-        isLiked
-          ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-          : 'bg-card text-card-foreground border-2 border-border hover:border-primary hover:bg-accent'
-      } ${className}`}
-      title={isLiked ? 'Убрать из избранного' : 'Добавить в избранное'}
+      className={`inline-flex items-center gap-2 px-4 py-2 rounded-[var(--radius)] font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${isLiked
+        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+        : 'bg-card text-card-foreground border-2 border-border hover:border-primary hover:bg-accent'
+        } ${className}`}
+      title={isLiked ? 'Remove from favorites' : 'Add to favorites'}
     >
       <Heart
-        className={`h-5 w-5 transition-all ${
-          isLiked ? 'fill-current' : ''
-        }`}
+        className={`h-5 w-5 transition-all ${isLiked ? 'fill-current' : ''
+          }`}
       />
       <span>{isLiked ? 'В избранном' : 'Нравится'}</span>
       {showCount && likeCount > 0 && (

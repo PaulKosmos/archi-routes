@@ -56,7 +56,7 @@ export interface TextImageRightBlockSettings extends TextBlockSettings {
   imageRatio?: string; // '1:1', '16:9', '4:3'
 }
 
-export interface ImageTextLeftBlockSettings extends TextImageRightBlockSettings {}
+export interface ImageTextLeftBlockSettings extends TextImageRightBlockSettings { }
 
 export interface TwoImagesBlockSettings {
   layout?: 'equal' | 'left-large' | 'right-large';
@@ -112,7 +112,7 @@ export interface NewsArticleTag {
 // ============================================================
 // Базовые типы для категорий и статусов
 // ============================================================
-export type NewsCategory = 
+export type NewsCategory =
   | 'projects'     // Архитектурные проекты
   | 'events'       // События, выставки, конференции
   | 'personalities'// Персоналии, интервью с архитекторами
@@ -120,19 +120,19 @@ export type NewsCategory =
   | 'planning'     // Городское планирование
   | 'heritage';    // Наследие, реставрация
 
-export type NewsStatus = 
+export type NewsStatus =
   | 'draft'        // Черновик
   | 'review'       // На модерации
   | 'published'    // Опубликовано
   | 'archived';    // Архивировано
 
-export type InteractionType = 
+export type InteractionType =
   | 'like'         // Лайк
   | 'share'        // Репост
   | 'bookmark'     // Закладка
   | 'view';        // Просмотр
 
-export type RelationType = 
+export type RelationType =
   | 'featured'     // Главное здание в новости
   | 'mentioned'    // Упоминается в тексте
   | 'comparison';  // Сравнивается с другими
@@ -140,47 +140,47 @@ export type RelationType =
 // Основной тип новости
 export interface NewsArticle {
   id: string;
-  
+
   // Основная информация
   title: string;
   slug: string;
   summary?: string;
   content: string;
-  
+
   // Медиа
   featured_image_url?: string;
   featured_image_alt?: string;
   gallery_images: string[]; // Массив URL изображений
-  
+
   // Категоризация
   category: NewsCategory;
   subcategory?: string;
   tags: string[];
-  
+
   // Геолокация
   city?: string;
   country?: string;
   region?: string;
-  
+
   // Связи
   related_buildings: string[]; // UUID зданий
   related_architects: string[];
-  
+
   // Метаданные
   author_id: string;
   editor_id?: string;
-  
+
   // Публикация
   status: NewsStatus;
   published_at?: string;
   featured: boolean;
   priority: number;
-  
+
   // SEO
   meta_title?: string;
   meta_description?: string;
   meta_keywords: string[];
-  
+
   // Статистика
   views_count: number;
   likes_count: number;
@@ -396,43 +396,43 @@ export const NEWS_CATEGORIES: Array<{
   description: string;
   icon?: string;
 }> = [
-  {
-    value: 'projects',
-    label: 'Архитектурные проекты',
-    description: 'Новые здания, реконструкции, завершенные проекты',
-    icon: '🏗️'
-  },
-  {
-    value: 'events',
-    label: 'События',
-    description: 'Выставки, конференции, фестивали архитектуры',
-    icon: '📅'
-  },
-  {
-    value: 'personalities',
-    label: 'Персоналии',
-    description: 'Интервью с архитекторами, награды, достижения',
-    icon: '👤'
-  },
-  {
-    value: 'trends',
-    label: 'Тренды',
-    description: 'Новые материалы, технологии, архитектурные стили',
-    icon: '📈'
-  },
-  {
-    value: 'planning',
-    label: 'Городское планирование',
-    description: 'Градостроительные проекты, развитие городов',
-    icon: '🏙️'
-  },
-  {
-    value: 'heritage',
-    label: 'Наследие',
-    description: 'Реставрация, сохранение архитектурных памятников',
-    icon: '🏛️'
-  }
-];
+    {
+      value: 'projects',
+      label: 'Architectural Projects',
+      description: 'New buildings, renovations, completed projects',
+      icon: '🏗️'
+    },
+    {
+      value: 'events',
+      label: 'Events',
+      description: 'Exhibitions, conferences, architecture festivals',
+      icon: '📅'
+    },
+    {
+      value: 'personalities',
+      label: 'Personalities',
+      description: 'Interviews with architects, awards, achievements',
+      icon: '👤'
+    },
+    {
+      value: 'trends',
+      label: 'Trends',
+      description: 'New materials, technologies, architectural styles',
+      icon: '📈'
+    },
+    {
+      value: 'planning',
+      label: 'Urban Planning',
+      description: 'Urban development projects, city development',
+      icon: '🏙️'
+    },
+    {
+      value: 'heritage',
+      label: 'Heritage',
+      description: 'Restoration, preservation of architectural monuments',
+      icon: '🏛️'
+    }
+  ];
 
 // Опции статусов
 export const NEWS_STATUSES: Array<{
@@ -440,11 +440,11 @@ export const NEWS_STATUSES: Array<{
   label: string;
   color: string;
 }> = [
-  { value: 'draft', label: 'Черновик', color: 'gray' },
-  { value: 'review', label: 'На модерации', color: 'yellow' },
-  { value: 'published', label: 'Опубликовано', color: 'green' },
-  { value: 'archived', label: 'Архивировано', color: 'red' }
-];
+    { value: 'draft', label: 'Черновик', color: 'gray' },
+    { value: 'review', label: 'На модерации', color: 'yellow' },
+    { value: 'published', label: 'Опубликовано', color: 'green' },
+    { value: 'archived', label: 'Архивировано', color: 'red' }
+  ];
 
 // Утилитарные функции для работы с типами
 export const isPublishedNews = (news: NewsArticle): boolean => {
@@ -710,17 +710,17 @@ export interface NewsGridBlock {
 /**
  * @deprecated Используйте CreateNewsGridCard
  */
-export interface CreateNewsGridBlock extends Partial<CreateNewsGridCard> {}
+export interface CreateNewsGridBlock extends Partial<CreateNewsGridCard> { }
 
 /**
  * @deprecated Используйте UpdateNewsGridCard
  */
-export interface UpdateNewsGridBlock extends Partial<UpdateNewsGridCard> {}
+export interface UpdateNewsGridBlock extends Partial<UpdateNewsGridCard> { }
 
 /**
  * @deprecated Используйте NewsGridCardWithNews
  */
-export interface NewsGridBlockWithNews extends Partial<NewsGridCardWithNews> {}
+export interface NewsGridBlockWithNews extends Partial<NewsGridCardWithNews> { }
 
 // Утилиты для работы с блоками сетки
 

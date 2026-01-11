@@ -109,7 +109,7 @@ export default function EditBuildingClient({
       console.log('📸 Main image uploaded successfully:', result.url)
     } catch (error) {
       console.error('📸 Main image upload error:', error)
-      alert('Ошибка загрузки изображения')
+      alert('Error loading image')
     } finally {
       setUploadingMain(false)
       if (fileInputRef.current) {
@@ -137,7 +137,7 @@ export default function EditBuildingClient({
       console.log('🖼️ Gallery images uploaded successfully:', newUrls)
     } catch (error) {
       console.error('🖼️ Gallery upload error:', error)
-      alert('Ошибка загрузки изображений')
+      alert('Error loading images')
     } finally {
       setUploadingGallery(false)
       if (galleryFileInputRef.current) {
@@ -154,36 +154,36 @@ export default function EditBuildingClient({
     try {
       setDeleting(true)
       console.log('🗑️ Удаляем здание:', building.id)
-      
+
       // Получаем токен пользователя
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.access_token) {
         throw new Error('Нет токена авторизации')
       }
-      
+
       const response = await fetch(`/api/buildings/${building.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
       })
-      
+
       const result = await response.json()
-      
+
       if (!response.ok) {
         throw new Error(result.message || result.error || 'Ошибка удаления')
       }
-      
+
       console.log('✅ Здание успешно удалено!')
       alert('✅ Здание успешно удалено!')
-      
+
       // Перенаправляем на главную страницу
       router.push('/')
       router.refresh()
-      
+
     } catch (error) {
       console.error('🗑️ Ошибка удаления:', error)
-      alert(`Ошибка при удалении: ${error.message}`)
+      alert(`Error deleting: ${error.message}`)
     } finally {
       setDeleting(false)
       setShowDeleteModal(false)
@@ -194,7 +194,7 @@ export default function EditBuildingClient({
     e.preventDefault()
 
     if (!user?.id) {
-      alert('Необходимо войти в систему')
+      alert('Please log in')
       return
     }
 
@@ -254,14 +254,14 @@ export default function EditBuildingClient({
       console.error('💾 Update error:', error)
       console.error('💾 Error type:', typeof error)
       console.error('💾 Error constructor:', error?.constructor?.name)
-      
+
       if (error instanceof Error) {
         console.error('💾 Error message:', error.message)
         console.error('💾 Error stack:', error.stack)
-        alert(`Ошибка при обновлении здания: ${error.message}`)
+        alert(`Error updating building: ${error.message}`)
       } else {
         console.error('💾 Unknown error type:', error)
-        alert('Неизвестная ошибка при обновлении здания')
+        alert('Unknown error updating building')
       }
     } finally {
       setLoading(false)
@@ -274,7 +274,7 @@ export default function EditBuildingClient({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     )
@@ -285,27 +285,27 @@ export default function EditBuildingClient({
       <div className="bg-white rounded-lg shadow-lg p-8">
         {/* Заголовок */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Редактирование здания</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Building</h1>
           <p className="text-gray-600">
-            Редактирование: <strong>{building.name}</strong>
+            Editing: <strong>{building.name}</strong>
           </p>
           <div className="mt-2 text-sm text-blue-600">
-            {isOwner ? '👤 Вы автор этого здания' : ''}
-            {isAdmin ? '🔧 Админ-права' : ''}
-            {isModerator ? '🛡️ Модератор-права' : ''}
+            {isOwner ? '👤 You are the author of this building' : ''}
+            {isAdmin ? '🔧 Admin rights' : ''}
+            {isModerator ? '🛡️ Moderator rights' : ''}
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          
+
           {/* Основная информация */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">Основная информация</h2>
-            
+            <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">Basic Information</h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Название здания *
+                  Building Name *
                 </label>
                 <input
                   type="text"
@@ -315,10 +315,10 @@ export default function EditBuildingClient({
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Архитектор
+                  Architectор
                 </label>
                 <input
                   type="text"
@@ -327,10 +327,10 @@ export default function EditBuildingClient({
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Год постройки
+                  Year Built
                 </label>
                 <input
                   type="number"
@@ -341,50 +341,50 @@ export default function EditBuildingClient({
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Архитектурный стиль
+                  Architectural Style
                 </label>
                 <input
                   type="text"
                   value={formData.architectural_style}
                   onChange={(e) => handleInputChange('architectural_style', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Например: Модернизм, Готика, Барокко"
+                  placeholder="E.g.: Modernism, Gothic, Baroque"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Описание
+                Description
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={4}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Подробное описание здания, его истории и особенностей"
+                placeholder="Detailed description of the building, its history and features"
               />
             </div>
           </div>
 
           {/* Изображения */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">Изображения</h2>
-            
+            <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">Images</h2>
+
             {/* Главное изображение */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Главное изображение
+                Main Image
               </label>
               <div className="space-y-4">
                 {mainImage && (
                   <div className="relative w-full h-64 rounded-lg overflow-hidden border">
                     <Image
                       src={getStorageUrl(mainImage)}
-                      alt="Главное изображение"
+                      alt="Main Image"
                       fill
                       className="object-cover"
                       onError={(e) => {
@@ -412,11 +412,10 @@ export default function EditBuildingClient({
                   />
                   <label
                     htmlFor="main-image-upload"
-                    className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 ${
-                      uploadingMain ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 ${uploadingMain ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                   >
-                    {uploadingMain ? '⏳ Загрузка...' : '📸 Выбрать главное изображение'}
+                    {uploadingMain ? '⏳ Uploading...' : '📸 Select Main Image'}
                   </label>
                 </div>
               </div>
@@ -425,7 +424,7 @@ export default function EditBuildingClient({
             {/* Галерея */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Галерея изображений
+                Image Gallery
               </label>
               <div className="space-y-4">
                 {galleryImages.length > 0 && (
@@ -464,11 +463,10 @@ export default function EditBuildingClient({
                   />
                   <label
                     htmlFor="gallery-upload"
-                    className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 ${
-                      uploadingGallery ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 ${uploadingGallery ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                   >
-                    {uploadingGallery ? '⏳ Загрузка...' : '🖼️ Добавить в галерею'}
+                    {uploadingGallery ? '⏳ Uploading...' : '🖼️ Add to Gallery'}
                   </label>
                 </div>
               </div>
@@ -477,12 +475,12 @@ export default function EditBuildingClient({
 
           {/* Дополнительная информация */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">Дополнительная информация</h2>
-            
+            <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">Additional Information</h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Веб-сайт
+                  Website
                 </label>
                 <input
                   type="url"
@@ -492,120 +490,120 @@ export default function EditBuildingClient({
                   placeholder="https://example.com"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Стоимость входа
+                  Entry Fee
                 </label>
                 <input
                   type="text"
                   value={formData.entry_fee}
                   onChange={(e) => handleInputChange('entry_fee', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Бесплатно, €10, €5-15"
+                  placeholder="Free, €10, €5-15"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Сложность посещения
+                  Visit Difficulty
                 </label>
                 <select
                   value={formData.visit_difficulty}
                   onChange={(e) => handleInputChange('visit_difficulty', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">Не указано</option>
-                  <option value="easy">Легко</option>
-                  <option value="moderate">Умеренно</option>
-                  <option value="difficult">Сложно</option>
-                  <option value="very_difficult">Очень сложно</option>
+                  <option value="">Not Specified</option>
+                  <option value="easy">Easy</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="difficult">Difficult</option>
+                  <option value="very_difficult">Very Difficult</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Лучшее время для посещения
+                  Best Visit Time
                 </label>
                 <select
                   value={formData.best_visit_time}
                   onChange={(e) => handleInputChange('best_visit_time', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">Не указано</option>
-                  <option value="morning">Утром</option>
-                  <option value="afternoon">Днем</option>
-                  <option value="evening">Вечером</option>
-                  <option value="night">Ночью</option>
-                  <option value="any_time">Любое время</option>
-                  <option value="weekdays">Будни</option>
-                  <option value="weekends">Выходные</option>
+                  <option value="">Not Specified</option>
+                  <option value="morning">Morning</option>
+                  <option value="afternoon">Afternoon</option>
+                  <option value="evening">Evening</option>
+                  <option value="night">Night</option>
+                  <option value="any_time">Any Time</option>
+                  <option value="weekdays">Weekdays</option>
+                  <option value="weekends">Weekends</option>
                 </select>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Историческое значение
+                Historical Significance
               </label>
               <textarea
                 value={formData.historical_significance}
                 onChange={(e) => handleInputChange('historical_significance', e.target.value)}
                 rows={4}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Историческая важность, события, связанные с зданием, культурное значение"
+                placeholder="Historical importance, events related to the building, cultural significance"
               />
             </div>
 
             {/* Дополнительная информация (новые поля) */}
             <div className="col-span-2 border-t border-gray-200 pt-6 mt-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">📍 Транспорт и доступность</h3>
-              
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">📍 Transport & Accessibility</h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Транспорт рядом */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Транспорт рядом
+                    Nearby Transport
                   </label>
                   <textarea
                     value={formData.nearby_transport.join('\n')}
                     onChange={(e) => handleInputChange('nearby_transport', e.target.value.split('\n').filter(v => v.trim()))}
                     rows={4}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-                    placeholder="Метро: Potsdamer Platz&#10;Автобус: M48, M85&#10;S-Bahn: S1, S2"
+                    placeholder="Metro: Potsdamer Platz&#10;Bus: M48, M85&#10;S-Bahn: S1, S2"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Каждая строка - отдельная опция транспорта</p>
+                  <p className="text-xs text-gray-500 mt-1">Each line is a separate transport option</p>
                 </div>
 
                 {/* Доступность */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Варианты доступности
+                    Accessibility Options
                   </label>
                   <textarea
                     value={formData.accessibility.join('\n')}
                     onChange={(e) => handleInputChange('accessibility', e.target.value.split('\n').filter(v => v.trim()))}
                     rows={4}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-                    placeholder="Пандус для инвалидных колясок&#10;Лифт&#10;Аудиогид"
+                    placeholder="Wheelchair ramp&#10;Elevator&#10;Audio guide"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Каждая строка - отдельная опция доступности</p>
+                  <p className="text-xs text-gray-500 mt-1">Each line is a separate accessibility option</p>
                 </div>
               </div>
 
               {/* Материалы строительства */}
               <div className="mt-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Материалы строительства
+                  Construction Materials
                 </label>
                 <textarea
                   value={formData.construction_materials.join(', ')}
                   onChange={(e) => handleInputChange('construction_materials', e.target.value.split(',').map(v => v.trim()).filter(v => v))}
                   rows={2}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-                  placeholder="Сталь, Стекло, Бетон, Гранит"
+                  placeholder="Steel, Glass, Concrete, Granite"
                 />
-                <p className="text-xs text-gray-500 mt-1">Через запятую</p>
+                <p className="text-xs text-gray-500 mt-1">Comma separated</p>
               </div>
             </div>
           </div>
@@ -615,69 +613,67 @@ export default function EditBuildingClient({
             <button
               type="submit"
               disabled={loading || uploadingMain || uploadingGallery}
-              className={`flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors ${
-                loading || uploadingMain || uploadingGallery ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              className={`flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors ${loading || uploadingMain || uploadingGallery ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
             >
-              {loading ? '⏳ Сохранение...' : '💾 Сохранить изменения'}
+              {loading ? '⏳ Saving...' : '💾 Save Changes'}
             </button>
-            
+
             <button
               type="button"
               onClick={() => router.back()}
               className="px-6 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors"
             >
-              🔙 Отменить
+              🔙 Cancel
             </button>
-            
+
             <button
               type="button"
               onClick={() => router.push(`/buildings/${building.id}`)}
               className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
             >
-              👁️ Просмотр
+              👁️ Preview
             </button>
-            
+
             {/* Кнопка удаления */}
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
               className="px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
             >
-              🗑️ Удалить здание
+              🗑️ Delete Building
             </button>
           </div>
         </form>
       </div>
-      
+
       {/* Модальное окно подтверждения удаления */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Подтвердите удаление
+              Confirm Deletion
             </h3>
             <p className="text-gray-600 mb-6">
-              Вы уверены, что хотите удалить здание <strong>"{building.name}"</strong>?
+              Are you sure you want to delete the building <strong>"{building.name}"</strong>?
               <br /><br />
-              🚨 <span className="text-red-600 font-medium">Это действие нельзя отменить!</span> Будут удалены все связанные обзоры и данные.
+              🚨 <span className="text-red-600 font-medium">This action cannot be undone!</span> All related reviews and data will be deleted.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className={`flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors ${
-                  deleting ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+                className={`flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors ${deleting ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
               >
-                {deleting ? '⏳ Удаление...' : '🗑️ Да, удалить'}
+                {deleting ? '⏳ Deleting...' : '🗑️ Yes, Delete'}
               </button>
               <button
                 onClick={() => setShowDeleteModal(false)}
                 disabled={deleting}
                 className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
               >
-                ❌ Отмена
+                ❌ Cancel
               </button>
             </div>
           </div>

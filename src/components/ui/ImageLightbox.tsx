@@ -59,7 +59,7 @@ export default function ImageLightbox({ images, initialIndex, isOpen, onClose }:
       <div className="relative w-full h-full flex items-center justify-center p-8">
         <img
           src={images[currentIndex]}
-          alt={`Фото ${currentIndex + 1}`}
+          alt={`Photo ${currentIndex + 1}`}
           className="max-w-full max-h-full object-contain"
         />
       </div>
@@ -90,11 +90,10 @@ export default function ImageLightbox({ images, initialIndex, isOpen, onClose }:
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                idx === currentIndex
+              className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex
                   ? 'bg-white w-8'
                   : 'bg-white/50 hover:bg-white/70'
-              }`}
+                }`}
             />
           ))}
         </div>

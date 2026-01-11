@@ -46,7 +46,7 @@ export default function AdminLayout({
       title: null,
       items: [
         {
-          name: 'На сайт',
+          name: 'To Site',
           href: '/',
           icon: Home
         },
@@ -58,35 +58,35 @@ export default function AdminLayout({
       ]
     },
     {
-      title: 'Управление',
+      title: 'Management',
       items: [
         {
-          name: 'Модерация',
+          name: 'Moderation',
           href: '/admin/moderation',
           icon: Shield
         },
         {
-          name: 'Пользователи',
+          name: 'Users',
           href: '/admin/users',
           icon: Users
         }
       ]
     },
     {
-      title: 'Контент',
+      title: 'Content',
       items: [
         {
-          name: 'Новости',
+          name: 'News',
           href: '/admin/news',
           icon: Newspaper
         },
         {
-          name: 'Подкасты',
+          name: 'Podcasts',
           href: '/admin/podcasts',
           icon: Podcast
         },
         {
-          name: 'Автогенерация',
+          name: 'Auto-generation',
           href: '/admin/autogeneration',
           icon: Bot
         }
@@ -105,8 +105,8 @@ export default function AdminLayout({
                 <Shield className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-heading font-bold text-foreground">Админ-панель</h1>
-                <p className="text-xs text-muted-foreground">Управление системой</p>
+                <h1 className="text-xl font-heading font-bold text-foreground">Admin Panel</h1>
+                <p className="text-xs text-muted-foreground">System Management</p>
               </div>
             </div>
 
@@ -128,11 +128,10 @@ export default function AdminLayout({
                         <Link
                           key={item.name}
                           href={item.href}
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-[var(--radius)] transition-colors ${
-                            isActive
+                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-[var(--radius)] transition-colors ${isActive
                               ? 'bg-primary text-primary-foreground'
                               : 'text-foreground hover:bg-accent'
-                          }`}
+                            }`}
                         >
                           <Icon className="w-5 h-5 flex-shrink-0" />
                           <span>{item.name}</span>
@@ -153,10 +152,10 @@ export default function AdminLayout({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-foreground truncate">
-                  {profile?.display_name || profile?.full_name || 'Админ'}
+                  {profile?.display_name || profile?.full_name || 'Admin'}
                 </div>
                 <div className="text-xs text-muted-foreground capitalize">
-                  {profile?.role === 'admin' ? 'Администратор' : 'Модератор'}
+                  {profile?.role === 'admin' ? 'Administrator' : 'Moderator'}
                 </div>
               </div>
             </div>

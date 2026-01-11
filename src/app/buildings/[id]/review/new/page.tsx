@@ -1,4 +1,4 @@
-// src/app/buildings/[id]/review/new/page.tsx - Страница создания обзора
+// src/app/buildings/[id]/review/new/page.tsx - Review creation page
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import Header from '../../../../../components/Header'

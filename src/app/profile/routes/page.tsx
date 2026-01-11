@@ -64,14 +64,14 @@ export default function ProfileRoutesPage() {
 
       if (error) {
         console.error('Error loading user routes:', error)
-        toast.error('Ошибка при загрузке маршрутов')
+        toast.error('Error loading routes')
         return
       }
 
       setRoutes(data || [])
     } catch (error) {
       console.error('Exception loading user routes:', error)
-      toast.error('Произошла ошибка')
+      toast.error('An error occurred')
     } finally {
       setIsLoading(false)
     }
@@ -93,7 +93,7 @@ export default function ProfileRoutesPage() {
 
     switch (activeTab) {
       case 'private':
-        filtered = routes.filter(route => 
+        filtered = routes.filter(route =>
           route.route_visibility === 'private' || route.publication_status === 'draft'
         )
         break
@@ -110,7 +110,7 @@ export default function ProfileRoutesPage() {
   }
 
   const handleDeleteRoute = async (routeId: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этот маршрут?')) {
+    if (!confirm('Are you sure you want to delete this route?')) {
       return
     }
 
@@ -131,11 +131,11 @@ export default function ProfileRoutesPage() {
         throw error
       }
 
-      toast.success('Маршрут удален')
+      toast.success('Route deleted')
       setRoutes(prev => prev.filter(route => route.id !== routeId))
     } catch (error) {
       console.error('Error deleting route:', error)
-      toast.error('Ошибка при удалении маршрута')
+      toast.error('Error deleting route')
     }
   }
 
@@ -202,16 +202,16 @@ export default function ProfileRoutesPage() {
           <div className="bg-card border border-border rounded-[var(--radius)] p-12 max-w-md mx-auto">
             <RouteIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="text-2xl font-heading font-bold mb-2">
-              Войдите в систему
+              Sign In
             </h1>
             <p className="text-muted-foreground mb-6">
-              Для просмотра маршрутов необходимо войти в свою учетную запись
+              You need to sign in to view routes
             </p>
             <Link
               href="/auth/login"
               className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
             >
-              Войти в систему
+              Sign In
             </Link>
           </div>
         </main>
@@ -240,88 +240,87 @@ export default function ProfileRoutesPage() {
               <div className="flex-1">
                 <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
                   <RouteIcon className="w-6 h-6" />
-                  Мои маршруты
+                  My Routes
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  Управляйте своими маршрутами и заявками на публикацию
+                  Manage your routes and publication requests
                 </p>
               </div>
 
               <Link
-                href="/"
+                href="/routes/create"
                 className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Создать маршрут
+                Create Route
               </Link>
             </div>
           </div>
 
-        {/* Табы */}
-        <div className="bg-card border border-border rounded-[var(--radius)] mb-6">
-          <div className="border-b border-border">
-            <nav className="flex gap-8 px-6">
-              {[
-                { key: 'all', label: 'Все маршруты', count: counts.all },
-                { key: 'private', label: 'Личные', count: counts.private },
-                { key: 'pending', label: 'На модерации', count: counts.pending },
-                { key: 'published', label: 'Опубликованные', count: counts.published }
-              ].map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key as TabType)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === tab.key
+          {/* Табы */}
+          <div className="bg-card border border-border rounded-[var(--radius)] mb-6">
+            <div className="border-b border-border">
+              <nav className="flex gap-8 px-6">
+                {[
+                  { key: 'all', label: 'All Routes', count: counts.all },
+                  { key: 'private', label: 'Private', count: counts.private },
+                  { key: 'pending', label: 'Pending', count: counts.pending },
+                  { key: 'published', label: 'Published', count: counts.published }
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key as TabType)}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.key
                       ? 'border-primary text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground'
-                  }`}
-                >
-                  {tab.label} ({tab.count})
-                </button>
-              ))}
-            </nav>
-          </div>
-        </div>
-
-        {/* Список маршрутов */}
-        {filteredRoutes.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="bg-white rounded-lg shadow-sm p-12">
-              <RouteIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {routes.length === 0 ? 'Нет созданных маршрутов' : 'Нет маршрутов в этой категории'}
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {routes.length === 0 
-                  ? 'Создайте свой первый маршрут, чтобы поделиться им с сообществом'
-                  : 'Попробуйте выбрать другую категорию'
-                }
-              </p>
-              {routes.length === 0 && (
-                <Link
-                  href="/"
-                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Создать первый маршрут
-                </Link>
-              )}
+                      }`}
+                  >
+                    {tab.label} ({tab.count})
+                  </button>
+                ))}
+              </nav>
             </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRoutes.map((route) => (
-              <RouteCard 
-                key={route.id} 
-                route={route}
-                publicationRequest={getPublicationRequestStatus(route.id)}
-                onEdit={() => window.open(`/routes/${route.id}/edit`, '_blank')}
-                onDelete={() => handleDeleteRoute(route.id)}
-                onRequestPublication={() => handleRequestPublication(route)}
-              />
-            ))}
-          </div>
-        )}
+
+          {/* Список маршрутов */}
+          {filteredRoutes.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="bg-white rounded-lg shadow-sm p-12">
+                <RouteIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {routes.length === 0 ? 'No routes created' : 'No routes in this category'}
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  {routes.length === 0
+                    ? 'Create your first route to share it with the community'
+                    : 'Try selecting another category'
+                  }
+                </p>
+                {routes.length === 0 && (
+                  <Link
+                    href="/routes/create"
+                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create First Route
+                  </Link>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRoutes.map((route) => (
+                <RouteCard
+                  key={route.id}
+                  route={route}
+                  publicationRequest={getPublicationRequestStatus(route.id)}
+                  onEdit={() => window.open(`/routes/${route.id}/edit`, '_blank')}
+                  onDelete={() => handleDeleteRoute(route.id)}
+                  onRequestPublication={() => handleRequestPublication(route)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
@@ -343,13 +342,13 @@ export default function ProfileRoutesPage() {
 }
 
 // Компонент карточки маршрута
-function RouteCard({ 
-  route, 
+function RouteCard({
+  route,
   publicationRequest,
-  onEdit, 
-  onDelete, 
-  onRequestPublication 
-}: { 
+  onEdit,
+  onDelete,
+  onRequestPublication
+}: {
   route: Route
   publicationRequest?: PublicationRequest
   onEdit: () => void
@@ -377,24 +376,24 @@ function RouteCard({
     // Проверяем сначала статус заявки
     if (publicationRequest) {
       switch (publicationRequest.status) {
-        case 'approved': return 'Опубликован'
-        case 'rejected': return 'Отклонен'
+        case 'approved': return 'Published'
+        case 'rejected': return 'Rejected'
         case 'pending': return 'На модерации'
       }
     }
-    
+
     // Затем проверяем статус маршрута
-    if (route.publication_status === 'published') return 'Опубликован'
+    if (route.publication_status === 'published') return 'Published'
     if (route.publication_status === 'pending') return 'На модерации'
-    if (route.route_visibility === 'private') return 'Личный'
-    return 'Черновик'
+    if (route.route_visibility === 'private') return 'Private'
+    return 'Draft'
   }
 
   const canRequestPublication = (route: Route, publicationRequest?: PublicationRequest) => {
-    return route.route_visibility === 'private' && 
-           route.publication_status !== 'pending' && 
-           !publicationRequest &&
-           route.publication_status !== 'published'
+    return route.route_visibility === 'private' &&
+      route.publication_status !== 'pending' &&
+      !publicationRequest &&
+      route.publication_status !== 'published'
   }
 
   return (
@@ -408,22 +407,21 @@ function RouteCard({
             {route.title}
           </Link>
 
-          <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
-            publicationRequest?.status === 'approved' || route.publication_status === 'published'
-              ? 'bg-green-100 text-green-800'
-              : publicationRequest?.status === 'rejected'
+          <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${publicationRequest?.status === 'approved' || route.publication_status === 'published'
+            ? 'bg-green-100 text-green-800'
+            : publicationRequest?.status === 'rejected'
               ? 'bg-red-100 text-red-800'
               : publicationRequest?.status === 'pending' || route.publication_status === 'pending'
-              ? 'bg-yellow-100 text-yellow-800'
-              : 'bg-muted text-muted-foreground'
-          }`}>
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-muted text-muted-foreground'
+            }`}>
             {getStatusIcon(publicationRequest?.status || route.publication_status)}
             <span className="ml-1">{getStatusText(route, publicationRequest)}</span>
           </div>
         </div>
 
         <p className="text-muted-foreground text-xs mb-2 line-clamp-2 h-8">
-          {route.description || 'Без описания'}
+          {route.description || 'No description'}
         </p>
 
         <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2 h-4">
@@ -434,7 +432,7 @@ function RouteCard({
 
           <div className="flex items-center gap-1 flex-shrink-0">
             <Clock className="w-3 h-3" />
-            <span>{route.estimated_duration_minutes || 0} мин</span>
+            <span>{route.estimated_duration_minutes || 0} min</span>
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
@@ -449,9 +447,9 @@ function RouteCard({
               <div className="flex items-center gap-1 text-xs">
                 <FileText className="w-3 h-3 text-blue-600 flex-shrink-0" />
                 <span className="font-medium text-blue-900 truncate">
-                  {publicationRequest.status === 'pending' ? 'На рассмотрении' :
-                   publicationRequest.status === 'approved' ? 'Одобрена' :
-                   publicationRequest.status === 'rejected' ? 'Отклонена' : publicationRequest.status}
+                  {publicationRequest.status === 'pending' ? 'Under Review' :
+                    publicationRequest.status === 'approved' ? 'Approved' :
+                      publicationRequest.status === 'rejected' ? 'Rejected' : publicationRequest.status}
                 </span>
               </div>
             </div>
@@ -465,7 +463,7 @@ function RouteCard({
               className="inline-flex items-center px-2 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
             >
               <Eye className="w-3 h-3 mr-1" />
-              Открыть
+              View
             </Link>
 
             <button
@@ -473,7 +471,7 @@ function RouteCard({
               className="inline-flex items-center px-2 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
             >
               <Edit className="w-3 h-3 mr-1" />
-              Изменить
+              Edit
             </button>
           </div>
 
@@ -484,7 +482,7 @@ function RouteCard({
                 className="inline-flex items-center px-2 py-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
               >
                 <Send className="w-3 h-3 mr-1" />
-                Опубликовать
+                Publish
               </button>
             ) : (
               <button
@@ -492,7 +490,7 @@ function RouteCard({
                 className="inline-flex items-center px-2 py-1.5 text-xs border border-red-300 text-red-600 rounded-[var(--radius)] hover:bg-red-50 transition-colors"
               >
                 <Trash2 className="w-3 h-3 mr-1" />
-                Удалить
+                Delete
               </button>
             )}
           </div>

@@ -174,7 +174,7 @@ function ScrollToTopButton() {
           : 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)', // плавный возврат
         willChange: 'bottom, right' // оптимизация производительности
       }}
-      aria-label="Прокрутить наверх"
+      aria-label="Scroll to top"
     >
       <ArrowLeft className="h-6 w-6 rotate-90" />
     </button>
@@ -275,14 +275,14 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
 
       if (newsError) {
         if (newsError.code === 'PGRST116') {
-          throw new Error('Новость не найдена');
+          throw new Error('News not found');
         } else {
           throw new Error(`Ошибка базы данных: ${newsError.message}`);
         }
       }
 
       if (!newsData) {
-        throw new Error('Новость не найдена');
+        throw new Error('News not found');
       }
 
       // Проверяем права доступа к неопубликованным статьям
@@ -404,7 +404,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
 
     } catch (err) {
       console.error('Error fetching article:', err);
-      setError(err instanceof Error ? err.message : 'Произошла ошибка при загрузке новости');
+      setError(err instanceof Error ? err.message : 'An error occurred while loading news');
     } finally {
       setLoading(false);
     }
@@ -413,7 +413,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
   // Обработка взаимодействий
   const handleInteraction = async (type: 'like' | 'bookmark' | 'share') => {
     if (!user || !article) {
-      alert('Войдите, чтобы взаимодействовать с новостью');
+      alert('Please log in to interact with news');
       return;
     }
 
@@ -490,7 +490,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
 
     } catch (error) {
       console.error('Ошибка взаимодействия:', error);
-      alert('Произошла ошибка. Попробуйте еще раз.');
+      alert('An error occurred. Please try again.');
     } finally {
       setInteractionLoading(null);
     }
@@ -508,12 +508,12 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
   // Получение названия категории
   const getCategoryName = (category?: string) => {
     const categories: Record<string, string> = {
-      'projects': 'Архитектурные проекты',
-      'events': 'События',
-      'personalities': 'Персоналии',
-      'trends': 'Тренды',
-      'planning': 'Городское планирование',
-      'heritage': 'Наследие'
+      'projects': 'Architectural Projects',
+      'events': 'Events',
+      'personalities': 'Personalities',
+      'trends': 'Trends',
+      'planning': 'Urban Planning',
+      'heritage': 'Heritage'
     };
     return category ? categories[category] || category : '';
   };
@@ -554,8 +554,8 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Новость не найдена</h1>
-          <p className="text-muted-foreground mb-6">{error || 'Возможно, новость была удалена или никогда не существовала'}</p>
+          <h1 className="text-2xl font-bold mb-2">News Not Found</h1>
+          <p className="text-muted-foreground mb-6">{error || 'The news may have been deleted or never existed'}</p>
           <Link
             href="/news"
             className="inline-flex items-center justify-center px-6 py-3 bg-[hsl(var(--news-primary))] text-white hover:bg-[hsl(var(--news-primary))]/90 transition-colors"
@@ -584,7 +584,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Назад к новостям</span>
+            <span>Back to News</span>
           </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -611,24 +611,22 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
                     <button
                       onClick={() => handleInteraction('like')}
                       disabled={!user || interactionLoading === 'like'}
-                      className={`p-3 rounded backdrop-blur-md transition-all ${
-                        article.user_interactions?.liked
-                          ? 'bg-[hsl(var(--news-primary))] text-white'
-                          : 'bg-white/90 text-gray-700 hover:bg-white'
-                      } disabled:opacity-50`}
-                      title="Нравится"
+                      className={`p-3 rounded backdrop-blur-md transition-all ${article.user_interactions?.liked
+                        ? 'bg-[hsl(var(--news-primary))] text-white'
+                        : 'bg-white/90 text-gray-700 hover:bg-white'
+                        } disabled:opacity-50`}
+                      title="Like"
                     >
                       <Heart className={`h-5 w-5 ${article.user_interactions?.liked ? 'fill-current' : ''}`} />
                     </button>
                     <button
                       onClick={() => handleInteraction('bookmark')}
                       disabled={!user || interactionLoading === 'bookmark'}
-                      className={`p-3 rounded backdrop-blur-md transition-all ${
-                        article.user_interactions?.bookmarked
-                          ? 'bg-[hsl(var(--news-primary))] text-white'
-                          : 'bg-white/90 text-gray-700 hover:bg-white'
-                      } disabled:opacity-50`}
-                      title="В закладки"
+                      className={`p-3 rounded backdrop-blur-md transition-all ${article.user_interactions?.bookmarked
+                        ? 'bg-[hsl(var(--news-primary))] text-white'
+                        : 'bg-white/90 text-gray-700 hover:bg-white'
+                        } disabled:opacity-50`}
+                      title="Bookmark"
                     >
                       <Bookmark className={`h-5 w-5 ${article.user_interactions?.bookmarked ? 'fill-current' : ''}`} />
                     </button>
@@ -645,7 +643,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
                       }}
                       disabled={!user || interactionLoading === 'share'}
                       className="p-3 rounded bg-white/90 backdrop-blur-md text-gray-700 hover:bg-white transition-all disabled:opacity-50"
-                      title="Поделиться"
+                      title="Share"
                     >
                       <Share2 className="h-5 w-5" />
                     </button>
@@ -656,22 +654,20 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
                   <button
                     onClick={() => handleInteraction('like')}
                     disabled={!user || interactionLoading === 'like'}
-                    className={`p-3 rounded transition-all ${
-                      article.user_interactions?.liked
-                        ? 'bg-[hsl(var(--news-primary))] text-white'
-                        : 'bg-card border border-border text-foreground hover:bg-muted'
-                    } disabled:opacity-50`}
+                    className={`p-3 rounded transition-all ${article.user_interactions?.liked
+                      ? 'bg-[hsl(var(--news-primary))] text-white'
+                      : 'bg-card border border-border text-foreground hover:bg-muted'
+                      } disabled:opacity-50`}
                   >
                     <Heart className={`h-5 w-5 ${article.user_interactions?.liked ? 'fill-current' : ''}`} />
                   </button>
                   <button
                     onClick={() => handleInteraction('bookmark')}
                     disabled={!user || interactionLoading === 'bookmark'}
-                    className={`p-3 rounded transition-all ${
-                      article.user_interactions?.bookmarked
-                        ? 'bg-[hsl(var(--news-primary))] text-white'
-                        : 'bg-card border border-border text-foreground hover:bg-muted'
-                    } disabled:opacity-50`}
+                    className={`p-3 rounded transition-all ${article.user_interactions?.bookmarked
+                      ? 'bg-[hsl(var(--news-primary))] text-white'
+                      : 'bg-card border border-border text-foreground hover:bg-muted'
+                      } disabled:opacity-50`}
                   >
                     <Bookmark className={`h-5 w-5 ${article.user_interactions?.bookmarked ? 'fill-current' : ''}`} />
                   </button>
@@ -780,7 +776,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
               {/* Связанные здания */}
               {article.buildings && article.buildings.length > 0 && (
                 <div className="mt-12">
-                  <h3 className="text-lg font-bold mb-6 font-display">Упоминаемые здания</h3>
+                  <h3 className="text-lg font-bold mb-6 font-display">Featured Buildings</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {article.buildings.map((building) => (
                       <Link
@@ -824,7 +820,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
               {/* Теги */}
               {article.tags && article.tags.length > 0 && (
                 <div className="mt-12">
-                  <h3 className="text-lg font-bold mb-4 font-display">Теги</h3>
+                  <h3 className="text-lg font-bold mb-4 font-display">Tags</h3>
                   <div className="flex flex-wrap gap-2">
                     {article.tags.map((tag, index) => (
                       <Link
@@ -877,7 +873,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
               {/* Recommended news */}
               {recommendedNews.length > 0 && (
                 <div className="bg-card border border-border p-6">
-                  <h3 className="text-lg font-bold mb-4 font-display">Рекомендуем</h3>
+                  <h3 className="text-lg font-bold mb-4 font-display">Recommended</h3>
                   <div className="space-y-4">
                     {recommendedNews.map(news => (
                       <Link

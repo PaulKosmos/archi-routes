@@ -57,17 +57,17 @@ export default function ResetPasswordClient() {
     e.preventDefault()
 
     if (!password || !confirmPassword) {
-      toast.error('Заполните все поля')
+      toast.error('Fill in all fields')
       return
     }
 
     if (password.length < 6) {
-      toast.error('Пароль должен содержать минимум 6 символов')
+      toast.error('Password must contain at least 6 characters')
       return
     }
 
     if (password !== confirmPassword) {
-      toast.error('Пароли не совпадают')
+      toast.error('Passwords do not match')
       return
     }
 
@@ -79,7 +79,7 @@ export default function ResetPasswordClient() {
 
       if (error) throw error
 
-      toast.success('Пароль успешно изменен!')
+      toast.success('Password updated successfully!')
 
       // Перенаправляем на главную страницу через 2 секунды
       setTimeout(() => {
@@ -88,7 +88,7 @@ export default function ResetPasswordClient() {
 
     } catch (error: any) {
       console.error('Reset password error:', error)
-      toast.error('Ошибка при изменении пароля')
+      toast.error('Error changing password')
     } finally {
       setLoading(false)
     }
@@ -101,7 +101,7 @@ export default function ResetPasswordClient() {
         <div className="max-w-md mx-auto pt-16 px-4">
           <div className="bg-white rounded-xl shadow-sm p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Проверка ссылки для сброса пароля...</p>
+            <p className="text-gray-600">Checking password reset link...</p>
           </div>
         </div>
       </div>
@@ -116,17 +116,17 @@ export default function ResetPasswordClient() {
           <div className="bg-white rounded-xl shadow-sm p-8 text-center">
             <XCircle className="w-16 h-16 text-red-300 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Недействительная ссылка
+              Invalid Link
             </h1>
             <p className="text-gray-600 mb-6">
-              Ссылка для сброса пароля недействительна или истекла.
-              Запросите новую ссылку.
+              The password reset link is invalid or has expired.
+              Request a new link.
             </p>
             <button
               onClick={() => router.push('/')}
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              На главную
+              Go Home
             </button>
           </div>
         </div>
@@ -146,10 +146,10 @@ export default function ResetPasswordClient() {
               <Lock className="w-8 h-8 text-blue-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Создать новый пароль
+              Create New Password
             </h1>
             <p className="text-gray-600">
-              Введите новый пароль для вашего аккаунта
+              Enter a new password for your account
             </p>
           </div>
 
@@ -158,7 +158,7 @@ export default function ResetPasswordClient() {
             {/* Новый пароль */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Новый пароль
+                New Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -180,14 +180,14 @@ export default function ResetPasswordClient() {
                 </button>
               </div>
               <p className="text-sm text-gray-500 mt-1">
-                Минимум 6 символов
+                Minimum 6 characters
               </p>
             </div>
 
             {/* Подтверждение пароля */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Подтвердите пароль
+                Confirm Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -214,12 +214,12 @@ export default function ResetPasswordClient() {
                   {password === confirmPassword ? (
                     <>
                       <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                      <span className="text-sm text-green-600">Пароли совпадают</span>
+                      <span className="text-sm text-green-600">Passwords match</span>
                     </>
                   ) : (
                     <>
                       <XCircle className="w-4 h-4 text-red-500 mr-2" />
-                      <span className="text-sm text-red-600">Пароли не совпадают</span>
+                      <span className="text-sm text-red-600">Passwords do not match</span>
                     </>
                   )}
                 </div>
@@ -235,10 +235,10 @@ export default function ResetPasswordClient() {
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Обновление пароля...
+                  Updating password...
                 </>
               ) : (
-                'Обновить пароль'
+                'Update Password'
               )}
             </button>
           </form>
@@ -246,7 +246,7 @@ export default function ResetPasswordClient() {
           {/* Дополнительная информация */}
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Совет:</strong> Используйте комбинацию букв, цифр и специальных символов для создания надежного пароля.
+              <strong>Tip:</strong> Use a combination of letters, numbers, and special characters to create a strong password.
             </p>
           </div>
         </div>

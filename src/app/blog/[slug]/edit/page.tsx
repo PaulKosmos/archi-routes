@@ -66,14 +66,14 @@ export default function EditBlogPage() {
 
       if (postError) throw postError
       if (!post) {
-        alert('Статья не найдена')
+        alert('Article not found')
         router.push('/blog')
         return
       }
 
       // Проверяем права доступа
       if (post.author_id !== user!.id) {
-        alert('У вас нет прав для редактирования этой статьи')
+        alert('You do not have permission to edit this article')
         router.push('/blog')
         return
       }
@@ -112,7 +112,7 @@ export default function EditBlogPage() {
 
     } catch (error) {
       console.error('Error loading post:', error)
-      alert('Ошибка при загрузке статьи')
+      alert('Error loading article')
       router.push('/blog')
     } finally {
       setLoading(false)
@@ -137,15 +137,15 @@ export default function EditBlogPage() {
     const newErrors: Record<string, string> = {}
 
     if (!title.trim()) {
-      newErrors.title = 'Заголовок обязателен'
-    } else if (title.length < 5) {
-      newErrors.title = 'Заголовок должен содержать минимум 5 символов'
-    } else if (title.length > 200) {
-      newErrors.title = 'Заголовок не может быть длиннее 200 символов'
+      newErrors.title = 'Title is required'
+    } else if (title.trim().length < 5) {
+      newErrors.title = 'Title must contain at least 5 characters'
+    } else if (title.trim().length > 200) {
+      newErrors.title = 'Title cannot be longer than 200 characters'
     }
 
     if (blocks.length === 0) {
-      newErrors.content = 'Добавьте хотя бы один блок контента'
+      newErrors.content = 'Add at least one content block'
     }
 
     if (excerpt && excerpt.length > 500) {
@@ -391,7 +391,7 @@ export default function EditBlogPage() {
               <div className="mb-6">
                 <input
                   type="text"
-                  placeholder="Заголовок статьи..."
+                  placeholder="Article title..."
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full text-3xl font-bold border-0 focus:ring-0 focus:outline-none placeholder-gray-400"
@@ -404,7 +404,7 @@ export default function EditBlogPage() {
               {/* Краткое описание */}
               <div className="mb-6">
                 <textarea
-                  placeholder="Краткое описание статьи (отображается в карточках и для SEO)..."
+                  placeholder="Brief article summary (shown in cards and for SEO)..."
                   value={excerpt}
                   onChange={(e) => setExcerpt(e.target.value)}
                   rows={3}
@@ -425,7 +425,7 @@ export default function EditBlogPage() {
                   <div className="relative">
                     <img
                       src={featuredImagePreview}
-                      alt="Превью"
+                      alt="Preview"
                       className="w-full h-48 object-cover rounded-lg"
                     />
                     <button

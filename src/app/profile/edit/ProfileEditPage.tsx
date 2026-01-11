@@ -31,43 +31,43 @@ export default function ProfileEditPage() {
   const { user, profile, updateProfile, loading: authLoading } = useAuth()
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  
+
   const [formData, setFormData] = useState<FormData>({
     display_name: profile?.display_name || profile?.full_name || '',
     bio: profile?.bio || '',
     city: profile?.city || '',
     avatar_url: profile?.avatar_url || ''
   })
-  
+
   const [loading, setLoading] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-  
+
   // Валидация формы
   const [errors, setErrors] = useState<Partial<FormData>>({})
 
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {}
-    
+
     if (!formData.display_name.trim()) {
-      newErrors.display_name = 'Имя обязательно для заполнения'
+      newErrors.display_name = 'Name is required'
     } else if (formData.display_name.length < 2) {
-      newErrors.display_name = 'Имя должно содержать минимум 2 символа'
+      newErrors.display_name = 'Name must be at least 2 characters'
     } else if (formData.display_name.length > 50) {
-      newErrors.display_name = 'Имя не должно превышать 50 символов'
+      newErrors.display_name = 'Name must not exceed 50 characters'
     } else if (!/^[a-zA-Zа-яА-Я\s]+$/.test(formData.display_name)) {
-      newErrors.display_name = 'Имя может содержать только буквы и пробелы'
+      newErrors.display_name = 'Name can only contain letters and spaces'
     }
-    
+
     if (formData.city && formData.city.length > 100) {
-      newErrors.city = 'Название города не должно превышать 100 символов'
+      newErrors.city = 'City name must not exceed 100 characters'
     }
-    
+
     if (formData.bio && formData.bio.length > 500) {
-      newErrors.bio = 'Описание не должно превышать 500 символов'
+      newErrors.bio = 'Bio must not exceed 500 characters'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -77,7 +77,7 @@ export default function ProfileEditPage() {
       ...prev,
       [field]: value
     }))
-    
+
     // Очищаем ошибку при изменении поля
     if (errors[field]) {
       setErrors(prev => ({
@@ -94,16 +94,16 @@ export default function ProfileEditPage() {
     try {
       // Валидация файла
       if (file.size > 2 * 1024 * 1024) { // 2MB
-        throw new Error('Размер файла не должен превышать 2MB')
+        throw new Error('File size must not exceed 2MB')
       }
 
       if (!file.type.startsWith('image/')) {
-        throw new Error('Можно загружать только изображения')
+        throw new Error('Only images can be uploaded')
       }
 
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
       if (!allowedTypes.includes(file.type)) {
-        throw new Error('Поддерживаются только форматы JPG, PNG и WebP')
+        throw new Error('Only JPG, PNG and WebP formats are supported')
       }
 
       // Создаем уникальное имя файла
@@ -133,13 +133,13 @@ export default function ProfileEditPage() {
           avatar_url: urlData.publicUrl
         }))
         setAvatarPreview(urlData.publicUrl)
-        setMessage({ type: 'success', text: 'Аватар успешно загружен' })
+        setMessage({ type: 'success', text: 'Avatar uploaded successfully' })
       }
     } catch (error) {
       console.error('Error uploading avatar:', error)
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Ошибка загрузки аватара' 
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Error uploading avatar'
       })
     } finally {
       setUploadingAvatar(false)
@@ -155,9 +155,9 @@ export default function ProfileEditPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
-      setMessage({ type: 'error', text: 'Пожалуйста, исправьте ошибки в форме' })
+      setMessage({ type: 'error', text: 'Please correct the errors in the form' })
       return
     }
 
@@ -166,23 +166,23 @@ export default function ProfileEditPage() {
 
     try {
       const { error } = await updateProfile(formData)
-      
+
       if (error) {
         throw error
       }
 
-      setMessage({ type: 'success', text: 'Профиль успешно обновлен!' })
-      
+      setMessage({ type: 'success', text: 'Profile updated successfully!' })
+
       // Перенаправляем на страницу профиля через 2 секунды
       setTimeout(() => {
         router.push('/profile')
       }, 2000)
-      
+
     } catch (error) {
       console.error('Error updating profile:', error)
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Ошибка при сохранении профиля' 
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Error saving profile'
       })
     } finally {
       setLoading(false)
@@ -200,7 +200,7 @@ export default function ProfileEditPage() {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Загрузка...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </main>
         <EnhancedFooter />
@@ -215,13 +215,13 @@ export default function ProfileEditPage() {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <User className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h1 className="text-2xl font-heading font-bold mb-2">Вход необходим</h1>
-            <p className="text-muted-foreground mb-6">Для редактирования профиля необходимо войти в систему</p>
+            <h1 className="text-2xl font-heading font-bold mb-2">Sign In Required</h1>
+            <p className="text-muted-foreground mb-6">You must sign in to edit your profile</p>
             <Link
               href="/auth"
               className="bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
             >
-              Войти
+              Sign In
             </Link>
           </div>
         </main>
@@ -247,19 +247,18 @@ export default function ProfileEditPage() {
                 <ArrowLeft className="w-5 h-5 text-muted-foreground" />
               </Link>
               <div className="flex-1">
-                <h1 className="text-3xl font-heading font-bold">Редактировать профиль</h1>
-                <p className="text-muted-foreground mt-1">Обновите информацию о себе</p>
+                <h1 className="text-3xl font-heading font-bold">Edit Profile</h1>
+                <p className="text-muted-foreground mt-1">Update your information</p>
               </div>
             </div>
           </div>
 
           {/* Сообщения */}
           {message && (
-            <div className={`mb-6 p-4 rounded-[var(--radius)] border ${
-              message.type === 'success'
+            <div className={`mb-6 p-4 rounded-[var(--radius)] border ${message.type === 'success'
                 ? 'bg-green-50 border-green-200 text-green-800'
                 : 'bg-red-50 border-red-200 text-red-800'
-            }`}>
+              }`}>
               {message.text}
             </div>
           )}
@@ -269,7 +268,7 @@ export default function ProfileEditPage() {
             <div className="bg-card border border-border rounded-[var(--radius)] p-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Camera className="w-5 h-5" />
-                Аватар
+                Avatar
               </h2>
 
               <div className="flex items-center gap-6">
@@ -277,7 +276,7 @@ export default function ProfileEditPage() {
                   {currentAvatar ? (
                     <img
                       src={currentAvatar}
-                      alt="Аватар"
+                      alt="Avatar"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -297,17 +296,17 @@ export default function ProfileEditPage() {
                     {uploadingAvatar ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Загрузка...</span>
+                        <span>Uploading...</span>
                       </>
                     ) : (
                       <>
                         <Upload className="w-4 h-4" />
-                        <span>Загрузить новый</span>
+                        <span>Upload New</span>
                       </>
                     )}
                   </button>
                   <p className="text-sm text-muted-foreground mt-2">
-                    JPG, PNG или WebP. Максимум 2MB.
+                    JPG, PNG or WebP. Maximum 2MB.
                   </p>
                 </div>
               </div>
@@ -325,14 +324,14 @@ export default function ProfileEditPage() {
             <div className="bg-card border border-border rounded-[var(--radius)] p-6">
               <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                Основная информация
+                Basic Information
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Имя */}
                 <div>
                   <label htmlFor="display_name" className="block text-sm font-medium mb-2">
-                    Имя *
+                    Name *
                   </label>
                   <div className="relative">
                     <User className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
@@ -341,10 +340,9 @@ export default function ProfileEditPage() {
                       id="display_name"
                       value={formData.display_name}
                       onChange={(e) => handleInputChange('display_name', e.target.value)}
-                      className={`w-full pl-10 pr-4 py-2 text-sm border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent ${
-                        errors.display_name ? 'border-red-300' : 'border-border'
-                      }`}
-                      placeholder={profile?.display_name || profile?.full_name || "Ваше имя"}
+                      className={`w-full pl-10 pr-4 py-2 text-sm border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent ${errors.display_name ? 'border-red-300' : 'border-border'
+                        }`}
+                      placeholder={profile?.display_name || profile?.full_name || "Your name"}
                       maxLength={50}
                     />
                   </div>
@@ -352,14 +350,14 @@ export default function ProfileEditPage() {
                     <p className="text-destructive text-xs mt-1">{errors.display_name}</p>
                   )}
                   <p className="text-muted-foreground text-xs mt-1">
-                    {formData.display_name.length}/50 символов
+                    {formData.display_name.length}/50 characters
                   </p>
                 </div>
 
                 {/* Город */}
                 <div>
                   <label htmlFor="city" className="block text-sm font-medium mb-2">
-                    Город
+                    City
                   </label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
@@ -368,10 +366,9 @@ export default function ProfileEditPage() {
                       id="city"
                       value={formData.city}
                       onChange={(e) => handleInputChange('city', e.target.value)}
-                      className={`w-full pl-10 pr-4 py-2 text-sm border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent ${
-                        errors.city ? 'border-red-300' : 'border-border'
-                      }`}
-                      placeholder={profile?.city || "Ваш город"}
+                      className={`w-full pl-10 pr-4 py-2 text-sm border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent ${errors.city ? 'border-red-300' : 'border-border'
+                        }`}
+                      placeholder={profile?.city || "Your city"}
                       maxLength={100}
                     />
                   </div>
@@ -379,7 +376,7 @@ export default function ProfileEditPage() {
                     <p className="text-destructive text-xs mt-1">{errors.city}</p>
                   )}
                   <p className="text-muted-foreground text-xs mt-1">
-                    {formData.city.length}/100 символов
+                    {formData.city.length}/100 characters
                   </p>
                 </div>
               </div>
@@ -387,24 +384,23 @@ export default function ProfileEditPage() {
               {/* О себе */}
               <div className="mt-6">
                 <label htmlFor="bio" className="block text-sm font-medium mb-2">
-                  О себе
+                  About Me
                 </label>
                 <textarea
                   id="bio"
                   value={formData.bio}
                   onChange={(e) => handleInputChange('bio', e.target.value)}
                   rows={4}
-                  className={`w-full px-4 py-2 text-sm border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent resize-none ${
-                    errors.bio ? 'border-red-300' : 'border-border'
-                  }`}
-                  placeholder={profile?.bio || "Расскажите о себе, своих интересах в архитектуре..."}
+                  className={`w-full px-4 py-2 text-sm border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent resize-none ${errors.bio ? 'border-red-300' : 'border-border'
+                    }`}
+                  placeholder={profile?.bio || "Tell us about yourself and your interests in architecture..."}
                   maxLength={500}
                 />
                 {errors.bio && (
                   <p className="text-destructive text-xs mt-1">{errors.bio}</p>
                 )}
                 <p className="text-muted-foreground text-xs mt-1">
-                  {formData.bio.length}/500 символов
+                  {formData.bio.length}/500 characters
                 </p>
               </div>
             </div>
@@ -412,7 +408,7 @@ export default function ProfileEditPage() {
             {/* Настройки приватности */}
             <div className="bg-card border border-border rounded-[var(--radius)] p-6">
               <h2 className="text-lg font-semibold mb-4">
-                Приватность
+                Privacy
               </h2>
 
               <div className="space-y-4">
@@ -423,7 +419,7 @@ export default function ProfileEditPage() {
                     className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
                   />
                   <label htmlFor="hide_email" className="text-sm">
-                    Скрыть email от других пользователей
+                    Hide email from other users
                   </label>
                 </div>
 
@@ -434,7 +430,7 @@ export default function ProfileEditPage() {
                     className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
                   />
                   <label htmlFor="hide_buildings" className="text-sm">
-                    Скрыть список моих зданий
+                    Hide my buildings list
                   </label>
                 </div>
               </div>
@@ -448,7 +444,7 @@ export default function ProfileEditPage() {
                 className="px-6 py-2 border border-border rounded-[var(--radius)] hover:bg-accent transition-colors flex items-center justify-center gap-2"
               >
                 <X className="w-4 h-4" />
-                <span>Отменить</span>
+                <span>Cancel</span>
               </button>
 
               <button
@@ -459,12 +455,12 @@ export default function ProfileEditPage() {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Сохранение...</span>
+                    <span>Saving...</span>
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    <span>Сохранить изменения</span>
+                    <span>Save Changes</span>
                   </>
                 )}
               </button>

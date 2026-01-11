@@ -102,7 +102,7 @@ export default function PodcastsSection() {
             onClick={() => router.push('/podcasts')}
             className="hidden md:flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group"
           >
-            <span>Все выпуски</span>
+            <span>All Episodes</span>
             <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
           </button>
         </div>
@@ -189,7 +189,7 @@ export default function PodcastsSection() {
 
           {/* Список предыдущих выпусков */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Предыдущие выпуски</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Previous Episodes</h3>
 
             {recentEpisodes.map((episode, index) => (
               <div
@@ -251,7 +251,7 @@ export default function PodcastsSection() {
             onClick={() => router.push('/podcasts')}
             className="inline-flex items-center space-x-2 px-8 py-3 bg-purple-600 text-white font-medium rounded-full hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl"
           >
-            <span>Все выпуски</span>
+            <span>All Episodes</span>
             <ArrowRight size={20} />
           </button>
         </div>

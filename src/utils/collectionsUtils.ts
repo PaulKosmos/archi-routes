@@ -51,12 +51,12 @@ export function formatCollectionDate(dateStr: string): string {
   const diffTime = Math.abs(now.getTime() - date.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-  if (diffDays === 0) return 'Сегодня'
-  if (diffDays === 1) return 'Вчера'
-  if (diffDays < 7) return `${diffDays} дн. назад`
-  if (diffDays < 30) return `${Math.ceil(diffDays / 7)} нед. назад`
-  
-  return date.toLocaleDateString('ru-RU', {
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return `${diffDays} days ago`
+  if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`
+
+  return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -68,15 +68,15 @@ export function validateCollection(collection: Partial<Collection>): { isValid: 
   const errors: string[] = []
 
   if (!collection.name?.trim()) {
-    errors.push('Название коллекции обязательно')
+    errors.push('Collection name is required')
   }
 
   if (collection.name && collection.name.length > 100) {
-    errors.push('Название не должно превышать 100 символов')
+    errors.push('Name must not exceed 100 characters')
   }
 
   if (collection.description && collection.description.length > 500) {
-    errors.push('Описание не должно превышать 500 символов')
+    errors.push('Description must not exceed 500 characters')
   }
 
   return {
@@ -114,7 +114,7 @@ export function prepareCollectionForPDF(collection: Collection) {
     buildingCount: collection.building_count || 0,
     buildings: collection.buildings?.map(cb => ({
       name: cb.building?.name || '',
-      architect: cb.building?.architect || 'Неизвестен',
+      architect: cb.building?.architect || 'Unknown',
       city: cb.building?.city || '',
       year: cb.building?.year_built || null,
       rating: cb.building?.rating || 0,
@@ -129,21 +129,21 @@ export function prepareCollectionForPDF(collection: Collection) {
 // Статистика коллекции
 export function getCollectionStats(collection: Collection) {
   const buildings = collection.buildings || []
-  
+
   const cities = new Set(buildings.map(cb => cb.building?.city).filter(Boolean))
   const architects = new Set(buildings.map(cb => cb.building?.architect).filter(Boolean))
   const styles = new Set() // Можно добавить стили позже
-  
-  const averageRating = buildings.length > 0 
+
+  const averageRating = buildings.length > 0
     ? buildings.reduce((sum, cb) => sum + (cb.building?.rating || 0), 0) / buildings.length
     : 0
 
   const visitedCount = buildings.filter(cb => cb.visit_date).length
-  
+
   const oldestBuilding = buildings
     .filter(cb => cb.building?.year_built)
     .sort((a, b) => (a.building?.year_built || 0) - (b.building?.year_built || 0))[0]
-    
+
   const newestBuilding = buildings
     .filter(cb => cb.building?.year_built)
     .sort((a, b) => (b.building?.year_built || 0) - (a.building?.year_built || 0))[0]
@@ -166,8 +166,8 @@ export function getCollectionStats(collection: Collection) {
 export type CollectionSortOption = 'added' | 'name' | 'year' | 'rating' | 'city' | 'visited'
 
 export function sortCollectionBuildings(
-  buildings: CollectionBuilding[], 
-  sortBy: CollectionSortOption, 
+  buildings: CollectionBuilding[],
+  sortBy: CollectionSortOption,
   ascending: boolean = true
 ): CollectionBuilding[] {
   const sorted = [...buildings].sort((a, b) => {
@@ -212,13 +212,13 @@ export function sortCollectionBuildings(
 
 // Поиск в коллекции
 export function searchInCollection(
-  buildings: CollectionBuilding[], 
+  buildings: CollectionBuilding[],
   query: string
 ): CollectionBuilding[] {
   if (!query.trim()) return buildings
 
   const normalizedQuery = query.toLowerCase().trim()
-  
+
   return buildings.filter(cb => {
     const building = cb.building
     if (!building) return false

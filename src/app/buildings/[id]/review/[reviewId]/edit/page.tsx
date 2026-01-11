@@ -101,7 +101,7 @@ export default function EditReviewPage() {
         if (error) throw error
 
         if (!data) {
-          toast.error('Обзор не найден')
+          toast.error('Review not found')
           setLoading(false)
           return
         }
@@ -123,7 +123,7 @@ export default function EditReviewPage() {
 
       } catch (error: any) {
         console.error('Error loading review:', error)
-        toast.error('Ошибка загрузки обзора')
+        toast.error('Error loading review')
         setLoading(false)
       } finally {
         setLoading(false)
@@ -138,7 +138,7 @@ export default function EditReviewPage() {
     const totalPhotos = form.existingPhotos.length + form.newPhotos.length + files.length
 
     if (totalPhotos > 5) {
-      toast.error('Максимум 5 фотографий')
+      toast.error('Maximum 5 photos')
       return
     }
 
@@ -162,11 +162,11 @@ export default function EditReviewPage() {
   const addTag = () => {
     if (!currentTag.trim()) return
     if (form.tags.includes(currentTag.trim())) {
-      toast.error('Тег уже добавлен')
+      toast.error('Tag already added')
       return
     }
     if (form.tags.length >= 10) {
-      toast.error('Максимум 10 тегов')
+      toast.error('Maximum 10 tags')
       return
     }
     setForm(prev => ({ ...prev, tags: [...prev.tags, currentTag.trim()] }))
@@ -184,12 +184,12 @@ export default function EditReviewPage() {
     e.preventDefault()
 
     if (!user || !review) {
-      toast.error('Ошибка: отсутствуют данные')
+      toast.error('Error: missing data')
       return
     }
 
     if (form.content.length < 50) {
-      toast.error('Минимальная длина обзора: 50 символов')
+      toast.error('Minimum review length: 50 characters')
       return
     }
 
@@ -199,7 +199,7 @@ export default function EditReviewPage() {
       // 1. Загрузка новых фотографий
       let newPhotoUrls: string[] = []
       if (form.newPhotos.length > 0) {
-        toast.loading('📷 Загрузка новых фотографий...')
+        toast.loading('📷 Uploading new photos...')
         const uploadPromises = form.newPhotos.map(async photo => {
           const result = await uploadImage(photo, 'buildings/gallery', user.id)
           return result.path
@@ -215,7 +215,7 @@ export default function EditReviewPage() {
       let audioDuration: number | null = review.audio_duration_seconds
 
       if (form.newAudio) {
-        toast.loading('🎧 Загрузка нового аудио...')
+        toast.loading('🎧 Uploading new audio...')
 
         // Получаем длительность
         const audio = new Audio(URL.createObjectURL(form.newAudio))
@@ -234,7 +234,7 @@ export default function EditReviewPage() {
       }
 
       // 3. Обновление обзора
-      toast.loading('💾 Сохранение изменений...')
+      toast.loading('💾 Saving changes...')
 
       const { error } = await supabase
         .from('building_reviews')
@@ -253,14 +253,14 @@ export default function EditReviewPage() {
 
       if (error) throw error
 
-      toast.success('🎉 Обзор успешно обновлён и отправлен на модерацию!')
+      toast.success('🎉 Review successfully updated and sent for moderation!')
 
       // Редирект на страницу профиля
       router.push('/profile/reviews')
 
     } catch (error: any) {
       console.error('Error updating review:', error)
-      toast.error('Ошибка обновления обзора: ' + (error.message || 'Неизвестная ошибка'))
+      toast.error('Error updating review: ' + (error.message || 'Unknown error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -272,7 +272,7 @@ export default function EditReviewPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Загрузка обзора...</p>
+          <p className="text-gray-600">Loading review...</p>
         </div>
       </div>
     )
@@ -283,13 +283,13 @@ export default function EditReviewPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Необходима авторизация</h1>
-          <p className="text-gray-600 mb-4">Для редактирования обзора необходимо войти в систему</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Authorization Required</h1>
+          <p className="text-gray-600 mb-4">You must be logged in to edit a review</p>
           <Link
             href="/profile/reviews"
             className="text-blue-600 hover:text-blue-800 font-medium"
           >
-            Вернуться к обзорам
+            Back to Reviews
           </Link>
         </div>
       </div>
@@ -300,13 +300,13 @@ export default function EditReviewPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Обзор не найден</h1>
-          <p className="text-gray-600 mb-4">Возможно, обзор был удалён или у вас нет прав на его редактирование</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Review Not Found</h1>
+          <p className="text-gray-600 mb-4">The review may have been deleted or you don't have permission to edit it</p>
           <Link
             href="/profile/reviews"
             className="text-blue-600 hover:text-blue-800 font-medium"
           >
-            Вернуться к обзорам
+            Back to Reviews
           </Link>
         </div>
       </div>
@@ -326,28 +326,28 @@ export default function EditReviewPage() {
             className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Вернуться к обзорам
+            Back to Reviews
           </Link>
 
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h1 className="text-2xl font-semibold text-gray-900">
-              Редактировать обзор
+              Edit Review
             </h1>
             <p className="text-sm text-gray-600 mt-1">
-              О здании: <span className="font-medium">{review.buildings.name}</span>
+              About building: <span className="font-medium">{review.buildings.name}</span>
             </p>
 
             {/* Статус модерации */}
             {review.moderation_status === 'rejected' && review.rejection_reason && (
               <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm font-medium text-red-800 mb-1">Причина отклонения:</p>
+                <p className="text-sm font-medium text-red-800 mb-1">Rejection reason:</p>
                 <p className="text-sm text-red-700">{review.rejection_reason}</p>
               </div>
             )}
 
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
-                После редактирования обзор будет отправлен на повторную модерацию.
+                After editing, the review will be sent for re-moderation.
               </p>
             </div>
           </div>
@@ -359,56 +359,56 @@ export default function EditReviewPage() {
             {/* Заголовок */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Заголовок обзора *
+                Review Title *
               </label>
               <input
                 type="text"
                 value={form.title}
                 onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="Краткое описание вашего впечатления"
+                placeholder="Brief description of your impression"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={100}
                 required
               />
               <p className="text-xs text-gray-500 mt-1">
-                {form.title.length}/100 символов
+                {form.title.length}/100 characters
               </p>
             </div>
 
             {/* Текст обзора */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Текст обзора *
+                Review Text *
               </label>
               <textarea
                 value={form.content}
                 onChange={(e) => setForm(prev => ({ ...prev, content: e.target.value }))}
-                placeholder="Поделитесь своими впечатлениями об архитектуре, истории, атмосфере места..."
+                placeholder="Share your impressions about the architecture, history, atmosphere of the place..."
                 rows={8}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
                 required
               />
               <p className="text-xs text-gray-500 mt-1">
-                Минимум 50 символов. Текущая длина: {form.content.length}
+                Minimum 50 characters. Current length: {form.content.length}
               </p>
             </div>
 
             {/* Фотографии */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Фотографии (максимум 5)
+                Photos (maximum 5)
               </label>
 
               {/* Существующие фотографии */}
               {form.existingPhotos.length > 0 && (
                 <div className="mb-3">
-                  <p className="text-xs text-gray-600 mb-2">Текущие фотографии:</p>
+                  <p className="text-xs text-gray-600 mb-2">Current photos:</p>
                   <div className="grid grid-cols-3 gap-3">
                     {form.existingPhotos.map((photoUrl, index) => (
                       <div key={`existing-${index}`} className="relative group">
                         <img
                           src={getStorageUrl(photoUrl, 'photos')}
-                          alt={`Фото ${index + 1}`}
+                          alt={`Photo ${index + 1}`}
                           className="w-full h-24 object-cover rounded-lg"
                         />
                         <button
@@ -427,13 +427,13 @@ export default function EditReviewPage() {
               {/* Новые фотографии */}
               {form.newPhotos.length > 0 && (
                 <div className="mb-3">
-                  <p className="text-xs text-gray-600 mb-2">Новые фотографии:</p>
+                  <p className="text-xs text-gray-600 mb-2">New photos:</p>
                   <div className="grid grid-cols-3 gap-3">
                     {form.newPhotos.map((photo, index) => (
                       <div key={`new-${index}`} className="relative group">
                         <img
                           src={URL.createObjectURL(photo)}
-                          alt={`Новое фото ${index + 1}`}
+                          alt={`New photo ${index + 1}`}
                           className="w-full h-24 object-cover rounded-lg"
                         />
                         <button
@@ -455,7 +455,7 @@ export default function EditReviewPage() {
                   <div className="text-center">
                     <Camera className="h-6 w-6 text-gray-400 mx-auto mb-1" />
                     <span className="text-sm text-gray-600">
-                      Добавить фото ({totalPhotos}/5)
+                      Add photo ({totalPhotos}/5)
                     </span>
                   </div>
                   <input
@@ -472,7 +472,7 @@ export default function EditReviewPage() {
             {/* Аудио */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Аудио комментарий (опционально)
+                Audio Commentary (optional)
               </label>
 
               {/* Существующее аудио */}
@@ -483,7 +483,7 @@ export default function EditReviewPage() {
                       <FileAudio className="h-5 w-5 text-green-600 mr-3" />
                       <div>
                         <span className="text-sm font-medium text-green-700 block">
-                          Текущее аудио
+                          Current audio
                         </span>
                         {review.audio_duration_seconds && (
                           <span className="text-xs text-gray-500">
@@ -498,7 +498,7 @@ export default function EditReviewPage() {
                       className="flex items-center bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
                     >
                       <X className="h-4 w-4 mr-1" />
-                      Удалить
+                      Remove
                     </button>
                   </div>
                 </div>
@@ -525,7 +525,7 @@ export default function EditReviewPage() {
                       className="flex items-center bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
                     >
                       <X className="h-4 w-4 mr-1" />
-                      Удалить
+                      Remove
                     </button>
                   </div>
                 </div>
@@ -535,8 +535,8 @@ export default function EditReviewPage() {
               {!form.newAudio && (form.removeAudio || !form.existingAudio) && (
                 <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all">
                   <FileAudio className="h-6 w-6 text-blue-500 mb-1" />
-                  <span className="text-sm font-medium text-gray-700">Загрузить аудио файл</span>
-                  <span className="text-xs text-gray-500">MP3, WAV, M4A (макс. 50 МБ)</span>
+                  <span className="text-sm font-medium text-gray-700">Upload audio file</span>
+                  <span className="text-xs text-gray-500">MP3, WAV, M4A (max. 50 MB)</span>
                   <input
                     type="file"
                     accept="audio/*"
@@ -544,7 +544,7 @@ export default function EditReviewPage() {
                       const file = e.target.files?.[0]
                       if (file) {
                         if (file.size > 50 * 1024 * 1024) {
-                          toast.error('Максимальный размер файла: 50 МБ')
+                          toast.error('Maximum file size: 50 MB')
                           return
                         }
                         setForm(prev => ({ ...prev, newAudio: file, removeAudio: false }))
@@ -559,7 +559,7 @@ export default function EditReviewPage() {
             {/* Теги */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Теги (опционально)
+                Tags (optional)
               </label>
               <div className="flex space-x-2 mb-3">
                 <input
@@ -567,7 +567,7 @@ export default function EditReviewPage() {
                   value={currentTag}
                   onChange={(e) => setCurrentTag(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  placeholder="модернизм, реставрация, доступность..."
+                  placeholder="modernism, restoration, accessibility..."
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <button
@@ -606,7 +606,7 @@ export default function EditReviewPage() {
                 href="/profile/reviews"
                 className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Отменить
+                Cancel
               </Link>
 
               <button
@@ -617,10 +617,10 @@ export default function EditReviewPage() {
                 {isSubmitting ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Сохранение...</span>
+                    <span>Saving...</span>
                   </>
                 ) : (
-                  <span>{review.moderation_status === 'rejected' ? 'Переопубликовать обзор' : 'Сохранить изменения'}</span>
+                  <span>{review.moderation_status === 'rejected' ? 'Republish Review' : 'Save Changes'}</span>
                 )}
               </button>
             </div>

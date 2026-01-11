@@ -20,7 +20,7 @@ export default function MapControls({
   currentRouteBuildings,
   onCreateRoute
 }: MapControlsProps) {
-  
+
   const handleViewChange = useCallback((view: 'buildings' | 'routes' | 'all') => {
     onViewChange(view)
   }, [onViewChange])
@@ -31,41 +31,38 @@ export default function MapControls({
       <div className="flex items-center space-x-2">
         <button
           onClick={() => handleViewChange('buildings')}
-          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${
-            mapView === 'buildings' 
-              ? 'bg-blue-50 border-blue-200 text-blue-700' 
+          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${mapView === 'buildings'
+              ? 'bg-blue-50 border-blue-200 text-blue-700'
               : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-          }`}
-          title="Показать только здания"
+            }`}
+          title="Show buildings only"
         >
           <Building2 className="w-4 h-4 mr-2" />
-          Здания
+          Buildings
         </button>
 
         <button
           onClick={() => handleViewChange('routes')}
-          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${
-            mapView === 'routes' 
-              ? 'bg-blue-50 border-blue-200 text-blue-700' 
+          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${mapView === 'routes'
+              ? 'bg-blue-50 border-blue-200 text-blue-700'
               : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-          }`}
-          title="Показать только маршруты"
+            }`}
+          title="Show routes only"
         >
           <RouteIcon className="w-4 h-4 mr-2" />
-          Маршруты
+          Routes
         </button>
 
         <button
           onClick={() => handleViewChange('all')}
-          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${
-            mapView === 'all' 
-              ? 'bg-blue-50 border-blue-200 text-blue-700' 
+          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${mapView === 'all'
+              ? 'bg-blue-50 border-blue-200 text-blue-700'
               : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-          }`}
-          title="Показать все объекты"
+            }`}
+          title="Show all objects"
         >
           <Eye className="w-4 h-4 mr-2" />
-          Все
+          All
         </button>
       </div>
 
@@ -75,15 +72,14 @@ export default function MapControls({
         <button
           onClick={onCreateRoute}
           disabled={currentRouteBuildings.length === 0}
-          className={`flex items-center px-4 py-2 rounded-lg border font-medium transition-colors ${
-            currentRouteBuildings.length > 0
+          className={`flex items-center px-4 py-2 rounded-lg border font-medium transition-colors ${currentRouteBuildings.length > 0
               ? 'bg-green-600 border-green-600 text-white hover:bg-green-700'
               : 'bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed'
-          }`}
-          title={currentRouteBuildings.length > 0 ? `Создать маршрут из ${currentRouteBuildings.length} зданий` : "Добавьте здания в маршрут"}
+            }`}
+          title={currentRouteBuildings.length > 0 ? `Create route from ${currentRouteBuildings.length} buildings` : "Add buildings to route"}
         >
           <RouteIcon className="w-4 h-4 mr-2" />
-          Создать маршрут
+          Create Route
           {currentRouteBuildings.length > 0 && (
             <span className="ml-2 bg-green-500 text-white text-xs rounded-full px-2 py-1">
               {currentRouteBuildings.length}
@@ -94,29 +90,27 @@ export default function MapControls({
         {/* Кнопка показать/скрыть панель зданий */}
         <button
           onClick={() => onViewChange('buildings')}
-          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${
-            showBuildings 
-              ? 'bg-green-50 border-green-200 text-green-700' 
+          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${showBuildings
+              ? 'bg-green-50 border-green-200 text-green-700'
               : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-          }`}
-          title="Показать/скрыть панель зданий"
+            }`}
+          title="Show/hide buildings panel"
         >
           <Building2 className="w-4 h-4 mr-2" />
-          Здания
+          Buildings
         </button>
 
         {/* Кнопка показать/скрыть панель маршрутов */}
         <button
           onClick={() => onViewChange('routes')}
-          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${
-            showRoutes 
-              ? 'bg-purple-50 border-purple-200 text-purple-700' 
+          className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${showRoutes
+              ? 'bg-purple-50 border-purple-200 text-purple-700'
               : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-          }`}
-          title="Показать/скрыть панель маршрутов"
+            }`}
+          title="Show/hide routes panel"
         >
           <RouteIcon className="w-4 h-4 mr-2" />
-          Маршруты
+          Routes
         </button>
       </div>
     </div>

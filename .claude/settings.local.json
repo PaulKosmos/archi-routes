@@ -71,7 +71,11 @@
       "mcp__playwright__playwright_hover",
       "Bash(exit 0)",
       "mcp__context7__query-docs",
-      "Skill(frontend-design)"
+      "Skill(frontend-design)",
+      "Bash(curl:*)",
+      "Skill(frontend-design:frontend-design)",
+      "Bash(git diff:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

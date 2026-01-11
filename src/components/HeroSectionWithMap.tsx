@@ -165,9 +165,8 @@ export default function HeroSectionWithMap() {
 
   return (
     <section
-      className={`relative w-full h-[80vh] min-h-[500px] overflow-hidden transition-all duration-800 ${
-        isAnimating ? 'hero-slide-down' : ''
-      }`}
+      className={`relative w-full h-[80vh] min-h-[500px] overflow-hidden transition-all duration-800 ${isAnimating ? 'hero-slide-down' : ''
+        }`}
     >
       {/* Фон с имитацией карты (градиент + паттерн) */}
       <div
@@ -226,7 +225,7 @@ export default function HeroSectionWithMap() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => searchQuery && setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                placeholder="Введите название города (например, Берлин, Стамбул, Прага...)"
+                placeholder="Enter city name (e.g., Berlin, Istanbul, Prague...)"
                 className="w-full pl-14 pr-4 py-5 text-lg rounded-2xl bg-white/95 backdrop-blur-md shadow-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all"
               />
             </div>
@@ -288,7 +287,7 @@ export default function HeroSectionWithMap() {
 
         {/* Индикатор скролла */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="text-white/60 text-sm mb-2">Прокрути вниз</div>
+          <div className="text-white/60 text-sm mb-2">Scroll Down</div>
           <div className="w-6 h-10 border-2 border-white/40 rounded-full flex items-start justify-center p-1">
             <div className="w-1.5 h-3 bg-white/60 rounded-full animate-scroll" />
           </div>

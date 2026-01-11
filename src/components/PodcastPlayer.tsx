@@ -198,7 +198,7 @@ export default function PodcastPlayer({
           <button
             onClick={() => skip(-15)}
             className="flex flex-col items-center p-2 hover:bg-muted rounded-[var(--radius)] transition-colors group"
-            title="Назад 15 сек"
+            title="Back 15 sec"
           >
             <SkipBack className="w-5 h-5 text-muted-foreground" />
             <span className="text-[10px] text-muted-foreground mt-0.5">15 сек</span>
@@ -218,7 +218,7 @@ export default function PodcastPlayer({
           <button
             onClick={() => skip(15)}
             className="flex flex-col items-center p-2 hover:bg-muted rounded-[var(--radius)] transition-colors group"
-            title="Вперед 15 сек"
+            title="Forward 15 sec"
           >
             <SkipForward className="w-5 h-5 text-muted-foreground" />
             <span className="text-[10px] text-muted-foreground mt-0.5">15 сек</span>
@@ -262,7 +262,7 @@ export default function PodcastPlayer({
             <button
               onClick={() => setShowSpeedMenu(!showSpeedMenu)}
               className="flex items-center gap-1 px-3 py-1.5 bg-muted border border-border rounded-[var(--radius)] text-sm font-medium text-foreground hover:bg-muted/80 transition-colors"
-              title="Скорость воспроизведения"
+              title="Playback speed"
             >
               <span>{playbackRate}x</span>
               <ChevronDown className="w-3 h-3" />
@@ -279,9 +279,8 @@ export default function PodcastPlayer({
                     <button
                       key={rate}
                       onClick={() => setSpeed(rate)}
-                      className={`w-full px-3 py-2 text-sm text-left hover:bg-muted transition-colors ${
-                        playbackRate === rate ? 'bg-muted font-semibold text-primary' : 'text-foreground'
-                      }`}
+                      className={`w-full px-3 py-2 text-sm text-left hover:bg-muted transition-colors ${playbackRate === rate ? 'bg-muted font-semibold text-primary' : 'text-foreground'
+                        }`}
                     >
                       {rate}x
                     </button>

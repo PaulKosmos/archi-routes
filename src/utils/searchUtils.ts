@@ -376,7 +376,7 @@ export function createSuggestions(
       suggestions.push({
         type: 'architect',
         value: arch.value,
-        label: `👤 ${arch.value} (${arch.count} ${arch.count === 1 ? 'здание' : 'зданий'})`,
+        label: `👤 ${arch.value} (${arch.count} ${arch.count === 1 ? 'building' : 'buildings'})`,
         count: arch.count
       })
     })
@@ -389,7 +389,7 @@ export function createSuggestions(
       suggestions.push({
         type: 'style',
         value: style.value,
-        label: `🏛️ ${style.value} (${style.count} ${style.count === 1 ? 'здание' : 'зданий'})`,
+        label: `🏛️ ${style.value} (${style.count} ${style.count === 1 ? 'building' : 'buildings'})`,
         count: style.count
       })
     })
@@ -402,7 +402,7 @@ export function createSuggestions(
       suggestions.push({
         type: 'city',
         value: city.value,
-        label: `📍 ${city.value} (${city.count} ${city.count === 1 ? 'здание' : 'зданий'})`,
+        label: `📍 ${city.value} (${city.count} ${city.count === 1 ? 'building' : 'buildings'})`,
         count: city.count
       })
     })
@@ -452,16 +452,16 @@ export function resetFilters(): SearchFilters {
   }
 }
 
-// Форматирование периода лет
+// Format year range
 export function formatYearRange(range: [number, number]): string {
-  if (range[0] === 0 && range[1] === 3000) return 'Все года'
+  if (range[0] === 0 && range[1] === 3000) return 'All years'
   if (range[0] === range[1]) return range[0].toString()
 
-  const from = range[0] === 0 ? 'до' : range[0].toString()
-  const to = range[1] === 3000 ? 'н.в.' : range[1].toString()
+  const from = range[0] === 0 ? 'until' : range[0].toString()
+  const to = range[1] === 3000 ? 'present' : range[1].toString()
 
-  if (range[0] === 0) return `до ${to}`
-  if (range[1] === 3000) return `с ${from}`
+  if (range[0] === 0) return `until ${to}`
+  if (range[1] === 3000) return `from ${from}`
 
   return `${from}–${to}`
 }
@@ -470,7 +470,7 @@ export function formatYearRange(range: [number, number]): string {
 export function getUserLocation(): Promise<{ latitude: number; longitude: number }> {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('Геолокация не поддерживается браузером'))
+      reject(new Error('Geolocation is not supported by your browser'))
       return
     }
 
@@ -482,24 +482,24 @@ export function getUserLocation(): Promise<{ latitude: number; longitude: number
         })
       },
       (error) => {
-        // Проверяем наличие кода ошибки (некоторые расширения браузера могут не предоставлять code)
+        // Check for error code (some browser extensions may not provide code)
         if (!error.code) {
-          reject(new Error('Геолокация недоступна. Проверьте настройки браузера или отключите расширения, блокирующие геолокацию'))
+          reject(new Error('Geolocation unavailable. Check your browser settings or disable extensions blocking geolocation'))
           return
         }
 
         switch (error.code) {
           case 1: // PERMISSION_DENIED
-            reject(new Error('Доступ к геолокации заблокирован.\n\nОбнаружено расширение Location Guard или подобное.\nРешения:\n• Откройте сайт в режиме инкогнито (Ctrl+Shift+N)\n• ИЛИ отключите расширение блокировки геолокации\n• ИЛИ добавьте сайт в исключения расширения'))
+            reject(new Error('Geolocation access blocked.\n\nLocation Guard or similar extension detected.\nSolutions:\n• Open site in incognito mode (Ctrl+Shift+N)\n• OR disable geolocation blocking extension\n• OR add site to extension exceptions'))
             break
           case 2: // POSITION_UNAVAILABLE
-            reject(new Error('Информация о местоположении недоступна'))
+            reject(new Error('Location information unavailable'))
             break
           case 3: // TIMEOUT
-            reject(new Error('Время ожидания геолокации истекло. Попробуйте ещё раз'))
+            reject(new Error('Geolocation request timed out. Please try again'))
             break
           default:
-            reject(new Error(`Ошибка геолокации (код ${error.code}). ${error.message || 'Проверьте настройки браузера'}`))
+            reject(new Error(`Geolocation error (code ${error.code}). ${error.message || 'Check your browser settings'}`))
             break
         }
       },
@@ -534,34 +534,34 @@ function toRad(degrees: number): number {
   return degrees * (Math.PI / 180)
 }
 
-// Варианты сортировки для UI
+// Sort options for UI
 export const SORT_OPTIONS = [
-  { value: 'relevance', label: 'По релевантности' },
-  { value: 'rating', label: 'По рейтингу' },
-  { value: 'year', label: 'По году постройки' },
-  { value: 'name', label: 'По алфавиту' },
-  { value: 'distance', label: 'По расстоянию' },
-  { value: 'recent', label: 'Недавно добавленные' }
+  { value: 'relevance', label: 'By relevance' },
+  { value: 'rating', label: 'By rating' },
+  { value: 'year', label: 'By construction year' },
+  { value: 'name', label: 'Alphabetically' },
+  { value: 'distance', label: 'By distance' },
+  { value: 'recent', label: 'Recently added' }
 ] as const
 
-// Варианты доступности
+// Accessibility options
 export const ACCESSIBILITY_OPTIONS = [
-  { value: 'wheelchair', label: 'Доступно для инвалидных колясок' },
-  { value: 'blind', label: 'Доступно для слабовидящих' },
-  { value: 'deaf', label: 'Доступно для слабослышащих' },
-  { value: 'limited_mobility', label: 'Ограниченная подвижность' },
-  { value: 'elevator', label: 'Есть лифт' },
-  { value: 'ramp', label: 'Есть пандус' },
-  { value: 'parking', label: 'Парковка для людей с ОВЗ' }
+  { value: 'wheelchair', label: 'Wheelchair accessible' },
+  { value: 'blind', label: 'Accessible for visually impaired' },
+  { value: 'deaf', label: 'Accessible for hearing impaired' },
+  { value: 'limited_mobility', label: 'Limited mobility' },
+  { value: 'elevator', label: 'Has elevator' },
+  { value: 'ramp', label: 'Has ramp' },
+  { value: 'parking', label: 'Accessible parking' }
 ] as const
 
-// Функция для форматирования расстояния
+// Format distance
 export function formatDistance(distanceKm: number): string {
   if (distanceKm < 1) {
-    return `${Math.round(distanceKm * 1000)} м`
+    return `${Math.round(distanceKm * 1000)} m`
   } else if (distanceKm < 10) {
-    return `${distanceKm.toFixed(1)} км`
+    return `${distanceKm.toFixed(1)} km`
   } else {
-    return `${Math.round(distanceKm)} км`
+    return `${Math.round(distanceKm)} km`
   }
 }

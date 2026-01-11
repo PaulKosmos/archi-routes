@@ -81,10 +81,10 @@ export default function GalleryBlockEditor({
       try {
         const uploadPromises = Array.from(files).map(async (file) => {
           if (!file.type.startsWith('image/')) {
-            throw new Error('Файл должен быть изображением');
+            throw new Error('File must be an image');
           }
           if (file.size > 10 * 1024 * 1024) {
-            throw new Error('Размер файла не должен превышать 10MB');
+            throw new Error('File size must not exceed 10MB');
           }
 
           const { url } = await uploadImage(file, 'photos', 'blog');
@@ -377,11 +377,10 @@ export default function GalleryBlockEditor({
                       })
                     }
                     disabled={readOnly}
-                    className={`flex-1 px-3 py-2 text-sm rounded transition-colors ${
-                      columns === col
+                    className={`flex-1 px-3 py-2 text-sm rounded transition-colors ${columns === col
                         ? 'bg-green-500 text-white'
                         : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     {col} колонки
                   </button>
@@ -408,11 +407,10 @@ export default function GalleryBlockEditor({
                       })
                     }
                     disabled={readOnly}
-                    className={`flex-1 px-3 py-2 text-sm rounded transition-colors ${
-                      layout === layoutType
+                    className={`flex-1 px-3 py-2 text-sm rounded transition-colors ${layout === layoutType
                         ? 'bg-green-500 text-white'
                         : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     {layoutType === 'grid' ? 'Сетка' : 'Masonry'}
                   </button>
@@ -440,11 +438,10 @@ export default function GalleryBlockEditor({
                         })
                       }
                       disabled={readOnly}
-                      className={`flex-1 px-3 py-1.5 text-xs rounded transition-colors ${
-                        aspectRatio === ratio
+                      className={`flex-1 px-3 py-1.5 text-xs rounded transition-colors ${aspectRatio === ratio
                           ? 'bg-green-500 text-white'
                           : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
-                      }`}
+                        }`}
                     >
                       {ratio}
                     </button>

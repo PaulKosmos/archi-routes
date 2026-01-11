@@ -342,7 +342,7 @@ export function useSearch(options: UseSearchOptions = {}) {
 
       if (searchError) {
         console.error('Supabase search error:', searchError)
-        throw new Error(`Ошибка поиска: ${searchError.message}`)
+        throw new Error(`Search error: ${searchError.message}`)
       }
 
       console.log('✅ Search completed:', { resultsCount: data?.length, totalCount: count })
@@ -380,7 +380,7 @@ export function useSearch(options: UseSearchOptions = {}) {
 
     } catch (err: any) {
       console.error('Search error details:', err)
-      setError(err?.message || 'Произошла ошибка при поиске')
+      setError(err?.message || 'An error occurred during search')
     } finally {
       setLoading(false)
     }

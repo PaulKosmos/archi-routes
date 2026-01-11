@@ -54,19 +54,19 @@ export default function CreateBlogPage() {
     const newErrors: Record<string, string> = {}
 
     if (!title.trim()) {
-      newErrors.title = 'Заголовок обязателен'
+      newErrors.title = 'Title is required'
     } else if (title.length < 5) {
-      newErrors.title = 'Заголовок должен содержать минимум 5 символов'
+      newErrors.title = 'Title must be at least 5 characters'
     } else if (title.length > 200) {
-      newErrors.title = 'Заголовок не может быть длиннее 200 символов'
+      newErrors.title = 'Title cannot be longer than 200 characters'
     }
 
     if (blocks.length === 0) {
-      newErrors.content = 'Добавьте хотя бы один блок контента'
+      newErrors.content = 'Add at least one content block'
     }
 
     if (excerpt && excerpt.length > 500) {
-      newErrors.excerpt = 'Краткое описание не может быть длиннее 500 символов'
+      newErrors.excerpt = 'Summary cannot be longer than 500 characters'
     }
 
     setErrors(newErrors)
@@ -197,7 +197,7 @@ export default function CreateBlogPage() {
       }
     } catch (error) {
       console.error('Error saving post:', error)
-      alert('Ошибка при сохранении статьи')
+      alert('Error saving article')
     } finally {
       setSaving(false)
     }
@@ -209,13 +209,13 @@ export default function CreateBlogPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Вход необходим</h1>
-          <p className="text-gray-600 mb-6">Для создания статей необходимо войти в систему</p>
-          <Link 
-            href="/auth" 
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Login Required</h1>
+          <p className="text-gray-600 mb-6">You need to log in to create articles</p>
+          <Link
+            href="/auth"
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Войти
+            Log in
           </Link>
         </div>
       </div>
@@ -233,7 +233,7 @@ export default function CreateBlogPage() {
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>К блогу</span>
+            <span>To Blog</span>
           </Link>
 
           <div className="flex items-center space-x-3">
@@ -242,7 +242,7 @@ export default function CreateBlogPage() {
               className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Eye className="w-4 h-4" />
-              <span>Предпросмотр</span>
+              <span>Preview</span>
             </button>
 
             <button
@@ -251,7 +251,7 @@ export default function CreateBlogPage() {
               className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
-              <span>{saving ? 'Сохранение...' : 'Сохранить черновик'}</span>
+              <span>{saving ? 'Saving...' : 'Save Draft'}</span>
             </button>
 
             <button
@@ -259,7 +259,7 @@ export default function CreateBlogPage() {
               disabled={saving}
               className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
             >
-              <span>{saving ? 'Публикация...' : 'Опубликовать'}</span>
+              <span>{saving ? 'Publishing...' : 'Publish'}</span>
             </button>
           </div>
         </div>
@@ -271,7 +271,7 @@ export default function CreateBlogPage() {
             <div className="mb-6">
               <input
                 type="text"
-                placeholder="Заголовок статьи..."
+                placeholder="Article title..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full text-3xl font-bold border-0 focus:ring-0 focus:outline-none placeholder-gray-400"
@@ -284,7 +284,7 @@ export default function CreateBlogPage() {
             {/* Краткое описание */}
             <div className="mb-6">
               <textarea
-                placeholder="Краткое описание статьи (отображается в карточках и для SEO)..."
+                placeholder="Brief article summary (shown in cards and for SEO)..."
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
                 rows={3}
@@ -298,14 +298,14 @@ export default function CreateBlogPage() {
             {/* Главное изображение */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Главное изображение
+                Featured Image
               </label>
 
               {featuredImagePreview ? (
                 <div className="relative">
                   <img
                     src={featuredImagePreview}
-                    alt="Превью"
+                    alt="Preview"
                     className="w-full h-48 object-cover rounded-lg"
                   />
                   <button
@@ -319,7 +319,7 @@ export default function CreateBlogPage() {
                 <label className="block w-full h-48 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors cursor-pointer">
                   <div className="flex flex-col items-center justify-center h-full">
                     <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                    <span className="text-gray-600">Нажмите чтобы загрузить изображение</span>
+                    <span className="text-gray-600">Click to upload image</span>
                   </div>
                   <input
                     type="file"
@@ -348,13 +348,13 @@ export default function CreateBlogPage() {
             <div className="pt-6 border-t border-gray-200">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
                 <Tag className="w-4 h-4 mr-2" />
-                Теги
+                Tags
               </h3>
 
               <TagsAutocompleteInput
                 selectedTags={selectedTags}
                 onTagsChange={setSelectedTags}
-                placeholder="Введите название тега..."
+                placeholder="Enter tag name..."
               />
             </div>
           </div>

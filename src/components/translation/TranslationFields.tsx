@@ -64,7 +64,7 @@ export default function TranslationFields({
                   Переведено: {filledTranslations}/{totalFields}
                 </>
               ) : (
-                'Оригинал на английском - переводы не требуются'
+                'Original in English - no translation needed'
               )}
             </p>
           </div>
@@ -108,14 +108,13 @@ export default function TranslationFields({
                   key={lang}
                   type="button"
                   onClick={() => onOriginalLanguageChange(lang)}
-                  className={`flex items-center gap-2 px-4 py-2 border-2 rounded-lg transition-all ${
-                    originalLanguage === lang
+                  className={`flex items-center gap-2 px-4 py-2 border-2 rounded-lg transition-all ${originalLanguage === lang
                       ? 'border-blue-500 bg-blue-50 text-blue-700 font-medium'
                       : 'border-gray-300 hover:border-gray-400 text-gray-700'
-                  }`}
+                    }`}
                 >
                   <span className="text-xl">{localeFlags[lang]}</span>
-                  <span>{lang === 'en' ? 'English' : lang === 'de' ? 'Deutsch' : 'Русский'}</span>
+                  <span>{lang === 'en' ? 'English' : lang === 'de' ? 'Deutsch' : 'Russian'}</span>
                 </button>
               ))}
             </div>

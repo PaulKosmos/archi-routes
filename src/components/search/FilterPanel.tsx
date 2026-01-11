@@ -2,11 +2,11 @@
 'use client'
 
 import { useState } from 'react'
-import { 
+import {
   X, ChevronDown, ChevronUp, RotateCcw, Camera, MapPin, Calendar, Star, User, Building2,
   Volume2, VolumeX, Navigation, ArrowUpDown, MessageSquare, Accessibility
 } from 'lucide-react'
-import { 
+import {
   SearchFilters, SearchMetadata, formatYearRange, getUserLocation,
   SORT_OPTIONS, ACCESSIBILITY_OPTIONS
 } from '@/utils/searchUtils'
@@ -106,8 +106,8 @@ export function FilterPanel({
 
   const handleNearMeToggle = async () => {
     if (filters.nearMe) {
-      onFiltersChange({ 
-        nearMe: false, 
+      onFiltersChange({
+        nearMe: false,
         userLocation: undefined,
         sortBy: filters.sortBy === 'distance' ? 'relevance' : filters.sortBy
       })
@@ -120,8 +120,8 @@ export function FilterPanel({
 
     try {
       const location = await getUserLocation()
-      onFiltersChange({ 
-        nearMe: true, 
+      onFiltersChange({
+        nearMe: true,
         userLocation: location,
         sortBy: 'distance'
       })
@@ -148,17 +148,16 @@ export function FilterPanel({
         <button
           key={star}
           onClick={() => onRatingClick(star)}
-          className={`transition-colors ${
-            star <= rating
-              ? 'text-yellow-400 hover:text-yellow-500'
-              : 'text-muted-foreground/30 hover:text-muted-foreground/50'
-          }`}
+          className={`transition-colors ${star <= rating
+            ? 'text-yellow-400 hover:text-yellow-500'
+            : 'text-muted-foreground/30 hover:text-muted-foreground/50'
+            }`}
         >
           <Star className="w-5 h-5 fill-current" />
         </button>
       ))}
       <span className="ml-2 text-sm text-muted-foreground font-metrics">
-        {rating > 0 ? `от ${rating} звезд` : 'Любой рейтинг'}
+        {rating > 0 ? `from ${rating} stars` : 'Any rating'}
       </span>
     </div>
   )
@@ -226,14 +225,14 @@ export function FilterPanel({
   }
 
   // Секция фильтров с возможностью свертывания
-  const FilterSection = ({ 
-    id, 
-    title, 
-    icon: Icon, 
-    children, 
+  const FilterSection = ({
+    id,
+    title,
+    icon: Icon,
+    children,
     count,
     badge
-  }: { 
+  }: {
     id: string
     title: string
     icon: any
@@ -266,7 +265,7 @@ export function FilterPanel({
           <ChevronDown className="w-4 h-4 text-muted-foreground" />
         )}
       </button>
-      
+
       {isExpanded(id) && (
         <div className="px-4 pb-4">
           {children}
@@ -278,25 +277,25 @@ export function FilterPanel({
   return (
     <>
       {/* Overlay для мобильных */}
-      <div 
+      <div
         className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
         onClick={onClose}
       />
-      
+
       {/* Панель фильтров */}
       <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-xl z-50 overflow-y-auto lg:relative lg:w-full lg:h-auto lg:shadow-none lg:bg-transparent">
         <div className="lg:bg-white lg:border lg:border-gray-200 lg:rounded-lg">
           {/* Заголовок */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 lg:bg-white lg:rounded-t-lg">
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-gray-900">Фильтры</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
               {activeFiltersCount > 0 && (
                 <span className="bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
                   {activeFiltersCount}
                 </span>
               )}
             </div>
-            
+
             <div className="flex items-center gap-2">
               {activeFiltersCount > 0 && (
                 <button
@@ -307,7 +306,7 @@ export function FilterPanel({
                   Очистить
                 </button>
               )}
-              
+
               <button
                 onClick={onClose}
                 className="p-1 hover:bg-gray-100 rounded-md transition-colors lg:hidden"
@@ -319,11 +318,11 @@ export function FilterPanel({
 
           {/* Фильтры */}
           <div className="divide-y divide-gray-200">
-            
+
             {/* Сортировка */}
             <FilterSection
               id="sort"
-              title="Сортировка"
+              title="Sort"
               icon={ArrowUpDown}
               count={filters.sortBy !== 'relevance' ? 1 : 0}
             >
@@ -352,21 +351,20 @@ export function FilterPanel({
             {/* Геолокационный поиск */}
             <FilterSection
               id="location"
-              title="Рядом со мной"
+              title="Near Me"
               icon={Navigation}
               count={filters.nearMe ? 1 : 0}
-              badge={filters.nearMe ? 'Активно' : undefined}
+              badge={filters.nearMe ? 'Active' : undefined}
             >
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleNearMeToggle}
                     disabled={gettingLocation}
-                    className={`flex-1 px-4 py-2 rounded-lg border transition-colors flex items-center justify-center gap-2 ${
-                      filters.nearMe
-                        ? 'bg-green-50 border-green-200 text-green-700'
-                        : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                    } ${gettingLocation ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`flex-1 px-4 py-2 rounded-lg border transition-colors flex items-center justify-center gap-2 ${filters.nearMe
+                      ? 'bg-green-50 border-green-200 text-green-700'
+                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                      } ${gettingLocation ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {gettingLocation ? (
                       <>
@@ -413,7 +411,7 @@ export function FilterPanel({
                         <span>50 км</span>
                       </div>
                     </div>
-                    
+
                     {filters.userLocation && (
                       <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
                         📍 Ваше местоположение: {filters.userLocation.latitude.toFixed(4)}, {filters.userLocation.longitude.toFixed(4)}
@@ -427,7 +425,7 @@ export function FilterPanel({
             {/* Поиск в обзорах */}
             <FilterSection
               id="reviews"
-              title="Поиск в обзорах"
+              title="Search in Reviews"
               icon={MessageSquare}
               count={filters.searchInReviews ? 1 : 0}
               badge={filters.searchInReviews ? `${metadata.totalReviews || 0} обзоров` : undefined}
@@ -441,13 +439,13 @@ export function FilterPanel({
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <div>
-                    <span className="text-sm text-gray-700">Искать в содержимом обзоров</span>
+                    <span className="text-sm text-gray-700">Search in review content</span>
                     <p className="text-xs text-gray-500">
                       Включает поиск по заголовкам и тексту пользовательских обзоров
                     </p>
                   </div>
                 </label>
-                
+
                 {metadata.totalReviews && metadata.totalReviews > 0 && (
                   <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
                     💬 Доступно {metadata.totalReviews} обзоров для поиска
@@ -459,7 +457,7 @@ export function FilterPanel({
             {/* Аудио-гиды */}
             <FilterSection
               id="audio"
-              title="Аудио-гиды"
+              title="Audio Guides"
               icon={Volume2}
               count={filters.hasAudio !== null && filters.hasAudio !== undefined ? 1 : 0}
               badge={metadata.audioGuidesCount && metadata.audioGuidesCount > 0 ? `${metadata.audioGuidesCount} доступно` : undefined}
@@ -503,7 +501,7 @@ export function FilterPanel({
             {/* Доступность */}
             <FilterSection
               id="accessibility"
-              title="Доступность"
+              title="Accessibility"
               icon={Accessibility}
               count={filters.accessibility ? filters.accessibility.length : 0}
             >
@@ -528,7 +526,7 @@ export function FilterPanel({
             {/* Архитектурные стили */}
             <FilterSection
               id="styles"
-              title="Архитектурный стиль"
+              title="Architectural Style"
               icon={Building2}
               count={filters.styles.length}
             >
@@ -559,11 +557,11 @@ export function FilterPanel({
             {/* Период постройки */}
             <FilterSection
               id="years"
-              title="Год постройки"
+              title="Year Built"
               icon={Calendar}
               count={
-                filters.yearRange[0] > metadata.yearRange[0] || 
-                filters.yearRange[1] < metadata.yearRange[1] ? 1 : 0
+                filters.yearRange[0] > metadata.yearRange[0] ||
+                  filters.yearRange[1] < metadata.yearRange[1] ? 1 : 0
               }
             >
               <YearRangeSlider />
@@ -572,7 +570,7 @@ export function FilterPanel({
             {/* Рейтинг */}
             <FilterSection
               id="rating"
-              title="Рейтинг"
+              title="Rating"
               icon={Star}
               count={filters.minRating > 0 ? 1 : 0}
             >
@@ -583,7 +581,7 @@ export function FilterPanel({
             {metadata.architects.length > 0 && (
               <FilterSection
                 id="architects"
-                title="Архитекторы"
+                title="Architects"
                 icon={User}
                 count={filters.architects.length}
               >
@@ -611,7 +609,7 @@ export function FilterPanel({
             {metadata.cities.length > 1 && (
               <FilterSection
                 id="cities"
-                title="Города"
+                title="Cities"
                 icon={MapPin}
                 count={filters.cities.length}
               >
@@ -638,13 +636,13 @@ export function FilterPanel({
             {/* Дополнительные фильтры */}
             <FilterSection
               id="additional"
-              title="Дополнительно"
+              title="Additional"
               icon={Camera}
               count={filters.hasPhoto !== null ? 1 : 0}
             >
               <div className="space-y-3">
                 <div>
-                  <div className="text-sm font-medium text-gray-700 mb-2">Наличие фотографий</div>
+                  <div className="text-sm font-medium text-gray-700 mb-2">Photos Available</div>
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -665,7 +663,7 @@ export function FilterPanel({
                         className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                       />
                       <Camera className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-gray-700">Есть фотографии</span>
+                      <span className="text-sm text-gray-700">Has photos</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input

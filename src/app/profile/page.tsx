@@ -53,16 +53,16 @@ export default function ProfilePage() {
           <div className="bg-card border border-border rounded-[var(--radius)] p-12 max-w-md mx-auto">
             <User className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="text-2xl font-heading font-bold mb-2">
-              Войдите в систему
+              Sign In
             </h1>
             <p className="text-muted-foreground mb-6">
-              Для просмотра профиля необходимо войти в свою учетную запись
+              You must sign in to view your profile
             </p>
             <Link
               href="/auth/login"
               className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
             >
-              Войти в систему
+              Sign In
             </Link>
           </div>
         </main>
@@ -71,7 +71,7 @@ export default function ProfilePage() {
     )
   }
 
-  const displayName = profile?.display_name || profile?.full_name || user.user_metadata?.full_name || 'Пользователь'
+  const displayName = profile?.display_name || profile?.full_name || user.user_metadata?.full_name || 'User'
   const avatar = profile?.avatar_url || user.user_metadata?.avatar_url
 
   return (
@@ -82,154 +82,154 @@ export default function ProfilePage() {
 
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 pt-10">
-        {/* Заголовок профиля */}
-        <div className="bg-card border border-border rounded-[var(--radius)] p-6 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-primary flex items-center justify-center">
-              {avatar ? (
-                <img
-                  src={avatar}
-                  alt={displayName}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-primary-foreground font-medium text-2xl">
-                  {displayName.charAt(0).toUpperCase()}
-                </span>
-              )}
-            </div>
-            <div>
-              <h1 className="text-3xl font-heading font-bold mb-1">{displayName}</h1>
-              <p className="text-muted-foreground mb-1">{user.email}</p>
-              <p className="text-sm text-primary font-medium capitalize">
-                {profile?.role || 'explorer'}
-              </p>
+          {/* Заголовок профиля */}
+          <div className="bg-card border border-border rounded-[var(--radius)] p-6 mb-8">
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-primary flex items-center justify-center">
+                {avatar ? (
+                  <img
+                    src={avatar}
+                    alt={displayName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-primary-foreground font-medium text-2xl">
+                    {displayName.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div>
+                <h1 className="text-3xl font-heading font-bold mb-1">{displayName}</h1>
+                <p className="text-muted-foreground mb-1">{user.email}</p>
+                <p className="text-sm text-primary font-medium capitalize">
+                  {profile?.role || 'explorer'}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Навигация по разделам профиля */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Link
-            href="/profile/edit"
-            className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <Edit3 className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                Редактировать профиль
-              </h3>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Обновите информацию о себе, фото и настройки
-            </p>
-          </Link>
+          {/* Навигация по разделам профиля */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Link
+              href="/profile/edit"
+              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <Edit3 className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  Edit Profile
+                </h3>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Update your information, photo, and settings
+              </p>
+            </Link>
 
-          <Link
-            href="/profile/buildings"
-            className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <Building2 className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                Объекты
-              </h3>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Архитектурные объекты, которые вы добавили на платформу
-            </p>
-          </Link>
+            <Link
+              href="/profile/buildings"
+              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <Building2 className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  Buildings
+                </h3>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Architectural buildings you added to the platform
+              </p>
+            </Link>
 
-          <Link
-            href="/profile/routes"
-            className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <MapPin className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                Мои маршруты
-              </h3>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Маршруты, которые вы создали
-            </p>
-          </Link>
+            <Link
+              href="/profile/routes"
+              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <MapPin className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  My Routes
+                </h3>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Routes you created
+              </p>
+            </Link>
 
-          <Link
-            href="/profile/favorites"
-            className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <Heart className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                Избранное
-              </h3>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Блоги, новости, маршруты и объекты, которые вам понравились
-            </p>
-          </Link>
+            <Link
+              href="/profile/favorites"
+              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <Heart className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  Favorites
+                </h3>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Blogs, news, routes, and buildings you favorited
+              </p>
+            </Link>
 
-          <Link
-            href="/profile/collections"
-            className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <Folder className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                Коллекции
-              </h3>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Организуйте избранное в тематические коллекции
-            </p>
-          </Link>
+            <Link
+              href="/profile/collections"
+              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <Folder className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  Collections
+                </h3>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Organize your favorites into themed collections
+              </p>
+            </Link>
 
-          <Link
-            href="/profile/reviews"
-            className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <User className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                Мои обзоры
-              </h3>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Обзоры зданий, которые вы написали
-            </p>
-          </Link>
+            <Link
+              href="/profile/reviews"
+              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <User className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  My Reviews
+                </h3>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Building reviews you wrote
+              </p>
+            </Link>
 
-          <Link
-            href="/profile/articles"
-            className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <FileText className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                Мои блоги
-              </h3>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Блоги, которые вы создали
-            </p>
-          </Link>
+            <Link
+              href="/profile/articles"
+              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <FileText className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  My Blogs
+                </h3>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Blogs you created
+              </p>
+            </Link>
 
-          <Link
-            href="/profile/settings"
-            className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <Settings className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                Настройки
-              </h3>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Приватность, уведомления и другие настройки
-            </p>
-          </Link>
-        </div>
+            <Link
+              href="/profile/settings"
+              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <Settings className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  Settings
+                </h3>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Privacy, notifications, and other settings
+              </p>
+            </Link>
+          </div>
         </div>
       </main>
       <EnhancedFooter />

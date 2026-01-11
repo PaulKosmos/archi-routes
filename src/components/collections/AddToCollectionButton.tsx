@@ -168,7 +168,7 @@ export default function AddToCollectionButton({
   if (!user) {
     return (
       <button
-        onClick={() => alert('Войдите в систему, чтобы добавлять здания в коллекции')}
+        onClick={() => alert('Please log in to add buildings to collections')}
         className={`inline-flex items-center gap-2 ${getSizeClasses(size)} text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors`}
       >
         <BookmarkPlus className={getIconSize(size)} />
@@ -208,16 +208,14 @@ export default function AddToCollectionButton({
       {/* Кнопка */}
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className={`inline-flex items-center gap-2 ${getSizeClasses(size)} ${
-          variant === 'icon'
-            ? 'hover:bg-gray-100 rounded-lg transition-colors'
-            : `${
-                collectionsCount > 0
-                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                  : 'text-gray-700 border-gray-300 hover:bg-gray-50'
-              } border rounded-lg transition-colors`
-        }`}
-        title={variant === 'icon' ? (collectionsCount > 0 ? `В ${collectionsCount} коллекциях` : 'В коллекцию') : undefined}
+        className={`inline-flex items-center gap-2 ${getSizeClasses(size)} ${variant === 'icon'
+          ? 'hover:bg-gray-100 rounded-lg transition-colors'
+          : `${collectionsCount > 0
+            ? 'bg-blue-50 text-blue-700 border-blue-200'
+            : 'text-gray-700 border-gray-300 hover:bg-gray-50'
+          } border rounded-lg transition-colors`
+          }`}
+        title={variant === 'icon' ? (collectionsCount > 0 ? `In ${collectionsCount} collections` : 'Add to collection') : undefined}
       >
         {collectionsCount > 0 ? (
           <BookmarkCheck className={`${getIconSize(size)} ${variant === 'icon' ? 'text-blue-600' : ''}`} />
@@ -290,7 +288,7 @@ export default function AddToCollectionButton({
                     ) : (
                       collections.map(collection => {
                         const isInCollection = buildingCollections.has(collection.id)
-                        
+
                         return (
                           <label
                             key={collection.id}
@@ -302,7 +300,7 @@ export default function AddToCollectionButton({
                               onChange={() => toggleBuildingInCollection(collection.id)}
                               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                             />
-                            
+
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-gray-900 truncate">
@@ -312,7 +310,7 @@ export default function AddToCollectionButton({
                                   <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
                                 )}
                               </div>
-                              
+
                               {collection.description && (
                                 <p className="text-xs text-gray-600 line-clamp-1">
                                   {collection.description}
@@ -360,7 +358,7 @@ export default function AddToCollectionButton({
 export { AddToCollectionButton }
 
 // Компонент только с иконкой
-export function AddToCollectionIcon({ buildingId, buildingName, onSuccess }: 
+export function AddToCollectionIcon({ buildingId, buildingName, onSuccess }:
   Pick<AddToCollectionButtonProps, 'buildingId' | 'buildingName' | 'onSuccess'>) {
   return (
     <AddToCollectionButton
@@ -374,7 +372,7 @@ export function AddToCollectionIcon({ buildingId, buildingName, onSuccess }:
 }
 
 // Компонент для мобильных устройств
-export function AddToCollectionMobile({ buildingId, buildingName, onSuccess }: 
+export function AddToCollectionMobile({ buildingId, buildingName, onSuccess }:
   Pick<AddToCollectionButtonProps, 'buildingId' | 'buildingName' | 'onSuccess'>) {
   return (
     <AddToCollectionButton

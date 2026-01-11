@@ -60,7 +60,7 @@ export default function BlogCard({ post, viewMode }: BlogCardProps) {
                 {post.reading_time_minutes && (
                   <div className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    <span>{post.reading_time_minutes} мин</span>
+                    <span>{post.reading_time_minutes} min</span>
                   </div>
                 )}
                 <div className="flex items-center gap-1">
@@ -128,7 +128,7 @@ export default function BlogCard({ post, viewMode }: BlogCardProps) {
               {post.reading_time_minutes && (
                 <div className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
-                  <span>{post.reading_time_minutes} мин</span>
+                  <span>{post.reading_time_minutes} min</span>
                 </div>
               )}
               <div className="flex items-center gap-1">

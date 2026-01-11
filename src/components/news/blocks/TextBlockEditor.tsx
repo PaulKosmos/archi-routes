@@ -80,7 +80,7 @@ export default function TextBlockEditor({
             <textarea
               value={block.content || ''}
               onChange={handleContentChange}
-              placeholder="Введите текст..."
+              placeholder="Enter text..."
               disabled={readOnly}
               rows={8}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed resize-y"

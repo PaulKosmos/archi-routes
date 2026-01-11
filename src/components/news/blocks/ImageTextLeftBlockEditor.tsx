@@ -116,11 +116,10 @@ export default function ImageTextLeftBlockEditor({
                       key={size}
                       type="button"
                       onClick={() => handleImageSizeChange(size as 'small' | 'medium' | 'large')}
-                      className={`px-3 py-1 text-sm rounded border ${
-                        (block.block_settings?.imageSize || 'medium') === size
+                      className={`px-3 py-1 text-sm rounded border ${(block.block_settings?.imageSize || 'medium') === size
                           ? 'bg-blue-500 text-white border-blue-500'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       {size === 'small' && 'Малый'}
                       {size === 'medium' && 'Средний'}
@@ -141,7 +140,7 @@ export default function ImageTextLeftBlockEditor({
               <textarea
                 value={block.content || ''}
                 onChange={handleContentChange}
-                placeholder="Введите текст..."
+                placeholder="Enter text..."
                 disabled={readOnly}
                 rows={12}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed resize-y"

@@ -73,53 +73,53 @@ export default function PhotoModal({ photos, isOpen, initialIndex, onClose }: Ph
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
       {/* Фон для закрытия */}
-      <div 
+      <div
         className="absolute inset-0"
         onClick={onClose}
       />
-      
+
       {/* Контрол панель сверху */}
       <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
         <div className="text-white text-sm bg-black bg-opacity-50 px-3 py-1 rounded">
           {currentIndex + 1} из {photos.length}
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {/* Зум */}
           <button
             onClick={() => setZoom(prev => Math.max(0.5, prev - 0.25))}
             className="bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-70 transition-colors"
-            title="Уменьшить"
+            title="Zoom Out"
           >
             <ZoomOut className="h-4 w-4" />
           </button>
-          
+
           <span className="text-white text-sm min-w-[3rem] text-center bg-black bg-opacity-50 px-2 py-1 rounded">
             {Math.round(zoom * 100)}%
           </span>
-          
+
           <button
             onClick={() => setZoom(prev => Math.min(3, prev + 0.25))}
             className="bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-70 transition-colors"
-            title="Увеличить"
+            title="Zoom In"
           >
             <ZoomIn className="h-4 w-4" />
           </button>
-          
+
           {/* Скачать */}
           <button
             onClick={handleDownload}
             className="bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-70 transition-colors"
-            title="Скачать"
+            title="Download"
           >
             <Download className="h-4 w-4" />
           </button>
-          
+
           {/* Закрыть */}
           <button
             onClick={onClose}
             className="bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-70 transition-colors"
-            title="Закрыть (Esc)"
+            title="Close (Esc)"
           >
             <X className="h-4 w-4" />
           </button>
@@ -131,7 +131,7 @@ export default function PhotoModal({ photos, isOpen, initialIndex, onClose }: Ph
         <button
           onClick={prevPhoto}
           className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-colors z-10"
-          title="Предыдущее фото (←)"
+          title="Previous photo (←)"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
@@ -141,7 +141,7 @@ export default function PhotoModal({ photos, isOpen, initialIndex, onClose }: Ph
       <div className="relative max-w-[90vw] max-h-[90vh] overflow-auto">
         <img
           src={currentPhoto}
-          alt={`Фото ${currentIndex + 1}`}
+          alt={`Photo ${currentIndex + 1}`}
           className="max-w-none transition-transform duration-200 select-none"
           style={{
             transform: `scale(${zoom})`,
@@ -157,7 +157,7 @@ export default function PhotoModal({ photos, isOpen, initialIndex, onClose }: Ph
         <button
           onClick={nextPhoto}
           className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-colors z-10"
-          title="Следующее фото (→)"
+          title="Next photo (→)"
         >
           <ChevronRight className="h-6 w-6" />
         </button>
@@ -173,13 +173,12 @@ export default function PhotoModal({ photos, isOpen, initialIndex, onClose }: Ph
                 setCurrentIndex(index)
                 setZoom(1)
               }}
-              className={`flex-shrink-0 w-16 h-16 rounded overflow-hidden border-2 transition-colors ${
-                index === currentIndex ? 'border-blue-400' : 'border-transparent'
-              }`}
+              className={`flex-shrink-0 w-16 h-16 rounded overflow-hidden border-2 transition-colors ${index === currentIndex ? 'border-blue-400' : 'border-transparent'
+                }`}
             >
               <img
                 src={photo}
-                alt={`Миниатюра ${index + 1}`}
+                alt={`Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
               />
             </button>

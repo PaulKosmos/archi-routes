@@ -125,7 +125,7 @@ export default function PodcastEpisodePage() {
         }
       } catch (err) {
         console.error('Error fetching episode:', err)
-        setError('Ошибка при загрузке эпизода')
+        setError('Error loading episode')
       } finally {
         setLoading(false)
       }
@@ -151,11 +151,11 @@ export default function PodcastEpisodePage() {
         <main className="container mx-auto px-6 py-8">
           <Link href="/podcasts" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8">
             <ArrowLeft size={20} />
-            Вернуться к подкастам
+            Back to Podcasts
           </Link>
 
           <div className="bg-destructive/10 border-2 border-destructive p-6 text-center">
-            <p className="text-destructive font-semibold">{error || 'Эпизод не найден'}</p>
+            <p className="text-destructive font-semibold">{error || 'Episode not found'}</p>
           </div>
         </main>
         <EnhancedFooter />
@@ -184,7 +184,7 @@ export default function PodcastEpisodePage() {
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Назад к подкастам</span>
+          <span>Back to Podcasts</span>
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -212,7 +212,7 @@ export default function PodcastEpisodePage() {
                 {/* Episode number badge */}
                 {episode.episode_number && (
                   <div className="absolute top-4 right-4 bg-[hsl(var(--podcast-primary))] text-white px-4 py-2 rounded-[var(--radius)] font-bold shadow-lg">
-                    Выпуск #{episode.episode_number}
+                    Episode #{episode.episode_number}
                   </div>
                 )}
               </div>
@@ -276,7 +276,7 @@ export default function PodcastEpisodePage() {
             {/* Description */}
             {episode.description && (
               <div className="mb-8 bg-card border border-border p-8">
-                <h2 className="text-2xl font-bold text-foreground mb-4">Описание</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">Description</h2>
                 <div className="prose prose-lg max-w-none">
                   <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
                     {episode.description}
@@ -288,7 +288,7 @@ export default function PodcastEpisodePage() {
             {/* Tags */}
             {episode.tags && episode.tags.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-xl font-bold text-foreground mb-4">Теги</h2>
+                <h2 className="text-xl font-bold text-foreground mb-4">Tags</h2>
                 <div className="flex flex-wrap gap-3">
                   {episode.tags.map(tag => (
                     <Link
@@ -316,7 +316,7 @@ export default function PodcastEpisodePage() {
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-[hsl(var(--podcast-primary))] text-white font-semibold rounded-[var(--radius)] hover:bg-[hsl(var(--podcast-primary))]/90 transition-colors w-full"
                 >
                   <Edit size={18} />
-                  Редактировать
+                  Edit
                 </Link>
               </div>
             )}
@@ -324,7 +324,7 @@ export default function PodcastEpisodePage() {
             {/* Related episodes */}
             {relatedEpisodes.length > 0 && (
               <div className="bg-card border border-border p-6">
-                <h2 className="text-lg font-bold text-foreground mb-4">Еще в этой серии</h2>
+                <h2 className="text-lg font-bold text-foreground mb-4">More in This Series</h2>
                 <div className="space-y-4">
                   {relatedEpisodes.map(relatedEpisode => (
                     <Link
@@ -355,7 +355,7 @@ export default function PodcastEpisodePage() {
                           {relatedEpisode.duration_seconds && (
                             <div className="flex items-center gap-1">
                               <Clock size={12} />
-                              <span>{Math.floor(relatedEpisode.duration_seconds / 60)} мин</span>
+                              <span>{Math.floor(relatedEpisode.duration_seconds / 60)} min</span>
                             </div>
                           )}
                         </div>
@@ -369,7 +369,7 @@ export default function PodcastEpisodePage() {
             {/* About this series */}
             {episode.series && (
               <div className="bg-card border border-border p-6">
-                <h2 className="text-lg font-bold text-foreground mb-4">О серии</h2>
+                <h2 className="text-lg font-bold text-foreground mb-4">About the Series</h2>
                 <h3 className="font-semibold text-[hsl(var(--podcast-primary))] mb-2">
                   {episode.series.title}
                 </h3>

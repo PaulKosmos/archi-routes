@@ -91,7 +91,7 @@ export default function PodcastEditPage() {
         setTags(tagsData || [])
       } catch (err) {
         console.error('Error fetching data:', err)
-        setError('Ошибка при загрузке данных')
+        setError('Error loading data')
       } finally {
         setLoading(false)
       }
@@ -101,7 +101,7 @@ export default function PodcastEditPage() {
   }, [user, profile, router, episodeId, supabase, initialized])
 
   const handleDelete = async () => {
-    if (!confirm('Вы уверены, что хотите удалить этот подкаст? Это действие нельзя отменить.')) {
+    if (!confirm('Are you sure you want to delete this podcast? This action cannot be undone.')) {
       return
     }
 
@@ -135,7 +135,7 @@ export default function PodcastEditPage() {
       router.push('/podcasts')
     } catch (err) {
       console.error('Delete error:', err)
-      setError(err instanceof Error ? err.message : 'Ошибка при удалении подкаста')
+      setError(err instanceof Error ? err.message : 'Error deleting podcast')
       setDeleting(false)
     }
   }
@@ -233,7 +233,7 @@ export default function PodcastEditPage() {
       }, 2000)
     } catch (err) {
       console.error('Update error:', err)
-      setError(err instanceof Error ? err.message : 'Ошибка при обновлении')
+      setError(err instanceof Error ? err.message : 'Error updating')
     } finally {
       setSubmitting(false)
     }
@@ -259,9 +259,9 @@ export default function PodcastEditPage() {
           <div className="max-w-7xl mx-auto">
             <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
               <AlertCircle className="mx-auto text-red-600 mb-4" size={48} />
-              <h2 className="text-2xl font-bold text-red-900 mb-2">Эпизод не найден</h2>
+              <h2 className="text-2xl font-bold text-red-900 mb-2">Episode Not Found</h2>
               <Link href="/podcasts" className="text-purple-600 hover:text-purple-700 font-medium">
-                Вернуться к подкастам
+                Back to Podcasts
               </Link>
             </div>
           </div>
@@ -279,9 +279,9 @@ export default function PodcastEditPage() {
           <div className="max-w-7xl mx-auto">
             <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
               <CheckCircle className="mx-auto text-green-600 mb-4" size={48} />
-              <h2 className="text-2xl font-bold text-green-900 mb-2">Успешно обновлено!</h2>
+              <h2 className="text-2xl font-bold text-green-900 mb-2">Successfully Updated!</h2>
               <p className="text-green-700 mb-6">
-                Изменения сохранены. Вы будете перенаправлены на страницу эпизода...
+                Changes saved. You will be redirected to the episode page...
               </p>
             </div>
           </div>
@@ -300,13 +300,13 @@ export default function PodcastEditPage() {
           {/* Back button */}
           <Link href={`/podcasts/${episodeId}`} className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8 group">
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-            Вернуться к эпизоду
+            Back to Episode
           </Link>
 
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Редактировать подкаст</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Podcast</h1>
             <p className="text-gray-600">
-              Обновите информацию о подкасте
+              Update podcast information
             </p>
           </div>
 
@@ -314,7 +314,7 @@ export default function PodcastEditPage() {
             <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 max-w-3xl">
               <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
               <div>
-                <p className="text-red-700 font-semibold">Ошибка</p>
+                <p className="text-red-700 font-semibold">Error</p>
                 <p className="text-red-700 text-sm">{error}</p>
               </div>
             </div>
@@ -352,11 +352,11 @@ export default function PodcastEditPage() {
             <div className="lg:col-span-1 space-y-6">
               {/* Notes Section */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 sticky top-4">
-                <h3 className="font-semibold text-blue-900 mb-3">Примечания:</h3>
-                <ul className="text-sm text-blue-800 space-y-2">
-                  <li>• Аудиофайл и обложку можно оставить без изменений</li>
-                  <li>• Если загрузите новый файл, старый будет заменён</li>
-                  <li>• Изменения вступят в силу сразу после сохранения</li>
+                <h3 className="font-semibold text-blue-900 mb-3">Notes:</h3>
+                <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                  <li>• Audio and cover can be left unchanged</li>
+                  <li>• If you upload a new file, the old one will be replaced</li>
+                  <li>• Changes will take effect immediately after saving</li>
                 </ul>
               </div>
 
@@ -364,10 +364,10 @@ export default function PodcastEditPage() {
               <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6">
                 <h3 className="font-bold text-red-900 mb-2 flex items-center gap-2">
                   <Trash2 size={20} />
-                  Опасная зона
+                  Danger Zone
                 </h3>
                 <p className="text-sm text-red-700 mb-4">
-                  Удаление подкаста приведёт к безвозвратной потере всех данных, включая аудиофайл, обложку, теги и статистику.
+                  Deleting the podcast will permanently delete all data, including audio, cover, tags, and statistics.
                 </p>
                 <button
                   onClick={handleDelete}
@@ -377,12 +377,12 @@ export default function PodcastEditPage() {
                   {deleting ? (
                     <>
                       <Loader2 size={20} className="animate-spin" />
-                      Удаление...
+                      Deleting...
                     </>
                   ) : (
                     <>
                       <Trash2 size={20} />
-                      Удалить подкаст
+                      Delete Podcast
                     </>
                   )}
                 </button>

@@ -51,7 +51,7 @@ export default function AddToCollectionModal({
       // Получаем текущего пользователя
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        toast.error('Войдите, чтобы добавить в коллекцию')
+        toast.error('Please sign in to add to collection')
         onClose()
         return
       }
@@ -96,7 +96,7 @@ export default function AddToCollectionModal({
 
     } catch (error) {
       console.error('Error loading collections:', error)
-      toast.error('Ошибка загрузки коллекций')
+      toast.error('Error loading collections')
     } finally {
       setLoading(false)
     }
@@ -114,7 +114,7 @@ export default function AddToCollectionModal({
 
   const handleCreateCollection = async () => {
     if (!newCollectionName.trim()) {
-      toast.error('Введите название коллекции')
+      toast.error('Enter collection name')
       return
     }
 
@@ -152,10 +152,10 @@ export default function AddToCollectionModal({
       setNewCollectionDescription('')
       setShowCreateForm(false)
 
-      toast.success('Коллекция создана')
+      toast.success('Collection created')
     } catch (error) {
       console.error('Error creating collection:', error)
-      toast.error('Ошибка создания коллекции')
+      toast.error('Error creating collection')
     } finally {
       setCreating(false)
     }
@@ -215,11 +215,11 @@ export default function AddToCollectionModal({
         if (insertError) throw insertError
       }
 
-      toast.success('Изменения сохранены')
+      toast.success('Changes saved')
       onClose()
     } catch (error) {
       console.error('Error saving to collections:', error)
-      toast.error('Ошибка сохранения')
+      toast.error('Save error')
     } finally {
       setSaving(false)
     }
@@ -233,7 +233,7 @@ export default function AddToCollectionModal({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div>
-            <h2 className="text-xl font-semibold text-foreground">Добавить в коллекцию</h2>
+            <h2 className="text-xl font-semibold text-foreground">Add to Collection</h2>
             {itemTitle && (
               <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{itemTitle}</p>
             )}
@@ -258,12 +258,12 @@ export default function AddToCollectionModal({
               {/* Create new collection form */}
               {showCreateForm ? (
                 <div className="border border-border rounded-[var(--radius)] p-4 bg-muted/50">
-                  <h3 className="font-semibold text-sm mb-3">Новая коллекция</h3>
+                  <h3 className="font-semibold text-sm mb-3">New Collection</h3>
                   <div className="space-y-3">
                     <div>
                       <input
                         type="text"
-                        placeholder="Название коллекции"
+                        placeholder="Collection name"
                         value={newCollectionName}
                         onChange={(e) => setNewCollectionName(e.target.value)}
                         className="w-full px-3 py-2 border border-border rounded-[var(--radius)] bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -272,7 +272,7 @@ export default function AddToCollectionModal({
                     </div>
                     <div>
                       <textarea
-                        placeholder="Описание (опционально)"
+                        placeholder="Description (optional)"
                         value={newCollectionDescription}
                         onChange={(e) => setNewCollectionDescription(e.target.value)}
                         className="w-full px-3 py-2 border border-border rounded-[var(--radius)] bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
@@ -289,12 +289,12 @@ export default function AddToCollectionModal({
                         {creating ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            Создание...
+                            Creating...
                           </>
                         ) : (
                           <>
                             <Plus className="w-4 h-4" />
-                            Создать
+                            Create
                           </>
                         )}
                       </button>
@@ -306,7 +306,7 @@ export default function AddToCollectionModal({
                         }}
                         className="px-4 py-2 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors text-sm"
                       >
-                        Отмена
+                        Cancel
                       </button>
                     </div>
                   </div>
@@ -317,7 +317,7 @@ export default function AddToCollectionModal({
                   className="w-full px-4 py-3 border-2 border-dashed border-border rounded-[var(--radius)] hover:border-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-2 text-muted-foreground hover:text-primary"
                 >
                   <Plus className="w-5 h-5" />
-                  <span className="font-medium">Создать новую коллекцию</span>
+                  <span className="font-medium">Create New Collection</span>
                 </button>
               )}
 
@@ -325,12 +325,12 @@ export default function AddToCollectionModal({
               {collections.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Folder className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">У вас пока нет коллекций</p>
-                  <p className="text-xs mt-1">Создайте первую коллекцию выше</p>
+                  <p className="text-sm">You don't have any collections yet</p>
+                  <p className="text-xs mt-1">Create your first collection above</p>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-muted-foreground mb-3">Мои коллекции</h3>
+                  <h3 className="text-sm font-semibold text-muted-foreground mb-3">My Collections</h3>
                   {collections.map((collection) => (
                     <button
                       key={collection.id}
@@ -338,11 +338,10 @@ export default function AddToCollectionModal({
                       className="w-full p-4 border border-border rounded-[var(--radius)] hover:bg-muted/50 transition-colors flex items-start gap-3 text-left"
                     >
                       <div
-                        className={`flex-shrink-0 w-5 h-5 border-2 rounded flex items-center justify-center transition-colors ${
-                          selectedCollections.has(collection.id)
+                        className={`flex-shrink-0 w-5 h-5 border-2 rounded flex items-center justify-center transition-colors ${selectedCollections.has(collection.id)
                             ? 'bg-primary border-primary'
                             : 'border-muted-foreground/30'
-                        }`}
+                          }`}
                       >
                         {selectedCollections.has(collection.id) && (
                           <Check className="w-3 h-3 text-primary-foreground" />
@@ -363,7 +362,7 @@ export default function AddToCollectionModal({
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground mt-1">
-                          {collection.items_count} {collection.items_count === 1 ? 'элемент' : 'элементов'}
+                          {collection.items_count} {collection.items_count === 1 ? 'item' : 'items'}
                         </p>
                       </div>
                     </button>
@@ -381,7 +380,7 @@ export default function AddToCollectionModal({
             disabled={saving}
             className="px-4 py-2 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors disabled:opacity-50"
           >
-            Отмена
+            Cancel
           </button>
           <button
             onClick={handleSave}
@@ -391,10 +390,10 @@ export default function AddToCollectionModal({
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Сохранение...
+                Saving...
               </>
             ) : (
-              'Сохранить'
+              'Save'
             )}
           </button>
         </div>

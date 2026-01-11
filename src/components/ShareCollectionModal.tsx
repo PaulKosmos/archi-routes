@@ -63,7 +63,7 @@ export default function ShareCollectionModal({
               <Share2 className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-foreground">Поделиться коллекцией</h2>
+              <h2 className="text-xl font-semibold text-foreground">Share Collection</h2>
               <p className="text-sm text-muted-foreground">{collectionName}</p>
             </div>
           </div>
@@ -83,9 +83,9 @@ export default function ShareCollectionModal({
               <div className="flex items-start gap-3">
                 <Globe className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="font-medium text-foreground mb-1">Коллекция приватная</p>
+                  <p className="font-medium text-foreground mb-1">Private Collection</p>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Сделайте коллекцию публичной, чтобы делиться ею с другими
+                    Make the collection public to share it with others
                   </p>
                   {onMakePublic && (
                     <button
@@ -96,7 +96,7 @@ export default function ShareCollectionModal({
                       className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors text-sm font-medium"
                     >
                       <Globe className="w-4 h-4" />
-                      Сделать публичной
+                      Make Public
                     </button>
                   )}
                 </div>
@@ -109,9 +109,9 @@ export default function ShareCollectionModal({
                 <div className="flex items-start gap-3">
                   <Globe className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium text-foreground mb-1">Публичная коллекция</p>
+                    <p className="font-medium text-foreground mb-1">Public Collection</p>
                     <p className="text-sm text-muted-foreground">
-                      Любой, у кого есть эта ссылка, может просматривать коллекцию
+                      Anyone with this link can view the collection
                     </p>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ export default function ShareCollectionModal({
               {/* Ссылка для копирования */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Ссылка для доступа
+                  Access Link
                 </label>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-muted border border-border rounded-[var(--radius)]">
@@ -135,21 +135,20 @@ export default function ShareCollectionModal({
                   </div>
                   <button
                     onClick={handleCopy}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-[var(--radius)] transition-all font-medium ${
-                      copied
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-[var(--radius)] transition-all font-medium ${copied
                         ? 'bg-green-500 text-white'
                         : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                    }`}
+                      }`}
                   >
                     {copied ? (
                       <>
                         <Check className="w-4 h-4" />
-                        Скопировано
+                        Copied
                       </>
                     ) : (
                       <>
                         <Copy className="w-4 h-4" />
-                        Копировать
+                        Copy
                       </>
                     )}
                   </button>
@@ -163,14 +162,14 @@ export default function ShareCollectionModal({
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  Открыть в новой вкладке
+                  Open in New Tab
                 </button>
               </div>
 
               {/* Информация */}
               <div className="bg-muted/50 rounded-[var(--radius)] p-4">
                 <p className="text-sm text-muted-foreground">
-                  💡 <span className="font-medium">Совет:</span> Пользователи смогут скопировать вашу коллекцию себе в профиль, но не смогут редактировать оригинал.
+                  💡 <span className="font-medium">Tip:</span> Users can copy your collection to their profile, but cannot edit the original.
                 </p>
               </div>
             </>
@@ -183,7 +182,7 @@ export default function ShareCollectionModal({
             onClick={onClose}
             className="px-6 py-2 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors font-medium"
           >
-            Закрыть
+            Close
           </button>
         </div>
       </div>

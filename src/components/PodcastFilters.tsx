@@ -63,7 +63,7 @@ export default function PodcastFiltersComponent({
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
         <input
           type="text"
-          placeholder="Искать эпизоды..."
+          placeholder="Search episodes..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           disabled={loading}
@@ -134,9 +134,8 @@ export default function PodcastFiltersComponent({
                 <button
                   key={tag.id}
                   onClick={() => handleToggleTag(tag.id)}
-                  className={`w-full px-4 py-2 text-left hover:bg-gray-50 border-b border-gray-200 last:border-b-0 flex items-center gap-2 ${
-                    selectedTags.includes(tag.id) ? 'bg-purple-50' : ''
-                  }`}
+                  className={`w-full px-4 py-2 text-left hover:bg-gray-50 border-b border-gray-200 last:border-b-0 flex items-center gap-2 ${selectedTags.includes(tag.id) ? 'bg-purple-50' : ''
+                    }`}
                 >
                   <input
                     type="checkbox"

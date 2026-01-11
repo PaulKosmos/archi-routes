@@ -27,7 +27,7 @@ export default function BlogPage() {
   useEffect(() => {
     // Простая фильтрация по поисковому запросу
     if (searchTerm) {
-      const filtered = posts.filter(post => 
+      const filtered = posts.filter(post =>
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (post.excerpt && post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()))
       )
@@ -122,7 +122,7 @@ export default function BlogPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Поиск статей..."
+              placeholder="Search articles..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 h-12 border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--blog-primary))] transition-colors"
@@ -132,21 +132,19 @@ export default function BlogPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setViewMode('grid')}
-              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${
-                viewMode === 'grid'
+              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${viewMode === 'grid'
                   ? 'bg-[hsl(var(--blog-primary))] text-[hsl(var(--blog-primary-foreground))]'
                   : 'bg-background border border-border text-foreground hover:bg-muted'
-              }`}
+                }`}
             >
               <Grid className="h-5 w-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${
-                viewMode === 'list'
+              className={`h-12 w-12 rounded-[var(--radius)] flex items-center justify-center transition-colors ${viewMode === 'list'
                   ? 'bg-[hsl(var(--blog-primary))] text-[hsl(var(--blog-primary-foreground))]'
                   : 'bg-background border border-border text-foreground hover:bg-muted'
-              }`}
+                }`}
             >
               <List className="h-5 w-5" />
             </button>
@@ -156,7 +154,7 @@ export default function BlogPage() {
         {/* Информация и кнопка создания */}
         <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-border">
           <span className="text-sm font-medium">
-            Найдено статей: <span className="font-bold text-[hsl(var(--blog-primary))]">{filteredPosts.length}</span>
+            Articles found: <span className="font-bold text-[hsl(var(--blog-primary))]">{filteredPosts.length}</span>
           </span>
           <Link
             href="/blog/create"
@@ -165,7 +163,7 @@ export default function BlogPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Создать статью
+            Create Article
           </Link>
         </div>
 
@@ -175,8 +173,8 @@ export default function BlogPage() {
             <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
               <Search className="h-12 w-12 text-muted-foreground" />
             </div>
-            <h3 className="text-xl font-bold mb-2">Статьи не найдены</h3>
-            <p className="text-muted-foreground">Попробуйте изменить параметры поиска</p>
+            <h3 className="text-xl font-bold mb-2">No Articles Found</h3>
+            <p className="text-muted-foreground">Try adjusting your search parameters</p>
           </div>
         ) : (
           <div className={

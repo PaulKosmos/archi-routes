@@ -103,7 +103,7 @@ export default function BundleAnalyzer({ className = '' }: BundleAnalyzerProps) 
       <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
         <div className="flex items-center text-red-600">
           <AlertCircle className="w-5 h-5 mr-2" />
-          <span>Ошибка анализа бандла: {error}</span>
+          <span>Bundle analysis error: {error}</span>
         </div>
       </div>
     )
@@ -158,10 +158,10 @@ export default function BundleAnalyzer({ className = '' }: BundleAnalyzerProps) 
 
               {/* Прогресс бар */}
               <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-                <div 
+                <div
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ 
-                    width: `${(bundle.size / getTotalSize()) * 100}%` 
+                  style={{
+                    width: `${(bundle.size / getTotalSize()) * 100}%`
                   }}
                 />
               </div>

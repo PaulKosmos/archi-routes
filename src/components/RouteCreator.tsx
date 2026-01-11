@@ -46,7 +46,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
   const supabase = useMemo(() => createClient(), [])
   // Режим создания: 'manual' или 'autogenerate'
   const [creationMode, setCreationMode] = useState<'manual' | 'autogenerate'>(initialMode)
-  
+
   // Данные для автогенерации
   const [autogenParams, setAutogenParams] = useState({
     city: 'Berlin',
@@ -68,7 +68,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
   const [availableTemplates, setAvailableTemplates] = useState<any[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<string>('')
-  
+
   // Основные данные маршрута
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -118,7 +118,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
         try {
           const buildingsData = JSON.parse(savedBuildings)
           console.log('🏢 [DEBUG] Loaded selected buildings:', buildingsData.length)
-          
+
           // Преобразуем здания в точки маршрута
           const points: RoutePoint[] = buildingsData.map((building: Building, index: number) => ({
             id: building.id,
@@ -132,9 +132,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
             city: building.city,
             country: building.country
           }))
-          
+
           setRoutePoints(points)
-          
+
           // Если есть выбранные здания, пропускаем шаг выбора точек
           if (points.length > 0 && initialMode === 'manual') {
             // Начинаем сразу с шага ввода информации
@@ -143,7 +143,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
             // Для автогенерации сразу открываем настройки
             setCurrentStep('info')
           }
-          
+
           // Очищаем localStorage после загрузки
           localStorage.removeItem('selectedBuildingsForRoute')
         } catch (error) {
@@ -155,7 +155,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
   // Доступные теги
   const availableTags = [
-    'architecture', 'historical', 'modern', 'baroque', 'gothic', 
+    'architecture', 'historical', 'modern', 'baroque', 'gothic',
     'art-nouveau', 'brutalism', 'classical', 'contemporary',
     'walking', 'family-friendly', 'photography', 'educational'
   ]
@@ -251,7 +251,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
           .select('*')
           .eq('is_active', true)
           .order('priority', { ascending: false })
-        
+
         if (!error && data) {
           setAvailableTemplates(data)
         }
@@ -259,17 +259,17 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
         console.error('Ошибка загрузки шаблонов:', error)
       }
     }
-    
+
     if (isOpen) {
       fetchTemplates()
     }
   }, [isOpen])
-  
+
   useEffect(() => {
     // Глобальная функция для добавления здания из попапа карты
     (window as any).addBuildingToRoute = (buildingId: string, name: string, lat: number, lng: number) => {
       console.log('Adding building from popup:', { buildingId, name, lat, lng })
-      
+
       const building = {
         id: buildingId,
         name: name,
@@ -278,7 +278,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
         architect: '',
         year_built: null
       }
-      
+
       addBuildingPoint(building as any)
     }
 
@@ -311,20 +311,20 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
       setGenerateError('Please specify a route title')
       return
     }
-    
+
     setIsGenerating(true)
     setGenerateError('')
-    
+
     try {
       console.log('🤖 Запуск автогенерации маршрута...', autogenParams)
-      
+
       // Получаем токен авторизации
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error('Authorization required to create route')
       }
-      
+
       const response = await fetch('/api/autogeneration/generate', {
         method: 'POST',
         headers: {
@@ -342,9 +342,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
           }
         })
       })
-      
+
       const result = await response.json()
-      
+
       if (!response.ok || !result.success) {
         throw new Error(result.error || 'Route generation error')
       }
@@ -352,13 +352,13 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
       console.log('✅ Route generated successfully:', result.route_id)
 
       alert(`🎉 Route created successfully! Redirecting to main page...`)
-      
+
       resetForm()
       onClose()
-      
+
       // Перенаправляем на главную с обновлением
       window.location.href = '/'
-      
+
     } catch (error: any) {
       console.error('❌ Auto-generation error:', error)
       setGenerateError(error.message || 'An unknown error occurred during generation')
@@ -376,7 +376,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
     try {
       console.log('🔄 Building route preview with', routePoints.length, 'points')
-      
+
       const routePointsForApi = routePoints.map(point => ({
         latitude: point.latitude,
         longitude: point.longitude,
@@ -388,11 +388,11 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
         console.log('🔄 Using route optimization')
         const optimized = await optimizeRoute(routePointsForApi, { transportMode, ...routeOptions })
         result = optimized.route
-        
+
         if (optimized.optimizedPoints.length === routePoints.length) {
           const reorderedPoints = optimized.optimizedPoints.map((optimizedPoint: any, index: number) => {
-            const originalPoint = routePoints.find(p => 
-              p.latitude === optimizedPoint.latitude && 
+            const originalPoint = routePoints.find(p =>
+              p.latitude === optimizedPoint.latitude &&
               p.longitude === optimizedPoint.longitude
             )
             return originalPoint ? { ...originalPoint, id: `point-${index}` } : routePoints[index]
@@ -438,7 +438,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
       created_at: new Date().toISOString(),
       duration_minutes: 15
     }
-    
+
     console.log('Adding new building point:', newPoint)
     setRoutePoints([...routePoints, newPoint])
   }
@@ -470,7 +470,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
       created_at: new Date().toISOString(),
       duration_minutes: 10
     }
-    
+
     console.log('Adding new custom point:', newPoint)
     setRoutePoints([...routePoints, newPoint])
   }
@@ -480,8 +480,8 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
   }
 
   const toggleTag = (tag: string) => {
-    setTags(prev => 
-      prev.includes(tag) 
+    setTags(prev =>
+      prev.includes(tag)
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     )
@@ -513,20 +513,20 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
     if (routeDataState) {
       return Math.round(routeDataState.distance / 1000 * 100) / 100
     }
-    
+
     if (routePoints.length < 2) return 0
-    
+
     let totalDistance = 0
     for (let i = 0; i < routePoints.length - 1; i++) {
       const point1 = routePoints[i]
       const point2 = routePoints[i + 1]
-      
+
       const dx = point2.latitude - point1.latitude
       const dy = point2.longitude - point1.longitude
       const distance = Math.sqrt(dx * dx + dy * dy) * 111
       totalDistance += distance
     }
-    
+
     return Math.round(totalDistance * 100) / 100
   }
 
@@ -618,7 +618,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
       if (routeVisibility === 'public') {
         try {
           console.log('🔄 Creating publication request for route:', route.id)
-          
+
           const publicationRequest = {
             route_id: route.id,
             requested_by: user.id,
@@ -629,15 +629,15 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
             status: 'pending',
             created_at: new Date().toISOString()
           }
-          
+
           console.log('📤 Publication request data:', publicationRequest)
-          
+
           const { data: requestData, error: publicationError } = await supabase
             .from('route_publication_requests')
             .insert([publicationRequest])
             .select()
             .single()
-          
+
           if (publicationError) {
             console.error('❌ Publication request error:', publicationError)
             console.error('Publication request error details:', {
@@ -646,7 +646,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
               hint: publicationError.hint,
               code: publicationError.code
             })
-            
+
             // Don't interrupt the route creation process, just notify
             alert(`Route created, but moderation request was not sent: ${publicationError.message}`)
           } else {
@@ -659,13 +659,12 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
         }
       }
 
-      alert(`Route created successfully!${
-        routeVisibility === 'public'
+      alert(`Route created successfully!${routeVisibility === 'public'
           ? ' Publication request sent for moderation.'
           : ' Route saved as private.'
-      }`)
+        }`)
       resetForm()
-      
+
       window.location.href = '/'
 
     } catch (error: any) {
@@ -731,22 +730,21 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
               {['mode', 'info', 'points', 'preview'].map((step, index) => {
                 const steps = creationMode === 'autogenerate' ? ['mode', 'info'] : ['mode', 'info', 'points', 'preview']
                 const visibleSteps = steps.slice(0, creationMode === 'autogenerate' ? 2 : 4)
-                
+
                 if (!visibleSteps.includes(step)) return null
-                
+
                 return (
                   <div
                     key={step}
-                    className={`w-3 h-3 rounded-full ${
-                      currentStep === step ? 'bg-blue-500' : 
-                      visibleSteps.indexOf(currentStep) > visibleSteps.indexOf(step) ? 'bg-green-500' : 'bg-gray-300'
-                    }`}
+                    className={`w-3 h-3 rounded-full ${currentStep === step ? 'bg-blue-500' :
+                        visibleSteps.indexOf(currentStep) > visibleSteps.indexOf(step) ? 'bg-green-500' : 'bg-gray-300'
+                      }`}
                   />
                 )
               })}
             </div>
           </div>
-          
+
           <button
             onClick={() => {
               resetForm()
@@ -763,22 +761,20 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
           {currentStep === 'mode' && (
             <div className="p-6 h-full overflow-y-auto">
               <h3 className="text-lg font-semibold mb-4">Choose route creation method</h3>
-              
+
               <div className="space-y-4 max-w-2xl">
                 {/* Ручное создание */}
-                <div 
-                  className={`p-6 border-2 rounded-xl cursor-pointer transition-all ${
-                    creationMode === 'manual' 
-                      ? 'border-blue-500 bg-blue-50' 
+                <div
+                  className={`p-6 border-2 rounded-xl cursor-pointer transition-all ${creationMode === 'manual'
+                      ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                    }`}
                   onClick={() => setCreationMode('manual')}
                 >
                   <div className="flex items-start space-x-4">
                     <div className="flex-shrink-0">
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        creationMode === 'manual' ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
-                      }`}>
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${creationMode === 'manual' ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                        }`}>
                         {creationMode === 'manual' && (
                           <div className="w-3 h-3 bg-white rounded-full"></div>
                         )}
@@ -793,29 +789,27 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                         Full control over each route point. Choose buildings, customize descriptions and create unique walks.
                       </p>
                       <div className="text-sm text-gray-500">
-                        ✅ Maximum customization<br/>
-                        ✅ Precise planning<br/>
-                        ✅ Custom descriptions<br/>
+                        ✅ Maximum customization<br />
+                        ✅ Precise planning<br />
+                        ✅ Custom descriptions<br />
                         ⏱️ Creation time: 20-40 minutes
                       </div>
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Автогенерация */}
-                <div 
-                  className={`p-6 border-2 rounded-xl cursor-pointer transition-all ${
-                    creationMode === 'autogenerate' 
-                      ? 'border-purple-500 bg-purple-50' 
+                <div
+                  className={`p-6 border-2 rounded-xl cursor-pointer transition-all ${creationMode === 'autogenerate'
+                      ? 'border-purple-500 bg-purple-50'
                       : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                    }`}
                   onClick={() => setCreationMode('autogenerate')}
                 >
                   <div className="flex items-start space-x-4">
                     <div className="flex-shrink-0">
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        creationMode === 'autogenerate' ? 'border-purple-500 bg-purple-500' : 'border-gray-300'
-                      }`}>
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${creationMode === 'autogenerate' ? 'border-purple-500 bg-purple-500' : 'border-gray-300'
+                        }`}>
                         {creationMode === 'autogenerate' && (
                           <div className="w-3 h-3 bg-white rounded-full"></div>
                         )}
@@ -830,9 +824,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                         Smart system will create route automatically based on your preferences and best architectural objects in the city.
                       </p>
                       <div className="text-sm text-gray-500">
-                        🚀 Quick creation<br/>
-                        🎯 Optimized routes<br/>
-                        🧠 AI-generated descriptions<br/>
+                        🚀 Quick creation<br />
+                        🎯 Optimized routes<br />
+                        🧠 AI-generated descriptions<br />
                         ⏱️ Creation time: 2-5 minutes
                       </div>
                       {availableTemplates.length > 0 && (
@@ -846,14 +840,14 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
               </div>
             </div>
           )}
-          
+
           {currentStep === 'info' && creationMode === 'autogenerate' && (
             <div className="p-6 h-full overflow-y-auto">
               <h3 className="text-lg font-semibold mb-4 flex items-center">
                 <Zap className="w-6 h-6 mr-2 text-purple-600" />
                 Auto-generation Settings
               </h3>
-              
+
               <div className="space-y-6 max-w-2xl">
                 {generateError && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -877,9 +871,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     <div>4. Route is automatically saved and ready to use</div>
                   </div>
                 </div>
-                
+
                 {/* Удалены быстрые предустановки - используем только тематические шаблоны из БД */}
-                
+
                 {/* Main parameters */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -888,7 +882,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                   <input
                     type="text"
                     value={autogenParams.route_title}
-                    onChange={(e) => setAutogenParams({...autogenParams, route_title: e.target.value})}
+                    onChange={(e) => setAutogenParams({ ...autogenParams, route_title: e.target.value })}
                     placeholder="For example: My favorite places in Berlin"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
@@ -904,7 +898,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                   <input
                     type="text"
                     value={autogenParams.city}
-                    onChange={(e) => setAutogenParams({...autogenParams, city: e.target.value})}
+                    onChange={(e) => setAutogenParams({ ...autogenParams, city: e.target.value })}
                     placeholder="For example: Berlin, Munich, Hamburg"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
@@ -912,7 +906,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     System will find the best architectural objects in this city
                   </p>
                 </div>
-                
+
                 {/* Template */}
                 {availableTemplates.length > 0 && (
                   <div>
@@ -921,16 +915,16 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     </label>
                     <select
                       value={autogenParams.template_id}
-                      onChange={(e) => setAutogenParams({...autogenParams, template_id: e.target.value})}
+                      onChange={(e) => setAutogenParams({ ...autogenParams, template_id: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
                       <option value="">🎲 Universal Route (recommended)</option>
                       {availableTemplates.map(template => (
                         <option key={template.id} value={template.id}>
                           {template.category === 'seasonal' ? '🌸' :
-                           template.category === 'thematic' ? '🎨' :
-                           template.category === 'architectural_style' ? '🏛️' :
-                           template.category === 'historical_period' ? '📜' : '🎯'} {template.name}
+                            template.category === 'thematic' ? '🎨' :
+                              template.category === 'architectural_style' ? '🏛️' :
+                                template.category === 'historical_period' ? '📜' : '🎯'} {template.name}
                         </option>
                       ))}
                     </select>
@@ -939,7 +933,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     </p>
                   </div>
                 )}
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -947,7 +941,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     </label>
                     <select
                       value={autogenParams.transport_mode}
-                      onChange={(e) => setAutogenParams({...autogenParams, transport_mode: e.target.value as any})}
+                      onChange={(e) => setAutogenParams({ ...autogenParams, transport_mode: e.target.value as any })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
                       <option value="walking">🚶 Walking</option>
@@ -963,7 +957,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     </label>
                     <select
                       value={autogenParams.difficulty}
-                      onChange={(e) => setAutogenParams({...autogenParams, difficulty: e.target.value as any})}
+                      onChange={(e) => setAutogenParams({ ...autogenParams, difficulty: e.target.value as any })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
                       <option value="easy">😊 Easy</option>
@@ -972,7 +966,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     </select>
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Number of Points: {autogenParams.max_points}
@@ -982,7 +976,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     min="3"
                     max="15"
                     value={autogenParams.max_points}
-                    onChange={(e) => setAutogenParams({...autogenParams, max_points: parseInt(e.target.value)})}
+                    onChange={(e) => setAutogenParams({ ...autogenParams, max_points: parseInt(e.target.value) })}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -994,7 +988,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     More points = longer and more detailed route
                   </p>
                 </div>
-                
+
                 {/* Advanced settings */}
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h4 className="font-medium text-gray-900 mb-4 flex items-center">
@@ -1013,11 +1007,10 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           <button
                             key={style.value}
                             onClick={() => toggleArchitecturalStyle(style.value)}
-                            className={`px-3 py-2 rounded-lg text-sm border transition-all flex items-center space-x-2 ${
-                              autogenParams.architectural_styles.includes(style.value)
+                            className={`px-3 py-2 rounded-lg text-sm border transition-all flex items-center space-x-2 ${autogenParams.architectural_styles.includes(style.value)
                                 ? 'bg-purple-500 text-white border-purple-500'
                                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <span>{style.icon}</span>
                             <span>{style.label}</span>
@@ -1031,14 +1024,14 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                       {/* Clear all button */}
                       {autogenParams.architectural_styles.length > 0 && (
                         <button
-                          onClick={() => setAutogenParams({...autogenParams, architectural_styles: []})}
+                          onClick={() => setAutogenParams({ ...autogenParams, architectural_styles: [] })}
                           className="mt-2 px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-xs hover:bg-gray-300 transition-colors"
                         >
                           ❌ Clear all (any styles)
                         </button>
                       )}
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
                       {/* Search radius */}
                       <div>
@@ -1051,7 +1044,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           max="10"
                           step="0.5"
                           value={autogenParams.radius_km}
-                          onChange={(e) => setAutogenParams({...autogenParams, radius_km: parseFloat(e.target.value)})}
+                          onChange={(e) => setAutogenParams({ ...autogenParams, radius_km: parseFloat(e.target.value) })}
                           className="w-full"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -1060,7 +1053,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           <span>10</span>
                         </div>
                       </div>
-                      
+
                       {/* Minimum rating */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1072,7 +1065,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           max="5.0"
                           step="0.1"
                           value={autogenParams.min_rating}
-                          onChange={(e) => setAutogenParams({...autogenParams, min_rating: parseFloat(e.target.value)})}
+                          onChange={(e) => setAutogenParams({ ...autogenParams, min_rating: parseFloat(e.target.value) })}
                           className="w-full"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -1091,7 +1084,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                         </label>
                         <select
                           value={autogenParams.time_preferences}
-                          onChange={(e) => setAutogenParams({...autogenParams, time_preferences: e.target.value as any})}
+                          onChange={(e) => setAutogenParams({ ...autogenParams, time_preferences: e.target.value as any })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                         >
                           <option value="any">🕒 Any Time</option>
@@ -1112,7 +1105,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           max="6"
                           step="0.5"
                           value={autogenParams.max_duration_hours}
-                          onChange={(e) => setAutogenParams({...autogenParams, max_duration_hours: parseFloat(e.target.value)})}
+                          onChange={(e) => setAutogenParams({ ...autogenParams, max_duration_hours: parseFloat(e.target.value) })}
                           className="w-full"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -1122,7 +1115,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Additional options */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1133,7 +1126,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           <input
                             type="checkbox"
                             checked={autogenParams.include_parks}
-                            onChange={(e) => setAutogenParams({...autogenParams, include_parks: e.target.checked})}
+                            onChange={(e) => setAutogenParams({ ...autogenParams, include_parks: e.target.checked })}
                             className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                           />
                           <span className="text-sm text-gray-700">🌳 Include parks and squares</span>
@@ -1143,7 +1136,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           <input
                             type="checkbox"
                             checked={autogenParams.include_restaurants}
-                            onChange={(e) => setAutogenParams({...autogenParams, include_restaurants: e.target.checked})}
+                            onChange={(e) => setAutogenParams({ ...autogenParams, include_restaurants: e.target.checked })}
                             className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                           />
                           <span className="text-sm text-gray-700">🍽️ Add restaurants and cafes</span>
@@ -1153,7 +1146,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           <input
                             type="checkbox"
                             checked={autogenParams.season_specific}
-                            onChange={(e) => setAutogenParams({...autogenParams, season_specific: e.target.checked})}
+                            onChange={(e) => setAutogenParams({ ...autogenParams, season_specific: e.target.checked })}
                             className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                           />
                           <span className="text-sm text-gray-700">🍂 Consider seasonality</span>
@@ -1165,7 +1158,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Generation preview */}
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h4 className="font-medium text-gray-900 mb-2">📋 What will be created:</h4>
@@ -1177,7 +1170,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     <div>⏱️ Time and distance calculation</div>
                   </div>
                 </div>
-                
+
                 {/* Generation button */}
                 <div className="bg-white border-2 border-purple-200 rounded-lg p-6">
                   <button
@@ -1200,44 +1193,44 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                   <p className="text-xs text-gray-500 text-center mt-2">
                     Process will take 30-60 seconds
                   </p>
-                  
+
                   {/* Parameters preview */}
                   {(autogenParams.architectural_styles.length > 0 || autogenParams.time_preferences !== 'any' ||
                     autogenParams.include_parks || autogenParams.include_restaurants || autogenParams.season_specific) && (
-                    <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                      <div className="text-xs font-medium text-purple-900 mb-2">📋 Additional Parameters:</div>
-                      <div className="text-xs text-purple-800 space-y-1">
-                        {autogenParams.architectural_styles.length > 0 && (
-                          <div>🏰 Styles: {autogenParams.architectural_styles.map(style =>
-                            architecturalStyles.find(s => s.value === style)?.label
-                          ).filter(Boolean).join(', ')}</div>
-                        )}
-                        <div>📍 Radius: {autogenParams.radius_km} km • ⭐ Min.rating: {autogenParams.min_rating.toFixed(1)}</div>
-                        <div>⏱️ Max.time: {autogenParams.max_duration_hours} h • 🎯 Points: {autogenParams.max_points}</div>
-                        {autogenParams.time_preferences !== 'any' && (
-                          <div>🕰️ Time: {
-                            autogenParams.time_preferences === 'morning' ? 'Morning' :
-                            autogenParams.time_preferences === 'afternoon' ? 'Afternoon' :
-                            autogenParams.time_preferences === 'evening' ? 'Evening' : 'Any'
-                          }</div>
-                        )}
-                        {(autogenParams.include_parks || autogenParams.include_restaurants || autogenParams.season_specific) && (
-                          <div>🎁 Additional: {
-                            [
-                              autogenParams.include_parks && '🌳 Parks',
-                              autogenParams.include_restaurants && '🍽️ Restaurants',
-                              autogenParams.season_specific && '🍂 Seasonality'
-                            ].filter(Boolean).join(', ')
-                          }</div>
-                        )}
+                      <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                        <div className="text-xs font-medium text-purple-900 mb-2">📋 Additional Parameters:</div>
+                        <div className="text-xs text-purple-800 space-y-1">
+                          {autogenParams.architectural_styles.length > 0 && (
+                            <div>🏰 Styles: {autogenParams.architectural_styles.map(style =>
+                              architecturalStyles.find(s => s.value === style)?.label
+                            ).filter(Boolean).join(', ')}</div>
+                          )}
+                          <div>📍 Radius: {autogenParams.radius_km} km • ⭐ Min.rating: {autogenParams.min_rating.toFixed(1)}</div>
+                          <div>⏱️ Max.time: {autogenParams.max_duration_hours} h • 🎯 Points: {autogenParams.max_points}</div>
+                          {autogenParams.time_preferences !== 'any' && (
+                            <div>🕰️ Time: {
+                              autogenParams.time_preferences === 'morning' ? 'Morning' :
+                                autogenParams.time_preferences === 'afternoon' ? 'Afternoon' :
+                                  autogenParams.time_preferences === 'evening' ? 'Evening' : 'Any'
+                            }</div>
+                          )}
+                          {(autogenParams.include_parks || autogenParams.include_restaurants || autogenParams.season_specific) && (
+                            <div>🎁 Additional: {
+                              [
+                                autogenParams.include_parks && '🌳 Parks',
+                                autogenParams.include_restaurants && '🍽️ Restaurants',
+                                autogenParams.season_specific && '🍂 Seasonality'
+                              ].filter(Boolean).join(', ')
+                            }</div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               </div>
             </div>
           )}
-          
+
           {currentStep === 'info' && creationMode === 'manual' && (
             <div className="p-6 h-full overflow-y-auto">
               <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
@@ -1365,7 +1358,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                             <input
                               type="checkbox"
                               checked={routeOptions.avoid_tolls}
-                              onChange={(e) => setRouteOptions({...routeOptions, avoid_tolls: e.target.checked})}
+                              onChange={(e) => setRouteOptions({ ...routeOptions, avoid_tolls: e.target.checked })}
                               className="mr-2"
                             />
                             <span className="text-sm">Avoid toll roads</span>
@@ -1374,7 +1367,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                             <input
                               type="checkbox"
                               checked={routeOptions.avoid_ferries}
-                              onChange={(e) => setRouteOptions({...routeOptions, avoid_ferries: e.target.checked})}
+                              onChange={(e) => setRouteOptions({ ...routeOptions, avoid_ferries: e.target.checked })}
                               className="mr-2"
                             />
                             <span className="text-sm">Avoid ferries</span>
@@ -1387,7 +1380,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                           <input
                             type="checkbox"
                             checked={routeOptions.prefer_green}
-                            onChange={(e) => setRouteOptions({...routeOptions, prefer_green: e.target.checked})}
+                            onChange={(e) => setRouteOptions({ ...routeOptions, prefer_green: e.target.checked })}
                             className="mr-2"
                           />
                           <span className="text-sm">Prefer parks and green areas</span>
@@ -1398,7 +1391,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                         <input
                           type="checkbox"
                           checked={routeOptions.optimized}
-                          onChange={(e) => setRouteOptions({...routeOptions, optimized: e.target.checked})}
+                          onChange={(e) => setRouteOptions({ ...routeOptions, optimized: e.target.checked })}
                           className="mr-2"
                         />
                         <span className="text-sm">Optimize point order</span>
@@ -1417,11 +1410,10 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                       <button
                         key={tag}
                         onClick={() => toggleTag(tag)}
-                        className={`px-3 py-1 rounded-full text-sm border transition-colors ${
-                          tags.includes(tag)
+                        className={`px-3 py-1 rounded-full text-sm border transition-colors ${tags.includes(tag)
                             ? 'bg-blue-500 text-white border-blue-500'
                             : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-                        }`}
+                          }`}
                       >
                         {tag}
                       </button>
@@ -1498,11 +1490,10 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                 <div className="space-y-2 mb-4">
                   <button
                     onClick={() => setIsAddingPoint(!isAddingPoint)}
-                    className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                      isAddingPoint
+                    className={`w-full px-4 py-2 rounded-lg border transition-colors ${isAddingPoint
                         ? 'bg-green-500 text-white border-green-500 hover:bg-green-600'
                         : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
-                    }`}
+                      }`}
                   >
                     {isAddingPoint ? '✓ Adding mode (click again to exit)' : '+ Add Point'}
                   </button>
@@ -1601,7 +1592,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                 {routePoints.length === 0 && (
                   <div className="text-center text-gray-500 mt-8">
                     <MapPin size={48} className="mx-auto mb-2 text-gray-300" />
-                    <p className="text-sm">Добавьте точки маршрута</p>
+                    <p className="text-sm">Add route points</p>
                   </div>
                 )}
               </div>
@@ -1615,18 +1606,18 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                   onAddBuildingPoint={addBuildingPoint}
                   onAddCustomPoint={addCustomPoint}
                 />
-                
+
                 {routePoints.length > 0 && (
                   <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-md p-3">
                     <div className="text-sm">
                       <div className="flex items-center space-x-2 mb-1">
                         <MapPin size={14} className="text-gray-500" />
-                        <span>{routePoints.length} точек</span>
+                        <span>{routePoints.length} points</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RouteIcon size={14} className="text-gray-500" />
                         <span>
-                          {routeDataState 
+                          {routeDataState
                             ? formatDistance(routeDataState.distance)
                             : `~${calculateDistance()} км`
                           }
@@ -1648,12 +1639,12 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
           {currentStep === 'preview' && (
             <div className="p-6 h-full overflow-y-auto">
               <h3 className="text-lg font-semibold mb-4">Preview</h3>
-              
+
               <div className="max-w-2xl space-y-6">
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="text-xl font-bold mb-2">{title}</h4>
                   {description && <p className="text-gray-600 mb-4">{description}</p>}
-                  
+
                   <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                     <div className="flex items-center space-x-2">
                       <MapPin size={16} className="text-gray-500" />
@@ -1679,7 +1670,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                     <div className="flex items-center space-x-2">
                       <RouteIcon size={16} className="text-gray-500" />
                       <span>
-                        {routeDataState 
+                        {routeDataState
                           ? formatDistance(routeDataState.distance)
                           : `~${calculateDistance()} км`
                         }
@@ -1705,29 +1696,26 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Publication status */}
-                  <div className={`mt-4 p-3 rounded-lg ${
-                    routeVisibility === 'public'
+                  <div className={`mt-4 p-3 rounded-lg ${routeVisibility === 'public'
                       ? 'bg-blue-50 border border-blue-200'
                       : 'bg-gray-50 border border-gray-200'
-                  }`}>
+                    }`}>
                     <div className="flex items-center space-x-2 mb-2">
                       <span className="text-lg">
                         {routeVisibility === 'public' ? '🌍' : '🔒'}
                       </span>
-                      <span className={`font-medium ${
-                        routeVisibility === 'public' ? 'text-blue-900' : 'text-gray-900'
-                      }`}>
+                      <span className={`font-medium ${routeVisibility === 'public' ? 'text-blue-900' : 'text-gray-900'
+                        }`}>
                         {routeVisibility === 'public' ? 'Public Route' : 'Private Route'}
                       </span>
                     </div>
-                    <div className={`text-sm ${
-                      routeVisibility === 'public' ? 'text-blue-700' : 'text-gray-600'
-                    }`}>
-                      {routeVisibility === 'public' 
-                        ? 'Маршрут будет отправлен на модерацию и после одобрения станет доступен всем пользователям.'
-                        : 'Маршрут будет виден только вам. Можно будет подать заявку на публикацию позже.'
+                    <div className={`text-sm ${routeVisibility === 'public' ? 'text-blue-700' : 'text-gray-600'
+                      }`}>
+                      {routeVisibility === 'public'
+                        ? 'Route will be sent for moderation and after approval will be available to all users.'
+                        : 'Route will be visible only to you. Can submit for publication later.'
                       }
                     </div>
                   </div>
@@ -1736,31 +1724,31 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                 {/* Детали маршрута */}
                 {routeDataState && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h5 className="font-medium text-blue-900 mb-3">Детали построенного маршрута</h5>
+                    <h5 className="font-medium text-blue-900 mb-3">Built Route Details</h5>
                     <div className="grid grid-cols-2 gap-4 text-sm text-blue-800">
                       <div>
-                        <span>Точное расстояние:</span>
+                        <span>Exact distance:</span>
                         <span className="ml-2 font-medium">{formatDistance(routeDataState.distance)}</span>
                       </div>
                       <div>
-                        <span>Время в пути:</span>
+                        <span>Travel time:</span>
                         <span className="ml-2 font-medium">{formatDuration(routeDataState.duration)}</span>
                       </div>
                       <div>
-                        <span>Пошаговых инструкций:</span>
+                        <span>Step-by-step instructions:</span>
                         <span className="ml-2 font-medium">{routeDataState.instructions?.length || 0}</span>
                       </div>
                       <div>
-                        <span>Качество маршрута:</span>
-                        <span className="ml-2 font-medium">Реальные дороги</span>
+                        <span>Route quality:</span>
+                        <span className="ml-2 font-medium">Real roads</span>
                       </div>
                     </div>
-                    
+
                     {routeDataState.summary?.ascent && (
                       <div className="mt-3 text-sm text-blue-700">
-                        <span>Подъем: {Math.round(routeDataState.summary.ascent)} м</span>
+                        <span>Ascent: {Math.round(routeDataState.summary.ascent)} m</span>
                         {routeDataState.summary.descent && (
-                          <span className="ml-4">Спуск: {Math.round(routeDataState.summary.descent)} м</span>
+                          <span className="ml-4">Descent: {Math.round(routeDataState.summary.descent)} m</span>
                         )}
                       </div>
                     )}
@@ -1771,16 +1759,16 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                     <div className="flex items-center text-amber-800">
                       <AlertCircle size={20} className="mr-2" />
-                      <span className="font-medium">Маршрут не построен</span>
+                      <span className="font-medium">Route not built</span>
                     </div>
                     <p className="text-amber-700 text-sm mt-1">
-                      Будут показаны прямые линии между точками. Добавьте больше деталей на этапе создания точек.
+                      Straight lines will be shown between points. Add more details at the point creation stage.
                     </p>
                   </div>
                 )}
 
                 <div>
-                  <h5 className="font-medium mb-3">Маршрут ({routePoints.length} точек)</h5>
+                  <h5 className="font-medium mb-3">Route ({routePoints.length} points)</h5>
                   <div className="space-y-2">
                     {routePoints.map((point, index) => (
                       <div key={point.id} className="flex items-center space-x-3 p-2 bg-gray-50 rounded">
@@ -1793,10 +1781,10 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                             <div className="text-xs text-gray-600">{point.description}</div>
                           )}
                           {point.building_id && (
-                            <div className="text-xs text-green-600">🏛️ Связано с архитектурным объектом</div>
+                            <div className="text-xs text-green-600">🏛️ Linked to architectural object</div>
                           )}
                         </div>
-                        <div className="text-xs text-gray-500">{point.duration_minutes || point.estimated_time_minutes}м осмотра</div>
+                        <div className="text-xs text-gray-500">{point.duration_minutes || point.estimated_time_minutes}m viewing</div>
                       </div>
                     ))}
                   </div>
@@ -1805,12 +1793,12 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                 {/* Настройки маршрута */}
                 {Object.values(routeOptions).some(Boolean) && (
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <h5 className="font-medium mb-2">Настройки маршрута</h5>
+                    <h5 className="font-medium mb-2">Route Settings</h5>
                     <div className="text-sm text-gray-600 space-y-1">
-                      {routeOptions.avoid_tolls && <div>• Избегать платных дорог</div>}
-                      {routeOptions.avoid_ferries && <div>• Избегать паромов</div>}
-                      {routeOptions.prefer_green && <div>• Предпочитать парки и зеленые зоны</div>}
-                      {routeOptions.optimized && <div>• Оптимизированный порядок точек</div>}
+                      {routeOptions.avoid_tolls && <div>• Avoid toll roads</div>}
+                      {routeOptions.avoid_ferries && <div>• Avoid ferries</div>}
+                      {routeOptions.prefer_green && <div>• Prefer parks and green areas</div>}
+                      {routeOptions.optimized && <div>• Optimized point order</div>}
                     </div>
                   </div>
                 )}
@@ -1826,7 +1814,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
               {error}
             </div>
           )}
-          
+
           <div className="flex justify-between">
             <div>
               {currentStep !== 'mode' && (
@@ -1864,7 +1852,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
               >
                 Cancel
               </button>
-              
+
               {creationMode === 'autogenerate' ? (
                 // Для автогенерации кнопки не нужны на шаге info, так как генерация происходит сразу
                 currentStep === 'mode' ? (
@@ -1902,7 +1890,7 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                         setError('Please specify a route title')
                         return
                       }
-                      
+
                       // Если точки уже загружены, пропускаем шаг 'points'
                       if (currentStep === 'info' && routePoints.length > 0) {
                         setCurrentStep('preview')

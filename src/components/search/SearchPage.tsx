@@ -112,10 +112,10 @@ export function SearchPage({
             </Link>
             <div>
               <h1 className="text-3xl font-display font-bold text-foreground mb-2">
-                Универсальный поиск
+                Universal Search
               </h1>
               <p className="text-muted-foreground">
-                Найдите здания, маршруты, подкасты, статьи и новости об архитектуре в одном месте
+                Find buildings, routes, podcasts, articles and architecture news in one place
               </p>
             </div>
           </div>
@@ -176,7 +176,7 @@ export function SearchPage({
                 onFiltersChange={updateFilters}
                 onClearFilters={clearFilters}
                 isOpen={true}
-                onClose={() => {}}
+                onClose={() => { }}
                 activeFiltersCount={activeFiltersCount}
               />
             </div>
@@ -189,17 +189,17 @@ export function SearchPage({
             <div className="text-center text-sm text-muted-foreground">
               <div className="flex items-center justify-center gap-8">
                 <div className="font-metrics">
-                  Показано <span className="font-semibold text-foreground">{results.length}</span> из{' '}
-                  <span className="font-semibold text-foreground">{totalCount}</span> зданий
+                  Showing <span className="font-semibold text-foreground">{results.length}</span> of{' '}
+                  <span className="font-semibold text-foreground">{totalCount}</span> buildings
                 </div>
                 {metadata.styles.length > 0 && (
                   <div className="font-metrics">
-                    Доступно <span className="font-semibold text-foreground">{metadata.styles.length}</span> архитектурных стилей
+                    Available <span className="font-semibold text-foreground">{metadata.styles.length}</span> architectural styles
                   </div>
                 )}
                 {metadata.cities.length > 1 && (
                   <div className="font-metrics">
-                    В <span className="font-semibold text-foreground">{metadata.cities.length}</span> городах
+                    In <span className="font-semibold text-foreground">{metadata.cities.length}</span> cities
                   </div>
                 )}
               </div>

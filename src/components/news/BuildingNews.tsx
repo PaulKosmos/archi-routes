@@ -16,9 +16,9 @@ interface BuildingNewsProps {
   className?: string;
 }
 
-export default function BuildingNews({ 
-  buildingId, 
-  buildingName, 
+export default function BuildingNews({
+  buildingId,
+  buildingName,
   limit = 6,
   showTitle = true,
   className = ''
@@ -50,7 +50,7 @@ export default function BuildingNews({
       console.log('🏢 [DEBUG] News API took:', newsEndTime - newsStartTime, 'ms');
 
       if (!result.success) {
-        throw new Error(result.error || 'Ошибка загрузки новостей');
+        throw new Error(result.error || 'News loading error');
       }
 
       setNews(result.news || []);
@@ -64,7 +64,7 @@ export default function BuildingNews({
         stack: err.stack,
         name: err.name
       });
-      setError(err instanceof Error ? err.message : 'Ошибка загрузки новостей');
+      setError(err instanceof Error ? err.message : 'Error loading news');
     } finally {
       console.log('🏢 [DEBUG] News loading finished');
       setLoading(false);
@@ -83,7 +83,7 @@ export default function BuildingNews({
         {showTitle && (
           <div className="flex items-center gap-2 mb-4">
             <Building2 className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold font-display text-foreground">Новости об этом здании</h3>
+            <h3 className="text-lg font-semibold font-display text-foreground">News About This Building</h3>
           </div>
         )}
         <div className="animate-pulse space-y-4">

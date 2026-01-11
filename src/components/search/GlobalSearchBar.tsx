@@ -32,7 +32,7 @@ export function GlobalSearchBar({ className = '' }: GlobalSearchBarProps) {
       router.push(`/buildings/${suggestion.id}`)
     } else {
       const params = new URLSearchParams()
-      
+
       if (suggestion.type === 'architect') {
         params.set('architects', suggestion.value)
       } else if (suggestion.type === 'style') {
@@ -42,7 +42,7 @@ export function GlobalSearchBar({ className = '' }: GlobalSearchBarProps) {
       } else {
         params.set('q', suggestion.value)
       }
-      
+
       router.push(`/buildings?${params.toString()}`)
     }
     setLocalQuery('') // Очищаем поле после перехода
@@ -75,7 +75,7 @@ export function GlobalSearchBar({ className = '' }: GlobalSearchBarProps) {
         activeFiltersCount={0}
         onFiltersToggle={handleFiltersToggle}
         size="sm"
-        placeholder="Поиск архитектуры..."
+        placeholder="Search architecture..."
         showFiltersButton={false} // В header не показываем кнопку фильтров
         className="w-full"
       />

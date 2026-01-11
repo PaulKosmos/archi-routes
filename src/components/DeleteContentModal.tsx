@@ -47,7 +47,7 @@ export default function DeleteContentModal({
           .eq('route_id', contentId)
 
         if (pointsError) {
-          throw new Error(`Ошибка удаления точек маршрута: ${pointsError.message}`)
+          throw new Error(`Error deleting route points: ${pointsError.message}`)
         }
 
         // 2. Удаляем отзывы
@@ -81,7 +81,7 @@ export default function DeleteContentModal({
           .eq('id', contentId)
 
         if (routeError) {
-          throw new Error(`Ошибка удаления маршрута: ${routeError.message}`)
+          throw new Error(`Error deleting route: ${routeError.message}`)
         }
 
       } else if (contentType === 'building') {
@@ -92,27 +92,27 @@ export default function DeleteContentModal({
           .eq('building_id', contentId)
 
         if (checkError) {
-          throw new Error(`Ошибка проверки связей: ${checkError.message}`)
+          throw new Error(`Error checking relations: ${checkError.message}`)
         }
 
         if (routePoints && routePoints.length > 0) {
           // Получаем названия маршрутов
           const uniqueRouteIds = Array.from(new Set(routePoints.map(p => p.route_id)))
-          
+
           const { data: routes, error: routesError } = await supabase
             .from('routes')
             .select('id, title')
             .in('id', uniqueRouteIds)
 
           if (routesError) {
-            throw new Error(`Ошибка получения маршрутов: ${routesError.message}`)
+            throw new Error(`Error fetching routes: ${routesError.message}`)
           }
 
-          const routeTitles = routes?.map(r => r.title).join(', ') || 'Неизвестные маршруты'
-          
+          const routeTitles = routes?.map(r => r.title).join(', ') || 'Unknown routes'
+
           throw new Error(
-            `Невозможно удалить здание. Оно используется в маршрутах: ${routeTitles}. ` +
-            'Сначала удалите здание из этих маршрутов.'
+            `Cannot delete building. It is used in routes: ${routeTitles}. ` +
+            'First remove the building from these routes.'
           )
         }
 
@@ -133,7 +133,7 @@ export default function DeleteContentModal({
             const updatedBuildingIds = collection.building_ids?.filter(
               (id: string) => id !== contentId
             ) || []
-            
+
             await supabase
               .from('user_collections')
               .update({ building_ids: updatedBuildingIds })
@@ -148,7 +148,7 @@ export default function DeleteContentModal({
           .eq('id', contentId)
 
         if (buildingError) {
-          throw new Error(`Ошибка удаления здания: ${buildingError.message}`)
+          throw new Error(`Error deleting building: ${buildingError.message}`)
         }
 
         // 5. Удаляем изображения из Storage
@@ -171,9 +171,9 @@ export default function DeleteContentModal({
       }
 
       setDeletionSuccess(true)
-      
+
     } catch (error: any) {
-      setError(error.message || 'Произошла ошибка при удалении')
+      setError(error.message || 'An error occurred during deletion')
     } finally {
       setIsDeleting(false)
     }
@@ -210,7 +210,7 @@ export default function DeleteContentModal({
                   <AlertTriangle size={16} className="text-red-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Удалить {contentType === 'building' ? 'здание' : 'маршрут'}?
+                  Delete {contentType === 'building' ? 'Building' : 'Route'}?
                 </h3>
               </div>
               <button
@@ -223,13 +223,13 @@ export default function DeleteContentModal({
 
             <div className="mb-6">
               <p className="text-gray-700 mb-4">
-                Вы действительно хотите удалить {contentType === 'building' ? 'здание' : 'маршрут'}:
+                Do you really want to delete this {contentType === 'building' ? 'building' : 'route'}:
               </p>
-              
+
               <div className="bg-gray-50 border rounded-lg p-3">
                 <p className="font-medium text-gray-900">{contentTitle}</p>
                 <p className="text-sm text-gray-600 capitalize">
-                  {contentType === 'building' ? 'Здание' : 'Маршрут'}
+                  {contentType === 'building' ? 'Building' : 'Route'}
                 </p>
               </div>
             </div>
@@ -239,19 +239,19 @@ export default function DeleteContentModal({
                 onClick={handleClose}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
               >
-                Отмена
+                Cancel
               </button>
               <button
                 onClick={handleFirstConfirm}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center space-x-2"
               >
                 <Trash2 size={16} />
-                <span>Удалить</span>
+                <span>Delete</span>
               </button>
             </div>
           </>
         ) : deletionSuccess ? (
-          // Окно успешного удаления
+          // Success dialog
           <>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
@@ -261,14 +261,14 @@ export default function DeleteContentModal({
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold text-green-900">
-                  Успешно удалено!
+                  Successfully Deleted!
                 </h3>
               </div>
             </div>
 
             <div className="mb-6">
               <p className="text-green-700">
-                {contentType === 'building' ? 'Здание' : 'Маршрут'} "{contentTitle}" было успешно удалено.
+                {contentType === 'building' ? 'Building' : 'Route'} "{contentTitle}" was successfully deleted.
               </p>
             </div>
 
@@ -277,12 +277,12 @@ export default function DeleteContentModal({
                 onClick={handleManualRedirect}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Перейти на главную
+                Go to Home
               </button>
             </div>
           </>
         ) : (
-          // Второе окно - финальное подтверждение
+          // Second confirmation dialog
           <>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
@@ -290,7 +290,7 @@ export default function DeleteContentModal({
                   <AlertTriangle size={16} className="text-red-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Подтвердите удаление
+                  Confirm Deletion
                 </h3>
               </div>
               <button
@@ -307,22 +307,22 @@ export default function DeleteContentModal({
                 <div className="flex items-start space-x-2">
                   <AlertTriangle size={16} className="text-red-600 mt-0.5 flex-shrink-0" />
                   <div className="text-red-900 text-sm">
-                    <p className="font-medium mb-2">Внимание! Это действие нельзя отменить!</p>
-                    <p className="mb-2">Будет удалено:</p>
+                    <p className="font-medium mb-2">Warning! This action cannot be undone!</p>
+                    <p className="mb-2">Will be deleted:</p>
                     <ul className="text-xs space-y-1">
                       {contentType === 'building' ? (
                         <>
-                          <li>• Здание из базы данных</li>
-                          <li>• Все фотографии здания</li>
-                          <li>• Отзывы и рейтинги</li>
-                          <li>• Удаление из коллекций пользователей</li>
+                          <li>• Building from database</li>
+                          <li>• All building photos</li>
+                          <li>• Reviews and ratings</li>
+                          <li>• Removal from user collections</li>
                         </>
                       ) : (
                         <>
-                          <li>• Маршрут и все его точки</li>
-                          <li>• Отзывы и рейтинги маршрута</li>
-                          <li>• История прохождений</li>
-                          <li>• Удаление из избранного всех пользователей</li>
+                          <li>• Route and all its points</li>
+                          <li>• Route reviews and ratings</li>
+                          <li>• Completion history</li>
+                          <li>• Removal from all users' favorites</li>
                         </>
                       )}
                     </ul>
@@ -331,7 +331,7 @@ export default function DeleteContentModal({
               </div>
 
               <p className="text-gray-700 font-medium">
-                Вы точно уверены, что хотите удалить "{contentTitle}"?
+                Are you absolutely sure you want to delete "{contentTitle}"?
               </p>
             </div>
 
@@ -348,7 +348,7 @@ export default function DeleteContentModal({
                 disabled={isDeleting}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
               >
-                Назад
+                Back
               </button>
               <button
                 onClick={handleFinalDelete}
@@ -356,7 +356,7 @@ export default function DeleteContentModal({
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center space-x-2"
               >
                 <Trash2 size={16} />
-                <span>{isDeleting ? 'Удаление...' : 'Да, удалить навсегда'}</span>
+                <span>{isDeleting ? 'Deleting...' : 'Yes, Delete Forever'}</span>
               </button>
             </div>
           </>

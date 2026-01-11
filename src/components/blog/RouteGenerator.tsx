@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  Route, 
-  MapPin, 
-  Clock, 
-  Navigation, 
-  Shuffle, 
+import {
+  Route,
+  MapPin,
+  Clock,
+  Navigation,
+  Shuffle,
   TrendingUp,
   Star,
   Building2,
@@ -34,10 +34,10 @@ interface GeneratedRoute {
   routeType: 'optimal' | 'chronological' | 'rating' | 'custom'
 }
 
-export default function RouteGenerator({ 
-  buildings, 
-  onRouteGenerated, 
-  className = '' 
+export default function RouteGenerator({
+  buildings,
+  onRouteGenerated,
+  className = ''
 }: RouteGeneratorProps) {
   const [generatedRoutes, setGeneratedRoutes] = useState<GeneratedRoute[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
@@ -45,9 +45,9 @@ export default function RouteGenerator({
   const [previewRoute, setPreviewRoute] = useState<GeneratedRoute | null>(null)
 
   // Фильтруем здания с координатами
-  const validBuildings = buildings.filter(b => 
-    b.building && 
-    b.building.latitude && 
+  const validBuildings = buildings.filter(b =>
+    b.building &&
+    b.building.latitude &&
     b.building.longitude
   )
 
@@ -93,16 +93,16 @@ export default function RouteGenerator({
   const generateOptimalRoute = async (buildings: any[]): Promise<GeneratedRoute> => {
     // Вычисляем расстояния между всеми парами зданий
     const distances = calculateDistanceMatrix(buildings)
-    
+
     // Решаем задачу коммивояжера (упрощенный алгоритм)
     const optimizedOrder = solveTSP(buildings, distances)
-    
+
     const totalDistance = calculateTotalDistance(optimizedOrder, distances)
     const estimatedTime = calculateEstimatedTime(totalDistance, optimizedOrder.length)
 
     return {
       id: 'optimal',
-      title: '🎯 Оптимальный маршрут',
+      title: '🎯 Optimal Route',
       description: 'Кратчайший путь для посещения всех зданий из статьи',
       buildings: optimizedOrder,
       totalDistance,
@@ -125,7 +125,7 @@ export default function RouteGenerator({
 
     return {
       id: 'chronological',
-      title: '📅 Хронологический маршрут',
+      title: '📅 Chronological Route',
       description: 'Путешествие через время: от старейших зданий к самым современным',
       buildings: sortedBuildings,
       totalDistance,
@@ -148,7 +148,7 @@ export default function RouteGenerator({
 
     return {
       id: 'rating',
-      title: '⭐ Маршрут по рейтингу',
+      title: '⭐ Route by Rating',
       description: 'Начинаем с самых популярных и высоко оцененных зданий',
       buildings: sortedBuildings,
       totalDistance,
@@ -161,7 +161,7 @@ export default function RouteGenerator({
   // Вычисление расстояний между зданиями (упрощенная формула)
   const calculateDistanceMatrix = (buildings: any[]) => {
     const matrix: number[][] = []
-    
+
     for (let i = 0; i < buildings.length; i++) {
       matrix[i] = []
       for (let j = 0; j < buildings.length; j++) {
@@ -172,12 +172,12 @@ export default function RouteGenerator({
           const lon1 = parseFloat(buildings[i].building.longitude)
           const lat2 = parseFloat(buildings[j].building.latitude)
           const lon2 = parseFloat(buildings[j].building.longitude)
-          
+
           matrix[i][j] = haversineDistance(lat1, lon1, lat2, lon2)
         }
       }
     }
-    
+
     return matrix
   }
 
@@ -186,11 +186,11 @@ export default function RouteGenerator({
     const R = 6371 // Радиус Земли в километрах
     const dLat = (lat2 - lat1) * Math.PI / 180
     const dLon = (lon2 - lon1) * Math.PI / 180
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon/2) * Math.sin(dLon/2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+      Math.sin(dLon / 2) * Math.sin(dLon / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     return R * c
   }
 
@@ -322,31 +322,28 @@ export default function RouteGenerator({
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setSelectedRouteType('optimal')}
-              className={`px-3 py-1 text-xs rounded-lg transition-colors ${
-                selectedRouteType === 'optimal' 
-                  ? 'bg-green-600 text-white' 
+              className={`px-3 py-1 text-xs rounded-lg transition-colors ${selectedRouteType === 'optimal'
+                  ? 'bg-green-600 text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
+                }`}
             >
               Оптимальный
             </button>
             <button
               onClick={() => setSelectedRouteType('chronological')}
-              className={`px-3 py-1 text-xs rounded-lg transition-colors ${
-                selectedRouteType === 'chronological' 
-                  ? 'bg-green-600 text-white' 
+              className={`px-3 py-1 text-xs rounded-lg transition-colors ${selectedRouteType === 'chronological'
+                  ? 'bg-green-600 text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
+                }`}
             >
               По времени
             </button>
             <button
               onClick={() => setSelectedRouteType('rating')}
-              className={`px-3 py-1 text-xs rounded-lg transition-colors ${
-                selectedRouteType === 'rating' 
-                  ? 'bg-green-600 text-white' 
+              className={`px-3 py-1 text-xs rounded-lg transition-colors ${selectedRouteType === 'rating'
+                  ? 'bg-green-600 text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
+                }`}
             >
               По рейтингу
             </button>
@@ -377,7 +374,7 @@ export default function RouteGenerator({
                     <p className="text-sm text-gray-600 mb-2">
                       {route.description}
                     </p>
-                    
+
                     {/* Метрики маршрута */}
                     <div className="flex items-center space-x-4 text-xs text-gray-500">
                       <div className="flex items-center">
@@ -403,21 +400,21 @@ export default function RouteGenerator({
                     <button
                       onClick={() => handleRoutePreview(route)}
                       className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
-                      title="Предпросмотр"
+                      title="Preview"
                     >
                       <Eye className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleShareRoute(route)}
                       className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                      title="Поделиться"
+                      title="Share"
                     >
                       <Share2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleExportRoute(route)}
                       className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                      title="Экспорт"
+                      title="Export"
                     >
                       <Download className="w-4 h-4" />
                     </button>
@@ -471,8 +468,8 @@ export default function RouteGenerator({
 
       {/* Предпросмотр маршрута */}
       {previewRoute && (
-        <RoutePreview 
-          route={previewRoute} 
+        <RoutePreview
+          route={previewRoute}
           onClose={handleClosePreview}
         />
       )}

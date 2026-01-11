@@ -42,9 +42,8 @@ export default function BlockEditorWrapper({
 
   return (
     <div
-      className={`block-editor-wrapper bg-white border rounded-lg shadow-sm ${
-        errors && errors.length > 0 ? 'border-red-300' : 'border-gray-200'
-      }`}
+      className={`block-editor-wrapper bg-white border rounded-lg shadow-sm ${errors && errors.length > 0 ? 'border-red-300' : 'border-gray-200'
+        }`}
     >
       {/* Заголовок блока с действиями */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
@@ -56,7 +55,7 @@ export default function BlockEditorWrapper({
               type="button"
               {...dragHandleProps}
               className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 focus:outline-none"
-              title="Перетащите для изменения порядка"
+              title="Drag to reorder"
             >
               <svg
                 className="h-5 w-5"
@@ -91,7 +90,7 @@ export default function BlockEditorWrapper({
               type="button"
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none"
-              title={isCollapsed ? "Развернуть блок" : "Свернуть блок"}
+              title={isCollapsed ? "Expand block" : "Collapse block"}
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isCollapsed ? (
@@ -118,7 +117,7 @@ export default function BlockEditorWrapper({
                 type="button"
                 onClick={onMoveUp}
                 className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none"
-                title="Переместить вверх"
+                title="Move up"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
@@ -137,7 +136,7 @@ export default function BlockEditorWrapper({
                 type="button"
                 onClick={onMoveDown}
                 className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none"
-                title="Переместить вниз"
+                title="Move down"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
@@ -155,7 +154,7 @@ export default function BlockEditorWrapper({
               type="button"
               onClick={onDuplicate}
               className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none"
-              title="Дублировать блок"
+              title="Duplicate block"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -172,7 +171,7 @@ export default function BlockEditorWrapper({
               type="button"
               onClick={onDelete}
               className="p-1 text-red-400 hover:text-red-600 focus:outline-none"
-              title="Удалить блок"
+              title="Delete block"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path

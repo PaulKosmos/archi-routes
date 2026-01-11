@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: NewsDetailPageProps): Promise
 
   try {
     const supabase = await createServerClient();
-    
+
     // Загружаем новость для метаданных
     const { data: article, error } = await supabase
       .from('architecture_news')
@@ -43,47 +43,47 @@ export async function generateMetadata({ params }: NewsDetailPageProps): Promise
 
     if (error || !article) {
       return {
-        title: 'Новость не найдена | Archi Routes',
-        description: 'Запрашиваемая новость не найдена или больше не доступна.',
+        title: 'News Not Found | Archi Routes',
+        description: 'The requested news article was not found or is no longer available.',
       };
     }
 
     // Формируем метаданные
     const title = article.meta_title || `${article.title} | Archi Routes`;
-    const description = article.meta_description || article.summary || 
+    const description = article.meta_description || article.summary ||
       article.content.substring(0, 160).replace(/\n/g, ' ') + '...';
-    
+
     const imageUrl = article.featured_image_url || '/images/default-news-og.jpg';
     const publishedTime = article.published_at || undefined;
-    const author = Array.isArray(article.profiles) ? article.profiles[0]?.full_name : 
-                  article.profiles?.full_name || 'Archi Routes';
+    const author = Array.isArray(article.profiles) ? article.profiles[0]?.full_name :
+      article.profiles?.full_name || 'Archi Routes';
 
     // Формируем ключевые слова
     const keywords = [
       ...(article.meta_keywords || []),
       ...(article.tags || []),
-      'архитектура',
-      'новости архитектуры',
-      article.city,
-      article.country,
+      'architecture',
+      'architecture news',
+      article.title.toLowerCase(),
+      ...(article.tags || [])
     ].filter(Boolean).join(', ');
 
     const categoryNames = {
-      'projects': 'архитектурные проекты',
-      'events': 'события архитектуры',
-      'personalities': 'архитекторы персоналии',
-      'trends': 'тренды архитектуры',
-      'planning': 'городское планирование',
-      'heritage': 'архитектурное наследие'
+      'projects': 'architectural projects',
+      'events': 'architecture events',
+      'personalities': 'architects personalities',
+      'trends': 'architecture trends',
+      'planning': 'urban planning',
+      'heritage': 'architectural heritage'
     };
 
-    const categoryName = categoryNames[article.category as keyof typeof categoryNames] || 'архитектура';
+    const categoryName = categoryNames[article.category as keyof typeof categoryNames] || 'architecture';
 
     return {
       title,
       description,
       keywords,
-      
+
       // Open Graph для социальных сетей
       openGraph: {
         type: 'article',
@@ -141,8 +141,8 @@ export async function generateMetadata({ params }: NewsDetailPageProps): Promise
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'Новости архитектуры | Archi Routes',
-      description: 'Последние новости и события в мире архитектуры и дизайна.',
+      title: 'Architecture News | Archi Routes',
+      description: 'Latest news and events in the world of architecture and design.',
     };
   }
 }

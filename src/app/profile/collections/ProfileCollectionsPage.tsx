@@ -60,7 +60,7 @@ export default function ProfileCollectionsPage() {
       setCollections(data || [])
     } catch (error) {
       console.error('Error loading collections:', error)
-      toast.error('Ошибка загрузки коллекций')
+      toast.error('Error loading collections')
     } finally {
       setLoading(false)
     }
@@ -68,7 +68,7 @@ export default function ProfileCollectionsPage() {
 
   const handleCreateCollection = async () => {
     if (!user || !newCollectionName.trim()) {
-      toast.error('Введите название коллекции')
+      toast.error('Enter collection name')
       return
     }
 
@@ -95,13 +95,13 @@ export default function ProfileCollectionsPage() {
       setNewCollectionDescription('')
       setShowCreateModal(false)
 
-      toast.success('Коллекция создана')
+      toast.success('Collection created')
 
       // Перенаправляем на страницу коллекции
       router.push(`/collections/${data.id}`)
     } catch (error) {
       console.error('Error creating collection:', error)
-      toast.error('Ошибка создания коллекции')
+      toast.error('Error creating collection')
     } finally {
       setCreating(false)
     }
@@ -126,19 +126,19 @@ export default function ProfileCollectionsPage() {
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Назад в профиль
+            Back to Profile
           </Link>
 
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
                 <Folder className="w-8 h-8 text-primary" />
-                Мои коллекции
+                My Collections
               </h1>
               <p className="text-muted-foreground">
                 {collections.length === 0
-                  ? 'У вас пока нет коллекций'
-                  : `${collections.length} ${collections.length === 1 ? 'коллекция' : collections.length < 5 ? 'коллекции' : 'коллекций'}`}
+                  ? "You don't have any collections yet"
+                  : `${collections.length} ${collections.length === 1 ? 'collection' : 'collections'}`}
               </p>
             </div>
 
@@ -147,7 +147,7 @@ export default function ProfileCollectionsPage() {
               className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium shadow-sm"
             >
               <Plus className="w-5 h-5" />
-              Создать коллекцию
+              Create Collection
             </button>
           </div>
         </div>
@@ -161,17 +161,17 @@ export default function ProfileCollectionsPage() {
           <div className="text-center py-16 bg-card border border-border rounded-[var(--radius)] p-8">
             <Folder className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
             <h3 className="text-xl font-semibold mb-2 text-foreground">
-              У вас пока нет коллекций
+              You don't have any collections yet
             </h3>
             <p className="text-muted-foreground mb-6">
-              Создайте свою первую коллекцию, чтобы собирать избранные здания, маршруты и статьи
+              Create your first collection to save favorite buildings, routes and articles
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
             >
               <Plus className="w-5 h-5" />
-              Создать первую коллекцию
+              Create First Collection
             </button>
           </div>
         ) : (
@@ -201,12 +201,12 @@ export default function ProfileCollectionsPage() {
                     {collection.is_public ? (
                       <div className="flex items-center gap-1 px-2 py-1 bg-primary text-primary-foreground text-xs rounded-full shadow-sm">
                         <Globe className="w-3 h-3" />
-                        <span>Публичная</span>
+                        <span>Public</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 px-2 py-1 bg-background/90 border border-border text-xs rounded-full shadow-sm">
                         <Lock className="w-3 h-3" />
-                        <span>Приватная</span>
+                        <span>Private</span>
                       </div>
                     )}
                   </div>
@@ -226,7 +226,7 @@ export default function ProfileCollectionsPage() {
 
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
-                      {collection.items_count || 0} {collection.items_count === 1 ? 'элемент' : collection.items_count < 5 ? 'элемента' : 'элементов'}
+                      {collection.items_count || 0} {collection.items_count === 1 ? 'item' : 'items'}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {new Date(collection.updated_at).toLocaleDateString('ru-RU')}
@@ -243,19 +243,19 @@ export default function ProfileCollectionsPage() {
           <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
             <div className="bg-card border border-border rounded-[var(--radius)] shadow-2xl w-full max-w-md">
               <div className="p-6 border-b border-border">
-                <h2 className="text-xl font-semibold text-foreground">Создать коллекцию</h2>
+                <h2 className="text-xl font-semibold text-foreground">Create Collection</h2>
               </div>
 
               <div className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Название коллекции
+                    Collection Name
                   </label>
                   <input
                     type="text"
                     value={newCollectionName}
                     onChange={(e) => setNewCollectionName(e.target.value)}
-                    placeholder="Например: Модернизм в Берлине"
+                    placeholder="E.g.: Modernism in Berlin"
                     className="w-full px-3 py-2 border border-border rounded-[var(--radius)] bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     maxLength={100}
                     autoFocus
@@ -264,12 +264,12 @@ export default function ProfileCollectionsPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Описание <span className="text-muted-foreground font-normal">(опционально)</span>
+                    Description <span className="text-muted-foreground font-normal">(optional)</span>
                   </label>
                   <textarea
                     value={newCollectionDescription}
                     onChange={(e) => setNewCollectionDescription(e.target.value)}
-                    placeholder="Опишите вашу коллекцию..."
+                    placeholder="Describe your collection..."
                     className="w-full px-3 py-2 border border-border rounded-[var(--radius)] bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     rows={3}
                     maxLength={500}
@@ -287,7 +287,7 @@ export default function ProfileCollectionsPage() {
                   disabled={creating}
                   className="px-4 py-2 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors disabled:opacity-50"
                 >
-                  Отмена
+                  Cancel
                 </button>
                 <button
                   onClick={handleCreateCollection}
@@ -297,12 +297,12 @@ export default function ProfileCollectionsPage() {
                   {creating ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Создание...
+                      Creating...
                     </>
                   ) : (
                     <>
                       <Plus className="w-4 h-4" />
-                      Создать
+                      Create
                     </>
                   )}
                 </button>

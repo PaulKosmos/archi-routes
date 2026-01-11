@@ -38,13 +38,12 @@ export default function CategoryTabs({
         <button
           type="button"
           onClick={() => handleCategoryClick(undefined)}
-          className={`px-6 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap cursor-pointer border-b-2 ${
-            !selectedCategory
+          className={`px-6 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap cursor-pointer border-b-2 ${!selectedCategory
               ? 'text-[hsl(var(--news-primary))] border-[hsl(var(--news-primary))]'
               : 'text-muted-foreground border-transparent hover:text-foreground hover:border-muted-foreground/30'
-          }`}
+            }`}
         >
-          ВСЕ НОВОСТИ
+          ALL NEWS
         </button>
 
         {/* Вкладки категорий */}
@@ -53,11 +52,10 @@ export default function CategoryTabs({
             type="button"
             key={category.value}
             onClick={() => handleCategoryClick(category.value)}
-            className={`px-6 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap cursor-pointer border-b-2 ${
-              selectedCategory === category.value
+            className={`px-6 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap cursor-pointer border-b-2 ${selectedCategory === category.value
                 ? 'text-[hsl(var(--news-primary))] border-[hsl(var(--news-primary))]'
                 : 'text-muted-foreground border-transparent hover:text-foreground hover:border-muted-foreground/30'
-            }`}
+              }`}
           >
             {category.label.toUpperCase()}
           </button>

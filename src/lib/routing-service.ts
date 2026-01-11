@@ -85,7 +85,7 @@ export interface RouteInstruction {
 // Маппинг наших типов транспорта в профили ORS
 const TRANSPORT_PROFILES = {
   walking: 'foot-walking',
-  cycling: 'cycling-regular', 
+  cycling: 'cycling-regular',
   driving: 'driving-car',
   public_transport: 'foot-walking' // Fallback, ORS не поддерживает общественный транспорт напрямую
 }
@@ -98,7 +98,7 @@ export async function buildRoute(
   options: RouteOptions = { transportMode: 'walking' }
 ): Promise<RouteResult> {
   if (points.length < 2) {
-    throw new Error('Требуется минимум 2 точки для построения маршрута')
+    throw new Error('At least 2 points required to build a route')
   }
 
   console.log('🛣️ Building route with ORS:', {
@@ -115,11 +115,11 @@ export async function buildRoute(
  * Fallback: построить маршрут по прямым линиям
  */
 function buildStraightLineRoute(
-  points: RoutePoint[], 
+  points: RoutePoint[],
   options: RouteOptions
 ): RouteResult {
   const coordinates = points.map(point => [point.longitude, point.latitude])
-  
+
   // Приблизительный расчет расстояния
   let totalDistance = 0
   for (let i = 0; i < coordinates.length - 1; i++) {
@@ -148,7 +148,7 @@ function buildStraightLineRoute(
     distance: totalDistance,
     duration,
     instructions: [{
-      instruction: `Следуйте ${totalDistance > 1000 ? (totalDistance/1000).toFixed(1) + ' км' : Math.round(totalDistance) + ' м'} до пункта назначения`,
+      instruction: `Следуйте ${totalDistance > 1000 ? (totalDistance / 1000).toFixed(1) + ' км' : Math.round(totalDistance) + ' м'} до пункта назначения`,
       distance: totalDistance,
       duration,
       type: 'depart',
@@ -166,15 +166,15 @@ function buildStraightLineRoute(
  */
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371e3 // радиус Земли в метрах
-  const φ1 = lat1 * Math.PI/180
-  const φ2 = lat2 * Math.PI/180
-  const Δφ = (lat2-lat1) * Math.PI/180
-  const Δλ = (lon2-lon1) * Math.PI/180
+  const φ1 = lat1 * Math.PI / 180
+  const φ2 = lat2 * Math.PI / 180
+  const Δφ = (lat2 - lat1) * Math.PI / 180
+  const Δλ = (lon2 - lon1) * Math.PI / 180
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ/2) * Math.sin(Δλ/2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
   return R * c
 }
@@ -223,23 +223,23 @@ export async function optimizeRoute(
     })
 
     if (response.ok) {
-  const data = await response.json()
-  const optimizedIndices = data.routes[0].steps
-    .filter((step: any) => step.type === 'job')
-    .map((step: any) => step.job + 1) // +1 because we excluded start point
+      const data = await response.json()
+      const optimizedIndices = data.routes[0].steps
+        .filter((step: any) => step.type === 'job')
+        .map((step: any) => step.job + 1) // +1 because we excluded start point
 
-  const optimizedPoints = [
-    points[0], // start point
-    ...optimizedIndices.map((index: number) => points[index]),
-    points[points.length - 1] // end point
-  ]
+      const optimizedPoints = [
+        points[0], // start point
+        ...optimizedIndices.map((index: number) => points[index]),
+        points[points.length - 1] // end point
+      ]
 
-  const route = await buildRoute(optimizedPoints, options)
-  return { optimizedPoints, route }
-}
-} catch (error) {
-  console.log('⚠️ Route optimization failed, using original order')
-}
+      const route = await buildRoute(optimizedPoints, options)
+      return { optimizedPoints, route }
+    }
+  } catch (error) {
+    console.log('⚠️ Route optimization failed, using original order')
+  }
 
   // Fallback к обычному маршруту
   const route = await buildRoute(points, options)
@@ -252,7 +252,7 @@ export async function optimizeRoute(
 export function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
-  
+
   if (hours > 0) {
     return `${hours} ч ${minutes} мин`
   }

@@ -76,7 +76,7 @@ export default function BuildingSelector({
   // Добавление здания
   const handleAddBuilding = (building: Building) => {
     if (selectedBuildings.length >= maxSelections) {
-      alert(`Можно выбрать максимум ${maxSelections} зданий`);
+      alert(`Maximum ${maxSelections} buildings can be selected`);
       return;
     }
 
@@ -117,7 +117,7 @@ export default function BuildingSelector({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Поиск зданий по названию, городу, архитектору..."
+            placeholder="Search buildings by name, city, architect..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
@@ -228,7 +228,7 @@ export default function BuildingSelector({
               <button
                 onClick={() => handleRemoveBuilding(building.id)}
                 className="text-red-600 hover:text-red-700 hover:bg-red-100 p-1.5 rounded transition-colors flex-shrink-0"
-                title="Удалить"
+                title="Delete"
               >
                 <X className="w-4 h-4" />
               </button>

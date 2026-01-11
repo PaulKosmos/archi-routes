@@ -71,7 +71,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
 
       // Проверяем права доступа
       if (!collectionData.is_public && (!user || collectionData.user_id !== user.id)) {
-        toast.error('У вас нет доступа к этой коллекции')
+        toast.error("You don't have access to this collection")
         router.push('/profile/collections')
         return
       }
@@ -138,7 +138,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
       setItems(itemsWithData.filter(item => item.item_data !== null))
     } catch (error) {
       console.error('Error loading collection:', error)
-      toast.error('Ошибка загрузки коллекции')
+      toast.error('Error loading collection')
     } finally {
       setLoading(false)
     }
@@ -146,7 +146,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
 
   const handleUpdateName = async () => {
     if (!isOwner || !newName.trim()) {
-      toast.error('Введите название коллекции')
+      toast.error('Enter collection name')
       return
     }
 
@@ -160,10 +160,10 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
 
       setCollection(prev => prev ? { ...prev, name: newName.trim() } : null)
       setEditingName(false)
-      toast.success('Название обновлено')
+      toast.success('Name updated')
     } catch (error) {
       console.error('Error updating name:', error)
-      toast.error('Ошибка обновления названия')
+      toast.error('Error updating name')
     }
   }
 
@@ -180,10 +180,10 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
 
       setCollection(prev => prev ? { ...prev, description: newDescription.trim() || null } : null)
       setEditingDescription(false)
-      toast.success('Описание обновлено')
+      toast.success('Description updated')
     } catch (error) {
       console.error('Error updating description:', error)
-      toast.error('Ошибка обновления описания')
+      toast.error('Error updating description')
     }
   }
 
@@ -201,10 +201,10 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
       if (error) throw error
 
       setCollection(prev => prev ? { ...prev, is_public: newIsPublic } : null)
-      toast.success(newIsPublic ? 'Коллекция стала публичной' : 'Коллекция стала приватной')
+      toast.success(newIsPublic ? 'Collection is now public' : 'Collection is now private')
     } catch (error) {
       console.error('Error toggling public:', error)
-      toast.error('Ошибка изменения приватности')
+      toast.error('Error changing privacy')
     }
   }
 
@@ -215,7 +215,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
   const removeItem = async (itemId: string) => {
     if (!isOwner) return
 
-    const confirmed = confirm('Удалить элемент из коллекции?')
+    const confirmed = confirm('Remove item from collection?')
     if (!confirmed) return
 
     try {
@@ -227,17 +227,17 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
       if (error) throw error
 
       setItems(prev => prev.filter(item => item.id !== itemId))
-      toast.success('Элемент удален из коллекции')
+      toast.success('Item removed from collection')
     } catch (error) {
       console.error('Error removing item:', error)
-      toast.error('Ошибка удаления элемента')
+      toast.error('Error removing item')
     }
   }
 
   const deleteCollection = async () => {
     if (!isOwner) return
 
-    const confirmed = confirm('Удалить коллекцию? Это действие нельзя отменить.')
+    const confirmed = confirm('Delete collection? This action cannot be undone.')
     if (!confirmed) return
 
     try {
@@ -248,11 +248,11 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
 
       if (error) throw error
 
-      toast.success('Коллекция удалена')
+      toast.success('Collection deleted')
       router.push('/profile/collections')
     } catch (error) {
       console.error('Error deleting collection:', error)
-      toast.error('Ошибка удаления коллекции')
+      toast.error('Error deleting collection')
     }
   }
 
@@ -282,7 +282,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
             )}
             <div className="absolute top-3 left-3">
               <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
-                Блог
+                Blog
               </span>
             </div>
             {isOwner && (
@@ -309,7 +309,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
               </p>
             )}
             <div className="flex items-center justify-end text-xs text-muted-foreground">
-              <span>Добавлено {new Date(item.added_at).toLocaleDateString('ru-RU')}</span>
+              <span>Added {new Date(item.added_at).toLocaleDateString('en-US')}</span>
             </div>
           </div>
         </Link>
@@ -337,7 +337,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
             )}
             <div className="absolute top-3 left-3">
               <span className="px-2 py-1 bg-green-500 text-white text-xs rounded-full">
-                Новость
+                News
               </span>
             </div>
             {isOwner && (
@@ -393,7 +393,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
             )}
             <div className="absolute top-3 left-3">
               <span className="px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
-                Маршрут
+                Route
               </span>
             </div>
             {isOwner && (
@@ -421,7 +421,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
             )}
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               {item_data.distance_km && <span>{item_data.distance_km} км</span>}
-              <span>{new Date(item.added_at).toLocaleDateString('ru-RU')}</span>
+              <span>{new Date(item.added_at).toLocaleDateString('en-US')}</span>
             </div>
           </div>
         </Link>
@@ -449,7 +449,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
             )}
             <div className="absolute top-3 left-3">
               <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded-full">
-                Здание
+                Building
               </span>
             </div>
             {isOwner && (
@@ -486,7 +486,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
               )}
             </div>
             <div className="text-xs text-muted-foreground">
-              Добавлено {new Date(item.added_at).toLocaleDateString('ru-RU')}
+              Added {new Date(item.added_at).toLocaleDateString('en-US')}
             </div>
           </div>
         </Link>
@@ -511,16 +511,16 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <Folder className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h2 className="text-2xl font-bold mb-2">Коллекция не найдена</h2>
+            <h2 className="text-2xl font-bold mb-2">Collection Not Found</h2>
             <p className="text-muted-foreground mb-6">
-              Коллекция не существует или у вас нет доступа к ней
+              The collection doesn't exist or you don't have access to it
             </p>
             <Link
               href="/profile/collections"
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Вернуться к коллекциям
+              Back to Collections
             </Link>
           </div>
         </main>
@@ -540,7 +540,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Назад к коллекциям
+            Back to Collections
           </Link>
         </div>
 
@@ -563,7 +563,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                       onClick={handleUpdateName}
                       className="px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
                     >
-                      Сохранить
+                      Save
                     </button>
                     <button
                       onClick={() => {
@@ -572,7 +572,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                       }}
                       className="px-4 py-2 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors"
                     >
-                      Отмена
+                      Cancel
                     </button>
                   </div>
                 ) : (
@@ -595,12 +595,12 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                 {collection.is_public ? (
                   <div className="flex items-center gap-1 px-3 py-1 bg-primary text-primary-foreground text-sm rounded-full">
                     <Globe className="w-4 h-4" />
-                    <span>Публичная</span>
+                    <span>Public</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 px-3 py-1 bg-background border border-border text-sm rounded-full">
                     <Lock className="w-4 h-4" />
-                    <span>Приватная</span>
+                    <span>Private</span>
                   </div>
                 )}
               </div>
@@ -613,7 +613,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                   <textarea
                     value={newDescription}
                     onChange={(e) => setNewDescription(e.target.value)}
-                    placeholder="Добавьте описание коллекции..."
+                    placeholder="Add collection description..."
                     className="w-full px-3 py-2 border border-border rounded-[var(--radius)] bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     rows={3}
                     autoFocus
@@ -623,7 +623,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                       onClick={handleUpdateDescription}
                       className="px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
                     >
-                      Сохранить
+                      Save
                     </button>
                     <button
                       onClick={() => {
@@ -632,7 +632,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                       }}
                       className="px-4 py-2 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors"
                     >
-                      Отмена
+                      Cancel
                     </button>
                   </div>
                 </div>
@@ -653,7 +653,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                   onClick={() => setEditingDescription(true)}
                   className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
-                  + Добавить описание
+                  + Add description
                 </button>
               ) : null}
             </div>
@@ -662,10 +662,10 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
             <div className="flex items-center justify-between border-t border-border pt-6">
               <div className="text-sm text-muted-foreground space-y-1">
                 <div>
-                  Элементов: <span className="font-semibold text-foreground">{items.length}</span>
+                  Items: <span className="font-semibold text-foreground">{items.length}</span>
                 </div>
                 <div>
-                  Создана: {new Date(collection.created_at).toLocaleDateString('ru-RU')}
+                  Created: {new Date(collection.created_at).toLocaleDateString('en-US')}
                 </div>
               </div>
 
@@ -679,12 +679,12 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                       {collection.is_public ? (
                         <>
                           <Lock className="w-4 h-4" />
-                          Сделать приватной
+                          Make Private
                         </>
                       ) : (
                         <>
                           <Globe className="w-4 h-4" />
-                          Сделать публичной
+                          Make Public
                         </>
                       )}
                     </button>
@@ -696,7 +696,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                   className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors text-sm"
                 >
                   <Share2 className="w-4 h-4" />
-                  Поделиться
+                  Share
                 </button>
 
                 {isOwner && (
@@ -705,7 +705,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                     className="inline-flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-[var(--radius)] hover:bg-red-50 transition-colors text-sm"
                   >
                     <Trash2 className="w-4 h-4" />
-                    Удалить коллекцию
+                    Delete Collection
                   </button>
                 )}
               </div>
@@ -718,17 +718,17 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
           <div className="text-center py-16 bg-card border border-border rounded-[var(--radius)] p-8">
             <Folder className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
             <h3 className="text-xl font-semibold mb-2 text-foreground">
-              Коллекция пуста
+              Collection is empty
             </h3>
             <p className="text-muted-foreground mb-6">
-              Добавьте элементы из избранного, используя кнопку "Добавить в коллекцию"
+              Add items from favorites using the "Add to collection" button
             </p>
             <Link
               href="/profile/favorites"
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
             >
               <ExternalLink className="w-5 h-5" />
-              Перейти в избранное
+              Go to Favorites
             </Link>
           </div>
         ) : (

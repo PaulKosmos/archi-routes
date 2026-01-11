@@ -176,7 +176,7 @@ export default function SocialActions({
   const handleShare = useCallback(
     async (platform?: 'twitter' | 'facebook' | 'copy') => {
       const url = blogPostUrl || window.location.href;
-      const title = blogPostTitle || 'Интересная статья на Archi-Routes';
+      const title = blogPostTitle || 'Interesting article on Archi-Routes';
 
       if (platform === 'twitter') {
         window.open(
@@ -221,36 +221,31 @@ export default function SocialActions({
         type="button"
         onClick={toggleLike}
         disabled={isLoading}
-        title={userReactions.hasLiked ? 'Убрать лайк' : 'Нравится'}
-        className={`${
-          showCounts
-            ? `flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                userReactions.hasLiked
-                  ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
-                  : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
-              }`
-            : `h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-sm rounded ${
-                userReactions.hasLiked
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-white/95 hover:bg-white'
-              }`
-        } disabled:opacity-50 disabled:cursor-not-allowed`}
+        title={userReactions.hasLiked ? 'Unlike' : 'Like'}
+        className={`${showCounts
+            ? `flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${userReactions.hasLiked
+              ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
+              : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
+            }`
+            : `h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-sm rounded ${userReactions.hasLiked
+              ? 'bg-red-500 hover:bg-red-600'
+              : 'bg-white/95 hover:bg-white'
+            }`
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         <Heart
-          className={`h-5 w-5 transition-colors ${
-            userReactions.hasLiked
+          className={`h-5 w-5 transition-colors ${userReactions.hasLiked
               ? 'fill-white text-white'
               : ''
-          }`}
+            }`}
         />
         {showCounts && (
           <>
             <span>{userReactions.hasLiked ? 'Нравится' : 'Нравится'}</span>
             {counts.likes > 0 && (
               <span
-                className={`text-sm font-semibold ${
-                  userReactions.hasLiked ? 'text-white' : 'text-gray-600'
-                }`}
+                className={`text-sm font-semibold ${userReactions.hasLiked ? 'text-white' : 'text-gray-600'
+                  }`}
               >
                 {counts.likes}
               </span>
@@ -264,36 +259,31 @@ export default function SocialActions({
         type="button"
         onClick={toggleSave}
         disabled={isLoading}
-        title={userReactions.hasSaved ? 'Убрать из коллекции' : 'В коллекцию'}
-        className={`${
-          showCounts
-            ? `flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                userReactions.hasSaved
-                  ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
-                  : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
-              }`
-            : `h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-sm rounded ${
-                userReactions.hasSaved
-                  ? 'bg-[hsl(var(--blog-primary))] hover:bg-[hsl(var(--blog-primary))]/90'
-                  : 'bg-white/95 hover:bg-white'
-              }`
-        } disabled:opacity-50 disabled:cursor-not-allowed`}
+        title={userReactions.hasSaved ? 'Remove from collection' : 'Add to collection'}
+        className={`${showCounts
+            ? `flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${userReactions.hasSaved
+              ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
+              : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
+            }`
+            : `h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-all duration-200 shadow-sm rounded ${userReactions.hasSaved
+              ? 'bg-[hsl(var(--blog-primary))] hover:bg-[hsl(var(--blog-primary))]/90'
+              : 'bg-white/95 hover:bg-white'
+            }`
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         <Bookmark
-          className={`h-5 w-5 transition-colors ${
-            userReactions.hasSaved
+          className={`h-5 w-5 transition-colors ${userReactions.hasSaved
               ? 'fill-white text-white'
               : ''
-          }`}
+            }`}
         />
         {showCounts && (
           <>
             <span>{userReactions.hasSaved ? 'Сохранено' : 'В коллекцию'}</span>
             {counts.saves > 0 && (
               <span
-                className={`text-sm font-semibold ${
-                  userReactions.hasSaved ? 'text-white' : 'text-gray-600'
-                }`}
+                className={`text-sm font-semibold ${userReactions.hasSaved ? 'text-white' : 'text-gray-600'
+                  }`}
               >
                 {counts.saves}
               </span>
@@ -307,12 +297,11 @@ export default function SocialActions({
         <button
           type="button"
           onClick={() => setShowShareMenu(!showShareMenu)}
-          title="Поделиться"
-          className={`${
-            showCounts
+          title="Share"
+          className={`${showCounts
               ? 'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium bg-white text-gray-700 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50'
               : 'h-10 w-10 flex items-center justify-center bg-white/95 backdrop-blur-sm hover:bg-white shadow-sm rounded'
-          } transition-all duration-200`}
+            } transition-all duration-200`}
         >
           {shareSuccess ? (
             <>

@@ -119,10 +119,10 @@ export default function ShareButton({
       <button
         onClick={handleClick}
         className={buttonClasses[variant]}
-        title="Поделиться"
+        title="Share"
       >
         <Share2 className="w-4 h-4" />
-        {variant !== 'compact' && <span>Поделиться</span>}
+        {variant !== 'compact' && <span>Share</span>}
       </button>
 
       {/* Dropdown с опциями (если нет Web Share API) */}
@@ -150,7 +150,7 @@ export default function ShareButton({
               ) : (
                 <>
                   <Copy className="w-5 h-5 text-gray-600" />
-                  <span className="text-sm text-gray-700">Копировать ссылку</span>
+                  <span className="text-sm text-gray-700">Copy link</span>
                 </>
               )}
             </button>

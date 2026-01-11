@@ -44,7 +44,7 @@ export default function CollectionsBadgeDropdown({ collections, className = '' }
         className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-500 text-white text-xs rounded-full hover:bg-indigo-600 transition-colors shadow-sm"
       >
         <Folder className="w-3 h-3" />
-        <span>В коллекциях ({collections.length})</span>
+        <span>In Collections ({collections.length})</span>
         <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 

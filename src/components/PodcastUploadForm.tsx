@@ -99,12 +99,12 @@ export default function PodcastUploadForm({
     if (!file) return
 
     if (!file.type.startsWith('audio/')) {
-      setError('Пожалуйста, выберите аудиофайл')
+      setError('Please select an audio file')
       return
     }
 
     if (file.size > 500 * 1024 * 1024) {
-      setError('Размер файла не должен превышать 500MB')
+      setError('File size must not exceed 500MB')
       return
     }
 
@@ -123,7 +123,7 @@ export default function PodcastUploadForm({
     })
     audio.addEventListener('error', (err) => {
       console.error('Error loading audio metadata:', err)
-      setError('Не удалось загрузить метаданные аудио')
+      setError('Failed to load audio metadata')
     })
   }
 
@@ -132,7 +132,7 @@ export default function PodcastUploadForm({
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
-      setError('Пожалуйста, выберите изображение')
+      setError('Please select an image')
       return
     }
 
@@ -147,12 +147,12 @@ export default function PodcastUploadForm({
     setError(null)
 
     if (!title.trim()) {
-      setError('Название эпизода обязательно')
+      setError('Episode title is required')
       return
     }
 
     if (!audioFile && !isEditing) {
-      setError('Аудиофайл обязателен')
+      setError('Audio file is required')
       return
     }
 
@@ -180,7 +180,7 @@ export default function PodcastUploadForm({
 
       await onSubmit(formData)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка при загрузке')
+      setError(err instanceof Error ? err.message : 'Upload error')
     }
   }
 
@@ -197,13 +197,13 @@ export default function PodcastUploadForm({
       {/* Title */}
       <div>
         <label className="block text-sm font-semibold text-gray-900 mb-2">
-          Название эпизода *
+          Episode Title *
         </label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Введите название эпизода"
+          placeholder="Enter episode title"
           className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-50"
           disabled={isSubmitting}
         />
@@ -212,12 +212,12 @@ export default function PodcastUploadForm({
       {/* Description */}
       <div>
         <label className="block text-sm font-semibold text-gray-900 mb-2">
-          Описание
+          Description
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Введите описание эпизода (можно использовать Markdown)"
+          placeholder="Enter episode description (Markdown supported)"
           rows={4}
           className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-50 resize-none"
           disabled={isSubmitting}
@@ -227,13 +227,13 @@ export default function PodcastUploadForm({
       {/* Episode Number */}
       <div>
         <label className="block text-sm font-semibold text-gray-900 mb-2">
-          Номер выпуска
+          Episode Number
         </label>
         <input
           type="number"
           value={episodeNumber}
           onChange={(e) => setEpisodeNumber(e.target.value)}
-          placeholder="Например: 24"
+          placeholder="E.g.: 24"
           className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-50"
           disabled={isSubmitting}
         />
@@ -252,7 +252,7 @@ export default function PodcastUploadForm({
       {/* Audio File Upload */}
       <div>
         <label className="block text-sm font-semibold text-gray-900 mb-2">
-          Аудиофайл {!isEditing && '*'}
+          Audio File {!isEditing && '*'}
         </label>
         <div
           onClick={() => audioInputRef.current?.click()}
@@ -281,14 +281,14 @@ export default function PodcastUploadForm({
                 }}
                 className="text-sm text-red-600 hover:text-red-700 underline"
               >
-                Удалить
+                Delete
               </button>
             </div>
           ) : (
             <div className="space-y-2">
               <Upload className="mx-auto text-gray-400" size={32} />
-              <p className="font-medium text-gray-900">Нажмите для загрузки аудиофайла</p>
-              <p className="text-xs text-gray-500">MP3, WAV, OGG и т.д. до 500MB</p>
+              <p className="font-medium text-gray-900">Click to upload audio file</p>
+              <p className="text-xs text-gray-500">MP3, WAV, OGG, etc. up to 500MB</p>
             </div>
           )}
         </div>
@@ -305,7 +305,7 @@ export default function PodcastUploadForm({
       {/* Cover Image Upload */}
       <div>
         <label className="block text-sm font-semibold text-gray-900 mb-2">
-          Обложка (опционально)
+          Cover Image (optional)
         </label>
         <div
           onClick={() => coverInputRef.current?.click()}
@@ -327,14 +327,14 @@ export default function PodcastUploadForm({
                 }}
                 className="text-sm text-red-600 hover:text-red-700 underline"
               >
-                Удалить
+                Delete
               </button>
             </div>
           ) : (
             <div className="space-y-2">
               <ImageIcon className="mx-auto text-gray-400" size={32} />
-              <p className="font-medium text-gray-900">Нажмите для загрузки обложки</p>
-              <p className="text-xs text-gray-500">PNG, JPG, WebP. Рекомендуется 1:1 соотношение</p>
+              <p className="font-medium text-gray-900">Click to upload cover</p>
+              <p className="text-xs text-gray-500">PNG, JPG, WebP. 1:1 ratio recommended</p>
             </div>
           )}
         </div>
@@ -360,7 +360,7 @@ export default function PodcastUploadForm({
 
       {/* Platform Links */}
       <div className="border-t border-gray-200 pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Ссылки на платформы</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Platform Links</h3>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -424,7 +424,7 @@ export default function PodcastUploadForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">
-            Статус
+            Status
           </label>
           <select
             value={status}
@@ -432,14 +432,14 @@ export default function PodcastUploadForm({
             className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-50"
             disabled={isSubmitting}
           >
-            <option value="draft">Черновик</option>
-            <option value="published">Опубликовать</option>
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
           </select>
         </div>
 
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">
-            Дата публикации
+            Publication Date
           </label>
           <input
             type="datetime-local"
@@ -460,7 +460,7 @@ export default function PodcastUploadForm({
           className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
         >
           <Eye size={20} />
-          Предпросмотр
+          Preview
         </button>
         <button
           type="submit"
@@ -470,12 +470,12 @@ export default function PodcastUploadForm({
           {isSubmitting ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              {isEditing ? 'Сохранение...' : 'Загрузка...'}
+              {isEditing ? 'Saving...' : 'Uploading...'}
             </>
           ) : (
             <>
               <Upload size={20} />
-              {isEditing ? 'Сохранить изменения' : 'Загрузить эпизод'}
+              {isEditing ? 'Save Changes' : 'Upload Episode'}
             </>
           )}
         </button>

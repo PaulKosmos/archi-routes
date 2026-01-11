@@ -121,15 +121,15 @@ export default function ModerationQueue() {
 
       setQueue(data || [])
     } catch (error) {
-      console.error('Ошибка загрузки очереди модерации:', error)
-      toast.error('Не удалось загрузить очередь модерации')
+      console.error('Error loading moderation queue:', error)
+      toast.error('Failed to load moderation queue')
     } finally {
       setLoading(false)
     }
   }
 
   const handleApprove = async (item: ModerationQueueItem) => {
-    if (!confirm('Одобрить этот контент?')) return
+    if (!confirm('Approve this content?')) return
 
     try {
       const { error } = await supabase.rpc('approve_content', {
@@ -146,11 +146,11 @@ export default function ModerationQueue() {
         .update({ status: 'completed' })
         .eq('id', item.id)
 
-      toast.success('Контент одобрен!')
+      toast.success('Content approved!')
       loadQueue()
     } catch (error: any) {
-      console.error('Ошибка одобрения:', error)
-      toast.error(error.message || 'Не удалось одобрить контент')
+      console.error('Approval error:', error)
+      toast.error(error.message || 'Failed to approve content')
     }
   }
 
@@ -162,7 +162,7 @@ export default function ModerationQueue() {
 
   const confirmReject = async () => {
     if (!itemToReject || !rejectReason.trim()) {
-      toast.error('Пожалуйста, укажите причину отклонения')
+      toast.error('Please specify rejection reason')
       return
     }
 
@@ -182,14 +182,14 @@ export default function ModerationQueue() {
         .update({ status: 'completed' })
         .eq('id', itemToReject.id)
 
-      toast.success('Контент отклонен')
+      toast.success('Content rejected')
       setRejectModalOpen(false)
       setItemToReject(null)
       setRejectReason('')
       loadQueue()
     } catch (error: any) {
-      console.error('Ошибка отклонения:', error)
-      toast.error(error.message || 'Не удалось отклонить контент')
+      console.error('Rejection error:', error)
+      toast.error(error.message || 'Failed to reject content')
     }
   }
 
@@ -209,11 +209,11 @@ export default function ModerationQueue() {
   const getContentTypeLabel = (type: string) => {
     switch (type) {
       case 'building':
-        return 'Здание'
+        return 'Building'
       case 'review':
-        return 'Обзор'
+        return 'Review'
       case 'blog':
-        return 'Статья'
+        return 'Article'
       default:
         return type
     }
@@ -221,9 +221,9 @@ export default function ModerationQueue() {
 
   const getPriorityBadge = (priority: number) => {
     if (priority >= 2) {
-      return <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">Срочно</span>
+      return <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">Urgent</span>
     } else if (priority === 1) {
-      return <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded">Высокий</span>
+      return <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded">High</span>
     }
     return null
   }
@@ -256,10 +256,10 @@ export default function ModerationQueue() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
           <h2 className="text-xl font-semibold text-yellow-800 mb-2">
-            Доступ запрещен
+            Access Denied
           </h2>
           <p className="text-yellow-700">
-            У вас нет прав для просмотра очереди модерации
+            You don't have permission to view the moderation queue
           </p>
         </div>
       </div>
@@ -271,10 +271,10 @@ export default function ModerationQueue() {
       {/* Заголовок */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Очередь модерации
+          Moderation Queue
         </h1>
         <p className="text-gray-600">
-          Проверка и одобрение пользовательского контента
+          Review and approve user-generated content
         </p>
       </div>
 
@@ -289,7 +289,7 @@ export default function ModerationQueue() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Поиск по названию или автору..."
+                placeholder="Search by title or author..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -303,10 +303,10 @@ export default function ModerationQueue() {
               onChange={(e) => setFilterType(e.target.value as any)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">Все типы</option>
-              <option value="building">Здания</option>
-              <option value="review">Обзоры</option>
-              <option value="blog">Статьи</option>
+              <option value="all">All Types</option>
+              <option value="building">Buildings</option>
+              <option value="review">Reviews</option>
+              <option value="blog">Articles</option>
             </select>
           </div>
 
@@ -316,9 +316,9 @@ export default function ModerationQueue() {
             onChange={(e) => setFilterStatus(e.target.value as any)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="pending">Ожидают</option>
-            <option value="in_review">На проверке</option>
-            <option value="all">Все статусы</option>
+            <option value="pending">Pending</option>
+            <option value="in_review">In Review</option>
+            <option value="all">All Statuses</option>
           </select>
 
           {/* Кнопка обновить */}
@@ -328,7 +328,7 @@ export default function ModerationQueue() {
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             <Loader2 className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            <span>Обновить</span>
+            <span>Refresh</span>
           </button>
         </div>
       </div>
@@ -338,7 +338,7 @@ export default function ModerationQueue() {
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-yellow-700">Ожидают проверки</p>
+              <p className="text-sm text-yellow-700">Pending Review</p>
               <p className="text-2xl font-bold text-yellow-900">
                 {queue.filter(i => i.status === 'pending').length}
               </p>
@@ -350,7 +350,7 @@ export default function ModerationQueue() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-blue-700">На проверке</p>
+              <p className="text-sm text-blue-700">In Review</p>
               <p className="text-2xl font-bold text-blue-900">
                 {queue.filter(i => i.status === 'in_review').length}
               </p>
@@ -362,7 +362,7 @@ export default function ModerationQueue() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-red-700">Возможные дубликаты</p>
+              <p className="text-sm text-red-700">Possible Duplicates</p>
               <p className="text-2xl font-bold text-red-900">
                 {queue.filter(i => i.duplicate_confidence === 'high').length}
               </p>
@@ -376,16 +376,16 @@ export default function ModerationQueue() {
       {loading ? (
         <div className="text-center py-12">
           <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Загрузка очереди...</p>
+          <p className="text-gray-600">Loading queue...</p>
         </div>
       ) : filteredQueue.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Очередь пуста!
+            Queue is Empty!
           </h3>
           <p className="text-gray-600">
-            Нет контента, ожидающего модерации
+            No content pending moderation
           </p>
         </div>
       ) : (
@@ -393,13 +393,12 @@ export default function ModerationQueue() {
           {filteredQueue.map((item) => (
             <div
               key={item.id}
-              className={`bg-white rounded-lg shadow-sm border-2 transition-all ${
-                item.duplicate_confidence === 'high'
-                  ? 'border-red-300 bg-red-50'
-                  : item.priority >= 1
+              className={`bg-white rounded-lg shadow-sm border-2 transition-all ${item.duplicate_confidence === 'high'
+                ? 'border-red-300 bg-red-50'
+                : item.priority >= 1
                   ? 'border-orange-300'
                   : 'border-gray-200'
-              }`}
+                }`}
             >
               <div className="p-6">
                 {/* Заголовок */}
@@ -420,7 +419,7 @@ export default function ModerationQueue() {
                         {item.duplicate_confidence === 'high' && (
                           <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded flex items-center space-x-1">
                             <AlertTriangle className="w-3 h-3" />
-                            <span>Возможный дубликат</span>
+                            <span>Possible Duplicate</span>
                           </span>
                         )}
                       </div>
@@ -431,16 +430,16 @@ export default function ModerationQueue() {
 
                       {item.content_type === 'review' && item.preview_data?.building_name && (
                         <p className="text-sm text-blue-600 mb-1">
-                          Здание: {item.preview_data.building_name}
+                          Building: {item.preview_data.building_name}
                         </p>
                       )}
 
                       <p className="text-sm text-gray-600">
-                        Автор: {item.profiles?.full_name || item.profiles?.username || item.profiles?.email || 'Неизвестно'}
+                        Author: {item.profiles?.full_name || item.profiles?.username || item.profiles?.email || 'Unknown'}
                       </p>
 
                       <p className="text-xs text-gray-500 mt-1">
-                        Создано: {new Date(item.created_at).toLocaleString('ru-RU')}
+                        Created: {new Date(item.created_at).toLocaleString('en-US')}
                       </p>
                     </div>
                   </div>
@@ -451,10 +450,10 @@ export default function ModerationQueue() {
                       href={getContentLink(item)}
                       target="_blank"
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-                      title="Открыть объект в новой вкладке"
+                      title="Open in new tab"
                     >
                       <ExternalLink className="w-4 h-4" />
-                      <span>Посмотреть</span>
+                      <span>View</span>
                     </Link>
 
                     <button
@@ -462,7 +461,7 @@ export default function ModerationQueue() {
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      <span>Одобрить</span>
+                      <span>Approve</span>
                     </button>
 
                     <button
@@ -470,7 +469,7 @@ export default function ModerationQueue() {
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
                     >
                       <XCircle className="w-4 h-4" />
-                      <span>Отклонить</span>
+                      <span>Reject</span>
                     </button>
                   </div>
                 </div>
@@ -482,13 +481,13 @@ export default function ModerationQueue() {
                       <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="font-medium text-yellow-900 mb-2">
-                          Найдены возможные дубликаты (уверенность: {item.duplicate_confidence})
+                          Possible duplicates found (confidence: {item.duplicate_confidence})
                         </p>
                         <div className="space-y-2">
                           {Array.isArray(item.potential_duplicates) &&
                             item.potential_duplicates.slice(0, 3).map((dup: any, idx: number) => (
                               <div key={idx} className="text-sm text-yellow-800">
-                                • {dup.name} - {dup.address || 'Адрес не указан'}
+                                • {dup.name} - {dup.address || 'Address not specified'}
                                 {dup.distance_meters && ` (${Math.round(dup.distance_meters)}м)`}
                               </div>
                             ))}
@@ -508,26 +507,26 @@ export default function ModerationQueue() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Отклонить контент
+              Reject Content
             </h2>
 
             <p className="text-gray-600 mb-4">
-              Укажите причину отклонения. Пользователь получит это сообщение в уведомлении.
+              Specify the rejection reason. The user will receive this message in a notification.
             </p>
 
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Причина отклонения *
+                Rejection Reason *
               </label>
               <textarea
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Например: Низкое качество фотографий, недостаточно информации, неточные данные..."
+                placeholder="Example: Low quality photos, insufficient information, inaccurate data..."
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
               />
               <p className="text-xs text-gray-500 mt-1">
-                {rejectReason.length} символов
+                {rejectReason.length} characters
               </p>
             </div>
 
@@ -537,7 +536,7 @@ export default function ModerationQueue() {
                 disabled={!rejectReason.trim()}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Отклонить
+                Reject
               </button>
               <button
                 onClick={() => {
@@ -547,7 +546,7 @@ export default function ModerationQueue() {
                 }}
                 className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
               >
-                Отмена
+                Cancel
               </button>
             </div>
           </div>

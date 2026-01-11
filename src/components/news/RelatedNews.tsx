@@ -29,7 +29,7 @@ interface RelatedNewsProps {
 export default function RelatedNews({
   newsId,
   limit = 6,
-  title = 'Похожие новости',
+  title = 'Related News',
   showScore = false,
   className = ''
 }: RelatedNewsProps) {

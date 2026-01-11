@@ -3,14 +3,14 @@
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { useState, useEffect, useMemo } from 'react'
-import { 
-  MapPin, 
-  ArrowLeft, 
-  Plus, 
-  Edit3, 
-  Trash2, 
-  Star, 
-  Eye, 
+import {
+  MapPin,
+  ArrowLeft,
+  Plus,
+  Edit3,
+  Trash2,
+  Star,
+  Eye,
   Calendar,
   Clock,
   Filter,
@@ -79,7 +79,7 @@ export default function ProfileRoutesPage() {
   }
 
   const handleDeleteRoute = async (routeId: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этот маршрут? Это действие нельзя отменить.')) {
+    if (!confirm('Are you sure you want to delete this route? This action cannot be undone.')) {
       return
     }
 
@@ -96,7 +96,7 @@ export default function ProfileRoutesPage() {
       setSelectedRoute(null)
     } catch (error) {
       console.error('Error deleting route:', error)
-      alert('Ошибка при удалении маршрута')
+      alert('Error deleting route')
     }
   }
 
@@ -110,25 +110,25 @@ export default function ProfileRoutesPage() {
 
       if (error) throw error
 
-      setRoutes(prev => prev.map(route => 
-        route.id === routeId 
+      setRoutes(prev => prev.map(route =>
+        route.id === routeId
           ? { ...route, is_published: !currentStatus }
           : route
       ))
     } catch (error) {
       console.error('Error updating publish status:', error)
-      alert('Ошибка при изменении статуса публикации')
+      alert('Error updating publish status')
     }
   }
 
   const filteredRoutes = routes.filter(route => {
     const matchesSearch = route.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         route.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         route.city?.toLowerCase().includes(searchQuery.toLowerCase())
-    
+      route.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      route.city?.toLowerCase().includes(searchQuery.toLowerCase())
+
     const matchesType = !filterType || route.route_type === filterType
     const matchesDifficulty = !filterDifficulty || route.difficulty_level === filterDifficulty
-    
+
     return matchesSearch && matchesType && matchesDifficulty
   })
 
@@ -144,21 +144,21 @@ export default function ProfileRoutesPage() {
   }
 
   const formatDuration = (minutes: number | null) => {
-    if (!minutes) return 'Не указано'
-    
+    if (!minutes) return 'Not specified'
+
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
-    
-    if (hours === 0) return `${mins} мин`
-    if (mins === 0) return `${hours} ч`
-    return `${hours} ч ${mins} мин`
+
+    if (hours === 0) return `${mins} min`
+    if (mins === 0) return `${hours} h`
+    return `${hours} h ${mins} min`
   }
 
   const formatDistance = (km: number | null) => {
-    if (!km) return 'Не указано'
-    
-    if (km < 1) return `${Math.round(km * 1000)} м`
-    return `${km.toFixed(1)} км`
+    if (!km) return 'Not specified'
+
+    if (km < 1) return `${Math.round(km * 1000)} m`
+    return `${km.toFixed(1)} km`
   }
 
   const getDifficultyColor = (difficulty: string | null) => {
@@ -172,34 +172,33 @@ export default function ProfileRoutesPage() {
 
   const getDifficultyDisplayName = (difficulty: string | null) => {
     const names = {
-      'easy': 'Легкий',
-      'medium': 'Средний',
-      'hard': 'Сложный'
+      'easy': 'Easy',
+      'medium': 'Medium',
+      'hard': 'Hard'
     }
-    return names[difficulty as keyof typeof names] || 'Не указано'
+    return names[difficulty as keyof typeof names] || 'Not specified'
   }
 
   const getRouteTypeDisplayName = (type: string | null) => {
     const names = {
-      'walking': 'Пешком',
-      'cycling': 'Велосипед',
-      'driving': 'Автомобиль',
-      'public_transport': 'Общественный транспорт'
+      'walking': 'Walking',
+      'cycling': 'Cycling',
+      'driving': 'Car',
+      'public_transport': 'Public Transport'
     }
-    return names[type as keyof typeof names] || 'Не указано'
+    return names[type as keyof typeof names] || 'Not specified'
   }
 
   const renderStars = (rating: number | null) => {
     if (!rating) return null
-    
+
     return (
       <div className="flex items-center space-x-1">
         {[1, 2, 3, 4, 5].map(star => (
           <Star
             key={star}
-            className={`w-4 h-4 ${
-              star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-            }`}
+            className={`w-4 h-4 ${star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+              }`}
           />
         ))}
         <span className="text-sm text-gray-600 ml-1">
@@ -214,7 +213,7 @@ export default function ProfileRoutesPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     )
@@ -225,13 +224,13 @@ export default function ProfileRoutesPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Route className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Вход необходим</h1>
-          <p className="text-gray-600 mb-6">Для просмотра ваших маршрутов необходимо войти в систему</p>
-          <Link 
-            href="/auth" 
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Sign In Required</h1>
+          <p className="text-gray-600 mb-6">You must sign in to view your routes</p>
+          <Link
+            href="/auth"
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Войти
+            Sign In
           </Link>
         </div>
       </div>
@@ -252,20 +251,20 @@ export default function ProfileRoutesPage() {
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 flex items-center">
                 <Route className="w-6 h-6 mr-2" />
-                Мои маршруты
+                My Routes
               </h1>
               <p className="text-gray-600">
-                {routes.length} {routes.length === 1 ? 'маршрут' : routes.length < 5 ? 'маршрута' : 'маршрутов'}
+                {routes.length} {routes.length === 1 ? 'route' : 'routes'}
               </p>
             </div>
             <button
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
               onClick={() => {
-                alert('Функция создания маршрута будет доступна после интеграции с RouteCreator')
+                alert('Route creation feature will be available after RouteCreator integration')
               }}
             >
               <Plus className="w-4 h-4" />
-              <span>Создать маршрут</span>
+              <span>Create Route</span>
             </button>
           </div>
         </div>
@@ -277,7 +276,7 @@ export default function ProfileRoutesPage() {
                 <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Поиск по названию, описанию или городу..."
+                  placeholder="Search by title, description or city..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -293,7 +292,7 @@ export default function ProfileRoutesPage() {
                   onChange={(e) => setFilterType(e.target.value)}
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">Все типы</option>
+                  <option value="">All Types</option>
                   {uniqueTypes.map(type => (
                     <option key={type} value={type}>{getRouteTypeDisplayName(type)}</option>
                   ))}
@@ -305,7 +304,7 @@ export default function ProfileRoutesPage() {
                 onChange={(e) => setFilterDifficulty(e.target.value)}
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">Все сложности</option>
+                <option value="">All Difficulties</option>
                 {uniqueDifficulties.map(difficulty => (
                   <option key={difficulty} value={difficulty}>{getDifficultyDisplayName(difficulty)}</option>
                 ))}
@@ -316,9 +315,9 @@ export default function ProfileRoutesPage() {
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="created_at">По дате создания</option>
-                <option value="rating">По рейтингу</option>
-                <option value="completion_count">По популярности</option>
+                <option value="created_at">By Date Created</option>
+                <option value="rating">By Rating</option>
+                <option value="completion_count">By Popularity</option>
               </select>
 
               <div className="flex items-center border border-gray-300 rounded-lg">
@@ -356,20 +355,20 @@ export default function ProfileRoutesPage() {
             <Route className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             {routes.length === 0 ? (
               <>
-                <h3 className="text-xl font-medium text-gray-900 mb-2">Пока нет маршрутов</h3>
-                <p className="text-gray-500 mb-6">Создайте свой первый архитектурный маршрут!</p>
+                <h3 className="text-xl font-medium text-gray-900 mb-2">No Routes Yet</h3>
+                <p className="text-gray-500 mb-6">Create your first architectural route!</p>
                 <button
-                  onClick={() => alert('Функция создания маршрута будет доступна после интеграции с RouteCreator')}
+                  onClick={() => alert('Route creation feature will be available after RouteCreator integration')}
                   className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors inline-flex items-center space-x-2"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Создать первый маршрут</span>
+                  <span>Create First Route</span>
                 </button>
               </>
             ) : (
               <>
-                <h3 className="text-xl font-medium text-gray-900 mb-2">Ничего не найдено</h3>
-                <p className="text-gray-500 mb-6">Попробуйте изменить параметры поиска или фильтры</p>
+                <h3 className="text-xl font-medium text-gray-900 mb-2">Nothing Found</h3>
+                <p className="text-gray-500 mb-6">Try changing search parameters or filters</p>
                 <button
                   onClick={() => {
                     setSearchQuery('')
@@ -378,7 +377,7 @@ export default function ProfileRoutesPage() {
                   }}
                   className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Сбросить фильтры
+                  Reset Filters
                 </button>
               </>
             )}
@@ -399,17 +398,16 @@ export default function ProfileRoutesPage() {
                       <Route className="w-12 h-12 text-white" />
                     </div>
                   )}
-                  
+
                   <div className="absolute top-2 left-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      route.is_published 
-                        ? 'bg-green-100 text-green-800' 
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${route.is_published
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {route.is_published ? 'Опубликован' : 'Черновик'}
+                      }`}>
+                      {route.is_published ? 'Published<' : 'Draft'}
                     </span>
                   </div>
-                  
+
                   <div className="absolute top-2 right-2">
                     <div className="relative">
                       <button
@@ -418,7 +416,7 @@ export default function ProfileRoutesPage() {
                       >
                         <MoreVertical className="w-4 h-4" />
                       </button>
-                      
+
                       {selectedRoute === route.id && (
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-2 z-10">
                           <Link
@@ -427,7 +425,7 @@ export default function ProfileRoutesPage() {
                             onClick={() => setSelectedRoute(null)}
                           >
                             <Eye className="w-4 h-4" />
-                            <span>Посмотреть</span>
+                            <span>View</span>
                           </Link>
                           <Link
                             href={`/routes/${route.id}/edit`}
@@ -435,7 +433,7 @@ export default function ProfileRoutesPage() {
                             onClick={() => setSelectedRoute(null)}
                           >
                             <Edit3 className="w-4 h-4" />
-                            <span>Редактировать</span>
+                            <span>Edit</span>
                           </Link>
                           <button
                             onClick={() => {
@@ -445,14 +443,14 @@ export default function ProfileRoutesPage() {
                             className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
                           >
                             <MapPin className="w-4 h-4" />
-                            <span>{route.is_published ? 'Снять с публикации' : 'Опубликовать'}</span>
+                            <span>{route.is_published ? 'Unpublish' : 'Publish'}</span>
                           </button>
                           <button
                             onClick={() => handleDeleteRoute(route.id)}
                             className="flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
                           >
                             <Trash2 className="w-4 h-4" />
-                            <span>Удалить</span>
+                            <span>Delete</span>
                           </button>
                         </div>
                       )}
@@ -464,27 +462,27 @@ export default function ProfileRoutesPage() {
                   <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
                     {route.title}
                   </h3>
-                  
+
                   {route.description && (
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                       {route.description}
                     </p>
                   )}
-                  
+
                   <div className="space-y-2 text-sm text-gray-600">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-1">
                         <MapPin className="w-4 h-4" />
-                        <span>{route.city || 'Не указан'}</span>
+                        <span>{route.city || 'Not specified'}</span>
                       </div>
-                      
+
                       {route.difficulty_level && (
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(route.difficulty_level)}`}>
                           {getDifficultyDisplayName(route.difficulty_level)}
                         </span>
                       )}
                     </div>
-                    
+
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-1">
                         <Clock className="w-4 h-4" />
@@ -506,15 +504,15 @@ export default function ProfileRoutesPage() {
                         </div>
                         <div className="flex items-center space-x-1">
                           <MapPin className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-600">{route.points_count || 0} точек</span>
+                          <span className="text-gray-600">{route.points_count || 0} points</span>
                         </div>
                       </div>
-                      
+
                       <div className="text-xs text-gray-500">
                         {formatDate(route.created_at)}
                       </div>
                     </div>
-                    
+
                     {route.rating && (
                       <div className="mt-2">
                         {renderStars(route.rating)}
@@ -552,25 +550,24 @@ export default function ProfileRoutesPage() {
                             <h3 className="text-lg font-semibold text-gray-900">
                               {route.title}
                             </h3>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              route.is_published 
-                                ? 'bg-green-100 text-green-800' 
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${route.is_published
+                                ? 'bg-green-100 text-green-800'
                                 : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {route.is_published ? 'Опубликован' : 'Черновик'}
+                              }`}>
+                              {route.is_published ? 'Published' : 'Draft'}
                             </span>
                           </div>
-                          
+
                           {route.description && (
                             <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                               {route.description}
                             </p>
                           )}
-                          
+
                           <div className="flex items-center space-x-6 text-sm text-gray-500">
                             <div className="flex items-center space-x-1">
                               <MapPin className="w-4 h-4" />
-                              <span>{route.city || 'Город не указан'}</span>
+                              <span>{route.city || 'City not specified'}</span>
                             </div>
                             <div className="flex items-center space-x-1">
                               <Clock className="w-4 h-4" />
@@ -578,7 +575,7 @@ export default function ProfileRoutesPage() {
                             </div>
                             <div className="flex items-center space-x-1">
                               <Users className="w-4 h-4" />
-                              <span>{route.completion_count} прохождений</span>
+                              <span>{route.completion_count} completions</span>
                             </div>
                             <div className="flex items-center space-x-1">
                               <Calendar className="w-4 h-4" />
@@ -591,32 +588,31 @@ export default function ProfileRoutesPage() {
                           <Link
                             href={`/routes/${route.id}`}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Посмотреть"
+                            title="View"
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
                           <Link
                             href={`/routes/${route.id}/edit`}
                             className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                            title="Редактировать"
+                            title="Edit"
                           >
                             <Edit3 className="w-4 h-4" />
                           </Link>
                           <button
                             onClick={() => togglePublishStatus(route.id, route.is_published)}
-                            className={`p-2 rounded-lg transition-colors ${
-                              route.is_published 
-                                ? 'text-orange-600 hover:bg-orange-50' 
+                            className={`p-2 rounded-lg transition-colors ${route.is_published
+                                ? 'text-orange-600 hover:bg-orange-50'
                                 : 'text-green-600 hover:bg-green-50'
-                            }`}
-                            title={route.is_published ? 'Снять с публикации' : 'Опубликовать'}
+                              }`}
+                            title={route.is_published ? 'Unpublish' : 'Publish'}
                           >
                             <MapPin className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteRoute(route.id)}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Удалить"
+                            title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

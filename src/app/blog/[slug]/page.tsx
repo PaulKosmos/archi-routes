@@ -185,7 +185,7 @@ function ScrollToTopButton() {
           : 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)', // плавный возврат
         willChange: 'bottom, right' // оптимизация производительности
       }}
-      aria-label="Прокрутить наверх"
+      aria-label="Scroll to top"
     >
       <ArrowLeft className="h-6 w-6 rotate-90" />
     </button>
@@ -337,13 +337,13 @@ export default function BlogPostPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Статья не найдена</h1>
-          <p className="text-muted-foreground mb-6">Возможно, статья была удалена или никогда не существовала</p>
+          <h1 className="text-2xl font-bold mb-2">Article Not Found</h1>
+          <p className="text-muted-foreground mb-6">The article may have been deleted or never existed</p>
           <Link
             href="/blog"
             className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
           >
-            К блогу
+            To Blog
           </Link>
         </div>
         <ScrollToTopButton />
@@ -362,7 +362,7 @@ export default function BlogPostPage() {
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Назад к статьям</span>
+          <span>Back to Articles</span>
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -423,7 +423,7 @@ export default function BlogPostPage() {
               <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 font-sans">
                 <div className="flex items-center gap-1.5">
                   <User className="h-3.5 w-3.5" />
-                  <span>Автор статьи</span>
+                  <span>Article Author</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5" />
@@ -431,7 +431,7 @@ export default function BlogPostPage() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-3.5 w-3.5" />
-                  <span>{post.reading_time_minutes} мин чтения</span>
+                  <span>{post.reading_time_minutes} min read</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Eye className="h-3.5 w-3.5" />
@@ -474,7 +474,7 @@ export default function BlogPostPage() {
             {/* Related posts */}
             {relatedPosts.length > 0 && (
               <div className="bg-card border border-border p-6">
-                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: 'var(--font-outfit)' }}>Ещё из категории</h3>
+                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: 'var(--font-outfit)' }}>More from Category</h3>
                 <div className="space-y-4">
                   {relatedPosts.map(relatedPost => (
                     <Link
@@ -506,7 +506,7 @@ export default function BlogPostPage() {
             {/* Recommended posts */}
             {recommendedPosts.length > 0 && (
               <div className="bg-card border border-border p-6">
-                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: 'var(--font-outfit)' }}>Рекомендуем</h3>
+                <h3 className="text-lg font-bold mb-4" style={{ fontFamily: 'var(--font-outfit)' }}>Recommended</h3>
                 <div className="space-y-4">
                   {recommendedPosts.map(recommendedPost => (
                     <Link

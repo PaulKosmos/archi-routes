@@ -650,20 +650,18 @@ export default function AddBuildingClient() {
       <div className="mb-8">
         <div className="flex items-center justify-center space-x-4">
           <div className={`flex items-center ${currentStep >= 1 ? 'text-blue-600' : 'text-gray-400'}`}>
-            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
-              currentStep >= 1 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300'
-            }`}>
+            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${currentStep >= 1 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300'
+              }`}>
               <Building className="h-4 w-4" />
             </div>
-            <span className="ml-2 font-medium">Здание</span>
+            <span className="ml-2 font-medium">Building</span>
           </div>
 
           <div className={`w-16 h-0.5 ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
 
           <div className={`flex items-center ${currentStep >= 2 ? 'text-blue-600' : 'text-gray-400'}`}>
-            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
-              currentStep >= 2 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300'
-            }`}>
+            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${currentStep >= 2 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300'
+              }`}>
               <Star className="h-4 w-4" />
             </div>
             <span className="ml-2 font-medium">Обзор</span>
@@ -688,7 +686,7 @@ export default function AddBuildingClient() {
                     type="text"
                     value={buildingData.name}
                     onChange={(e) => setBuildingData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Например: Дом Мельникова, ГУМ, Собор Василия Блаженного"
+                    placeholder="For example: Melnikov House, GUM, St. Basil's Cathedral"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
@@ -704,7 +702,7 @@ export default function AddBuildingClient() {
                       type="text"
                       value={buildingData.architect}
                       onChange={(e) => setBuildingData(prev => ({ ...prev, architect: e.target.value }))}
-                      placeholder="Имя архитектора"
+                      placeholder="Architect name"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
@@ -735,7 +733,7 @@ export default function AddBuildingClient() {
                       type="text"
                       value={buildingData.city}
                       onChange={(e) => setBuildingData(prev => ({ ...prev, city: e.target.value }))}
-                      placeholder="Москва"
+                      placeholder="Moscow"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
                     />
@@ -751,14 +749,14 @@ export default function AddBuildingClient() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
                     >
-                      <option value="Россия">Россия</option>
-                      <option value="Беларусь">Беларусь</option>
-                      <option value="Казахстан">Казахстан</option>
-                      <option value="Украина">Украина</option>
-                      <option value="Германия">Германия</option>
-                      <option value="Франция">Франция</option>
-                      <option value="Италия">Италия</option>
-                      <option value="Другая">Другая</option>
+                      <option value="Russia">Russia</option>
+                      <option value="Belarus">Belarus</option>
+                      <option value="Kazakhstan">Kazakhstan</option>
+                      <option value="Ukraine">Ukraine</option>
+                      <option value="Germany">Germany</option>
+                      <option value="France">France</option>
+                      <option value="Italy">Italy</option>
+                      <option value="Other">Other</option>
                     </select>
                   </div>
                 </div>
@@ -772,19 +770,19 @@ export default function AddBuildingClient() {
                     onChange={(e) => setBuildingData(prev => ({ ...prev, architectural_style: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="">Выберите стиль</option>
-                    <option value="Модернизм">Модернизм</option>
-                    <option value="Конструктивизм">Конструктивизм</option>
-                    <option value="Сталинский ампир">Сталинский ампир</option>
-                    <option value="Брутализм">Брутализм</option>
-                    <option value="Классицизм">Классицизм</option>
-                    <option value="Барокко">Барокко</option>
-                    <option value="Готика">Готика</option>
-                    <option value="Романский">Романский</option>
-                    <option value="Арт-деко">Арт-деко</option>
-                    <option value="Постмодернизм">Постмодернизм</option>
-                    <option value="Современный">Современный</option>
-                    <option value="Другой">Другой</option>
+                    <option value="">Select style</option>
+                    <option value="Modernism">Modernism</option>
+                    <option value="Constructivism">Constructivism</option>
+                    <option value="Stalinist architecture">Stalinist architecture</option>
+                    <option value="Brutalism">Brutalism</option>
+                    <option value="Classicism">Classicism</option>
+                    <option value="Baroque">Baroque</option>
+                    <option value="Gothic">Gothic</option>
+                    <option value="Romanesque">Romanesque</option>
+                    <option value="Art Deco">Art Deco</option>
+                    <option value="Postmodernism">Postmodernism</option>
+                    <option value="Contemporary">Contemporary</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
               </div>
@@ -798,11 +796,10 @@ export default function AddBuildingClient() {
                   <button
                     type="button"
                     onClick={() => setLocationMode('map')}
-                    className={`flex items-center px-3 py-1 rounded-lg transition-colors ${
-                      locationMode === 'map'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    className={`flex items-center px-3 py-1 rounded-lg transition-colors ${locationMode === 'map'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
                   >
                     <Map className="h-4 w-4 mr-1" />
                     Карта
@@ -810,11 +807,10 @@ export default function AddBuildingClient() {
                   <button
                     type="button"
                     onClick={() => setLocationMode('coordinates')}
-                    className={`flex items-center px-3 py-1 rounded-lg transition-colors ${
-                      locationMode === 'coordinates'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    className={`flex items-center px-3 py-1 rounded-lg transition-colors ${locationMode === 'coordinates'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
                   >
                     <Navigation className="h-4 w-4 mr-1" />
                     Координаты
@@ -832,7 +828,7 @@ export default function AddBuildingClient() {
                     type="text"
                     value={buildingData.address}
                     onChange={(e) => setBuildingData(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder="Улица, дом, город"
+                    placeholder="Street, house, city"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
@@ -980,7 +976,7 @@ export default function AddBuildingClient() {
               <textarea
                 value={buildingData.description}
                 onChange={(e) => setBuildingData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Краткое описание здания, его особенности, историческое значение..."
+                placeholder="Brief building description, its features, historical significance..."
                 rows={4}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               />
@@ -1040,325 +1036,323 @@ export default function AddBuildingClient() {
               <>
                 {/* Рейтинг */}
                 <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Ваша оценка здания *</h2>
-              <div className="flex items-center space-x-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => handleRatingClick(star)}
-                    className="transition-colors"
-                  >
-                    <Star
-                      className={`h-8 w-8 ${
-                        star <= reviewData.rating
-                          ? 'text-yellow-400 fill-current'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  </button>
-                ))}
-                <span className="ml-4 text-gray-600">
-                  {reviewData.rating > 0 ? `${reviewData.rating} из 5` : 'Выберите оценку'}
-                </span>
-              </div>
-            </div>
-
-            {/* Обзор */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Ваш обзор</h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Заголовок обзора *
-                  </label>
-                  <input
-                    type="text"
-                    value={reviewData.title}
-                    onChange={(e) => setReviewData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Краткое описание вашего впечатления"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
+                  <h2 className="text-lg font-semibold mb-4">Ваша оценка здания *</h2>
+                  <div className="flex items-center space-x-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => handleRatingClick(star)}
+                        className="transition-colors"
+                      >
+                        <Star
+                          className={`h-8 w-8 ${star <= reviewData.rating
+                            ? 'text-yellow-400 fill-current'
+                            : 'text-gray-300'
+                            }`}
+                        />
+                      </button>
+                    ))}
+                    <span className="ml-4 text-gray-600">
+                      {reviewData.rating > 0 ? `${reviewData.rating} из 5` : 'Выберите оценку'}
+                    </span>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Тип обзора
-                  </label>
-                  <select
-                    value={reviewData.review_type}
-                    onChange={(e) => setReviewData(prev => ({
-                      ...prev,
-                      review_type: e.target.value as 'general' | 'expert' | 'historical'
-                    }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="general">Общий обзор</option>
-                    <option value="expert">Экспертный анализ</option>
-                    <option value="historical">Историческая справка</option>
-                  </select>
+                {/* Обзор */}
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold mb-4">Ваш обзор</h2>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Заголовок обзора *
+                      </label>
+                      <input
+                        type="text"
+                        value={reviewData.title}
+                        onChange={(e) => setReviewData(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="Brief description of your impression"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Тип обзора
+                      </label>
+                      <select
+                        value={reviewData.review_type}
+                        onChange={(e) => setReviewData(prev => ({
+                          ...prev,
+                          review_type: e.target.value as 'general' | 'expert' | 'historical'
+                        }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="general">Общий обзор</option>
+                        <option value="expert">Экспертный анализ</option>
+                        <option value="historical">Историческая справка</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Ваше впечатление
+                      </label>
+                      <textarea
+                        value={reviewData.content}
+                        onChange={(e) => setReviewData(prev => ({ ...prev, content: e.target.value }))}
+                        placeholder="Tell about the building: what impressed you, what details you noticed, what you felt..."
+                        rows={6}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ваше впечатление
-                  </label>
-                  <textarea
-                    value={reviewData.content}
-                    onChange={(e) => setReviewData(prev => ({ ...prev, content: e.target.value }))}
-                    placeholder="Расскажите о здании: что вас впечатлило, какие детали заметили, что чувствовали..."
-                    rows={6}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  />
-                </div>
-              </div>
-            </div>
+                {/* Аудио запись */}
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold mb-4">Аудио комментарий</h2>
+                  <p className="text-gray-600 mb-4">
+                    Добавьте голосовой комментарий для более живого восприятия
+                  </p>
 
-            {/* Аудио запись */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Аудио комментарий</h2>
-              <p className="text-gray-600 mb-4">
-                Добавьте голосовой комментарий для более живого восприятия
-              </p>
+                  <div className="space-y-4">
+                    {!audioUrl ? (
+                      <div className="flex items-center space-x-4">
+                        <button
+                          type="button"
+                          onClick={isRecording ? stopRecording : startRecording}
+                          className={`flex items-center px-4 py-2 rounded-lg transition-colors ${isRecording
+                            ? 'bg-red-600 text-white hover:bg-red-700'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                        >
+                          {isRecording ? (
+                            <>
+                              <MicOff className="h-4 w-4 mr-2" />
+                              Остановить запись
+                            </>
+                          ) : (
+                            <>
+                              <Mic className="h-4 w-4 mr-2" />
+                              Начать запись
+                            </>
+                          )}
+                        </button>
 
-              <div className="space-y-4">
-                {!audioUrl ? (
-                  <div className="flex items-center space-x-4">
-                    <button
-                      type="button"
-                      onClick={isRecording ? stopRecording : startRecording}
-                      className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
-                        isRecording
-                          ? 'bg-red-600 text-white hover:bg-red-700'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
-                    >
-                      {isRecording ? (
-                        <>
-                          <MicOff className="h-4 w-4 mr-2" />
-                          Остановить запись
-                        </>
-                      ) : (
-                        <>
-                          <Mic className="h-4 w-4 mr-2" />
-                          Начать запись
-                        </>
-                      )}
-                    </button>
+                        {isRecording && (
+                          <div className="flex items-center text-red-600">
+                            <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse mr-2"></div>
+                            Идет запись...
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-4">
+                          <button
+                            type="button"
+                            onClick={playAudio}
+                            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                          >
+                            {isPlaying ? (
+                              <>
+                                <Pause className="h-4 w-4 mr-2" />
+                                Пауза
+                              </>
+                            ) : (
+                              <>
+                                <Play className="h-4 w-4 mr-2" />
+                                Прослушать
+                              </>
+                            )}
+                          </button>
 
-                    {isRecording && (
-                      <div className="flex items-center text-red-600">
-                        <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse mr-2"></div>
-                        Идет запись...
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAudioUrl(null)
+                              setAudioBlob(null)
+                              setIsPlaying(false)
+                            }}
+                            className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                          >
+                            <X className="h-4 w-4 mr-2" />
+                            Удалить
+                          </button>
+                        </div>
+
+                        <audio
+                          ref={audioRef}
+                          src={audioUrl}
+                          onEnded={() => setIsPlaying(false)}
+                          className="hidden"
+                        />
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-4">
-                      <button
-                        type="button"
-                        onClick={playAudio}
-                        className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                      >
-                        {isPlaying ? (
-                          <>
-                            <Pause className="h-4 w-4 mr-2" />
-                            Пауза
-                          </>
-                        ) : (
-                          <>
-                            <Play className="h-4 w-4 mr-2" />
-                            Прослушать
-                          </>
-                        )}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAudioUrl(null)
-                          setAudioBlob(null)
-                          setIsPlaying(false)
-                        }}
-                        className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Удалить
-                      </button>
-                    </div>
-
-                    <audio
-                      ref={audioRef}
-                      src={audioUrl}
-                      onEnded={() => setIsPlaying(false)}
-                      className="hidden"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Практическая информация */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Практическая информация</h2>
-              <p className="text-gray-600 mb-4">
-                Помогите другим посетителям - добавьте информацию о времени работы и стоимости посещения
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Clock className="h-4 w-4 inline mr-1" />
-                    Время работы
-                  </label>
-                  <input
-                    type="text"
-                    value={openingHours}
-                    onChange={(e) => setOpeningHours(e.target.value)}
-                    placeholder="Пн-Пт: 9:00-18:00, Сб-Вс: 10:00-16:00"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <DollarSign className="h-4 w-4 inline mr-1" />
-                    Стоимость входа
-                  </label>
-                  <input
-                    type="text"
-                    value={entryFee}
-                    onChange={(e) => setEntryFee(e.target.value)}
-                    placeholder="Бесплатно / 200₽ / 150₽ льготный"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-            </div>
+                {/* Практическая информация */}
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold mb-4">Практическая информация</h2>
+                  <p className="text-gray-600 mb-4">
+                    Помогите другим посетителям - добавьте информацию о времени работы и стоимости посещения
+                  </p>
 
-            {/* Фотографии обзора */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Дополнительные фотографии</h2>
-              <p className="text-gray-600 mb-4">
-                Добавьте до 6 фотографий для обзора - детали, интерьеры, особые ракурсы (максимум 5 МБ каждая)
-              </p>
-
-              {reviewPhotoPreviews.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                  {reviewPhotoPreviews.map((preview, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={preview}
-                        alt={`Фото обзора ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <Clock className="h-4 w-4 inline mr-1" />
+                        Время работы
+                      </label>
+                      <input
+                        type="text"
+                        value={openingHours}
+                        onChange={(e) => setOpeningHours(e.target.value)}
+                        placeholder="Пн-Пт: 9:00-18:00, Сб-Вс: 10:00-16:00"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
-                      <button
-                        type="button"
-                        onClick={() => removeReviewPhoto(index)}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
                     </div>
-                  ))}
-                </div>
-              )}
 
-              {reviewPhotoFiles.length < 6 && (
-                <label className="border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-gray-400 transition-colors block">
-                  <div className="text-center">
-                    <Camera className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600">Нажмите для выбора фотографий</p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {6 - reviewPhotoFiles.length} фото осталось
-                    </p>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <DollarSign className="h-4 w-4 inline mr-1" />
+                        Стоимость входа
+                      </label>
+                      <input
+                        type="text"
+                        value={entryFee}
+                        onChange={(e) => setEntryFee(e.target.value)}
+                        placeholder="Free / 200₽ / 150₽ discounted"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
                   </div>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleReviewPhotoUpload}
-                    className="sr-only"
-                  />
-                </label>
-              )}
-            </div>
-
-            {/* Теги */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Теги</h2>
-              <p className="text-gray-600 mb-4">
-                Добавьте теги для лучшей категоризации обзора
-              </p>
-
-              {/* Существующие теги */}
-              {reviewData.tags && reviewData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {reviewData.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center"
-                    >
-                      #{tag}
-                      <button
-                        type="button"
-                        onClick={() => removeTag(tag)}
-                        className="ml-2 text-blue-600 hover:text-blue-800"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
                 </div>
-              )}
 
-              {/* Поле добавления тега */}
-              <div className="flex items-center space-x-2">
-                <Tag className="h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={currentTag}
-                  onChange={(e) => setCurrentTag(e.target.value)}
-                  onKeyPress={handleTagKeyPress}
-                  placeholder="Введите тег и нажмите Enter"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button
-                  type="button"
-                  onClick={addTag}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  Добавить
-                </button>
-              </div>
+                {/* Фотографии обзора */}
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold mb-4">Дополнительные фотографии</h2>
+                  <p className="text-gray-600 mb-4">
+                    Добавьте до 6 фотографий для обзора - детали, интерьеры, особые ракурсы (максимум 5 МБ каждая)
+                  </p>
 
-              {/* Популярные теги */}
-              <div className="mt-4">
-                <p className="text-sm text-gray-600 mb-2">Популярные теги:</p>
-                <div className="flex flex-wrap gap-2">
-                  {['архитектура', 'история', 'красота', 'уникальность', 'реставрация', 'детали'].map(tag => (
+                  {reviewPhotoPreviews.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                      {reviewPhotoPreviews.map((preview, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={preview}
+                            alt={`Фото обзора ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeReviewPhoto(index)}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {reviewPhotoFiles.length < 6 && (
+                    <label className="border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-gray-400 transition-colors block">
+                      <div className="text-center">
+                        <Camera className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-600">Нажмите для выбора фотографий</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {6 - reviewPhotoFiles.length} фото осталось
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleReviewPhotoUpload}
+                        className="sr-only"
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Теги */}
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold mb-4">Теги</h2>
+                  <p className="text-gray-600 mb-4">
+                    Добавьте теги для лучшей категоризации обзора
+                  </p>
+
+                  {/* Существующие теги */}
+                  {reviewData.tags && reviewData.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {reviewData.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center"
+                        >
+                          #{tag}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(tag)}
+                            className="ml-2 text-blue-600 hover:text-blue-800"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Поле добавления тега */}
+                  <div className="flex items-center space-x-2">
+                    <Tag className="h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={currentTag}
+                      onChange={(e) => setCurrentTag(e.target.value)}
+                      onKeyPress={handleTagKeyPress}
+                      placeholder="Enter tag and press Enter"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
                     <button
-                      key={tag}
                       type="button"
-                      onClick={() => {
-                        if (!reviewData.tags?.includes(tag)) {
-                          setReviewData(prev => ({
-                            ...prev,
-                            tags: [...(prev.tags || []), tag]
-                          }))
-                        }
-                      }}
-                      className="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+                      onClick={addTag}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                     >
-                      #{tag}
+                      Добавить
                     </button>
-                  ))}
+                  </div>
+
+                  {/* Популярные теги */}
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600 mb-2">Популярные теги:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {['архитектура', 'история', 'красота', 'уникальность', 'реставрация', 'детали'].map(tag => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => {
+                            if (!reviewData.tags?.includes(tag)) {
+                              setReviewData(prev => ({
+                                ...prev,
+                                tags: [...(prev.tags || []), tag]
+                              }))
+                            }
+                          }}
+                          className="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+                        >
+                          #{tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
               </>
             )} {/* Закрываем блок createReview */}
 

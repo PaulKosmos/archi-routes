@@ -47,7 +47,7 @@ export default function BlogPostsSection() {
         // If we have posts, fetch author information separately
         if (data && data.length > 0) {
           const authorIds = [...new Set((data as any[]).map((post: any) => post.author_id))]
-          
+
           const { data: authorsData } = await supabase
             .from('profiles')
             .select('id, display_name, full_name, avatar_url')
@@ -157,7 +157,7 @@ export default function BlogPostsSection() {
             onClick={() => router.push('/blog')}
             className="hidden md:flex items-center space-x-2 text-blue-600 hover:text-blue-700 font-medium transition-colors group"
           >
-            <span>Все статьи</span>
+            <span>All Articles</span>
             <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
           </button>
         </div>
@@ -169,106 +169,106 @@ export default function BlogPostsSection() {
             <button
               onClick={() => scroll('left')}
               className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 z-10 bg-white rounded-full shadow-lg p-3 hover:shadow-xl transition-all hover:scale-110 hidden lg:flex items-center justify-center"
-              aria-label="Предыдущие статьи"
+              aria-label="Previous articles"
             >
               <ArrowLeft size={20} className="text-gray-600" />
             </button>
           )}
-          
+
           <div
             ref={scrollContainerRef}
             className="overflow-x-auto scrollbar-hide flex gap-8 pb-2"
             onScroll={checkScrollPosition}
           >
             {posts.map((post, index) => (
-            <article
-              key={post.id}
-              onClick={() => handlePostClick(post.slug)}
-              className="group cursor-pointer animate-fade-in flex flex-col flex-shrink-0 w-96"
-              style={{ animationDelay: `${index * 0.05}s` }}
-            >
-              {/* Изображение */}
-              <div className="relative h-64 rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-blue-100 to-purple-100">
-                {post.featured_image_url ? (
-                  <OptimizedImage
-                    src={getStorageUrl(post.featured_image_url, 'photos')}
-                    alt={post.title}
-                    fill
-                    className="transition-transform duration-500 group-hover:scale-110"
-                    objectFit="cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    priority={index === 0}
-                  />
-                ) : (
-                  // Fallback градиент если нет изображения
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 opacity-50" />
-                )}
-
-                {/* Оверлей при hover */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-              </div>
-
-              {/* Контент */}
-              <div className="space-y-3">
-                {/* Мета информация */}
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  {post.published_at && (
-                    <div className="flex items-center space-x-1">
-                      <Calendar size={14} />
-                      <span>{formatDate(post.published_at)}</span>
-                    </div>
+              <article
+                key={post.id}
+                onClick={() => handlePostClick(post.slug)}
+                className="group cursor-pointer animate-fade-in flex flex-col flex-shrink-0 w-96"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                {/* Изображение */}
+                <div className="relative h-64 rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-blue-100 to-purple-100">
+                  {post.featured_image_url ? (
+                    <OptimizedImage
+                      src={getStorageUrl(post.featured_image_url, 'photos')}
+                      alt={post.title}
+                      fill
+                      className="transition-transform duration-500 group-hover:scale-110"
+                      objectFit="cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      priority={index === 0}
+                    />
+                  ) : (
+                    // Fallback градиент если нет изображения
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 opacity-50" />
                   )}
-                  {post.reading_time_minutes && (
-                    <div className="flex items-center space-x-1">
-                      <Clock size={14} />
-                      <span>{post.reading_time_minutes} мин</span>
-                    </div>
-                  )}
+
+                  {/* Оверлей при hover */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
                 </div>
 
-                {/* Заголовок */}
-                <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200 line-clamp-2">
-                  {post.title}
-                </h3>
-
-                {/* Описание */}
-                {post.excerpt && (
-                  <p className="text-gray-600 line-clamp-3 leading-relaxed">
-                    {post.excerpt}
-                  </p>
-                )}
-
-                {/* Автор */}
-                {post.author && (
-                  <div className="flex items-center space-x-2 pt-2">
-                    {post.author.avatar_url ? (
-                      <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-200">
-                        <OptimizedImage
-                          src={getStorageUrl(post.author.avatar_url, 'photos')}
-                          alt={post.author.display_name || post.author.full_name || 'Автор'}
-                          fill
-                          className="object-cover"
-                          sizes="32px"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                        <User size={16} className="text-white" />
+                {/* Контент */}
+                <div className="space-y-3">
+                  {/* Мета информация */}
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    {post.published_at && (
+                      <div className="flex items-center space-x-1">
+                        <Calendar size={14} />
+                        <span>{formatDate(post.published_at)}</span>
                       </div>
                     )}
-                    <span className="text-sm text-gray-700 font-medium">
-                      {post.author.display_name || post.author.full_name || 'Аноним'}
-                    </span>
+                    {post.reading_time_minutes && (
+                      <div className="flex items-center space-x-1">
+                        <Clock size={14} />
+                        <span>{post.reading_time_minutes} мин</span>
+                      </div>
+                    )}
                   </div>
-                )}
 
-                {/* Индикатор "Читать" при hover */}
-                <div className="flex items-center space-x-2 text-blue-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 pt-2">
-                  <span className="text-sm">Читать статью</span>
-                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                  {/* Заголовок */}
+                  <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200 line-clamp-2">
+                    {post.title}
+                  </h3>
+
+                  {/* Описание */}
+                  {post.excerpt && (
+                    <p className="text-gray-600 line-clamp-3 leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  )}
+
+                  {/* Автор */}
+                  {post.author && (
+                    <div className="flex items-center space-x-2 pt-2">
+                      {post.author.avatar_url ? (
+                        <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-200">
+                          <OptimizedImage
+                            src={getStorageUrl(post.author.avatar_url, 'photos')}
+                            alt={post.author.display_name || post.author.full_name || 'Автор'}
+                            fill
+                            className="object-cover"
+                            sizes="32px"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                          <User size={16} className="text-white" />
+                        </div>
+                      )}
+                      <span className="text-sm text-gray-700 font-medium">
+                        {post.author.display_name || post.author.full_name || 'Аноним'}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Индикатор "Читать" при hover */}
+                  <div className="flex items-center space-x-2 text-blue-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 pt-2">
+                    <span className="text-sm">Читать статью</span>
+                    <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                  </div>
                 </div>
-              </div>
-            </article>
+              </article>
             ))}
           </div>
 
@@ -276,7 +276,7 @@ export default function BlogPostsSection() {
             <button
               onClick={() => scroll('right')}
               className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 z-10 bg-white rounded-full shadow-lg p-3 hover:shadow-xl transition-all hover:scale-110 hidden lg:flex items-center justify-center"
-              aria-label="Следующие статьи"
+              aria-label="Next articles"
             >
               <ArrowRight size={20} className="text-gray-600" />
             </button>

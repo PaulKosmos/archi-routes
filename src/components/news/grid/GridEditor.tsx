@@ -101,7 +101,7 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
       const newsToAdd = allNews.filter(news => !existingNewsIds.includes(news.id));
 
       if (newsToAdd.length === 0) {
-        alert('Все новости уже добавлены в сетку!');
+        alert('All news already added to grid!');
         return;
       }
 
@@ -121,10 +121,10 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
       // Перезагружаем карточки
       await loadCards();
       setHasChanges(true);
-      alert(`Добавлено ${newsToAdd.length} новостей в сетку!`);
+      alert(`Added ${newsToAdd.length} news to grid!`);
     } catch (err) {
       console.error('Error syncing news to grid:', err);
-      alert('Ошибка при синхронизации новостей');
+      alert('Error synchronizing news');
     } finally {
       setIsSyncing(false);
     }
@@ -313,11 +313,10 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
             <button
               onClick={handleSave}
               disabled={!hasChanges}
-              className={`px-5 py-2.5 font-medium transition-all flex items-center gap-2 ${
-                hasChanges
+              className={`px-5 py-2.5 font-medium transition-all flex items-center gap-2 ${hasChanges
                   ? 'bg-[hsl(var(--news-primary))] text-white hover:opacity-90'
                   : 'bg-muted text-muted-foreground cursor-not-allowed'
-              }`}
+                }`}
             >
               <Save className="w-4 h-4" />
               Сохранить и выйти

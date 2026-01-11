@@ -43,8 +43,8 @@ export function SearchResults({
     const hasImages = Boolean(isValidImageUrl)
 
     const highlightedName = query ? highlightMatches(building.name, query) : building.name
-    const highlightedArchitect = query && building.architect 
-      ? highlightMatches(building.architect, query) 
+    const highlightedArchitect = query && building.architect
+      ? highlightMatches(building.architect, query)
       : building.architect
 
     return (
@@ -144,8 +144,8 @@ export function SearchResults({
               {hasImages && (
                 <div className="text-xs text-muted-foreground/60">
                   {Array.isArray(building.image_urls)
-                    ? `${building.image_urls.length} фото`
-                    : '1 фото'
+                    ? `${building.image_urls.length} photos`
+                    : '1 photo'
                   }
                 </div>
               )}
@@ -159,7 +159,7 @@ export function SearchResults({
   if (error) {
     return (
       <div className={`text-center py-12 ${className}`}>
-        <div className="text-destructive font-semibold mb-2">Ошибка поиска</div>
+        <div className="text-destructive font-semibold mb-2">Search Error</div>
         <div className="text-muted-foreground">{error}</div>
       </div>
     )
@@ -171,14 +171,13 @@ export function SearchResults({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-display font-bold text-foreground">
-            {loading ? 'Поиск...' : `Найдено ${totalCount} ${
-              totalCount === 1 ? 'здание' :
-              totalCount < 5 ? 'здания' : 'зданий'
-            }`}
+            {loading ? 'Searching...' : `Found ${totalCount} ${totalCount === 1 ? 'building' :
+                totalCount < 5 ? 'buildings' : 'buildings'
+              }`}
           </h2>
           {query && !loading && (
             <p className="text-sm text-muted-foreground mt-1">
-              по запросу "<span className="font-medium">{query}</span>"
+              for query "<span className="font-medium">{query}</span>"
             </p>
           )}
         </div>
@@ -188,23 +187,21 @@ export function SearchResults({
           <div className="flex items-center bg-muted p-1">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 transition-colors ${
-                viewMode === 'grid'
+              className={`p-2 transition-colors ${viewMode === 'grid'
                   ? 'bg-background text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
-              }`}
-              title="Сетка"
+                }`}
+              title="Grid"
             >
               <Grid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 transition-colors ${
-                viewMode === 'list'
+              className={`p-2 transition-colors ${viewMode === 'list'
                   ? 'bg-background text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
-              }`}
-              title="Список"
+                }`}
+              title="List"
             >
               <List className="w-4 h-4" />
             </button>
@@ -229,7 +226,7 @@ export function SearchResults({
       ) : results.length > 0 ? (
         <>
           <div className={
-            viewMode === 'grid' 
+            viewMode === 'grid'
               ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
               : 'space-y-4'
           }>
@@ -246,7 +243,7 @@ export function SearchResults({
                 disabled={loading}
                 className="px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
-                {loading ? 'Загрузка...' : 'Загрузить ещё'}
+                {loading ? 'Loading...' : 'Load More'}
               </button>
             </div>
           )}
@@ -255,12 +252,12 @@ export function SearchResults({
         <div className="text-center py-12">
           <Building className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
           <h3 className="text-lg font-display font-semibold text-foreground mb-2">
-            Ничего не найдено
+            Nothing Found
           </h3>
           <p className="text-muted-foreground max-w-md mx-auto">
             {query
-              ? `По запросу "${query}" зданий не найдено. Попробуйте изменить поисковый запрос или фильтры.`
-              : 'Попробуйте изменить фильтры или воспользуйтесь поиском.'
+              ? `No buildings found for "${query}". Try changing your search query or filters.`
+              : 'Try changing filters or use search.'
             }
           </p>
         </div>
@@ -271,7 +268,7 @@ export function SearchResults({
         <div className="text-center py-6">
           <div className="inline-flex items-center gap-2 text-muted-foreground">
             <div className="w-4 h-4 border-2 border-border border-t-primary rounded-full animate-spin"></div>
-            Загрузка дополнительных результатов...
+            Loading additional results...
           </div>
         </div>
       )}
