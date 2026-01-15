@@ -75,7 +75,9 @@
       "Bash(curl:*)",
       "Skill(frontend-design:frontend-design)",
       "Bash(git diff:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(timeout /t 10 /nobreak)"
     ],
     "deny": [],
     "ask": []

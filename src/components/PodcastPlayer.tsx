@@ -150,7 +150,7 @@ export default function PodcastPlayer({
   const speedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2]
 
   return (
-    <div className={`bg-card border border-border rounded-[var(--radius)] p-6 shadow-sm ${className}`}>
+    <div className={`bg-card border border-border rounded-[var(--radius)] p-3 sm:p-6 shadow-sm ${className}`}>
       {/* Hidden audio element with multi-format support */}
       <audio ref={audioRef} crossOrigin="anonymous">
         <source src={audioUrl} type="audio/mpeg" />
@@ -160,16 +160,16 @@ export default function PodcastPlayer({
       </audio>
 
       {/* Заголовок */}
-      <div className="mb-4">
-        <h5 className="font-semibold text-foreground flex items-center">
-          <Headphones className="w-5 h-5 mr-2 text-muted-foreground" />
+      <div className="mb-3 sm:mb-4">
+        <h5 className="font-semibold text-sm sm:text-base text-foreground flex items-center">
+          <Headphones className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-muted-foreground" />
           {title}
         </h5>
       </div>
 
       {/* Прогресс бар с заполнением */}
-      <div className="mb-4">
-        <div className="relative w-full h-2 bg-muted rounded-full">
+      <div className="mb-3 sm:mb-4">
+        <div className="relative w-full h-1.5 sm:h-2 bg-muted rounded-full">
           {/* Заполненная часть прогресс-бара */}
           <div
             className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
@@ -185,61 +185,61 @@ export default function PodcastPlayer({
             className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
         </div>
-        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+        <div className="flex justify-between text-[10px] sm:text-xs text-muted-foreground mt-1">
           <span>{formatTime(currentTime)}</span>
           <span>{formatTime(totalDuration)}</span>
         </div>
       </div>
 
       {/* Управление */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         {/* Основные кнопки */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => skip(-15)}
-            className="flex flex-col items-center p-2 hover:bg-muted rounded-[var(--radius)] transition-colors group"
+            className="flex flex-col items-center p-1 sm:p-2 hover:bg-muted rounded-[var(--radius)] transition-colors group"
             title="Back 15 sec"
           >
-            <SkipBack className="w-5 h-5 text-muted-foreground" />
-            <span className="text-[10px] text-muted-foreground mt-0.5">15 сек</span>
+            <SkipBack className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+            <span className="hidden sm:inline text-[10px] text-muted-foreground mt-0.5">15 сек</span>
           </button>
 
           <button
             onClick={togglePlay}
-            className="p-3 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors shadow-md"
+            className="p-2 sm:p-3 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors shadow-md"
           >
             {isPlaying ? (
-              <Pause className="w-6 h-6" />
+              <Pause className="w-5 h-5 sm:w-6 sm:h-6" />
             ) : (
-              <Play className="w-6 h-6 ml-0.5" />
+              <Play className="w-5 h-5 sm:w-6 sm:h-6 ml-0.5" />
             )}
           </button>
 
           <button
             onClick={() => skip(15)}
-            className="flex flex-col items-center p-2 hover:bg-muted rounded-[var(--radius)] transition-colors group"
+            className="flex flex-col items-center p-1 sm:p-2 hover:bg-muted rounded-[var(--radius)] transition-colors group"
             title="Forward 15 sec"
           >
-            <SkipForward className="w-5 h-5 text-muted-foreground" />
-            <span className="text-[10px] text-muted-foreground mt-0.5">15 сек</span>
+            <SkipForward className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+            <span className="hidden sm:inline text-[10px] text-muted-foreground mt-0.5">15 сек</span>
           </button>
         </div>
 
         {/* Громкость и скорость */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           {/* Громкость */}
           <div className="flex items-center space-x-2">
             <button
               onClick={toggleMute}
-              className="p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
+              className="p-1.5 sm:p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
             >
               {isMuted ? (
-                <VolumeX className="w-5 h-5 text-muted-foreground" />
+                <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
               ) : (
-                <Volume2 className="w-5 h-5 text-muted-foreground" />
+                <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
               )}
             </button>
-            <div className="relative w-20 h-1 bg-muted rounded-full">
+            <div className="hidden sm:block relative w-20 h-1 bg-muted rounded-full">
               {/* Заполненная часть громкости */}
               <div
                 className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
@@ -261,7 +261,7 @@ export default function PodcastPlayer({
           <div className="relative">
             <button
               onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-              className="flex items-center gap-1 px-3 py-1.5 bg-muted border border-border rounded-[var(--radius)] text-sm font-medium text-foreground hover:bg-muted/80 transition-colors"
+              className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-muted border border-border rounded-[var(--radius)] text-xs sm:text-sm font-medium text-foreground hover:bg-muted/80 transition-colors"
               title="Playback speed"
             >
               <span>{playbackRate}x</span>

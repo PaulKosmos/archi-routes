@@ -86,10 +86,10 @@ export default function EnhancedFooter() {
             <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider">Information</h3>
             <ul className="space-y-2">
               {[
-                { label: "About Us", href: "#" },
-                { label: "Contact", href: "#" },
-                { label: "Privacy Policy", href: "#" },
-                { label: "Terms of Use", href: "#" },
+                { label: "About Us", href: "/about" },
+                { label: "Contact", href: "/contact" },
+                { label: "Privacy Policy", href: "/privacy" },
+                { label: "Terms of Use", href: "/terms" },
               ].map((link) => (
                 <li key={link.label}>
                   <Link
