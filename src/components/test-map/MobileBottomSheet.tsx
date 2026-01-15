@@ -34,7 +34,7 @@ export default function MobileBottomSheet({
       <div className={`
         fixed bottom-0 left-0 right-0
         bg-white border-t-2 border-border
-        max-h-[60vh]
+        max-h-[70vh]
         transform transition-transform duration-300
         translate-y-0
         z-[45] md:hidden
@@ -43,7 +43,7 @@ export default function MobileBottomSheet({
         shadow-2xl
       `}>
         {/* Compact Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+        <div className="flex items-center justify-between px-3 py-1.5 border-b border-border">
           {/* Empty space for balance */}
           <div className="flex-1"></div>
 
@@ -62,7 +62,7 @@ export default function MobileBottomSheet({
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(80vh-4rem)] p-4">
+        <div className="overflow-y-auto max-h-[calc(70vh-3rem)] p-2">
           {children}
         </div>
       </div>

@@ -70,7 +70,7 @@ export default function BuildingsGrid({ buildings, loading }: BuildingsGridProps
 
         {/* Buildings Grid */}
         {buildings.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {buildings.slice(0, 8).map((building) => (
                 <Link
                   key={building.id}

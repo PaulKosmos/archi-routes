@@ -2,16 +2,16 @@
 
 export const dynamic = 'force-dynamic'
 
-
-
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
-import { MapPin, Plus, Home, ArrowLeft } from 'lucide-react'
+import { MapPin, Plus, ArrowLeft, Search, X, Clock, Navigation2 } from 'lucide-react'
 import RouteCreator from '@/components/RouteCreator'
 import { SmartRouteFilter } from '@/lib/smart-route-filtering'
+import { RouteFilterPanel } from '@/components/RouteFilterPanel'
 import type { RouteWithUserData } from '@/types/route'
+import type { Building } from '@/types/building'
 import Header from '@/components/Header'
 import EnhancedFooter from '@/components/EnhancedFooter'
 
@@ -28,46 +28,75 @@ interface SimpleRoute {
   created_at: string
 }
 
-const getTransportIcon = (mode: string | null) => {
-  switch (mode) {
-    case 'walking': return '🚶'
-    case 'cycling': return '🚴'
-    case 'driving': return '🚗'
-    case 'public_transport': return '🚌'
-    default: return '🚶'
-  }
-}
-
-const getTransportLabel = (mode: string | null) => {
-  switch (mode) {
-    case 'walking': return 'Walking'
-    case 'cycling': return 'Cycling'
-    case 'driving': return 'Driving'
-    case 'public_transport': return 'Public Transport'
-    default: return 'Walking'
-  }
-}
-
 export default function RoutesPage() {
   const supabase = useMemo(() => createClient(), [])
   const { user } = useAuth()
   const [routes, setRoutes] = useState<SimpleRoute[]>([])
+  const [filteredRoutes, setFilteredRoutes] = useState<SimpleRoute[]>([])
   const [buildings, setBuildings] = useState<Building[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isRouteCreatorOpen, setIsRouteCreatorOpen] = useState(false)
 
+  // Search and filters
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+  const [selectedCities, setSelectedCities] = useState<string[]>([])
+  const [selectedTransport, setSelectedTransport] = useState<string[]>([])
+  const [durationRange, setDurationRange] = useState<[number, number]>([0, 300])
+
   useEffect(() => {
     loadData()
   }, [])
 
+  // Filter routes when search/filters change
+  useEffect(() => {
+    if (!routes.length) {
+      setFilteredRoutes([])
+      return
+    }
+
+    let filtered = [...routes]
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(route =>
+        route.title.toLowerCase().includes(query) ||
+        route.description?.toLowerCase().includes(query) ||
+        route.city.toLowerCase().includes(query) ||
+        route.country.toLowerCase().includes(query)
+      )
+    }
+
+    // City filter
+    if (selectedCities.length > 0) {
+      filtered = filtered.filter(route =>
+        selectedCities.includes(route.city)
+      )
+    }
+
+    // Transport filter
+    if (selectedTransport.length > 0) {
+      filtered = filtered.filter(route =>
+        route.transport_mode && selectedTransport.includes(route.transport_mode)
+      )
+    }
+
+    // Duration filter
+    filtered = filtered.filter(route => {
+      const duration = route.estimated_duration_minutes || 0
+      return duration >= durationRange[0] && duration <= durationRange[1]
+    })
+
+    setFilteredRoutes(filtered)
+  }, [routes, searchQuery, selectedCities, selectedTransport, durationRange])
+
   const loadData = async () => {
     setLoading(true)
     setError(null)
-    
-    try {
-      console.log('🔍 Loading routes with smart filtering...')
 
+    try {
       // Use smart filtering for routes page (more routes)
       const smartRoutes = await SmartRouteFilter.getRoutesForMap({
         city: 'Berlin',
@@ -77,13 +106,10 @@ export default function RoutesPage() {
         }
       })
 
-      console.log(`✅ Retrieved ${smartRoutes.length} filtered routes`)
       setRoutes(smartRoutes)
 
     } catch (smartError: any) {
-      console.error('❌ Smart filtering error:', smartError)
-      
-      // Fallback к обычному запросу
+      // Fallback to regular query
       try {
         const { data: routesData, error: routesError } = await supabase
           .from('routes')
@@ -107,7 +133,6 @@ export default function RoutesPage() {
           .order('priority_score', { ascending: false })
 
         if (routesError) {
-          console.error('❌ Routes error:', routesError)
           setError(routesError.message)
           return
         }
@@ -125,10 +150,8 @@ export default function RoutesPage() {
         })) as RouteWithUserData[]
 
         setRoutes(formattedRoutes)
-        console.log('✅ Used fallback loading:', formattedRoutes.length)
-        
+
       } catch (fallbackError: any) {
-        console.error('❌ Fallback error:', fallbackError)
         setError(fallbackError.message)
         return
       }
@@ -141,15 +164,13 @@ export default function RoutesPage() {
         .select('*')
         .order('name')
 
-      if (buildingsError) {
-        console.error('❌ Buildings error:', buildingsError)
-      } else {
+      if (!buildingsError) {
         setBuildings(buildingsData || [])
       }
     } catch (buildingsError: any) {
-      console.error('❌ Buildings exception:', buildingsError)
+      // Silent fail - buildings are optional for viewing routes
     }
-    
+
     setLoading(false)
   }
 
@@ -163,12 +184,43 @@ export default function RoutesPage() {
     loadData()
   }
 
+  // Get unique cities from routes
+  const uniqueCities = useMemo(() => {
+    const cities = new Set(routes.map(r => r.city))
+    return Array.from(cities).sort()
+  }, [routes])
+
+  // Count active filters
+  const activeFiltersCount = useMemo(() => {
+    let count = 0
+    if (selectedCities.length > 0) count++
+    if (selectedTransport.length > 0) count++
+    if (durationRange[0] > 0 || durationRange[1] < 300) count++
+    return count
+  }, [selectedCities, selectedTransport, durationRange])
+
+  const clearFilters = () => {
+    setSelectedCities([])
+    setSelectedTransport([])
+    setDurationRange([0, 300])
+  }
+
+  const handleFiltersChange = (newFilters: Partial<{
+    cities: string[]
+    transport: string[]
+    durationRange: [number, number]
+  }>) => {
+    if (newFilters.cities !== undefined) setSelectedCities(newFilters.cities)
+    if (newFilters.transport !== undefined) setSelectedTransport(newFilters.transport)
+    if (newFilters.durationRange !== undefined) setDurationRange(newFilters.durationRange)
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading routes...</p>
+          <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-muted-foreground">Loading routes...</div>
         </div>
       </div>
     )
@@ -176,25 +228,20 @@ export default function RoutesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
-          <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Routes Loading Error</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <div className="text-destructive text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-foreground mb-2">Routes Loading Error</h2>
+          <p className="text-muted-foreground mb-4">{error}</p>
           <div className="space-x-4">
             <button
               onClick={loadData}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
             >
               Try Again
             </button>
-            <Link href="/" className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 inline-block">
+            <Link href="/" className="bg-muted text-foreground px-4 py-2 rounded-lg hover:bg-muted/80 transition-colors inline-block">
               Home
-            </Link>
-          </div>
-          <div className="mt-4">
-            <Link href="/diagnostic" className="text-blue-600 hover:underline text-sm">
-              System Diagnostics →
             </Link>
           </div>
         </div>
@@ -205,142 +252,201 @@ export default function RoutesPage() {
   return (
     <>
       <Header buildings={buildings} />
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Navigation */}
-        <div className="mb-6">
-          <Link
-            href="/"
-            className="inline-flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <Home className="w-4 h-4" />
-            <span>Home</span>
-          </Link>
-        </div>
-
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-3">
-              <MapPin className="w-8 h-8 text-blue-600" />
-              Architectural Routes
-            </h1>
-
-            {user && (
-              <button
-                onClick={handleOpenRouteCreator}
-                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 transition-colors font-medium"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Create Route</span>
-              </button>
-            )}
-          </div>
-
-          <p className="text-lg text-gray-600">
-            Explore cities through the lens of architecture. Public routes from local experts and enthusiasts.
-          </p>
-
-          <div className="mt-4 text-sm text-gray-500">
-            DB Status: Connected ✅ | Routes found: {routes.length}
-          </div>
-        </div>
-
-        {routes.length === 0 ? (
-          <div className="text-center py-12">
-            <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No routes yet
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Be the first to create an architectural route!
-            </p>
-            {user ? (
-              <button
-                onClick={handleOpenRouteCreator}
-                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Create First Route</span>
-              </button>
-            ) : (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-6 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-4">
               <Link
-                href="/auth"
-                className="inline-flex items-center gap-2 bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                href="/"
+                className="p-2 rounded-lg hover:bg-muted transition-colors"
               >
-                <span>Sign In to Create Routes</span>
+                <ArrowLeft className="w-5 h-5 text-muted-foreground" />
               </Link>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {routes.map((route) => (
-              <div key={route.id} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {route.title}
-                </h3>
-                {route.description && (
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {route.description}
-                  </p>
-                )}
-                <div className="space-y-2 text-sm text-gray-500">
-                  <div className="flex items-center justify-between">
-                    <span>📍 {route.city}, {route.country}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>⏱️ {route.estimated_duration_minutes || 60} min</span>
-                    <span>📍 {route.points_count || 0} points</span>
-                  </div>
-                  {route.transport_mode && (
-                    <div className="flex items-center gap-2">
-                      <span>{getTransportIcon(route.transport_mode)}</span>
-                      <span>{getTransportLabel(route.transport_mode)}</span>
-                    </div>
-                  )}
-                  <div className="text-xs text-gray-400 pt-2 border-t flex justify-between">
-                    <span>Created: {new Date(route.created_at).toLocaleDateString('en-US')}</span>
-                    <span className="text-green-600 font-medium">🌍 Public</span>
-                  </div>
-                </div>
+              <div className="flex-1">
+                <h1 className="text-3xl font-display font-bold text-foreground mb-2">
+                  Architectural Routes
+                </h1>
+                <p className="text-muted-foreground">
+                  Explore cities through the lens of architecture. Public routes from local experts and enthusiasts.
+                </p>
+              </div>
 
-                <div className="mt-4">
-                  <Link
-                    href={`/routes/${route.id}`}
-                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                  >
-                    View Route →
-                  </Link>
+              {user && (
+                <button
+                  onClick={handleOpenRouteCreator}
+                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Create Route</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Main content area with sidebar layout */}
+          <div className="lg:flex lg:gap-8">
+            {/* Left column: search and results */}
+            <div className="lg:flex-1">
+              {/* Search Bar */}
+              <div className="mb-6">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search routes by title, city..."
+                    className="w-full h-12 pl-12 pr-10 border border-border bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
 
-        {/* Debug info */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-8 p-4 bg-gray-100 rounded-lg text-xs">
-            <h4 className="font-semibold mb-2">Debug Information:</h4>
-            <div>User: {user ? user.email : 'Not authorized'}</div>
-            <div>Routes loaded: {routes.length}</div>
-            <div>Last update: {new Date().toLocaleString('en-US')}</div>
-          </div>
-        )}
+              {/* Results count */}
+              {searchQuery || activeFiltersCount > 0 ? (
+                <div className="mb-4 text-sm text-muted-foreground font-metrics">
+                  Showing <span className="font-semibold text-foreground">{filteredRoutes.length}</span> of{' '}
+                  <span className="font-semibold text-foreground">{routes.length}</span> routes
+                </div>
+              ) : null}
 
+              {/* Results */}
+              {filteredRoutes.length === 0 && routes.length > 0 ? (
+                <div className="text-center py-12">
+                  <MapPin className="w-16 h-16 text-muted mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    No routes match your filters
+                  </h3>
+                  <p className="text-muted-foreground mb-6">
+                    Try adjusting your search or filters
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSearchQuery('')
+                      clearFilters()
+                    }}
+                    className="inline-flex items-center gap-2 bg-muted text-foreground px-6 py-3 rounded-lg hover:bg-muted/80 transition-colors"
+                  >
+                    Clear all filters
+                  </button>
+                </div>
+              ) : routes.length === 0 ? (
+                <div className="text-center py-12">
+                  <MapPin className="w-16 h-16 text-muted mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    No routes yet
+                  </h3>
+                  <p className="text-muted-foreground mb-6">
+                    Be the first to create an architectural route!
+                  </p>
+                  {user ? (
+                    <button
+                      onClick={handleOpenRouteCreator}
+                      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>Create First Route</span>
+                    </button>
+                  ) : (
+                    <Link
+                      href="/auth"
+                      className="inline-flex items-center gap-2 bg-muted text-foreground px-6 py-3 rounded-lg hover:bg-muted/80 transition-colors"
+                    >
+                      <span>Sign In to Create Routes</span>
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 auto-rows-fr">
+                  {filteredRoutes.map((route) => (
+                    <Link
+                      key={route.id}
+                      href={`/routes/${route.id}`}
+                      className="bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all flex flex-col group min-h-[240px]"
+                    >
+                      {/* Content */}
+                      <div className="flex-1 mb-4">
+                        <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                          {route.title}
+                        </h3>
+                        {route.description && (
+                          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                            {route.description}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                          <MapPin className="w-4 h-4" />
+                          <span>{route.city}, {route.country}</span>
+                        </div>
+                      </div>
+
+                      {/* Metrics at bottom - single line */}
+                      <div className="pt-3 border-t border-border mt-auto">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground font-metrics">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            {route.estimated_duration_minutes || 60}min
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Navigation2 className="w-3.5 h-3.5" />
+                            {route.points_count || 0} stops
+                          </span>
+                          {route.transport_mode && (
+                            <span className="flex items-center gap-1 ml-auto text-primary">
+                              {route.transport_mode === 'walking' && 'Walking'}
+                              {route.transport_mode === 'cycling' && 'Cycling'}
+                              {route.transport_mode === 'driving' && 'Driving'}
+                              {route.transport_mode === 'public_transport' && 'Transit'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Right column: filters (always visible on desktop) */}
+            <div className="lg:w-80 lg:flex-shrink-0 mt-8 lg:mt-0">
+              <div className="sticky top-6">
+                <RouteFilterPanel
+                  filters={{
+                    cities: selectedCities,
+                    transport: selectedTransport,
+                    durationRange: durationRange
+                  }}
+                  availableCities={uniqueCities}
+                  onFiltersChange={handleFiltersChange}
+                  onClearFilters={clearFilters}
+                  isOpen={true}
+                  onClose={() => { }}
+                  activeFiltersCount={activeFiltersCount}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    
-    {/* Route creation modal */}
-    {isRouteCreatorOpen && user && (
-      <RouteCreator
-        isOpen={isRouteCreatorOpen}
-        onClose={handleCloseRouteCreator}
-        user={user}
-        buildings={buildings}
-      />
-    )}
-    <EnhancedFooter />
-  </>
+
+      {/* Route creation modal */}
+      {isRouteCreatorOpen && user && (
+        <RouteCreator
+          isOpen={isRouteCreatorOpen}
+          onClose={handleCloseRouteCreator}
+          user={user}
+          buildings={buildings}
+        />
+      )}
+      <EnhancedFooter />
+    </>
   )
 }

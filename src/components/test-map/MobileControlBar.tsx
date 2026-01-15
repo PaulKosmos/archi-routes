@@ -20,7 +20,7 @@ export default function MobileControlBar({
   return (
     <div className="
       md:hidden
-      fixed bottom-4 left-4 right-4
+      fixed bottom-2 left-2 right-2
       bg-card/95 backdrop-blur-md
       border-2 border-border
       rounded-[var(--radius)]

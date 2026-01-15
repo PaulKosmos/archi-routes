@@ -177,11 +177,11 @@ export default function BlogPostsSection() {
           {canScrollLeft && (
             <button
               onClick={() => scroll('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 z-10 bg-background border border-border p-3 hover:border-foreground/30 transition-all hidden lg:flex items-center justify-center"
+              className="absolute left-2 lg:left-0 top-1/2 -translate-y-1/2 lg:-translate-x-6 z-10 bg-background/90 backdrop-blur-sm border border-border p-2 lg:p-3 hover:border-foreground/30 transition-all flex items-center justify-center shadow-lg"
               style={{ borderRadius: '2px' }}
               aria-label="Previous articles"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
@@ -301,11 +301,11 @@ export default function BlogPostsSection() {
           {canScrollRight && (
             <button
               onClick={() => scroll('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 z-10 bg-background border border-border p-3 hover:border-foreground/30 transition-all hidden lg:flex items-center justify-center"
+              className="absolute right-2 lg:right-0 top-1/2 -translate-y-1/2 lg:translate-x-6 z-10 bg-background/90 backdrop-blur-sm border border-border p-2 lg:p-3 hover:border-foreground/30 transition-all flex items-center justify-center shadow-lg"
               style={{ borderRadius: '2px' }}
               aria-label="Next articles"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>

@@ -187,11 +187,6 @@ export default function HeroWithVideo({
         </div>
       </div>
 
-      {/* Scroll Indicator - subtle */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
-        <span className="text-xs text-white uppercase tracking-widest">Scroll Down</span>
-        <div className="w-px h-12 bg-gradient-to-b from-white to-transparent animate-pulse"></div>
-      </div>
     </section>
   )
 }

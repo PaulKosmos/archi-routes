@@ -467,25 +467,30 @@ export default function TestMapPage() {
     setSelectedBuilding(building || null)
     setSelectedRoute(null)
 
-    // Центрируем карту на выбранном здании и открываем popup - ТОЛЬКО для мобильных
+    // Центрируем карту на выбранном здании и открываем popup
     if (mapRef.current && buildingId) {
       const isMobile = window.innerWidth < 768
 
       if (isMobile) {
-        mapRef.current.centerOnBuilding(buildingId)
+        // На мобильных центрируем только если открыта панель Buildings
+        if (showMobileBuildings) {
+          mapRef.current.centerOnBuilding(buildingId)
 
-        // Открываем popup после небольшой задержки (чтобы карта успела центрироваться)
-        setTimeout(() => {
-          if (mapRef.current) {
-            mapRef.current.openBuildingPopup(buildingId)
-          }
-        }, 1100) // Чуть больше чем duration анимации (1000ms)
+          // Открываем popup после небольшой задержки (чтобы карта успела центрироваться)
+          setTimeout(() => {
+            if (mapRef.current) {
+              mapRef.current.openBuildingPopup(buildingId)
+            }
+          }, 1100) // Чуть больше чем duration анимации (1000ms)
+        }
+        // Если панель Buildings закрыта - ничего не делаем,
+        // EnhancedMap сам обработает клик и покажет детальный popup
       } else {
         // Для десктопа - только открываем popup без центрирования
         mapRef.current.openBuildingPopup(buildingId)
       }
     }
-  }, [filteredBuildings])
+  }, [filteredBuildings, showMobileBuildings])
 
   const handleBuildingDetails = useCallback((buildingIdOrObject: string | Building) => {
     // Открываем модальное окно с детальной информацией о здании

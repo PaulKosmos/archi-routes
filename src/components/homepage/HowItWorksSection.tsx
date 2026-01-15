@@ -67,17 +67,17 @@ export default function HowItWorksSection() {
                 }}
               >
                 {/* Step number indicator */}
-                <div className="relative inline-flex items-center justify-center mb-6">
+                <div className="relative flex items-center justify-center mb-6">
                   {/* Large number background */}
                   <div className="absolute text-8xl font-bold text-foreground/5 select-none">
                     {step.number}
                   </div>
 
                   {/* Icon container */}
-                  <div className="relative w-32 h-32 bg-card border-2 border-border flex items-center justify-center transition-all duration-300 group-hover:border-foreground/30 group-hover:scale-105"
+                  <div className="relative w-40 h-40 md:w-32 md:h-32 bg-card border-2 border-border flex items-center justify-center transition-all duration-300 group-hover:border-foreground/30 group-hover:scale-105"
                     style={{ borderRadius: '2px' }}
                   >
-                    <span className="text-5xl">{step.icon}</span>
+                    <span className="text-6xl md:text-5xl">{step.icon}</span>
 
                     {/* Step number badge */}
                     <div className="absolute -top-3 -right-3 w-8 h-8 bg-foreground text-background flex items-center justify-center text-sm font-bold"

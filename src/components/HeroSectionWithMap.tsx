@@ -285,13 +285,6 @@ export default function HeroSectionWithMap() {
           )}
         </div>
 
-        {/* Индикатор скролла */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="text-white/60 text-sm mb-2">Scroll Down</div>
-          <div className="w-6 h-10 border-2 border-white/40 rounded-full flex items-start justify-center p-1">
-            <div className="w-1.5 h-3 bg-white/60 rounded-full animate-scroll" />
-          </div>
-        </div>
       </div>
 
       <style jsx>{`
