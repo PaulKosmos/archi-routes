@@ -32,7 +32,7 @@ export interface BlogContentBlock {
   block_type: BlogContentBlockType;
   content?: string;              // HTML текст
   building_id?: string;          // Для building_card блоков
-  images_data: ImageData[];      // Массив изображений
+  images_data?: ImageData[];     // Массив изображений (опционально, т.к. не все блоки используют)
   block_settings?: Record<string, any>; // Дополнительные настройки
   created_at: string;
   updated_at: string;
@@ -111,6 +111,7 @@ export interface BlogPost {
   excerpt?: string
   featured_image_url?: string
   author_id: string
+  category?: string // Категория поста
   status: 'draft' | 'published' | 'archived'
   published_at?: string
   view_count: number

@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import { RouteIcon, Clock, Star, Eye, Car, Bike, Footprints, Bus, MapPin, ChevronRight } from 'lucide-react'
-import type { Route } from '@/types/building'
+import type { Route } from '@/types/route'
 
 interface RouteListProps {
   routes: Route[]
@@ -147,7 +147,7 @@ export default function RouteList({
                   </div>
 
                   {/* Рейтинг и просмотры */}
-                  {((route.rating > 0) || (route.completion_count > 0)) && (
+                  {(((route.rating ?? 0) > 0) || ((route.completion_count ?? 0) > 0)) && (
                     <div className="flex items-center space-x-4 text-xs text-muted-foreground font-metrics mt-1">
                       {route.rating && route.rating > 0 && (
                         <div className="flex items-center">

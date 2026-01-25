@@ -193,7 +193,10 @@ export class SEOGenerator {
 
   // Генерация структурированных данных
   generateStructuredData(type: 'organization' | 'website' | 'breadcrumb' | 'building' | 'route', data?: any): object {
-    const baseStructuredData = { ...SEO_CONFIG.STRUCTURED_DATA[type] }
+    // Only organization and website have base templates
+    const baseStructuredData = type in SEO_CONFIG.STRUCTURED_DATA
+      ? { ...(SEO_CONFIG.STRUCTURED_DATA as Record<string, object>)[type] }
+      : {}
 
     switch (type) {
       case 'breadcrumb':

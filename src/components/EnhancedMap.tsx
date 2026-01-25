@@ -5,7 +5,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import OptimizedImage from './OptimizedImage'
 import type { Building } from '@/types/building'
-import type { Route } from '@/types/route'
+// Note: Using local Route interface below instead of imported type
 import { getStorageUrl } from '@/lib/storage'
 
 // Исправляем иконки Leaflet только на клиенте
@@ -49,6 +49,7 @@ interface Route {
   rating?: number
   review_count?: number
   created_at: string
+  thumbnail_url?: string | null
   route_geometry?: GeoJSON.LineString | null // Добавляем поле для реальной геометрии маршрута
   route_points?: {
     id: string
@@ -388,7 +389,7 @@ const EnhancedMap = forwardRef<EnhancedMapRef, EnhancedMapProps>(
         } else {
           // Для десктопа: используем fitBounds как раньше
           mapInstance.current.fitBounds(bounds, {
-            padding: [50, 50, 50, 50],
+            padding: [50, 50] as [number, number],
             animate: true,
             duration: 1.0,
             maxZoom: 13

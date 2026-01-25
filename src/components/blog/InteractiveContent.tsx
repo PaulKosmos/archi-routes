@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { Plus } from 'lucide-react'
 
-interface Building {
+interface BuildingData {
   id: string
   name: string
   city: string
@@ -12,6 +12,11 @@ interface Building {
   latitude: number
   longitude: number
   image_url?: string
+}
+
+// Support both direct and nested formats
+interface Building extends BuildingData {
+  building?: BuildingData // Legacy nested format
 }
 
 interface InteractiveContentProps {

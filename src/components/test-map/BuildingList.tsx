@@ -11,7 +11,7 @@ interface BuildingListProps {
   selectedBuilding: Building | null
   currentRouteBuildings: string[]
   onBuildingSelect: (building: Building) => void
-  onBuildingDetails?: (building: Building) => void
+  onBuildingDetails?: (buildingIdOrObject: string | Building) => void
   onAddToRoute: (buildingId: string) => void
   onStartRouteFrom: (buildingId: string) => void
   onRemoveFromRoute: (buildingId: string) => void
@@ -124,14 +124,14 @@ export default function BuildingList({
 
                   {/* Статистика */}
                   <div className="flex items-center gap-3 text-xs text-muted-foreground font-metrics">
-                    {building.rating > 0 && (
+                    {(building.rating ?? 0) > 0 && (
                       <div className="flex items-center">
                         <Star className="w-3 h-3 mr-1 fill-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]" />
-                        <span>{building.rating.toFixed(1)}</span>
+                        <span>{(building.rating ?? 0).toFixed(1)}</span>
                       </div>
                     )}
 
-                    {building.view_count > 0 && (
+                    {(building.view_count ?? 0) > 0 && (
                       <div className="flex items-center">
                         <Eye className="w-3 h-3 mr-1" />
                         <span>{building.view_count}</span>

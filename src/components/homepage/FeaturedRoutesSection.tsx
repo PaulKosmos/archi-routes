@@ -29,7 +29,7 @@ const transportModes = {
 }
 
 // Difficulty badges
-const difficultyConfig = {
+const difficultyConfig: Record<string, { label: string; color: string }> = {
   easy: { label: 'Easy', color: 'bg-green-100 text-green-700 border-green-200' },
   medium: { label: 'Medium', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
   hard: { label: 'Hard', color: 'bg-red-100 text-red-700 border-red-200' }
@@ -118,7 +118,16 @@ export default function FeaturedRoutesSection({ routes, loading }: FeaturedRoute
                   {route.route_geometry && route.route_points && route.route_points.length > 0 ? (
                     <RoutePreviewMap
                       geometry={route.route_geometry}
-                      points={route.route_points}
+                      points={route.route_points
+                        .filter((p): p is typeof p & { latitude: number; longitude: number } =>
+                          p.latitude !== null && p.longitude !== null
+                        )
+                        .map(p => ({
+                          latitude: p.latitude,
+                          longitude: p.longitude,
+                          title: p.title || '',
+                          order_index: p.order_index
+                        }))}
                       isHovered={isHovered}
                     />
                   ) : (

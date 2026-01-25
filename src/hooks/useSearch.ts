@@ -62,8 +62,8 @@ export function useSearch(options: UseSearchOptions = {}) {
   const supabase = useMemo(() => createClient(), [])
 
   // Refs для предотвращения циклов
-  const searchTimeoutRef = useRef<NodeJS.Timeout>()
-  const suggestionTimeoutRef = useRef<NodeJS.Timeout>()
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isInitializedRef = useRef(false)
 
   // Состояние поиска

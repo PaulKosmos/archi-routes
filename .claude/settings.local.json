@@ -77,7 +77,9 @@
       "Bash(git diff:*)",
       "Bash(test:*)",
       "Bash(npm run type-check:*)",
-      "Bash(timeout /t 10 /nobreak)"
+      "Bash(timeout /t 10 /nobreak)",
+      "Bash(ping:*)",
+      "Bash(cut:*)"
     ],
     "deny": [],
     "ask": []

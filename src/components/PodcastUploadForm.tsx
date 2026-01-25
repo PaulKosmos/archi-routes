@@ -243,7 +243,7 @@ export default function PodcastUploadForm({
       <SeriesManager
         series={series}
         selectedSeriesId={selectedSeries}
-        onSeriesSelect={setSelectedSeries}
+        onSeriesSelect={(seriesId) => setSelectedSeries(seriesId ?? '')}
         onSeriesCreated={handleSeriesCreated}
         onSeriesUpdated={handleSeriesUpdated}
         onSeriesDeleted={handleSeriesDeleted}

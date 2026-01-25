@@ -31,7 +31,6 @@ export default function RoutePreviewMap({ geometry, points, isHovered }: RoutePr
       doubleClickZoom: false,
       boxZoom: false,
       keyboard: false,
-      tap: false,
       touchZoom: false,
       attributionControl: false
     })

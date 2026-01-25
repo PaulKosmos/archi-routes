@@ -2,7 +2,7 @@
 
 import { Suspense, lazy } from 'react'
 import { RouteIcon } from 'lucide-react'
-import type { Route } from '@/types/building'
+import type { Route } from '@/types/route'
 
 // Ленивая загрузка RouteList
 const RouteList = lazy(() => import('./RouteList'))
@@ -12,7 +12,7 @@ interface LazyRouteListProps {
   selectedRoute?: Route | null
   selectedRouteId?: string
   onRouteSelect?: (route: Route) => void
-  onRouteClick?: (route: Route) => void
+  onRouteClick?: (routeOrId: string | Route) => void
   onRouteDetails?: (route: Route) => void
   title?: string
   maxHeight?: string

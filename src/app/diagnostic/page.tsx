@@ -62,10 +62,14 @@ export default function DiagnosticPage() {
       }
 
       // 2. Проверяем статус таблиц
-      const { data: tables, error: tablesError } = await supabase
-        .rpc('get_table_list')
-        .then(() => null) // RPC может не работать, используем прямую проверку
-        .catch(() => null)
+      // RPC может не работать, используем прямую проверку таблиц
+      let tables = null
+      try {
+        const result = await supabase.rpc('get_table_list')
+        tables = result.data
+      } catch {
+        // RPC не работает, игнорируем
+      }
 
       // Проверяем каждую таблицу отдельно
       const tablesStatus = []

@@ -417,7 +417,7 @@ export default function LeafletMap({
         marker.setIcon(markerIcon)
 
         // Центрируем карту на выбранном здании (только если нет маршрутов)
-        if (isSelected && (!routes || routes.length === 0)) {
+        if (isSelected && (!routes || routes.length === 0) && mapInstance.current) {
           const currentZoom = mapInstance.current.getZoom()
           mapInstance.current.setView(
             [building.latitude, building.longitude],

@@ -1,6 +1,8 @@
 // Art Deco Architectural Map Markers
 // Geometric, monument-inspired design for building locations
 
+import { Building } from '@/types/building';
+
 export const createBuildingIcon = (
   building: Building,
   isSelected: boolean = false,

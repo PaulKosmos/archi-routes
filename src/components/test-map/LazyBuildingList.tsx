@@ -12,6 +12,7 @@ interface LazyBuildingListProps {
   selectedBuilding: Building | null
   currentRouteBuildings: string[]
   onBuildingSelect: (building: Building) => void
+  onBuildingDetails?: (buildingIdOrObject: string | Building) => void
   onAddToRoute: (buildingId: string) => void
   onStartRouteFrom: (buildingId: string) => void
   onRemoveFromRoute: (buildingId: string) => void

@@ -37,10 +37,10 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
   })
 
   // Получаем все изображения здания с правильными URL
-  const images = [
+  const images: string[] = [
     building.image_url ? getStorageUrl(building.image_url, 'photos') : null,
     ...(building.image_urls || []).map(url => url ? getStorageUrl(url, 'photos') : null)
-  ].filter(Boolean)
+  ].filter((url): url is string => url !== null)
   
   console.log('🏢 Building images:', {
     originalImageUrl: building.image_url,

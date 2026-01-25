@@ -335,7 +335,7 @@ export default function PodcastEditPage() {
                     description: episode.description || '',
                     episode_number: episode.episode_number,
                     series_id: episode.series_id,
-                    status: episode.status,
+                    status: episode.status === 'archived' ? 'draft' : episode.status,
                     published_at: episode.published_at,
                     apple_podcasts_url: episode.apple_podcasts_url,
                     spotify_url: episode.spotify_url,

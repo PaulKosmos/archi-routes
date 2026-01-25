@@ -13,7 +13,7 @@ export interface UploadResult {
  */
 export async function uploadImage(
   file: File,
-  folder: 'buildings' | 'routes' | 'profiles' = 'buildings',
+  folder: 'buildings' | 'routes' | 'profiles' | 'news' = 'buildings',
   onProgress?: (progress: number) => void
 ): Promise<UploadResult> {
   try {

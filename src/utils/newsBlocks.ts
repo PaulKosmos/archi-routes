@@ -286,7 +286,7 @@ export const duplicateBlock = (blocks: ContentBlock[], index: number): ContentBl
 /**
  * Переиндексирует блоки после перестановки
  */
-export const reorderBlocks = (blocks: ContentBlock[]): ContentBlock[] => {
+export const reorderBlocks = <T extends { order_index: number }>(blocks: T[]): T[] => {
   return blocks.map((block, i) => ({
     ...block,
     order_index: i

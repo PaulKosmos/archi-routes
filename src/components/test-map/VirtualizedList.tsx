@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { FixedSizeList as List } from 'react-window'
+import { List } from 'react-window'
 
 interface VirtualizedListProps<T> {
   items: T[]
@@ -24,22 +24,17 @@ export default function VirtualizedList<T>({
   className = '',
   overscanCount = 5
 }: VirtualizedListProps<T>) {
-  const listRef = useRef<List>(null)
+  const listRef = useRef<{ element: HTMLDivElement | null } | null>(null)
 
   // Мемоизируем рендер функции для оптимизации
-  const ItemRenderer = useMemo(() => ({ index, style }: { index: number; style: React.CSSProperties }) => {
-    const item = items[index]
-    if (!item) return null
-    
-    return renderItem({ index, style, item })
-  }, [items, renderItem])
+  const RowComponent = useMemo(() => {
+    return function Row({ index, style }: { index: number; style: React.CSSProperties }) {
+      const item = items[index]
+      if (!item) return <div style={style} />
 
-  // Автоматически скроллить к началу при изменении списка
-  useEffect(() => {
-    if (listRef.current) {
-      listRef.current.scrollTo(0)
+      return <>{renderItem({ index, style, item })}</>
     }
-  }, [items])
+  }, [items, renderItem])
 
   // Если список пуст, показываем заглушку
   if (items.length === 0) {
@@ -57,15 +52,15 @@ export default function VirtualizedList<T>({
   return (
     <div className={className}>
       <List
-        ref={listRef}
-        height={height}
-        itemCount={items.length}
-        itemSize={itemHeight}
+        listRef={listRef as any}
+        rowCount={items.length}
+        rowHeight={itemHeight}
         overscanCount={overscanCount}
         className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
-      >
-        {ItemRenderer}
-      </List>
+        defaultHeight={height}
+        rowComponent={RowComponent}
+        rowProps={{} as any}
+      />
     </div>
   )
 }

@@ -55,8 +55,9 @@ export async function generateMetadata({ params }: NewsDetailPageProps): Promise
 
     const imageUrl = article.featured_image_url || '/images/default-news-og.jpg';
     const publishedTime = article.published_at || undefined;
-    const author = Array.isArray(article.profiles) ? article.profiles[0]?.full_name :
-      article.profiles?.full_name || 'Archi Routes';
+    const profiles = article.profiles as { full_name?: string } | { full_name?: string }[] | null;
+    const author = Array.isArray(profiles) ? profiles[0]?.full_name :
+      profiles?.full_name || 'Archi Routes';
 
     // Формируем ключевые слова
     const keywords = [
@@ -98,7 +99,7 @@ export async function generateMetadata({ params }: NewsDetailPageProps): Promise
           }
         ],
         publishedTime,
-        authors: [author],
+        authors: author ? [author] : undefined,
         section: categoryName,
         tags: article.tags || [],
         locale: 'ru_RU',
@@ -116,7 +117,7 @@ export async function generateMetadata({ params }: NewsDetailPageProps): Promise
 
       // Дополнительные meta теги
       other: {
-        'article:author': author,
+        'article:author': author || '',
         'article:published_time': publishedTime || '',
         'article:section': categoryName,
         'article:tag': (article.tags || []).join(','),

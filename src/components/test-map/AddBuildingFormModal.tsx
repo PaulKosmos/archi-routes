@@ -30,6 +30,7 @@ export interface BuildingFormData {
     title: string
     content: string
     tags: string[]
+    rating?: number
     opening_hours?: string
     entry_fee?: string
   }
@@ -117,6 +118,7 @@ export default function AddBuildingFormModal({
     title: '',
     content: '',
     tags: [] as string[],
+    rating: 0,
     opening_hours: '',
     entry_fee: ''
   })

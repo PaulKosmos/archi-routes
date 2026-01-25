@@ -25,23 +25,25 @@ export default function ImageTextLeftBlock({ block }: ImageTextLeftBlockProps) {
   const image = images_data[0];
   const imageWidth = block_settings?.imageWidth || 40; // Процент ширины
   const imageRatio = block_settings?.imageRatio || '1:1';
-  const textAlign = block_settings?.textAlign || 'left';
-  const fontSize = block_settings?.fontSize || 'medium';
+  const textAlign = (block_settings?.textAlign || 'left') as 'left' | 'center' | 'right' | 'justify';
+  const fontSize = (block_settings?.fontSize || 'medium') as 'small' | 'medium' | 'large';
 
   // Стили размера шрифта
-  const fontSizeClass = {
+  const fontSizeClasses: Record<'small' | 'medium' | 'large', string> = {
     small: 'text-sm',
     medium: 'text-base',
     large: 'text-lg'
-  }[fontSize];
+  };
+  const fontSizeClass = fontSizeClasses[fontSize];
 
   // Стили выравнивания текста
-  const alignClass = {
+  const alignClasses: Record<'left' | 'center' | 'right' | 'justify', string> = {
     left: 'text-left',
     center: 'text-center',
     right: 'text-right',
     justify: 'text-justify'
-  }[textAlign];
+  };
+  const alignClass = alignClasses[textAlign];
 
   // Вычисляем ширину текста и изображения
   const textWidth = 100 - imageWidth;

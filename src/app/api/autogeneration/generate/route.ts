@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
     const response: GenerateRouteResponse = {
       success: false,
       generation_log_id: '',
-      error: error.message || 'Неизвестная ошибка генерации'
+      error: error instanceof Error ? error.message : 'Неизвестная ошибка генерации'
     }
 
     return NextResponse.json(response, { status: 500 })
@@ -138,7 +138,8 @@ async function createRouteFromGeneration(
   params: GenerationParams,
   userId: string,
   userTitle: string,
-  supabaseAdmin: ReturnType<typeof createClient>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabaseAdmin: any
 ): Promise<string> {
   try {
     // 2. ИСПРАВЛЕНИЕ КРИТИЧНОЙ ПРОБЛЕМЫ: Оптимизируем порядок точек для логичного маршрута

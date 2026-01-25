@@ -59,11 +59,13 @@ export default function BuildingNews({
 
     } catch (err) {
       console.error('🏢 [ERROR] Ошибка загрузки новостей здания:', err);
-      console.error('🏢 [ERROR] Error details:', {
-        message: err.message,
-        stack: err.stack,
-        name: err.name
-      });
+      if (err instanceof Error) {
+        console.error('🏢 [ERROR] Error details:', {
+          message: err.message,
+          stack: err.stack,
+          name: err.name
+        });
+      }
       setError(err instanceof Error ? err.message : 'Error loading news');
     } finally {
       console.log('🏢 [DEBUG] News loading finished');

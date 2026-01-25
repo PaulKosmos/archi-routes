@@ -495,6 +495,10 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
     setAutogenParams(prev => ({
       ...prev,
       ...preset.params,
+      // Ensure difficulty is properly typed
+      difficulty: (preset.params.difficulty || 'easy') as typeof prev.difficulty,
+      // Ensure time_preferences is properly typed
+      time_preferences: ((preset.params as { time_preferences?: string }).time_preferences || prev.time_preferences) as typeof prev.time_preferences,
       route_title: preset.name + ' в ' + prev.city
     }))
   }

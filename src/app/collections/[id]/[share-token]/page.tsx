@@ -1,5 +1,10 @@
 import PublicCollectionPage from './PublicCollectionPage'
 
-export default function Page({ params }: { params: { id: string; 'share-token': string } }) {
-  return <PublicCollectionPage collectionId={params.id} shareToken={params['share-token']} />
+interface PageProps {
+  params: Promise<{ id: string; 'share-token': string }>
+}
+
+export default async function Page({ params }: PageProps) {
+  const { id, 'share-token': shareToken } = await params
+  return <PublicCollectionPage collectionId={id} shareToken={shareToken} />
 }

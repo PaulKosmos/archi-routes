@@ -138,7 +138,7 @@ export default function UserProfile({ user, onLogout }: UserProfileProps) {
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
-              {profile.full_name?.[0]?.toUpperCase() || profile.email[0].toUpperCase()}
+              {profile.full_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || 'U'}
             </div>
             <div>
               <h3 className="text-xl font-semibold text-gray-900">

@@ -42,6 +42,7 @@ import RouteCreationMethodModal from '../../components/test-map/RouteCreationMet
 import RouteCreator from '../../components/RouteCreator'
 import AddBuildingInstructionModal from '../../components/test-map/AddBuildingInstructionModal'
 import AddBuildingFormModal, { type BuildingFormData } from '../../components/test-map/AddBuildingFormModal'
+import PageLoader from '@/components/ui/PageLoader'
 import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import { uploadMultipleImages, uploadAudio } from '@/lib/storage'
@@ -666,7 +667,7 @@ export default function TestMapPage() {
       }
 
       // 3. Создаем обзор если есть данные
-      if (buildingData.review && (buildingData.review.rating > 0 || buildingData.review.content)) {
+      if (buildingData.review && ((buildingData.review.rating ?? 0) > 0 || buildingData.review.content)) {
         console.log('📝 [SAVE] Creating review for building:', building.id)
 
         // Загружаем аудио если есть
@@ -689,7 +690,7 @@ export default function TestMapPage() {
           .insert({
             building_id: building.id,
             user_id: user.id,
-            rating: buildingData.review.rating,
+            rating: buildingData.review.rating ?? 0,
             title: buildingData.review.title || null,
             content: buildingData.review.content || null,
             review_type: 'general',
@@ -708,15 +709,15 @@ export default function TestMapPage() {
           console.log('📝 [SAVE] Review created successfully:', review)
 
           // Обновляем рейтинг здания
-          if (buildingData.review.rating > 0) {
+          if ((buildingData.review.rating ?? 0) > 0) {
             await supabase
               .from('buildings')
               .update({
-                rating: buildingData.review.rating,
+                rating: buildingData.review.rating ?? 0,
                 review_count: 1
               })
               .eq('id', building.id)
-            console.log('⭐ [SAVE] Building rating updated:', buildingData.review.rating)
+            console.log('⭐ [SAVE] Building rating updated:', buildingData.review.rating ?? 0)
           }
 
           // Загружаем фото обзора если есть и они отличаются от фото здания
@@ -887,7 +888,7 @@ export default function TestMapPage() {
   const handleSelectAICreation = useCallback(() => {
     setIsRouteMethodModalOpen(false)
     // Пока заглушка - позже добавим AI форму
-    toast.info('🤖 AI генерация маршрутов скоро будет доступна!')
+    toast('🤖 AI генерация маршрутов скоро будет доступна!', { icon: 'ℹ️' })
   }, [])
 
   // Сохранение личного маршрута
@@ -923,7 +924,7 @@ export default function TestMapPage() {
         console.log('✅ Маршрут построен:', routeResult)
       } catch (routeError) {
         console.error('⚠️ Ошибка построения маршрута:', routeError)
-        toast.warning('⚠️ Используются прямые линии (MapBox недоступен)')
+        toast('⚠️ Используются прямые линии (MapBox недоступен)', { icon: '⚠️' })
         // Fallback к простой геометрии
         routeResult = {
           geometry: {
@@ -1028,7 +1029,7 @@ export default function TestMapPage() {
         const buildingId = button.dataset.buildingId
 
         if (selectedBuildingsForRoute.includes(buildingId)) {
-          toast.info('ℹ️ Здание уже добавлено')
+          toast('ℹ️ Здание уже добавлено', { icon: 'ℹ️' })
           return
         }
 
@@ -1051,14 +1052,7 @@ export default function TestMapPage() {
   }, [buildings, handleBuildingDetails, selectedBuildingsForRoute])
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading map...</p>
-        </div>
-      </div>
-    )
+    return <PageLoader message="Loading map..." size="lg" />
   }
 
   return (
@@ -1267,10 +1261,10 @@ export default function TestMapPage() {
                                   {route.distance_km && (
                                     <span>{route.distance_km} км</span>
                                   )}
-                                  {route.rating > 0 && (
+                                  {(route.rating ?? 0) > 0 && (
                                     <div className="flex items-center">
                                       <Star className="w-3 h-3 text-yellow-400 mr-1" />
-                                      {route.rating.toFixed(1)}
+                                      {(route.rating ?? 0).toFixed(1)}
                                     </div>
                                   )}
                                 </div>

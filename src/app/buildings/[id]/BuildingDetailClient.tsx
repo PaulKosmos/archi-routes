@@ -5,8 +5,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase'
-import { Building, BuildingReviewWithProfile } from '@/types/building'
-import { RouteWithPoints } from '@/types/route'
+import { Building, BuildingReviewWithProfile, RouteWithPoints } from '@/types/building'
 import BuildingHeader from '@/components/buildings/BuildingHeader'
 import BuildingReviews from '@/components/buildings/BuildingReviews'
 import { Loader2, MapPin, Clock, Users, Star, Camera, Navigation, Calendar, User, Building as BuildingIcon } from 'lucide-react'
@@ -152,9 +151,9 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
         console.log('✅ Blog posts loaded:', blogPosts.length)
       }
       
-      let routes = []
+      let routes: { routes: RouteWithPoints }[] = []
       if (routesResult.status === 'fulfilled' && routesResult.value.data) {
-        routes = routesResult.value.data
+        routes = routesResult.value.data as unknown as { routes: RouteWithPoints }[]
         console.log('✅ Routes loaded:', routes.length)
       }
       
@@ -177,18 +176,21 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
         .from('buildings')
         .update({ view_count: (building.view_count || 0) + 1 })
         .eq('id', building.id)
-        .then(() => console.log('✅ View count updated'))
-        .catch(err => console.error('❌ View count error:', err))
+        .then(({ error }) => {
+          if (error) console.error('❌ View count error:', error)
+          else console.log('✅ View count updated')
+        })
 
       const totalTime = Date.now() - startTime
       console.log('🏢 [SUCCESS] Total fetchBuildingData took:', totalTime, 'ms')
 
     } catch (err) {
       console.error('🏢 [ERROR] Error fetching building data:', err)
+      const error = err as Error
       console.error('🏢 [ERROR] Error details:', {
-        message: err.message,
-        stack: err.stack,
-        name: err.name
+        message: error.message,
+        stack: error.stack,
+        name: error.name
       })
 
       // Fallback: set minimal data to ensure page loads

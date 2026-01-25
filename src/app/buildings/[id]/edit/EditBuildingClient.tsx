@@ -183,7 +183,8 @@ export default function EditBuildingClient({
 
     } catch (error) {
       console.error('🗑️ Ошибка удаления:', error)
-      alert(`Error deleting: ${error.message}`)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      alert(`Error deleting: ${errorMessage}`)
     } finally {
       setDeleting(false)
       setShowDeleteModal(false)

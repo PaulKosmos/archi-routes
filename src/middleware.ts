@@ -1,8 +1,49 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// CORS Configuration
+const allowedOrigins = [
+  'https://archi-routes.com',
+  'https://www.archi-routes.com',
+  'https://archiroutes.com',
+  'https://www.archiroutes.com',
+  // Add your Vercel preview URLs pattern if needed
+  // 'https://*.vercel.app',
+]
+
+// Allow localhost in development
+if (process.env.NODE_ENV === 'development') {
+  allowedOrigins.push('http://localhost:3000')
+  allowedOrigins.push('http://127.0.0.1:3000')
+}
+
+function getCorsHeaders(origin: string | null): HeadersInit {
+  const headers: HeadersInit = {
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+    'Access-Control-Max-Age': '86400', // 24 hours
+  }
+
+  // Check if origin is allowed
+  if (origin && (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development')) {
+    headers['Access-Control-Allow-Origin'] = origin
+    headers['Access-Control-Allow-Credentials'] = 'true'
+  }
+
+  return headers
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const origin = request.headers.get('origin')
+
+  // Handle CORS preflight requests
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, {
+      status: 204,
+      headers: getCorsHeaders(origin),
+    })
+  }
 
   // Защищенные маршруты
   const protectedRoutes = ['/admin', '/settings', '/profile/edit']
@@ -10,6 +51,12 @@ export async function middleware(request: NextRequest) {
 
   if (isProtectedRoute) {
     const response = NextResponse.next()
+
+    // Add CORS headers to protected routes
+    const corsHeaders = getCorsHeaders(origin)
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value)
+    })
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,6 +101,16 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
+  // Add CORS headers to non-protected routes (API routes)
+  if (pathname.startsWith('/api/')) {
+    const response = NextResponse.next()
+    const corsHeaders = getCorsHeaders(origin)
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value)
+    })
+    return response
+  }
+
   return NextResponse.next()
 }
 
@@ -61,6 +118,7 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/settings/:path*',
-    '/profile/edit/:path*'
+    '/profile/edit/:path*',
+    '/api/:path*',
   ]
 }

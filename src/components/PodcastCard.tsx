@@ -112,7 +112,7 @@ export default function PodcastCard({
                 <span>{formatDate(episode.published_at)}</span>
               </div>
             )}
-            {episode.duration_seconds > 0 ? (
+            {episode.duration_seconds && episode.duration_seconds > 0 ? (
               <div className="flex items-center gap-1">
                 <Clock size={14} />
                 <span>
@@ -174,7 +174,7 @@ export default function PodcastCard({
           {episode.title}
         </h3>
 
-        {episode.duration_seconds > 0 ? (
+        {episode.duration_seconds && episode.duration_seconds > 0 ? (
           <p className="text-xs text-muted-foreground">
             {Math.floor(episode.duration_seconds / 60)} мин
           </p>
@@ -252,7 +252,7 @@ export default function PodcastCard({
 
         <div className="flex items-center justify-between text-xs text-muted-foreground font-metrics mt-3 pt-3 border-t border-border">
           <div className="flex items-center gap-2">
-            {episode.duration_seconds > 0 ? (
+            {episode.duration_seconds && episode.duration_seconds > 0 ? (
               <div className="flex items-center gap-1">
                 <Clock size={14} />
                 <span>{Math.floor(episode.duration_seconds / 60)} мин</span>

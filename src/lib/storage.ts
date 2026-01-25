@@ -43,7 +43,7 @@ export const generateStoragePath = (
 }
 
 // Получение публичного URL
-export const getStorageUrl = (path: string, bucket: 'photos' | 'audio' | 'podcasts' = 'photos'): string => {
+export const getStorageUrl = (path: string, bucket: 'photos' | 'audio' | 'podcasts' | 'avatars' = 'photos'): string => {
   // Проверяем на пустое или null значение
   if (!path || path.trim() === '') {
     return ''

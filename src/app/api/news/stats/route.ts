@@ -2,7 +2,7 @@
 // API роут для получения статистики новостей
 
 import { NextRequest, NextResponse } from 'next/server';
-import { NewsStats } from '@/types/news';
+import { NewsStats, NewsArticle } from '@/types/news';
 import { createServerClient } from '@/lib/supabase-server';
 
 export async function GET(request: NextRequest) {
@@ -51,10 +51,10 @@ export async function GET(request: NextRequest) {
       total_shares: allNews.reduce((sum, n) => sum + (n.shares_count || 0), 0),
       categories_distribution: categoriesDistribution,
       recent_activity: {
-        new_articles_this_week: allNews.filter(n => 
+        new_articles_this_week: allNews.filter(n =>
           new Date(n.created_at) >= oneWeekAgo
         ).length,
-        trending_articles: trendingNews || [],
+        trending_articles: (trendingNews || []) as unknown as NewsArticle[],
       },
     };
 

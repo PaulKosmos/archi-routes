@@ -107,8 +107,9 @@ export default function ProfilePage() {
 
       // Рассчитываем общие просмотры и средний рейтинг
       const totalViews = buildingsRes.data?.reduce((sum, building) => sum + (building.view_count || 0), 0) || 0
-      const avgRating = reviewsRes.data?.length > 0
-        ? reviewsRes.data.reduce((sum, review) => sum + review.rating, 0) / reviewsRes.data.length
+      const reviewsData = reviewsRes.data || []
+      const avgRating = reviewsData.length > 0
+        ? reviewsData.reduce((sum, review) => sum + review.rating, 0) / reviewsData.length
         : 0
 
       setStats({

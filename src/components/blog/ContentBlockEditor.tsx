@@ -35,7 +35,7 @@ import BuildingCardBlockEditor from './blocks/editors/BuildingCardBlockEditor';
 
 interface ContentBlockEditorProps {
   blogPostId: string;
-  initialBlocks?: BlogContentBlock[];
+  initialBlocks?: BlogContentBlock[] | CreateBlogContentBlock[];
   onChange: (blocks: CreateBlogContentBlock[]) => void;
   onSave?: () => void;
   readOnly?: boolean;

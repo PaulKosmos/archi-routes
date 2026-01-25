@@ -13,11 +13,11 @@ import type { Building } from '../types/building'
 import { PlusCircle, Menu, X, MapPin, Search } from 'lucide-react'
 
 interface HeaderProps {
-  buildings: Building[]
+  buildings?: Building[]
   onRouteCreated?: () => void // Callback для обновления
 }
 
-export default function Header({ buildings, onRouteCreated }: HeaderProps) {
+export default function Header({ buildings = [], onRouteCreated }: HeaderProps) {
   const { user, profile, loading } = useAuth()
   const pathname = usePathname()
   const [isRouteCreatorOpen, setIsRouteCreatorOpen] = useState(false)

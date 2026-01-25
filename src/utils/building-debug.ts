@@ -35,7 +35,7 @@ export async function getAllBuildings(): Promise<BuildingDebugInfo> {
       total: buildings?.length || 0,
       buildings: buildings || [],
       currentUrl: typeof window !== 'undefined' ? window.location.href : undefined,
-      extractedId: typeof window !== 'undefined' ? extractIdFromUrl(window.location.href) : undefined
+      extractedId: typeof window !== 'undefined' ? extractIdFromUrl(window.location.href) ?? undefined : undefined
     }
   } catch (error) {
     console.error('Error getting buildings for debug:', error)
@@ -43,7 +43,7 @@ export async function getAllBuildings(): Promise<BuildingDebugInfo> {
       total: 0,
       buildings: [],
       currentUrl: typeof window !== 'undefined' ? window.location.href : undefined,
-      extractedId: typeof window !== 'undefined' ? extractIdFromUrl(window.location.href) : undefined
+      extractedId: typeof window !== 'undefined' ? extractIdFromUrl(window.location.href) ?? undefined : undefined
     }
   }
 }

@@ -35,7 +35,7 @@ import GalleryBlockEditor from './blocks/GalleryBlockEditor';
 
 interface ContentBlockEditorProps {
   newsId: string;
-  initialBlocks?: ContentBlock[];
+  initialBlocks?: ContentBlock[] | CreateContentBlock[];
   onChange: (blocks: CreateContentBlock[]) => void;
   onSave?: () => void;
   readOnly?: boolean;

@@ -422,26 +422,14 @@ export async function POST(request: NextRequest) {
       console.log('Auth failed, but continuing:', authErr);
     }
     
-    // Для тестирования - если нет user_id, используем первого доступного
-    let authorId = user?.id;
-    if (!authorId) {
-      console.log('No authenticated user, getting first available user...');
-      const { data: firstUser } = await supabase
-        .from('profiles')
-        .select('id')
-        .limit(1)
-        .single();
-      
-      if (firstUser) {
-        authorId = firstUser.id;
-        console.log('Using first available user:', authorId);
-      } else {
-        return NextResponse.json({ 
-          error: 'No users available in system', 
-          debug: 'Need to create a user profile first'
-        }, { status: 400 });
-      }
+    // Require authentication for creating news articles
+    if (!user?.id) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
     }
+    const authorId = user.id;
     const newsData: CreateNewsArticle = {
       ...body,
       author_id: authorId, // Используем полученный authorId

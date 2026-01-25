@@ -12,8 +12,11 @@ import { MapPin } from 'lucide-react';
 // ТИПЫ
 // ============================================================
 
+// Минимальный тип здания для карты новости
+type NewsBuilding = Pick<Building, 'id' | 'name'> & Partial<Pick<Building, 'latitude' | 'longitude' | 'image_url' | 'architect' | 'year_built' | 'city'>>;
+
 interface NewsObjectsMapProps {
-  buildings: Building[];
+  buildings?: NewsBuilding[];
   onBuildingClick?: (buildingId: string) => void;
   className?: string;
 }
@@ -59,7 +62,7 @@ export default function NewsObjectsMap({
 
   // Конвертируем здания в маркеры для карты
   const markers = useMemo(() => {
-    return buildings
+    return (buildings || [])
       .filter(b => b.latitude && b.longitude)
       .map(building => ({
         id: building.id,

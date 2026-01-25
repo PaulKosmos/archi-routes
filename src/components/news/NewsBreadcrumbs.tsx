@@ -26,7 +26,12 @@ export default function NewsBreadcrumbs({
     'heritage': 'Наследие'
   };
 
-  const breadcrumbs = [
+  const breadcrumbs: Array<{
+    title: string;
+    href: string;
+    icon?: typeof Home;
+    current?: boolean;
+  }> = [
     { title: 'Home', href: '/', icon: Home },
     { title: 'News', href: '/news' },
   ];

@@ -48,8 +48,16 @@ export default function BuildingCardBlock({ block }: BuildingCardBlockProps) {
   const showYear = block_settings?.showYear !== false;
   const showStyle = block_settings?.showStyle !== false;
 
-  // Формируем массив зданий для карты
-  const buildingsForMap = useMemo(() => [building], [building]);
+  // Формируем массив зданий для карты с полными данными
+  const buildingsForMap = useMemo(() => [{
+    ...building,
+    country: building.city || '', // Use city as fallback
+    style: building.architectural_style || '',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    latitude: building.latitude ?? 0,
+    longitude: building.longitude ?? 0,
+  }], [building]);
 
   return (
     <section className="building-card-block my-10 max-w-5xl mx-auto">

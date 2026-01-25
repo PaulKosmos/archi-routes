@@ -57,7 +57,7 @@ export default function AddToCollectionButton({
         .from('collection_buildings')
         .select('collection_id')
         .eq('building_id', buildingId)
-        .in('collection_id', (userCollections || []).map(c => c.id))
+        .in('collection_id', (userCollections || []).map((c: { id: string }) => c.id))
 
       if (buildingError) throw buildingError
 

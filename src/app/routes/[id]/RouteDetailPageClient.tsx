@@ -15,10 +15,10 @@ export default function RouteDetailPageClient() {
   const params = useParams()
   const searchParams = useSearchParams()
   const { user, loading: authLoading } = useAuth()
-  const [route, setRoute] = useState(null)
-  const [buildings, setBuildings] = useState([])
+  const [route, setRoute] = useState<any>(null)
+  const [buildings, setBuildings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   const routeId = params.id as string
 

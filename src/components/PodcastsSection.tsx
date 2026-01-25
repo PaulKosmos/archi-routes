@@ -223,10 +223,10 @@ export default function PodcastsSection() {
                           EP. {episode.episode_number}
                         </span>
                       )}
-                      {episode.duration_seconds > 0 && (
+                      {(episode.duration_seconds ?? 0) > 0 && (
                         <div className="flex items-center space-x-1 text-xs text-gray-500">
                           <Clock size={12} />
-                          <span>{formatDuration(episode.duration_seconds)}</span>
+                          <span>{formatDuration(episode.duration_seconds ?? 0)}</span>
                         </div>
                       )}
                     </div>

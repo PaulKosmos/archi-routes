@@ -9,16 +9,27 @@ import LikeButton from '@/components/LikeButton';
 interface NewsCardProps {
   news: NewsArticleWithDetails;
   variant?: 'compact' | 'horizontal' | 'featured';
+  /** @deprecated Use variant instead */
+  size?: string;
   className?: string;
   disableLink?: boolean;
+  showSummary?: boolean;
+  showRelatedBuildings?: boolean;
+  showMetrics?: boolean;
 }
 
 export default function NewsCard({
   news,
-  variant = 'compact',
+  variant: variantProp,
+  size,
   className = '',
-  disableLink = false
+  disableLink = false,
+  showSummary: _showSummary,
+  showRelatedBuildings: _showRelatedBuildings,
+  showMetrics: _showMetrics
 }: NewsCardProps) {
+  // Map deprecated size prop to variant
+  const variant = variantProp ?? (size === 'large' ? 'featured' : size === 'small' ? 'compact' : 'compact');
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
@@ -128,7 +139,7 @@ export default function NewsCard({
                 />
                 <span className="flex items-center gap-1">
                   <MessageCircle className="h-3 w-3" />
-                  {news.comments_count || 0}
+                  {(news as any).comments_count || 0}
                 </span>
               </div>
               <button className="text-xs text-[hsl(var(--news-primary))] font-medium hover:underline">
@@ -198,7 +209,7 @@ export default function NewsCard({
             />
             <span className="flex items-center gap-1">
               <MessageCircle className="h-3 w-3" />
-              {news.comments_count || 0}
+              {(news as any).comments_count || 0}
             </span>
           </div>
           <button className="text-xs text-[hsl(var(--news-primary))] font-medium hover:underline">

@@ -4,14 +4,14 @@ export const dynamic = 'force-dynamic'
 
 // src/app/admin/autogeneration/page.tsx - Полная страница автогенерации
 
-
-
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useAuth } from '../../../hooks/useAuth'
+import { createClient } from '@/lib/supabase'
 import Header from '@/components/Header'
 
 export default function AutogenerationPage() {
   const { user } = useAuth()
+  const supabase = useMemo(() => createClient(), [])
   const [isGenerating, setIsGenerating] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
@@ -28,12 +28,20 @@ export default function AutogenerationPage() {
 
     try {
       console.log('🚀 Запускаем тест автогенерации с исправлениями...')
-      
+
+      // Get access token from session
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        setError('Не удалось получить токен авторизации')
+        setIsGenerating(false)
+        return
+      }
+
       const response = await fetch('/api/autogeneration/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.session?.access_token}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
           city: 'Berlin',

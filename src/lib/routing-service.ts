@@ -1,4 +1,5 @@
 // lib/routing-service.ts
+// Note: Fallback key for local development only. Set NEXT_PUBLIC_ORS_API_KEY in production.
 const ORS_API_KEY = process.env.NEXT_PUBLIC_ORS_API_KEY || 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjAyNThmM2VhMjMxYzQwNGFiMTcyYjc2NDVlNjUyYWJkIiwiaCI6Im11cm11cjY0In0='
 const ORS_BASE_URL = 'https://api.openrouteservice.org/v2'
 
