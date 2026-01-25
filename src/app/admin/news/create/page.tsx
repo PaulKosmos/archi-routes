@@ -795,6 +795,7 @@ export default function CreateNewsPage() {
             id: `temp-block-${index}`,
             news_id: 'temp-preview-id',
             order_index: index,
+            images_data: block.images_data || [],
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           }))}

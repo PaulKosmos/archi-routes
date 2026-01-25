@@ -208,7 +208,8 @@ export class PerformanceMonitor {
     // FID Observer
     const fidObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        const fid = entry.processingStart - entry.startTime
+        const eventEntry = entry as PerformanceEventTiming
+        const fid = eventEntry.processingStart - eventEntry.startTime
         this.recordMetric('fid', fid)
         this.checkThreshold('fid', fid, PERFORMANCE_THRESHOLDS.FID)
       }

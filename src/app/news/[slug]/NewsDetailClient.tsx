@@ -298,11 +298,19 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
       }
 
       // Шаг 2: Загружаем связанные здания
-      let buildingsData = [];
+      let buildingsData: Array<{
+        id: string;
+        name: string;
+        architect?: string;
+        year_built?: number;
+        city?: string;
+        image_url?: string;
+        architectural_style?: string;
+      }> = [];
       if (newsData.related_buildings && newsData.related_buildings.length > 0) {
         const { data: buildings, error: buildingsError } = await supabase
           .from('buildings')
-          .select('id, name, architect, year_built, city, country, latitude, longitude, image_url, architectural_style')
+          .select('id, name, architect, year_built, city, image_url, architectural_style')
           .in('id', newsData.related_buildings);
 
         if (!buildingsError) {
@@ -371,6 +379,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
           userInteractions = {
             liked: interactions.some(i => i.interaction_type === 'like'),
             bookmarked: interactions.some(i => i.interaction_type === 'bookmark'),
+            shared: interactions.some(i => i.interaction_type === 'share'),
           };
         }
       }
@@ -439,8 +448,9 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
           setArticle(prev => prev ? {
             ...prev,
             user_interactions: {
-              ...prev.user_interactions,
-              ...(type === 'like' ? { liked: false } : { bookmarked: false })
+              liked: type === 'like' ? false : (prev.user_interactions?.liked ?? false),
+              bookmarked: type === 'bookmark' ? false : (prev.user_interactions?.bookmarked ?? false),
+              shared: prev.user_interactions?.shared ?? false
             },
             likes_count: type === 'like' ? Math.max(0, (prev.likes_count || 0) - 1) : prev.likes_count,
             bookmarks_count: type === 'bookmark' ? Math.max(0, (prev.bookmarks_count || 0) - 1) : prev.bookmarks_count
@@ -461,8 +471,9 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
           setArticle(prev => prev ? {
             ...prev,
             user_interactions: {
-              ...prev.user_interactions,
-              ...(type === 'like' ? { liked: true } : { bookmarked: true })
+              liked: type === 'like' ? true : (prev.user_interactions?.liked ?? false),
+              bookmarked: type === 'bookmark' ? true : (prev.user_interactions?.bookmarked ?? false),
+              shared: prev.user_interactions?.shared ?? false
             },
             likes_count: type === 'like' ? (prev.likes_count || 0) + 1 : prev.likes_count,
             bookmarks_count: type === 'bookmark' ? (prev.bookmarks_count || 0) + 1 : prev.bookmarks_count

@@ -16,6 +16,7 @@ import {
   Clock,
   MapPin,
   User as UserIcon,
+  Folder,
   FolderPlus
 } from 'lucide-react'
 import Link from 'next/link'

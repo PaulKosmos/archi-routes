@@ -135,6 +135,8 @@ export function SearchPage({
                 searchHistory={searchHistory}
                 onSuggestionSelect={handleSuggestionSelect}
                 onHistorySelect={handleHistorySelect}
+                activeFiltersCount={activeFiltersCount}
+                onFiltersToggle={() => {}}
                 size="lg"
                 autoFocus
                 showFiltersButton={false}

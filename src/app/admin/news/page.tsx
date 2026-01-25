@@ -36,7 +36,7 @@ import {
 export default function NewsAdminPage() {
   const { user, profile } = useAuth();
   const { fetchNews, updateNews, deleteNews, loading: apiLoading, error: apiError } = useNewsAPI();
-  const [news, setNews] = useState<NewsArticle[]>([]);
+  const [news, setNews] = useState<NewsArticleWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);

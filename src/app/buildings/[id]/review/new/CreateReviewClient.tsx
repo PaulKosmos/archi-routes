@@ -31,6 +31,7 @@ interface CreateReviewClientProps {
 interface ReviewForm {
   title: string
   content: string
+  rating: number
   review_type: 'general' | 'expert' | 'historical' | 'amateur'
   visit_date: string
   tags: string[]
@@ -46,6 +47,7 @@ export default function CreateReviewClient({ building }: CreateReviewClientProps
   const [form, setForm] = useState<ReviewForm>({
     title: '',
     content: '',
+    rating: 0,
     review_type: 'amateur',
     visit_date: '',
     tags: [],

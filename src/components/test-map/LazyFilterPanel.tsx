@@ -39,6 +39,7 @@ interface LazyFilterPanelProps {
   onToggleFilters: () => void
   radiusMode?: 'none' | 'location' | 'map'
   onRadiusModeChange?: (mode: 'none' | 'location' | 'map') => void
+  isMobile?: boolean
 }
 
 // Компонент загрузки для фильтров

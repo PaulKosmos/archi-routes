@@ -15,7 +15,8 @@ import PodcastCard from '@/components/PodcastCard'
 import PodcastFiltersComponent from '@/components/PodcastFilters'
 import PodcastMiniPlayer from '@/components/PodcastMiniPlayer'
 import { PodcastEpisode, PodcastSeries, PodcastTag, PodcastFilters } from '@/types/podcast'
-import { Headphones, Loader2, Search, ChevronDown, Plus, Grid, List } from 'lucide-react'
+import { Headphones, Search, ChevronDown, Plus, Grid, List } from 'lucide-react'
+import { SectionLoader } from '@/components/ui/PageLoader'
 import Link from 'next/link'
 
 export default function PodcastsPage() {
@@ -292,9 +293,7 @@ export default function PodcastsPage() {
           <div className="lg:col-span-3">
             {/* Episodes Grid/List */}
             {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="animate-spin text-[hsl(var(--podcast-primary))]" size={40} />
-              </div>
+              <SectionLoader message="Loading podcasts..." />
             ) : error ? (
               <div className="bg-destructive/10 border-2 border-destructive p-6 text-center">
                 <p className="text-destructive font-semibold">{error}</p>

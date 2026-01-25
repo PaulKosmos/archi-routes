@@ -132,8 +132,8 @@ export default function ProfileRoutesPage() {
     return matchesSearch && matchesType && matchesDifficulty
   })
 
-  const uniqueTypes = Array.from(new Set(routes.map(r => r.route_type).filter(Boolean)))
-  const uniqueDifficulties = Array.from(new Set(routes.map(r => r.difficulty_level).filter(Boolean)))
+  const uniqueTypes = Array.from(new Set(routes.map(r => r.route_type).filter(Boolean) as string[]))
+  const uniqueDifficulties = Array.from(new Set(routes.map(r => r.difficulty_level).filter(Boolean) as string[]))
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {

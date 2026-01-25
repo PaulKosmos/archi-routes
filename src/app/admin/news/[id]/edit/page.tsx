@@ -136,7 +136,7 @@ export default function EditNewsPage() {
   // ✅ AUTO-SAVE FUNCTION
   const autoSave = async () => {
     // Don't auto-save if manually saving or if article status is published
-    if (saving || article?.status === 'published' || !formData.title.trim()) {
+    if (saving || article?.status === 'published' || !(formData.title || '').trim()) {
       return;
     }
 
@@ -145,9 +145,9 @@ export default function EditNewsPage() {
       console.log('💾 Auto-saving draft...');
 
       const updateData = {
-        title: formData.title.trim(),
+        title: (formData.title || '').trim(),
         slug: formData.slug,
-        content: formData.content.trim(),
+        content: (formData.content || '').trim(),
         summary: formData.summary?.trim() || null,
         category: formData.category,
         subcategory: formData.subcategory,
@@ -307,7 +307,7 @@ export default function EditNewsPage() {
 
   // ✅ ПРЯМОЕ СОХРАНЕНИЕ ЧЕРЕЗ SUPABASE
   const handleSubmit = async (status?: 'draft' | 'review' | 'published') => {
-    if (!formData.title.trim() || !formData.content.trim()) {
+    if (!(formData.title || '').trim() || !(formData.content || '').trim()) {
       setError('Заголовок и содержание обязательны для заполнения');
       return;
     }
@@ -319,9 +319,9 @@ export default function EditNewsPage() {
       console.log('💾 Saving article:', newsId);
 
       const updateData = {
-        title: formData.title.trim(),
+        title: (formData.title || '').trim(),
         slug: formData.slug,
-        content: formData.content.trim(),
+        content: (formData.content || '').trim(),
         summary: formData.summary?.trim() || null,
         category: formData.category,
         subcategory: formData.subcategory,
@@ -476,7 +476,7 @@ export default function EditNewsPage() {
     setFormData(prev => ({
       ...prev,
       title,
-      slug: prev.slug === generateSlug(prev.title) ? generateSlug(title) : prev.slug
+      slug: prev.slug === generateSlug(prev.title || '') ? generateSlug(title) : prev.slug
     }));
   };
 
@@ -843,7 +843,7 @@ export default function EditNewsPage() {
                   Текст новости <span className="text-red-500">*</span>
                 </label>
                 <NewsEditor
-                  content={formData.content}
+                  content={formData.content || ''}
                   onChange={(content) => setFormData(prev => ({ ...prev, content }))}
                   placeholder="Enter news text..."
                 />
@@ -958,7 +958,7 @@ export default function EditNewsPage() {
           {/* Preview Button */}
           <button
             onClick={() => setShowPreview(true)}
-            disabled={saving || !formData.title.trim()}
+            disabled={saving || !(formData.title || '').trim()}
             className="flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             title="Предпросмотр новости"
           >

@@ -96,9 +96,9 @@ export default function UsersManagementPage() {
       console.log(`Найдено ${usersData?.length || 0} пользователей`)
 
       // Загружаем статистику по зданиям, обзорам и маршрутам
-      let buildingsCounts = {}
-      let reviewsCounts = {}
-      let routesCounts = {}
+      let buildingsCounts: Record<string, number> = {}
+      let reviewsCounts: Record<string, number> = {}
+      let routesCounts: Record<string, number> = {}
 
       if (usersData && usersData.length > 0) {
         console.log('Загружаем статистику...')

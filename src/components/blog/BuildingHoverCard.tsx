@@ -30,7 +30,7 @@ export default function BuildingHoverCard({
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const hoverRef = useRef<HTMLSpanElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   const handleMouseEnter = (e: React.MouseEvent) => {
     if (timeoutRef.current) {

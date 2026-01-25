@@ -50,13 +50,8 @@ export default function ContentBlockRenderer({
       return <GalleryBlock block={block} />;
 
     case 'building_card':
-      return (
-        <BuildingCardBlock
-          block={block}
-          onShowOnMap={onShowBuildingOnMap}
-          onAddToRoute={onAddBuildingToRoute}
-        />
-      );
+      // BuildingCardBlock has its own map toggle, doesn't need external handlers
+      return <BuildingCardBlock block={block} />;
 
     default:
       console.warn(`Неизвестный тип блока: ${block.block_type}`);

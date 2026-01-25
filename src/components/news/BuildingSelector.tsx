@@ -49,7 +49,7 @@ export default function BuildingSelector({
       try {
         const { data, error } = await supabase
           .from('buildings')
-          .select('id, name, city, country, latitude, longitude, image_url, architect, year_built')
+          .select('*')
           .or(`name.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%,architect.ilike.%${searchQuery}%`)
           .eq('moderation_status', 'approved')
           .limit(10);
@@ -58,7 +58,7 @@ export default function BuildingSelector({
 
         // Фильтруем уже выбранные здания
         const selectedIds = selectedBuildings.map(b => b.id);
-        const filtered = (data || []).filter(b => !selectedIds.includes(b.id));
+        const filtered = (data || []).filter(b => !selectedIds.includes(b.id)) as Building[];
 
         setSearchResults(filtered);
         setShowDropdown(true);

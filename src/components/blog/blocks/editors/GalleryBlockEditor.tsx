@@ -147,11 +147,12 @@ export default function GalleryBlockEditor({
   };
 
   // Классы для grid
-  const gridColumnsClass = {
+  const gridColumnsMap: Record<number, string> = {
     2: 'grid-cols-1 sm:grid-cols-2',
     3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
     4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
-  }[columns] || 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+  };
+  const gridColumnsClass = gridColumnsMap[columns as number] || 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
 
   return (
     <div ref={setNodeRef} style={style}>

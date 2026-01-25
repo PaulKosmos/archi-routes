@@ -241,7 +241,7 @@ export const moveBlock = (
 /**
  * Пересчитывает order_index для всех блоков
  */
-export const reorderBlocks = (blocks: BlogContentBlock[]): BlogContentBlock[] => {
+export const reorderBlocks = <T extends { order_index: number }>(blocks: T[]): T[] => {
   return blocks.map((block, i) => ({
     ...block,
     order_index: i

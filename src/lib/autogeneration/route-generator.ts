@@ -43,7 +43,7 @@ export class RouteGenerator {
       // 1. Получаем шаблон если указан
       const template = params.template_id
         ? await this.getTemplate(params.template_id)
-        : null
+        : undefined
 
       // 2. Находим подходящие здания
       const buildings = await this.findSuitableBuildings(params, template)
@@ -102,7 +102,8 @@ export class RouteGenerator {
     } catch (error) {
       console.error('❌ Ошибка генерации:', error)
       const processingTime = Date.now() - startTime
-      await this.updateLogStatus('failed', undefined, processingTime, error.message)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      await this.updateLogStatus('failed', undefined, processingTime, errorMessage)
       throw error
     }
   }
@@ -381,7 +382,8 @@ export class RouteGenerator {
   ): Promise<string> {
     if (!this.aiProvider || this.aiProvider.provider_type === 'local') {
       // Мок-генерация для тестирования
-      const styleHint = template?.template_config.style || 'архитектурный'
+      const rawStyle = template?.template_config.style
+      const styleHint = Array.isArray(rawStyle) ? rawStyle[0] : (rawStyle || 'архитектурный')
       return `${this.capitalizeFirst(styleHint)} маршрут по ${params.city}`
     }
 
@@ -400,7 +402,8 @@ export class RouteGenerator {
     if (!this.aiProvider || this.aiProvider.provider_type === 'local') {
       // Мок-генерация
       const pointsCount = points?.length || 0
-      const styleHint = template?.template_config.style || 'различных архитектурных стилей'
+      const rawStyle = template?.template_config.style
+      const styleHint = Array.isArray(rawStyle) ? rawStyle.join(', ') : (rawStyle || 'различных архитектурных стилей')
 
       return `Увлекательный маршрут по ${pointsCount} архитектурным объектам в городе ${params.city}. ` +
         `Вы познакомитесь с зданиями ${styleHint} и узнаете их историю. ` +
@@ -429,11 +432,11 @@ export class RouteGenerator {
   // МОКИРОВАНИЕ AI ВЫЗОВОВ
   // ======================================
 
-  private async mockAICall(prompt: string, type: string): Promise<string> {
+  private async mockAICall(prompt: string, type: 'title' | 'description'): Promise<string> {
     // Симуляция задержки AI
     await new Promise(resolve => setTimeout(resolve, 500))
 
-    const mockResponses = {
+    const mockResponses: Record<'title' | 'description', string[]> = {
       title: [
         'Архитектурные жемчужины города',
         'По следам великих архитекторов',
@@ -448,7 +451,7 @@ export class RouteGenerator {
       ]
     }
 
-    const responses = mockResponses[type] || ['Сгенерированный контент']
+    const responses = mockResponses[type]
     return responses[Math.floor(Math.random() * responses.length)]
   }
 
@@ -649,7 +652,7 @@ export class RouteGenerator {
     return styleMap[style] || [style]
   }
 
-  private async getTemplate(templateId: string): Promise<RouteTemplate | null> {
+  private async getTemplate(templateId: string): Promise<RouteTemplate | undefined> {
     const { data, error } = await this.supabase
       .from('route_templates')
       .select('*')
@@ -658,10 +661,10 @@ export class RouteGenerator {
 
     if (error) {
       console.error('Ошибка получения шаблона:', error)
-      return null
+      return undefined
     }
 
-    return data
+    return data ?? undefined
   }
 
   // ======================================

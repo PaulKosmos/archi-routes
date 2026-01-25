@@ -7,10 +7,11 @@ import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { MapPin, Plus, ArrowLeft, Search, X, Clock, Navigation2 } from 'lucide-react'
+import { PageLoader } from '@/components/ui/PageLoader'
 import RouteCreator from '@/components/RouteCreator'
 import { SmartRouteFilter } from '@/lib/smart-route-filtering'
 import { RouteFilterPanel } from '@/components/RouteFilterPanel'
-import type { RouteWithUserData } from '@/types/route'
+// Using local SimpleRoute type instead of RouteWithUserData
 import type { Building } from '@/types/building'
 import Header from '@/components/Header'
 import EnhancedFooter from '@/components/EnhancedFooter'
@@ -106,7 +107,21 @@ export default function RoutesPage() {
         }
       })
 
-      setRoutes(smartRoutes)
+      // Convert to SimpleRoute format
+      const simpleRoutes: SimpleRoute[] = smartRoutes.map(r => ({
+        id: r.id,
+        title: r.title,
+        description: r.description,
+        city: r.city,
+        country: r.country,
+        transport_mode: r.transport_mode ?? null,
+        estimated_duration_minutes: r.estimated_duration_minutes,
+        points_count: r.points_count,
+        is_published: r.is_published,
+        created_at: r.created_at
+      }))
+
+      setRoutes(simpleRoutes)
 
     } catch (smartError: any) {
       // Fallback to regular query
@@ -137,17 +152,19 @@ export default function RoutesPage() {
           return
         }
 
-        // Convert to needed format
-        const formattedRoutes = (routesData || []).map(route => ({
-          ...route,
-          // Add missing fields
-          route_points: [],
-          profiles: null,
-          route_geometry: null,
-          distance_km: 0,
-          rating: null,
-          completion_count: 0
-        })) as RouteWithUserData[]
+        // Convert to SimpleRoute format
+        const formattedRoutes: SimpleRoute[] = (routesData || []).map(route => ({
+          id: route.id,
+          title: route.title,
+          description: route.description,
+          city: route.city,
+          country: route.country,
+          transport_mode: route.transport_mode,
+          estimated_duration_minutes: route.estimated_duration_minutes,
+          points_count: route.points_count,
+          is_published: route.is_published,
+          created_at: route.created_at
+        }))
 
         setRoutes(formattedRoutes)
 
@@ -216,14 +233,7 @@ export default function RoutesPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-muted-foreground">Loading routes...</div>
-        </div>
-      </div>
-    )
+    return <PageLoader message="Loading routes..." size="lg" />
   }
 
   if (error) {

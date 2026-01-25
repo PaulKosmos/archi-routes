@@ -71,6 +71,9 @@ export interface BuildingReview {
   // Новые поля для рейтинга от пользователей
   user_rating_avg: number
   user_rating_count: number
+  // Практическая информация
+  opening_hours?: string
+  entry_fee?: string
 }
 
 export interface BuildingReviewWithProfile extends BuildingReview {

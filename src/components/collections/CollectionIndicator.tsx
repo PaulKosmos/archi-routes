@@ -50,6 +50,7 @@ export default function CollectionIndicator({ buildingId, className = '' }: Coll
 
       const collectionsList = data
         ?.map(item => item.collections)
+        .flat()
         .filter(Boolean) as CollectionInfo[]
 
       setCollections(collectionsList || [])

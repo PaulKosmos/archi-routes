@@ -40,7 +40,7 @@ export default function NewsListPage() {
   const [searchInput, setSearchInput] = useState('');
 
   // Check if user can manage news
-  const canManageNews = profile?.role === 'admin' || profile?.role === 'moderator' || profile?.role === 'editor';
+  const canManageNews = profile?.role === 'admin' || profile?.role === 'moderator';
 
   // Check if user can edit grid
   const canEditGrid = profile?.role ? canEditNewsGrid(profile.role) : false;

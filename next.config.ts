@@ -6,12 +6,12 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig: NextConfig = {
-  // Temporarily ignore ESLint and TypeScript errors during build for bundle analysis
+  // TypeScript errors fixed (Jan 25, 2026) - See PRE_LAUNCH_AUDIT_REPORT.md
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: true, // TODO: Enable ESLint checking after fixing lint errors
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false, // ✅ TypeScript checking enabled
   },
   // Use standalone output to avoid static export issues with dynamic pages
   output: 'standalone',

@@ -433,3 +433,111 @@
     border-radius: var(--radius);
   }
 }
+
+/* =============================================================================
+   PAGE LOADER ANIMATIONS
+   Globe-themed loading animation for city exploration platform
+   ============================================================================= */
+
+@keyframes globe-rotate {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes meridian-shift {
+  0%, 100% {
+    transform: scaleX(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scaleX(0.3);
+    opacity: 0.4;
+  }
+}
+
+@keyframes meridian-shift-reverse {
+  0%, 100% {
+    transform: scaleX(0.3);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 0.6;
+  }
+}
+
+@keyframes building-fade {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes pin-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.5));
+  }
+  50% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 4px 8px rgba(239, 68, 68, 0.7));
+  }
+}
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce-dot {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.animate-globe-rotate {
+  animation: globe-rotate 20s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.animate-meridian-shift {
+  animation: meridian-shift 3s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.animate-meridian-shift-reverse {
+  animation: meridian-shift-reverse 3s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.animate-building-fade {
+  animation: building-fade 2s ease-in-out infinite;
+}
+
+.animate-pin-pulse {
+  animation: pin-pulse 1.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.animate-orbit {
+  animation: orbit 4s linear infinite;
+}
+
+.animate-bounce-dot {
+  animation: bounce-dot 1.4s ease-in-out infinite;
+}

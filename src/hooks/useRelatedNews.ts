@@ -493,8 +493,8 @@ export const useReadAlso = (options: UseReadAlsoOptions): UseReadAlsoReturn => {
         }
 
         // Добавляем новости из категории, которых еще нет
-        const existingIds = new Set(finalNews.map(n => n.id));
-        const additionalNews = (categoryData || []).filter(n => !existingIds.has(n.id));
+        const existingIds = new Set(finalNews.map((n: { id: string }) => n.id));
+        const additionalNews = (categoryData || []).filter((n: { id: string }) => !existingIds.has(n.id));
         finalNews = [...finalNews, ...additionalNews];
       }
 

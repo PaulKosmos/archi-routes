@@ -196,7 +196,7 @@ export default function ArticleMapContainer({
           <ArticleMap
             buildings={validBuildings}
             onBuildingSelect={handleBuildingSelect}
-            selectedBuildingId={selectedBuildingId}
+            selectedBuildingId={selectedBuildingId ?? undefined}
           />
         </MapErrorBoundary>
       )}

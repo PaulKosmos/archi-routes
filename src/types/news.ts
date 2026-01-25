@@ -29,7 +29,7 @@ export interface ContentBlock {
   order_index: number;
   block_type: ContentBlockType;
   content?: string;              // Markdown или HTML текст
-  images_data: ImageData[];      // Массив изображений
+  images_data?: ImageData[];     // Массив изображений (опционально, т.к. не все блоки используют)
   block_settings?: Record<string, any>; // Дополнительные настройки
   created_at: string;
   updated_at: string;
@@ -330,7 +330,7 @@ export interface NewsFilters {
 
 // Параметры сортировки
 export interface NewsSortOptions {
-  field: 'created_at' | 'published_at' | 'views_count' | 'likes_count' | 'priority' | 'title';
+  field: 'created_at' | 'published_at' | 'updated_at' | 'views_count' | 'likes_count' | 'priority' | 'title';
   direction: 'asc' | 'desc';
 }
 
@@ -473,7 +473,7 @@ export const isTextBlock = (block: ContentBlock): boolean => {
 };
 
 export const hasImages = (block: ContentBlock): boolean => {
-  return block.images_data && block.images_data.length > 0;
+  return !!(block.images_data && block.images_data.length > 0);
 };
 
 export const getBlockImageCount = (blockType: ContentBlockType): number => {
@@ -722,38 +722,57 @@ export interface UpdateNewsGridBlock extends Partial<UpdateNewsGridCard> { }
  */
 export interface NewsGridBlockWithNews extends Partial<NewsGridCardWithNews> { }
 
-// Утилиты для работы с блоками сетки
+// ============================================================
+// DEPRECATED GRID BLOCK UTILITIES
+// ============================================================
 
-// Получить конфигурацию блока по типу
-export const getGridBlockConfig = (type: NewsGridBlockType): GridBlockConfig | undefined => {
-  return GRID_BLOCK_CONFIGS.find(config => config.type === type);
+/**
+ * @deprecated Old grid block configuration type
+ * Use CardSizeConfig instead
+ */
+export interface GridBlockConfig {
+  type: string;
+  newsCount: number;
+  label: string;
+  icon: string;
+  description: string;
+}
+
+/**
+ * @deprecated Old grid block configurations (kept for backward compatibility)
+ * Use CARD_SIZE_CONFIGS instead
+ */
+export const GRID_BLOCK_CONFIGS: GridBlockConfig[] = [];
+
+/**
+ * @deprecated Use CARD_SIZE_CONFIGS instead
+ * Get configuration for a block type (always returns undefined as old system is deprecated)
+ */
+export const getGridBlockConfig = (_type: string): GridBlockConfig | undefined => {
+  return undefined;
 };
 
-// Получить количество новостей для блока
-export const getGridBlockNewsCount = (type: NewsGridBlockType): number => {
-  const config = getGridBlockConfig(type);
-  return config?.newsCount || 1;
+/**
+ * @deprecated New card system uses single news per card
+ * Get news count for a block type (always returns 1 as new system uses single news per card)
+ */
+export const getGridBlockNewsCount = (_type: string): number => {
+  return 1;
 };
 
-// Валидация блока сетки
-export const validateGridBlock = (block: Partial<CreateNewsGridBlock>): string[] => {
+/**
+ * @deprecated Use validateGridCard instead
+ * Validate a grid block (kept for backward compatibility)
+ */
+export const validateGridBlock = (block: Partial<CreateNewsGridCard>): string[] => {
   const errors: string[] = [];
-
-  if (!block.block_type) {
-    errors.push('Block type is required');
-  }
 
   if (block.position === undefined || block.position < 0) {
     errors.push('Valid position is required');
   }
 
-  if (!block.news_ids || block.news_ids.length === 0) {
-    errors.push('At least one news article is required');
-  }
-
-  const requiredCount = getGridBlockNewsCount(block.block_type!);
-  if (block.news_ids && block.news_ids.length !== requiredCount) {
-    errors.push(`Block type ${block.block_type} requires exactly ${requiredCount} news article(s)`);
+  if (!block.news_id) {
+    errors.push('News article is required');
   }
 
   return errors;

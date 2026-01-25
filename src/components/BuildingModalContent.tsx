@@ -108,7 +108,7 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
 
       // 2. Получаем связанные блог-посты (упрощенный запрос)
       console.log('📰 [MODAL] Fetching blog posts...')
-      let blogPosts = []
+      let blogPosts: { post_id: string }[] = []
       try {
         const { data: blogData, error: blogError } = await supabase
           .from('blog_post_buildings')
@@ -131,7 +131,7 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
 
       // 3. Получаем маршруты (упрощенный запрос)
       console.log('🛤️ [MODAL] Fetching routes...')
-      let routes = []
+      let routes: { route_id: string }[] = []
       try {
         const { data: routesData, error: routesError } = await supabase
           .from('route_points')
@@ -183,12 +183,14 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
       })
 
       // Увеличиваем счетчик просмотров (в фоне, не блокирующе)
-      supabase
-        .from('buildings')
-        .update({ view_count: (building.view_count || 0) + 1 })
-        .eq('id', building.id)
+      Promise.resolve(
+        supabase
+          .from('buildings')
+          .update({ view_count: (building.view_count || 0) + 1 })
+          .eq('id', building.id)
+      )
         .then(() => console.log('📊 [SUCCESS] View count updated'))
-        .catch(err => console.log('📊 [ERROR] Could not update view count:', err))
+        .catch((err: Error) => console.log('📊 [ERROR] Could not update view count:', err))
 
       const totalTime = Date.now() - startTime
       console.log('🏢 [SUCCESS] Total fetchBuildingData took:', totalTime, 'ms')

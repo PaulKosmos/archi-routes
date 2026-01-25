@@ -131,22 +131,23 @@ export function useAuth() {
             .select('*')
             .eq('id', session.user.id)
             .single()
-            .then(({ data: profile }) => {
-              setAuthState({
-                user: session.user,
-                profile: profile || null,
-                loading: false,
-                initialized: true
-              })
-            })
-            .catch(err => {
-              console.error('Error loading profile on sign in:', err)
-              setAuthState({
-                user: session.user,
-                profile: null,
-                loading: false,
-                initialized: true
-              })
+            .then(({ data: profile, error }) => {
+              if (error) {
+                console.error('Error loading profile on sign in:', error)
+                setAuthState({
+                  user: session.user,
+                  profile: null,
+                  loading: false,
+                  initialized: true
+                })
+              } else {
+                setAuthState({
+                  user: session.user,
+                  profile: profile || null,
+                  loading: false,
+                  initialized: true
+                })
+              }
             })
         } else if (event === 'SIGNED_OUT') {
           // Пользователь вышел

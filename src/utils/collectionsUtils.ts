@@ -23,9 +23,11 @@ export interface CollectionBuilding {
     name: string
     architect?: string
     city: string
+    country?: string
     image_url?: string
     rating: number
     year_built?: number
+    architectural_style?: string
   }
 }
 

@@ -11,7 +11,8 @@ import {
   Newspaper,
   LayoutDashboard,
   Bot,
-  Podcast
+  Podcast,
+  BarChart3
 } from 'lucide-react'
 
 export default function AdminLayout({
@@ -60,6 +61,11 @@ export default function AdminLayout({
     {
       title: 'Management',
       items: [
+        {
+          name: 'Analytics',
+          href: '/admin/analytics',
+          icon: BarChart3
+        },
         {
           name: 'Moderation',
           href: '/admin/moderation',
