@@ -79,7 +79,9 @@
       "Bash(npm run type-check:*)",
       "Bash(timeout /t 10 /nobreak)",
       "Bash(ping:*)",
-      "Bash(cut:*)"
+      "Bash(cut:*)",
+      "mcp__playwright__playwright_select",
+      "Bash(wc:*)"
     ],
     "deny": [],
     "ask": []

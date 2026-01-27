@@ -5,8 +5,8 @@ import dynamic from 'next/dynamic'
 import { Building2, Map, ChevronDown, ChevronUp } from 'lucide-react'
 import MapErrorBoundary from './MapErrorBoundary'
 
-// Динамически импортируем ArticleMap с fallback
-const ArticleMap = dynamic(() => import('./ArticleMap'), {
+// Динамически импортируем MapLibreArticleMap с fallback
+const ArticleMap = dynamic(() => import('./MapLibreArticleMap'), {
   ssr: false,
   loading: () => (
     <div className="h-80 bg-gray-200 flex items-center justify-center">
@@ -41,15 +41,16 @@ export default function ArticleMapContainer({
     b.building.longitude
   )
 
-  const handleBuildingSelect = (building: any) => {
-    console.log('🏗️ Building selected:', building.name)
-    setSelectedBuildingId(building.id)
-    
+  const handleBuildingSelect = (buildingId: string) => {
+    const building = validBuildings.find(b => b.building.id === buildingId)?.building
+    console.log('🏗️ Building selected:', building?.name)
+    setSelectedBuildingId(buildingId)
+
     // Отправляем событие для уведомления других компонентов
     window.dispatchEvent(new CustomEvent('map-building-selected', {
-      detail: { building, buildingId: building.id }
+      detail: { building, buildingId }
     }))
-    
+
     // Прокручиваем к карте если нужно
     scrollToMapContainer()
   }

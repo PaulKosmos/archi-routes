@@ -5,8 +5,8 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import type { Route } from '@/types/route'
 
-// Динамический импорт карты
-const RoutePreviewMap = dynamic(() => import('./RoutePreviewMap'), {
+// Динамический импорт MapLibre карты (миграция с Leaflet)
+const MapLibreRoutePreview = dynamic(() => import('./MapLibreRoutePreview'), {
   ssr: false,
   loading: () => (
     <div className="aspect-[4/3] bg-muted animate-pulse flex items-center justify-center">
@@ -113,10 +113,10 @@ export default function FeaturedRoutesSection({ routes, loading }: FeaturedRoute
                 onMouseEnter={() => setHoveredRoute(route.id)}
                 onMouseLeave={() => setHoveredRoute(null)}
               >
-                {/* Route Preview Map */}
+                {/* Route Preview Map - MapLibre */}
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                   {route.route_geometry && route.route_points && route.route_points.length > 0 ? (
-                    <RoutePreviewMap
+                    <MapLibreRoutePreview
                       geometry={route.route_geometry}
                       points={route.route_points
                         .filter((p): p is typeof p & { latitude: number; longitude: number } =>

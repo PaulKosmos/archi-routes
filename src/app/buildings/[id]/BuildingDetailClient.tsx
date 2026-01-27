@@ -13,8 +13,8 @@ import Link from 'next/link'
 import { getStorageUrl } from '@/lib/storage'
 import BuildingNews from '@/components/news/BuildingNews'
 
-// Dynamic import for Leaflet component (avoid SSR)
-const BuildingMap = dynamic(() => import('@/components/buildings/BuildingMap'), {
+// Dynamic import for MapLibre component (migrated from Leaflet)
+const MapLibreBuildingMap = dynamic(() => import('@/components/buildings/MapLibreBuildingMap'), {
   ssr: false,
   loading: () => <div className="w-full h-96 bg-muted animate-pulse flex items-center justify-center rounded-[var(--radius)]">
     <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -490,12 +490,12 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
               </div>
             </div>
 
-            {/* Map */}
+            {/* Map - MapLibre */}
             <div className="bg-card rounded-[var(--radius)] border border-border overflow-hidden">
               <div className="p-4 border-b border-border">
                 <h3 className="font-semibold font-display text-foreground">Location</h3>
               </div>
-              <BuildingMap
+              <MapLibreBuildingMap
                 building={building}
                 className="h-64"
               />

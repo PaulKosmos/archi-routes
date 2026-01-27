@@ -47,8 +47,8 @@ import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import { uploadMultipleImages, uploadAudio } from '@/lib/storage'
 
-// Динамический импорт улучшенной карты
-const EnhancedMap = dynamic(() => import('../../components/EnhancedMap'), {
+// Динамический импорт MapLibre карты (миграция с Leaflet)
+const MapLibreEnhanced = dynamic(() => import('../../components/MapLibreEnhanced'), {
   ssr: false,
   loading: () => <div className="h-full bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
     <span className="text-gray-500">Loading map...</span>
@@ -56,7 +56,7 @@ const EnhancedMap = dynamic(() => import('../../components/EnhancedMap'), {
 })
 
 // Импорт типа для ref
-import type { EnhancedMapRef } from '../../components/EnhancedMap'
+import type { MapLibreEnhancedRef } from '../../components/MapLibreEnhanced'
 
 // Типы данных (импортируем из types/building.ts)
 import type { Building } from '@/types/building'
@@ -105,7 +105,7 @@ export default function TestMapPage() {
   const [mapView, setMapView] = useState<'buildings' | 'routes' | null>(null) // Панель закрыта по умолчанию
 
   // Ref для карты (для центрирования на маршруте)
-  const mapRef = useRef<EnhancedMapRef>(null)
+  const mapRef = useRef<MapLibreEnhancedRef>(null)
 
   // Mobile bottom sheet states
   const [showMobileFilters, setShowMobileFilters] = useState(false)
@@ -1288,9 +1288,9 @@ export default function TestMapPage() {
               </div>
             </div>
 
-            {/* Карта - статичная, всегда показываем все объекты */}
+            {/* Карта MapLibre - WebGL рендеринг, векторные тайлы */}
             <div className="absolute inset-0 z-0">
-              <EnhancedMap
+              <MapLibreEnhanced
                 ref={mapRef}
                 buildings={filteredBuildings}
                 routes={filteredRoutes.map(convertRouteForMap)}

@@ -9,8 +9,8 @@ import type { Building, RoutePoint } from '../../../../types/building'
 import { Save, X, Plus, MapPin, Clock, ArrowLeft, Trash2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
-// Динамический импорт карты
-const LeafletMapCreator = dynamic(() => import('../../../../components/LeafletMapCreator'), {
+// Динамический импорт MapLibre карты (миграция с Leaflet)
+const MapLibreMapCreator = dynamic(() => import('../../../../components/MapLibreMapCreator'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-gray-100 flex items-center justify-center">
     <span className="text-gray-500">Loading map...</span>
@@ -549,9 +549,9 @@ export default function RouteEditClient({
               )}
             </div>
 
-            {/* Карта */}
+            {/* Карта MapLibre */}
             <div className="flex-1 relative">
-              <LeafletMapCreator
+              <MapLibreMapCreator
                 buildings={buildings}
                 routePoints={routePoints}
                 isAddingPoint={isAddingPoint}

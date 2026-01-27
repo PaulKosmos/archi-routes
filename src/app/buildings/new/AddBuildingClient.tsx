@@ -26,8 +26,8 @@ import {
   Navigation
 } from 'lucide-react'
 
-// Динамически импортируем карту для избежания проблем с SSR
-const LocationPicker = dynamic(() => import('@/components/LocationPicker'), {
+// Динамически импортируем MapLibre карту (миграция с Leaflet)
+const MapLibreLocationPicker = dynamic(() => import('@/components/MapLibreLocationPicker'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-80 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -851,7 +851,7 @@ export default function AddBuildingClient() {
                       </button>
                     </div>
 
-                    <LocationPicker
+                    <MapLibreLocationPicker
                       latitude={buildingData.latitude}
                       longitude={buildingData.longitude}
                       onLocationSelect={handleLocationSelect}

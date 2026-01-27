@@ -9,8 +9,8 @@ import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import dynamic from 'next/dynamic'
 
-// Dynamic map import
-const DynamicMiniMap = dynamic(() => import('./RouteViewerMiniMap'), {
+// Dynamic MapLibre mini-map import (migrated from Leaflet)
+const DynamicMiniMap = dynamic(() => import('./MapLibreRouteViewer'), {
   ssr: false,
   loading: () => <div className="h-full bg-gray-100 animate-pulse rounded-lg"></div>
 })

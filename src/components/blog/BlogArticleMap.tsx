@@ -11,8 +11,8 @@ import { Building } from '@/types/building';
 import { extractBuildingIds } from '@/utils/blogBlocks';
 import { ChevronDown, ChevronUp, Map as MapIcon, Building2 } from 'lucide-react';
 
-// Динамический импорт карты (чтобы избежать SSR проблем)
-const EnhancedMap = dynamic(() => import('@/components/EnhancedMap'), {
+// Динамический импорт MapLibre карты (миграция с Leaflet)
+const MapLibreEnhanced = dynamic(() => import('@/components/MapLibreEnhanced'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-[400px] bg-muted rounded-[var(--radius)] flex items-center justify-center">
@@ -194,9 +194,9 @@ export default function BlogArticleMap({
                 ))}
               </div>
 
-              {/* Карта */}
+              {/* Карта MapLibre */}
               <div className="rounded-[var(--radius)] overflow-hidden border-2 border-border">
-                <EnhancedMap
+                <MapLibreEnhanced
                   buildings={buildings}
                   routes={[]}
                   selectedBuilding={selectedBuilding}
@@ -204,6 +204,7 @@ export default function BlogArticleMap({
                   onBuildingDetails={handleBuildingDetails}
                   showRoutes={false}
                   showBuildings={true}
+                  hideLegend={true}
                   className="h-[400px]"
                 />
               </div>
