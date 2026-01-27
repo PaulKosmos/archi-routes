@@ -27,7 +27,8 @@ const formatDuration = (seconds: number): string => {
   return `${minutes} min`
 }
 
-const LeafletMapCreator = dynamic(() => import('./LeafletMapCreator'), {
+// MapLibre карта для создания маршрутов (миграция с Leaflet)
+const MapLibreMapCreator = dynamic(() => import('./MapLibreMapCreator'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-gray-100 flex items-center justify-center">
     <span className="text-gray-500">Loading map...</span>
@@ -1601,9 +1602,9 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
                 )}
               </div>
 
-              {/* Карта */}
+              {/* Карта MapLibre */}
               <div className="flex-1 relative">
-                <LeafletMapCreator
+                <MapLibreMapCreator
                   buildings={buildings}
                   routePoints={routePoints}
                   isAddingPoint={isAddingPoint}

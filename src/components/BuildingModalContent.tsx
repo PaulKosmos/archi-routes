@@ -12,8 +12,8 @@ import Link from 'next/link'
 import { getStorageUrl } from '@/lib/storage'
 import BuildingNews from '@/components/news/BuildingNews'
 
-// Динамический импорт BuildingMap для избежания SSR ошибки с Leaflet
-const BuildingMap = dynamic(() => import('@/components/buildings/BuildingMap'), {
+// Динамический импорт MapLibre карты (миграция с Leaflet)
+const MapLibreBuildingMap = dynamic(() => import('@/components/buildings/MapLibreBuildingMap'), {
   ssr: false,
   loading: () => (
     <div className="h-64 bg-gray-100 animate-pulse flex items-center justify-center">
@@ -319,12 +319,12 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
               showTitle={true}
             />
             
-            {/* Карта */}
+            {/* Карта - MapLibre */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="p-4 border-b">
                 <h3 className="font-semibold">Location</h3>
               </div>
-              <BuildingMap
+              <MapLibreBuildingMap
                 building={building}
                 className="h-64"
               />

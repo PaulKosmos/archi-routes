@@ -37,14 +37,14 @@ interface MapMarker {
 // ДИНАМИЧЕСКИЙ ИМПОРТ КАРТЫ
 // ============================================================
 
-// Динамически загружаем Leaflet map компонент (только на клиенте)
-const LeafletNewsMap = dynamic(
-  () => import('./LeafletNewsMap'),
+// Динамически загружаем MapLibre map компонент (миграция с Leaflet)
+const MapLibreNewsMap = dynamic(
+  () => import('./MapLibreNewsMap'),
   {
     ssr: false,
     loading: () => (
       <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center">
-        <div className="text-gray-400 text-sm">Загрузка карты...</div>
+        <div className="text-gray-400 text-sm">Loading map...</div>
       </div>
     )
   }
@@ -136,7 +136,7 @@ export default function NewsObjectsMap({
         {/* Overlay для hover эффекта */}
         <div className="absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-10 transition-opacity z-10 pointer-events-none" />
 
-        <LeafletNewsMap
+        <MapLibreNewsMap
           center={mapCenter}
           markers={markers}
           onMarkerClick={onBuildingClick}

@@ -12,6 +12,12 @@ interface AuthState {
   profile: Profile | null
   loading: boolean
   initialized: boolean
+  isBanned: boolean
+  banInfo: {
+    status: string
+    reason?: string
+    until?: string
+  } | null
 }
 
 export function useAuth() {
@@ -21,8 +27,56 @@ export function useAuth() {
     user: null,
     profile: null,
     loading: true,
-    initialized: false
+    initialized: false,
+    isBanned: false,
+    banInfo: null
   })
+
+  // Helper to check if user is blocked
+  const checkBanStatus = (profile: any): { isBanned: boolean; banInfo: AuthState['banInfo'] } => {
+    if (!profile) return { isBanned: false, banInfo: null }
+
+    const banStatus = profile.ban_status || 'active'
+
+    // Permanent ban
+    if (banStatus === 'banned') {
+      return {
+        isBanned: true,
+        banInfo: {
+          status: 'banned',
+          reason: profile.ban_reason
+        }
+      }
+    }
+
+    // Suspended - check if expired
+    if (banStatus === 'suspended' && profile.banned_until) {
+      const bannedUntil = new Date(profile.banned_until)
+      if (bannedUntil > new Date()) {
+        return {
+          isBanned: true,
+          banInfo: {
+            status: 'suspended',
+            reason: profile.ban_reason,
+            until: profile.banned_until
+          }
+        }
+      }
+    }
+
+    // Restricted - can login but can't publish
+    if (banStatus === 'restricted') {
+      return {
+        isBanned: false,
+        banInfo: {
+          status: 'restricted',
+          reason: profile.ban_reason
+        }
+      }
+    }
+
+    return { isBanned: false, banInfo: null }
+  }
 
   useEffect(() => {
     // Получаем текущего пользователя
@@ -44,7 +98,9 @@ export function useAuth() {
             user: null,
             profile: null,
             loading: false,
-            initialized: true
+            initialized: true,
+            isBanned: false,
+            banInfo: null
           })
           return
         }
@@ -82,7 +138,9 @@ export function useAuth() {
                   user: session.user,
                   profile: newProfile,
                   loading: false,
-                  initialized: true
+                  initialized: true,
+                  isBanned: false,
+                  banInfo: null
                 })
                 return
               }
@@ -90,11 +148,30 @@ export function useAuth() {
           }
 
           console.log('✅ Auth: Successfully loaded user and profile')
+          const { isBanned, banInfo } = checkBanStatus(profile)
+
+          if (isBanned) {
+            console.log('🚫 Auth: User is banned, signing out')
+            // Sign out banned user
+            supabase.auth.signOut()
+            setAuthState({
+              user: null,
+              profile: null,
+              loading: false,
+              initialized: true,
+              isBanned: true,
+              banInfo
+            })
+            return
+          }
+
           setAuthState({
             user: session.user,
             profile: profile || null,
             loading: false,
-            initialized: true
+            initialized: true,
+            isBanned: false,
+            banInfo
           })
         } else {
           console.log('🔐 Auth: No user logged in')
@@ -102,7 +179,9 @@ export function useAuth() {
             user: null,
             profile: null,
             loading: false,
-            initialized: true
+            initialized: true,
+            isBanned: false,
+            banInfo: null
           })
         }
       } catch (error) {
@@ -111,7 +190,9 @@ export function useAuth() {
           user: null,
           profile: null,
           loading: false,
-          initialized: true
+          initialized: true,
+          isBanned: false,
+          banInfo: null
         })
       }
     }
@@ -138,14 +219,34 @@ export function useAuth() {
                   user: session.user,
                   profile: null,
                   loading: false,
-                  initialized: true
+                  initialized: true,
+                  isBanned: false,
+                  banInfo: null
                 })
               } else {
+                const { isBanned, banInfo } = checkBanStatus(profile)
+
+                if (isBanned) {
+                  console.log('🚫 Auth: User is banned, signing out')
+                  supabase.auth.signOut()
+                  setAuthState({
+                    user: null,
+                    profile: null,
+                    loading: false,
+                    initialized: true,
+                    isBanned: true,
+                    banInfo
+                  })
+                  return
+                }
+
                 setAuthState({
                   user: session.user,
                   profile: profile || null,
                   loading: false,
-                  initialized: true
+                  initialized: true,
+                  isBanned: false,
+                  banInfo
                 })
               }
             })
@@ -155,7 +256,9 @@ export function useAuth() {
             user: null,
             profile: null,
             loading: false,
-            initialized: true
+            initialized: true,
+            isBanned: false,
+            banInfo: null
           })
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           // Токен обновлен - просто обновляем user объект
@@ -257,11 +360,44 @@ export function useAuth() {
     return hasRole('moderator')
   }
 
+  // Функция проверки, может ли пользователь публиковать контент
+  const canPublish = (): boolean => {
+    if (!authState.profile) return false
+    const banStatus = (authState.profile as any).ban_status || 'active'
+
+    // Banned and restricted users cannot publish
+    if (banStatus === 'banned' || banStatus === 'restricted') {
+      return false
+    }
+
+    // Suspended users cannot publish if suspension is active
+    if (banStatus === 'suspended') {
+      const bannedUntil = (authState.profile as any).banned_until
+      if (bannedUntil && new Date(bannedUntil) > new Date()) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  // Функция проверки, заблокирован ли пользователь
+  const isBlocked = (): boolean => {
+    return authState.isBanned
+  }
+
+  // Функция проверки, ограничен ли пользователь
+  const isRestricted = (): boolean => {
+    return authState.banInfo?.status === 'restricted'
+  }
+
   return {
     user: authState.user,
     profile: authState.profile,
     loading: authState.loading,
     initialized: authState.initialized,
+    isBanned: authState.isBanned,
+    banInfo: authState.banInfo,
     signIn,
     signUp,
     signOut,
@@ -270,6 +406,9 @@ export function useAuth() {
     isExpert,
     isGuide,
     isModerator,
-    isAdmin
+    isAdmin,
+    canPublish,
+    isBlocked,
+    isRestricted
   }
 }

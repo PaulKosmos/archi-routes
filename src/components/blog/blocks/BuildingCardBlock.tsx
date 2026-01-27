@@ -8,8 +8,8 @@ import dynamic from 'next/dynamic';
 import { BlogContentBlock } from '@/types/blog';
 import { Calendar, User, ChevronDown, ChevronUp, MapPin } from 'lucide-react';
 
-// Динамический импорт карты
-const EnhancedMap = dynamic(() => import('@/components/EnhancedMap'), {
+// Динамический импорт карты MapLibre
+const EnhancedMap = dynamic(() => import('@/components/MapLibreEnhanced'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-[300px] bg-muted flex items-center justify-center">

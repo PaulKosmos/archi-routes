@@ -14,8 +14,8 @@ import DeleteContentModal from '../../../components/DeleteContentModal'
 import RouteFavoriteButton, { RouteCompletedButton } from '../../../components/RouteFavoriteButton'
 import { Route, TransportModeHelper, formatDistance, formatDuration } from '../../../types/route'
 
-// Dynamic import of updated map
-const RouteMap = dynamic(() => import('./RouteMap'), {
+// Dynamic import of MapLibre map (migrated from Leaflet)
+const MapLibreRouteMap = dynamic(() => import('./MapLibreRouteMap'), {
   ssr: false,
   loading: () => <div className="w-full h-64 bg-muted flex items-center justify-center rounded-[var(--radius)]">
     <span className="text-muted-foreground">Loading map...</span>
@@ -749,7 +749,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                 <h2 className="text-lg font-semibold font-display text-foreground">Route Map</h2>
               </div>
               <div className="h-[400px] md:h-[500px]">
-                <RouteMap
+                <MapLibreRouteMap
                   route={route}
                   userLocation={userLocation}
                   currentPointIndex={currentStepIndex}

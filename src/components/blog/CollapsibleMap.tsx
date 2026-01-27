@@ -4,14 +4,14 @@ import { useState } from 'react'
 import { ChevronUp, ChevronDown, Map, Maximize2, Minimize2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
-// Динамический импорт карты для избежания SSR проблем
-const ArticleMap = dynamic(() => import('./ArticleMap'), {
+// Динамический импорт MapLibre карты (миграция с Leaflet)
+const MapLibreArticleMap = dynamic(() => import('./MapLibreArticleMap'), {
   ssr: false,
   loading: () => (
     <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center animate-pulse">
       <div className="text-center text-gray-500">
         <div className="w-8 h-8 mx-auto mb-2 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-sm">Загрузка карты...</p>
+        <p className="text-sm">Loading map...</p>
       </div>
     </div>
   )
@@ -111,7 +111,7 @@ export default function CollapsibleMap({
             isCollapsed ? 'h-0 overflow-hidden' : 'h-auto'
           }`}>
             <div className="aspect-square p-4">
-              <ArticleMap
+              <MapLibreArticleMap
                 buildings={buildings}
                 selectedBuildingId={selectedBuildingId}
                 selectedBuildings={selectedBuildings}
@@ -165,7 +165,7 @@ export default function CollapsibleMap({
 
           {/* Полноэкранная карта */}
           <div className="pt-16 h-full">
-            <ArticleMap
+            <MapLibreArticleMap
               buildings={buildings}
               selectedBuildingId={selectedBuildingId}
               selectedBuildings={selectedBuildings}
