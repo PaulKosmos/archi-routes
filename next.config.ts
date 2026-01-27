@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false, // ✅ TypeScript checking enabled
   },
+  // Transpile MapLibre packages for proper bundling in production
+  transpilePackages: ['maplibre-gl', 'react-map-gl'],
   // Use standalone output to avoid static export issues with dynamic pages
   output: 'standalone',
   images: {
