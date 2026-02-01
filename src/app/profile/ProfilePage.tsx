@@ -295,9 +295,9 @@ export default function ProfilePage() {
         </div>
 
         {/* Шапка профиля */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div className="flex items-center space-x-6">
+        <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 sm:gap-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full sm:w-auto">
               {/* Аватар */}
               <div className="w-20 h-20 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center flex-shrink-0">
                 {avatar ? (
@@ -314,32 +314,34 @@ export default function ProfilePage() {
               </div>
 
               {/* Основная информация */}
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              <div className="text-center sm:text-left w-full sm:w-auto">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
                   {displayName}
                 </h1>
-                <p className="text-gray-600 mb-2">{user.email}</p>
+                <p className="text-gray-600 mb-2 text-sm sm:text-base break-all">{user.email}</p>
 
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRoleColor(profile?.role || 'explorer')}`}>
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
+                  <span className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getRoleColor(profile?.role || 'explorer')}`}>
                     {getRoleDisplayName(profile?.role || 'explorer')}
                   </span>
 
                   {profile?.city && (
-                    <div className="flex items-center text-sm text-gray-500">
-                      <MapPin className="w-4 h-4 mr-1" />
+                    <div className="flex items-center text-xs sm:text-sm text-gray-500">
+                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       {profile.city}
                     </div>
                   )}
 
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    On platform since {formatDate(profile?.created_at || user.created_at)}
+                  <div className="flex items-center text-xs sm:text-sm text-gray-500">
+                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    <span className="hidden sm:inline">On platform since </span>
+                    <span className="sm:hidden">Since </span>
+                    {formatDate(profile?.created_at || user.created_at)}
                   </div>
                 </div>
 
                 {profile?.bio && (
-                  <p className="text-gray-700 mt-3 max-w-2xl">
+                  <p className="text-gray-700 mt-3 max-w-2xl text-sm sm:text-base">
                     {profile.bio}
                   </p>
                 )}
@@ -349,7 +351,7 @@ export default function ProfilePage() {
             {/* Кнопка редактирования */}
             <Link
               href="/profile/edit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 flex-shrink-0"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 flex-shrink-0 w-full sm:w-auto justify-center"
             >
               <Edit3 className="w-4 h-4" />
               <span>Edit</span>

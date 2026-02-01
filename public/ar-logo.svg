@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2020 (64-Bit) -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="48.0336mm" height="24.4345mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 4786.76 2435"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xodm="http://www.corel.com/coreldraw/odm/2003">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .fil6 {fill:#336666}
+    .fil3 {fill:#336699}
+    .fil2 {fill:#660066}
+    .fil4 {fill:#6666CC}
+    .fil1 {fill:#669933}
+    .fil5 {fill:#CC6633}
+    .fil0 {fill:#C74F4F}
+   ]]>
+  </style>
+ </defs>
+ <g id="Слой_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_2106296106896">
+   <polygon class="fil0" points="-0,0 -0,2396.55 1029.59,0 "/>
+   <polygon class="fil1" points="1287.29,660.22 975.2,1414.72 1599.36,1414.72 "/>
+   <polygon class="fil2" points="1559.04,0 2588.63,2396.55 2588.63,0 "/>
+   <polygon class="fil3" points="1800.95,1908.23 773.62,1908.23 556.83,2435 2017.74,2435 "/>
+   <polygon class="fil4" points="3149.96,1667.45 3149.96,2435 4073.97,2435 3553.13,1667.45 "/>
+   <path class="fil5" d="M3149.96 1169.39l538.47 0c127.69,0 228.25,-33.4 297.11,-92.35 70.21,-60.09 107.76,-147.17 107.76,-252.76 0,-111.01 -37.9,-195.41 -106.77,-252.32 -71.63,-59.19 -177.1,-89.26 -308.65,-89.26l-527.92 0 0 686.7z"/>
+   <path class="fil6" d="M4139.72 1570.9l575.84 841.88 71.19 -0.1 0 -2412.68c-260.74,0 -474.9,0.02 -735.64,0.02 -0.02,0.66 0.11,10.21 0.1,11.21 67.95,13.97 84.52,23.09 142.79,47.56 98.93,41.54 183.82,97.86 253.8,167.84 69.99,69.99 123.75,154.44 159.87,251.97 35.55,96.01 53.99,204.66 53.99,324.6 0,192.57 -49.97,350.99 -136.9,476.77 -92.11,133.25 -225.6,229.6 -385.05,290.94z"/>
+   <polygon class="fil3" points="2017.74,2435 1800.95,1908.23 773.62,1908.23 556.83,2435 "/>
+  </g>
+ </g>
+</svg>
