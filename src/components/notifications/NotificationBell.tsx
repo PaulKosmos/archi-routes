@@ -240,7 +240,7 @@ export default function NotificationBell() {
 
       {/* Dropdown уведомлений */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-2xl border border-gray-200 z-50">
+        <div className="fixed sm:absolute inset-x-2 sm:inset-x-auto sm:right-0 top-14 sm:top-auto sm:mt-2 sm:w-96 bg-white rounded-lg shadow-2xl border border-gray-200 z-50 max-h-[80vh] overflow-hidden flex flex-col">
           {/* Заголовок */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <h3 className="font-semibold text-gray-900">Notifications</h3>
@@ -255,7 +255,7 @@ export default function NotificationBell() {
           </div>
 
           {/* Список уведомлений */}
-          <div className="max-h-[500px] overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="p-8 text-center">
                 <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
