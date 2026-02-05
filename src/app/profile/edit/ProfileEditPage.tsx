@@ -21,6 +21,7 @@ import EnhancedFooter from '@/components/EnhancedFooter'
 
 interface FormData {
   display_name: string
+  username: string
   bio: string
   city: string
   avatar_url: string
@@ -34,6 +35,7 @@ export default function ProfileEditPage() {
 
   const [formData, setFormData] = useState<FormData>({
     display_name: profile?.display_name || profile?.full_name || '',
+    username: profile?.username || '',
     bio: profile?.bio || '',
     city: profile?.city || '',
     avatar_url: profile?.avatar_url || ''
@@ -58,6 +60,16 @@ export default function ProfileEditPage() {
       newErrors.display_name = 'Name must not exceed 50 characters'
     } else if (!/^[a-zA-Zа-яА-Я\s]+$/.test(formData.display_name)) {
       newErrors.display_name = 'Name can only contain letters and spaces'
+    }
+
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required'
+    } else if (formData.username.length < 3) {
+      newErrors.username = 'Username must be at least 3 characters'
+    } else if (formData.username.length > 30) {
+      newErrors.username = 'Username must not exceed 30 characters'
+    } else if (!/^[a-z0-9_]+$/.test(formData.username)) {
+      newErrors.username = 'Username can only contain lowercase letters, numbers and underscores'
     }
 
     if (formData.city && formData.city.length > 100) {
@@ -256,8 +268,8 @@ export default function ProfileEditPage() {
           {/* Сообщения */}
           {message && (
             <div className={`mb-6 p-4 rounded-[var(--radius)] border ${message.type === 'success'
-                ? 'bg-green-50 border-green-200 text-green-800'
-                : 'bg-red-50 border-red-200 text-red-800'
+              ? 'bg-green-50 border-green-200 text-green-800'
+              : 'bg-red-50 border-red-200 text-red-800'
               }`}>
               {message.text}
             </div>
@@ -351,6 +363,32 @@ export default function ProfileEditPage() {
                   )}
                   <p className="text-muted-foreground text-xs mt-1">
                     {formData.display_name.length}/50 characters
+                  </p>
+                </div>
+
+                {/* Username */}
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium mb-2">
+                    Username *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-sm text-muted-foreground">@</span>
+                    <input
+                      type="text"
+                      id="username"
+                      value={formData.username}
+                      onChange={(e) => handleInputChange('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                      className={`w-full pl-8 pr-4 py-2 text-sm border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent ${errors.username ? 'border-red-300' : 'border-border'
+                        }`}
+                      placeholder="your_username"
+                      maxLength={30}
+                    />
+                  </div>
+                  {errors.username && (
+                    <p className="text-destructive text-xs mt-1">{errors.username}</p>
+                  )}
+                  <p className="text-muted-foreground text-xs mt-1">
+                    {formData.username.length}/30 characters. Used for your public profile URL.
                   </p>
                 </div>
 

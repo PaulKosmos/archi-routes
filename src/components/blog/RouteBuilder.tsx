@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Route, 
-  Building2, 
-  Save, 
-  Share2, 
-  Trash2, 
+import {
+  Route,
+  Building2,
+  Save,
+  Share2,
+  Trash2,
   MapPin,
   Clock,
   Eye,
@@ -21,11 +21,11 @@ interface RouteBuilderProps {
   onSaveRoute: (routeData: any) => void
 }
 
-export default function RouteBuilder({ 
-  selectedBuildings, 
-  onRemoveBuilding, 
+export default function RouteBuilder({
+  selectedBuildings,
+  onRemoveBuilding,
   onClearRoute,
-  onSaveRoute 
+  onSaveRoute
 }: RouteBuilderProps) {
   const [routeName, setRouteName] = useState('')
   const [routeDescription, setRouteDescription] = useState('')
@@ -42,12 +42,12 @@ export default function RouteBuilder({
 
   const handleSaveRoute = async () => {
     if (!routeName.trim()) {
-      alert('Введите название маршрута')
+      alert('Please enter a route name')
       return
     }
 
     setIsSaving(true)
-    
+
     try {
       const routeData = {
         name: routeName,
@@ -60,17 +60,17 @@ export default function RouteBuilder({
       }
 
       await onSaveRoute(routeData)
-      
+
       // Сброс формы
       setRouteName('')
       setRouteDescription('')
       setIsPublic(false)
       setIsExpanded(false)
-      
-      alert('Маршрут успешно сохранен!')
+
+      alert('Route saved successfully!')
     } catch (error) {
       console.error('Error saving route:', error)
-      alert('Ошибка при сохранении маршрута')
+      alert('Error saving route')
     } finally {
       setIsSaving(false)
     }
@@ -86,10 +86,10 @@ export default function RouteBuilder({
               <Route className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">Ваш маршрут</h3>
+              <h3 className="font-semibold text-gray-900">Your Route</h3>
               <p className="text-sm text-gray-600">
-                {selectedBuildings.length} {selectedBuildings.length === 1 ? 'здание' : selectedBuildings.length < 5 ? 'здания' : 'зданий'} • 
-                ~{estimatedTime} мин • ~{estimatedDistance.toFixed(1)} км
+                {selectedBuildings.length} {selectedBuildings.length === 1 ? 'building' : 'buildings'} •
+                ~{estimatedTime} min • ~{estimatedDistance.toFixed(1)} km
               </p>
             </div>
           </div>
@@ -99,13 +99,13 @@ export default function RouteBuilder({
               onClick={() => setIsExpanded(!isExpanded)}
               className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              {isExpanded ? 'Свернуть' : 'Настроить'}
+              {isExpanded ? 'Collapse' : 'Configure'}
             </button>
-            
+
             <button
               onClick={onClearRoute}
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              title="Очистить маршрут"
+              title="Clear route"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -143,7 +143,7 @@ export default function RouteBuilder({
               <button
                 onClick={() => onRemoveBuilding(building.id)}
                 className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                title="Удалить из маршрута"
+                title="Remove from route"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -158,20 +158,20 @@ export default function RouteBuilder({
               onClick={() => setIsExpanded(true)}
               className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
             >
-              Сохранить маршрут
+              Save Route
             </button>
-            
+
             <button
               onClick={() => {
                 if (navigator.share) {
                   navigator.share({
-                    title: 'Архитектурный маршрут',
-                    text: `Маршрут из ${selectedBuildings.length} зданий`,
+                    title: 'Architecture Route',
+                    text: `Route with ${selectedBuildings.length} buildings`,
                     url: window.location.href
                   })
                 } else {
                   navigator.clipboard.writeText(window.location.href)
-                  alert('Ссылка скопирована!')
+                  alert('Link copied!')
                 }
               }}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
@@ -186,13 +186,13 @@ export default function RouteBuilder({
           <div className="mt-4 space-y-4 p-4 bg-gray-50 rounded-lg">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Название маршрута *
+                Route Name *
               </label>
               <input
                 type="text"
                 value={routeName}
                 onChange={(e) => setRouteName(e.target.value)}
-                placeholder="Например: Архитектурные жемчужины Берлина"
+                placeholder="E.g.: Architectural Gems of Berlin"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                 maxLength={100}
               />
@@ -200,12 +200,12 @@ export default function RouteBuilder({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Описание (необязательно)
+                Description (optional)
               </label>
               <textarea
                 value={routeDescription}
                 onChange={(e) => setRouteDescription(e.target.value)}
-                placeholder="Краткое описание маршрута..."
+                placeholder="Brief description of the route..."
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none"
                 maxLength={500}
@@ -216,22 +216,21 @@ export default function RouteBuilder({
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setIsPublic(!isPublic)}
-                  className={`p-2 rounded-lg transition-colors ${
-                    isPublic 
-                      ? 'bg-green-100 text-green-700' 
+                  className={`p-2 rounded-lg transition-colors ${isPublic
+                      ? 'bg-green-100 text-green-700'
                       : 'bg-gray-100 text-gray-700'
-                  }`}
+                    }`}
                 >
                   {isPublic ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                 </button>
                 <div>
                   <p className="text-sm font-medium text-gray-700">
-                    {isPublic ? 'Публичный маршрут' : 'Приватный маршрут'}
+                    {isPublic ? 'Public Route' : 'Private Route'}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {isPublic 
-                      ? 'Другие пользователи смогут найти и использовать ваш маршрут' 
-                      : 'Маршрут будет доступен только вам'
+                    {isPublic
+                      ? 'Other users will be able to find and use your route'
+                      : 'Route will only be available to you'
                     }
                   </p>
                 </div>
@@ -247,21 +246,21 @@ export default function RouteBuilder({
                 {isSaving ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Сохранение...</span>
+                    <span>Saving...</span>
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    <span>Сохранить маршрут</span>
+                    <span>Save Route</span>
                   </>
                 )}
               </button>
-              
+
               <button
                 onClick={() => setIsExpanded(false)}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
               >
-                Отмена
+                Cancel
               </button>
             </div>
           </div>
@@ -273,15 +272,15 @@ export default function RouteBuilder({
         <div className="flex items-center space-x-4 text-sm text-green-700">
           <div className="flex items-center space-x-1">
             <Clock className="w-4 h-4" />
-            <span>~{estimatedTime} минут</span>
+            <span>~{estimatedTime} minutes</span>
           </div>
           <div className="flex items-center space-x-1">
             <MapPin className="w-4 h-4" />
-            <span>~{estimatedDistance.toFixed(1)} км пешком</span>
+            <span>~{estimatedDistance.toFixed(1)} km walk</span>
           </div>
           <div className="flex items-center space-x-1">
             <Building2 className="w-4 h-4" />
-            <span>{selectedBuildings.length} {selectedBuildings.length === 1 ? 'здание' : 'зданий'}</span>
+            <span>{selectedBuildings.length} {selectedBuildings.length === 1 ? 'building' : 'buildings'}</span>
           </div>
         </div>
       </div>

@@ -144,11 +144,11 @@ async function buildRouteFromAPI(
     console.error('❌ MapBox API Error:', response.status, errorData)
 
     if (response.status === 401) {
-      throw new Error('Неверный MapBox Access Token')
+      throw new Error('Invalid MapBox Access Token')
     } else if (response.status === 422) {
-      throw new Error('Невозможно построить маршрут между указанными точками')
+      throw new Error('Unable to build route between specified points')
     } else if (response.status === 429) {
-      throw new Error('Превышен лимит запросов к MapBox API. Попробуйте позже.')
+      throw new Error('MapBox API rate limit exceeded. Please try again later.')
     }
 
     throw new Error(`MapBox API Error: ${response.status} - ${JSON.stringify(errorData)}`)
@@ -174,7 +174,7 @@ async function buildRouteFromAPI(
       if (leg.steps) {
         leg.steps.forEach((step: any) => {
           instructions.push({
-            instruction: step.maneuver?.instruction || 'Продолжайте движение',
+            instruction: step.maneuver?.instruction || 'Continue straight',
             distance: step.distance || 0,
             duration: step.duration || 0,
             type: step.maneuver?.type || 'continue',
@@ -236,7 +236,7 @@ function buildStraightLineRoute(
     distance: totalDistance,
     duration,
     instructions: [{
-      instruction: `Следуйте ${totalDistance > 1000 ? (totalDistance / 1000).toFixed(1) + ' км' : Math.round(totalDistance) + ' м'} до пункта назначения`,
+      instruction: `Follow ${totalDistance > 1000 ? (totalDistance / 1000).toFixed(1) + ' km' : Math.round(totalDistance) + ' m'} to destination`,
       distance: totalDistance,
       duration,
       type: 'depart',
@@ -337,9 +337,9 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 // Экспортируем функции форматирования
 export function formatDistance(meters: number): string {
   if (meters >= 1000) {
-    return `${(meters / 1000).toFixed(1)} км`
+    return `${(meters / 1000).toFixed(1)} km`
   }
-  return `${Math.round(meters)} м`
+  return `${Math.round(meters)} m`
 }
 
 export function formatDuration(seconds: number): string {
@@ -347,9 +347,9 @@ export function formatDuration(seconds: number): string {
   const minutes = Math.floor((seconds % 3600) / 60)
 
   if (hours > 0) {
-    return `${hours} ч ${minutes} мин`
+    return `${hours}h ${minutes}min`
   }
-  return `${minutes} мин`
+  return `${minutes} min`
 }
 
 /**

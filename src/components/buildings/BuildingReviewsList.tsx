@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import AudioPlayer from '../AudioPlayer'
 import ImageLightbox from '../ui/ImageLightbox'
+import Link from 'next/link'
 
 interface BuildingReviewsListProps {
   reviews: BuildingReviewWithProfile[]
@@ -16,17 +17,17 @@ interface BuildingReviewsListProps {
   onOpenAddReview?: () => void
 }
 
-export default function BuildingReviewsList({ 
-  reviews, 
+export default function BuildingReviewsList({
+  reviews,
   buildingId,
-  onOpenAddReview 
+  onOpenAddReview
 }: BuildingReviewsListProps) {
   const supabase = useMemo(() => createClient(), [])
   const { user } = useAuth()
   const [expandedReviews, setExpandedReviews] = useState<Set<string>>(new Set())
   const [userRatings, setUserRatings] = useState<Map<string, number>>(new Map())
   const [helpfulVotes, setHelpfulVotes] = useState<Set<string>>(new Set())
-  const [hoveredRating, setHoveredRating] = useState<{reviewId: string, rating: number} | null>(null)
+  const [hoveredRating, setHoveredRating] = useState<{ reviewId: string, rating: number } | null>(null)
   const [lightboxImages, setLightboxImages] = useState<string[]>([])
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
@@ -48,7 +49,7 @@ export default function BuildingReviewsList({
         .select('review_id, rating')
         .eq('user_id', user.id)
         .in('review_id', reviews.map(r => r.id))
-      
+
       if (data) {
         const ratingsMap = new Map(data.map(r => [r.review_id, r.rating]))
         setUserRatings(ratingsMap)
@@ -67,7 +68,7 @@ export default function BuildingReviewsList({
         .select('review_id')
         .eq('user_id', user.id)
         .in('review_id', reviews.map(r => r.id))
-      
+
       if (data) {
         setHelpfulVotes(new Set(data.map(v => v.review_id)))
       }
@@ -224,9 +225,18 @@ export default function BuildingReviewsList({
                 </div>
 
                 <div>
-                  <p className="font-semibold text-gray-900 text-sm md:text-base">
-                    {review.profiles?.full_name || review.profiles?.username || 'User'}
-                  </p>
+                  {review.profiles?.username ? (
+                    <Link
+                      href={`/user/${review.profiles.username}`}
+                      className="font-semibold text-gray-900 text-sm md:text-base hover:text-primary hover:underline transition-colors"
+                    >
+                      {review.profiles?.full_name || review.profiles?.username || 'User'}
+                    </Link>
+                  ) : (
+                    <p className="font-semibold text-gray-900 text-sm md:text-base">
+                      {review.profiles?.full_name || 'User'}
+                    </p>
+                  )}
                   <div className="flex items-center text-xs text-gray-500 space-x-1 md:space-x-2">
                     <Calendar className="w-3 h-3" />
                     <span>{new Date(review.created_at).toLocaleDateString('en-US')}</span>
@@ -283,12 +293,11 @@ export default function BuildingReviewsList({
             {/* Превью или полный текст */}
             {review.content && (
               <div className="mb-4">
-                <p className={`text-gray-700 leading-relaxed whitespace-pre-line ${
-                  !isExpanded && review.content.length > 300 ? 'line-clamp-4' : ''
-                }`}>
+                <p className={`text-gray-700 leading-relaxed whitespace-pre-line ${!isExpanded && review.content.length > 300 ? 'line-clamp-4' : ''
+                  }`}>
                   {review.content}
                 </p>
-                
+
                 {review.content.length > 300 && (
                   <button
                     onClick={() => toggleExpanded(review.id)}
@@ -366,11 +375,10 @@ export default function BuildingReviewsList({
                           title={`Rate ${star}/5`}
                         >
                           <Star
-                            className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${
-                              isActive
+                            className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isActive
                                 ? 'fill-yellow-400 text-yellow-400'
                                 : 'text-gray-300'
-                            }`}
+                              }`}
                           />
                         </button>
                       )
@@ -386,11 +394,10 @@ export default function BuildingReviewsList({
                 {/* Кнопка "Полезно" */}
                 <button
                   onClick={() => handleToggleHelpful(review.id)}
-                  className={`flex items-center px-2 py-1.5 md:px-3 md:py-2 rounded-lg transition-all text-xs md:text-sm ${
-                    helpfulVotes.has(review.id)
+                  className={`flex items-center px-2 py-1.5 md:px-3 md:py-2 rounded-lg transition-all text-xs md:text-sm ${helpfulVotes.has(review.id)
                       ? 'bg-blue-100 text-blue-700 font-medium'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   <ThumbsUp className={`w-3 h-3 md:w-4 md:h-4 mr-1 ${helpfulVotes.has(review.id) ? 'fill-current' : ''}`} />
                   <span>

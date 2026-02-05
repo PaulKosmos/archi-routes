@@ -81,7 +81,7 @@ export default function PhotoModal({ photos, isOpen, initialIndex, onClose }: Ph
       {/* Контрол панель сверху */}
       <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
         <div className="text-white text-sm bg-black bg-opacity-50 px-3 py-1 rounded">
-          {currentIndex + 1} из {photos.length}
+          {currentIndex + 1} of {photos.length}
         </div>
 
         <div className="flex items-center space-x-2">

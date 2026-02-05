@@ -149,7 +149,7 @@ function buildStraightLineRoute(
     distance: totalDistance,
     duration,
     instructions: [{
-      instruction: `Следуйте ${totalDistance > 1000 ? (totalDistance / 1000).toFixed(1) + ' км' : Math.round(totalDistance) + ' м'} до пункта назначения`,
+      instruction: `Follow ${totalDistance > 1000 ? (totalDistance / 1000).toFixed(1) + ' km' : Math.round(totalDistance) + ' m'} to destination`,
       distance: totalDistance,
       duration,
       type: 'depart',
@@ -255,9 +255,9 @@ export function formatDuration(seconds: number): string {
   const minutes = Math.floor((seconds % 3600) / 60)
 
   if (hours > 0) {
-    return `${hours} ч ${minutes} мин`
+    return `${hours}h ${minutes}min`
   }
-  return `${minutes} мин`
+  return `${minutes} min`
 }
 
 /**
@@ -265,7 +265,7 @@ export function formatDuration(seconds: number): string {
  */
 export function formatDistance(meters: number): string {
   if (meters >= 1000) {
-    return `${(meters / 1000).toFixed(1)} км`
+    return `${(meters / 1000).toFixed(1)} km`
   }
-  return `${Math.round(meters)} м`
+  return `${Math.round(meters)} m`
 }

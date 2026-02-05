@@ -29,6 +29,10 @@ interface UserSettings {
   notifications_email: boolean
   notifications_reviews: boolean
   notifications_mentions: boolean
+  notifications_followers: boolean
+  notifications_likes: boolean
+  notifications_comments: boolean
+  push_enabled: boolean
   profile_visibility: 'public' | 'private' | 'friends'
   email_visibility: boolean
   buildings_visibility: boolean
@@ -45,6 +49,10 @@ export default function ProfileSettingsPage() {
     notifications_email: true,
     notifications_reviews: true,
     notifications_mentions: true,
+    notifications_followers: true,
+    notifications_likes: true,
+    notifications_comments: true,
+    push_enabled: true,
     profile_visibility: 'public',
     email_visibility: false,
     buildings_visibility: true,
@@ -83,6 +91,10 @@ export default function ProfileSettingsPage() {
           notifications_email: data.notifications_email ?? true,
           notifications_reviews: data.notifications_reviews ?? true,
           notifications_mentions: data.notifications_mentions ?? true,
+          notifications_followers: data.notifications_followers ?? true,
+          notifications_likes: data.notifications_likes ?? true,
+          notifications_comments: data.notifications_comments ?? true,
+          push_enabled: data.push_enabled ?? true,
           profile_visibility: data.profile_visibility ?? 'public',
           email_visibility: data.email_visibility ?? false,
           buildings_visibility: data.buildings_visibility ?? true,
@@ -307,6 +319,81 @@ export default function ProfileSettingsPage() {
                     />
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
+                </div>
+
+                {/* Social Notifications Separator */}
+                <div className="border-t border-gray-200 pt-4 mt-4">
+                  <p className="text-sm font-medium text-gray-500 mb-4">Social Activity</p>
+                </div>
+
+                {/* New Followers */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium text-gray-900">New Followers</h3>
+                    <p className="text-sm text-gray-500">When someone starts following you</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={settings.notifications_followers}
+                      onChange={(e) => setSettings(prev => ({ ...prev, notifications_followers: e.target.checked }))}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                {/* Collection Likes */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium text-gray-900">Collection Likes</h3>
+                    <p className="text-sm text-gray-500">When someone likes your collection</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={settings.notifications_likes}
+                      onChange={(e) => setSettings(prev => ({ ...prev, notifications_likes: e.target.checked }))}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                {/* Blog Comments */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium text-gray-900">Blog Comments</h3>
+                    <p className="text-sm text-gray-500">When someone comments on your blog posts</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={settings.notifications_comments}
+                      onChange={(e) => setSettings(prev => ({ ...prev, notifications_comments: e.target.checked }))}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                {/* Push Notifications (master toggle) */}
+                <div className="border-t border-gray-200 pt-4 mt-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium text-gray-900">Push Notifications</h3>
+                      <p className="text-sm text-gray-500">Enable browser push notifications</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={settings.push_enabled}
+                        onChange={(e) => setSettings(prev => ({ ...prev, push_enabled: e.target.checked }))}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>

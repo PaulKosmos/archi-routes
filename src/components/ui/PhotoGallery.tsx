@@ -62,7 +62,7 @@ export default function PhotoGallery({ photos, className = '', maxPhotos = 6 }: 
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity duration-200 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <div className="bg-white bg-opacity-90 text-gray-800 px-2 py-1 rounded text-xs font-medium">
-                  Нажмите для просмотра
+                  Click to view
                 </div>
               </div>
             </div>

@@ -1382,8 +1382,8 @@ export default function TestMapPage() {
                       <span>📍</span>
                       <span>
                         {selectedBuildingsForRoute.length >= 2
-                          ? `Создать маршрут (${selectedBuildingsForRoute.length})`
-                          : 'Создать маршрут'}
+                          ? `Create Route (${selectedBuildingsForRoute.length})`
+                          : 'Create Route'}
                       </span>
                       {selectedBuildingsForRoute.length > 0 && selectedBuildingsForRoute.length < 2 && (
                         <span className="ml-1 text-xs opacity-75">({selectedBuildingsForRoute.length})</span>

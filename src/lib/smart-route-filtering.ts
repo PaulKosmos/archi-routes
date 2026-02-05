@@ -2,16 +2,16 @@
 // Умная система фильтрации маршрутов для карты
 
 import { supabase } from './supabase'
-import type { 
-  Route, 
-  RouteWithUserData, 
+import type {
+  Route,
+  RouteWithUserData,
   SmartRouteFilterOptions,
   UserRouteFavorite,
-  RoutePublicationRequest 
+  RoutePublicationRequest
 } from '../types/route'
 
 export class SmartRouteFilter {
-  
+
   /**
    * Получает отфильтрованные маршруты для отображения на карте
    * Приоритизация:
@@ -76,7 +76,7 @@ export class SmartRouteFilter {
    */
   private static async getFallbackRoutes(city: string, maxRoutes: number): Promise<RouteWithUserData[]> {
     console.log('🔄 Using fallback route fetching')
-    
+
     const { data, error } = await supabase
       .from('routes')
       .select(`
@@ -103,7 +103,7 @@ export class SmartRouteFilter {
    * Применяет пользовательские предпочтения
    */
   private static applyUserPreferences(
-    routes: RouteWithUserData[], 
+    routes: RouteWithUserData[],
     preferences?: SmartRouteFilterOptions['userPreferences']
   ): RouteWithUserData[] {
     if (!preferences) return routes
@@ -141,14 +141,14 @@ export class SmartRouteFilter {
 
       // Проверяем, пересекается ли маршрут с видимой областью карты
       const coordinates = route.route_geometry.coordinates
-      
+
       for (const [lng, lat] of coordinates) {
-        if (lat >= bounds.south && lat <= bounds.north && 
-            lng >= bounds.west && lng <= bounds.east) {
+        if (lat >= bounds.south && lat <= bounds.north &&
+          lng >= bounds.west && lng <= bounds.east) {
           return true // хотя бы одна точка в области
         }
       }
-      
+
       return false
     })
   }
@@ -171,9 +171,9 @@ export class SmartRouteFilter {
           userLocation[0], userLocation[1],
           routeStart[1], routeStart[0] // lat, lng
         )
-        
+
         route.distance_from_user = distance
-        
+
         // Чем ближе, тем больше бонус (до 20 баллов)
         if (distance < 1) relevanceScore += 20
         else if (distance < 3) relevanceScore += 15
@@ -203,16 +203,16 @@ export class SmartRouteFilter {
     const R = 6371 // Радиус Земли в км
     const dLat = this.deg2rad(lat2 - lat1)
     const dLng = this.deg2rad(lng2 - lng1)
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
-      Math.sin(dLng/2) * Math.sin(dLng/2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     return R * c
   }
 
   private static deg2rad(deg: number): number {
-    return deg * (Math.PI/180)
+    return deg * (Math.PI / 180)
   }
 }
 
@@ -220,7 +220,7 @@ export class SmartRouteFilter {
  * API функции для работы с избранными маршрутами пользователя
  */
 export class UserRouteFavorites {
-  
+
   /**
    * Добавить маршрут в избранное
    */
@@ -308,9 +308,9 @@ export class UserRouteFavorites {
    * Отметить маршрут как пройденный
    */
   static async markAsCompleted(
-    userId: string, 
-    routeId: string, 
-    rating?: number, 
+    userId: string,
+    routeId: string,
+    rating?: number,
     notes?: string
   ): Promise<boolean> {
     const { error } = await supabase
@@ -336,7 +336,7 @@ export class UserRouteFavorites {
  * Система заявок на публикацию маршрутов
  */
 export class RoutePublicationSystem {
-  
+
   /**
    * Подать заявку на публикацию маршрута
    */
@@ -395,19 +395,19 @@ export class RoutePublicationSystem {
  */
 export function formatDistance(meters: number): string {
   if (meters >= 1000) {
-    return `${(meters / 1000).toFixed(1)} км`
+    return `${(meters / 1000).toFixed(1)} km`
   }
-  return `${Math.round(meters)} м`
+  return `${Math.round(meters)} m`
 }
 
 export function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
-  
+
   if (hours > 0) {
-    return `${hours} ч ${minutes} мин`
+    return `${hours}h ${minutes}min`
   }
-  return `${minutes} мин`
+  return `${minutes} min`
 }
 
 /**

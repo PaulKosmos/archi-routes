@@ -11,7 +11,7 @@ export default function EnhancedFooter() {
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
@@ -45,10 +45,11 @@ export default function EnhancedFooter() {
           {/* Column 1: About Project */}
           <div className="space-y-4">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-primary rounded-[var(--radius)] flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">AR</span>
-              </div>
-              <span className="text-xl font-bold">ArchiRoutes</span>
+              <img
+                src="/ar-logo.svg"
+                alt="ArchiRoutes Logo"
+                className="h-10 w-auto"
+              />
             </div>
             <p className="text-sm leading-relaxed text-[hsl(215,20%,65%)]">
               Discover city architecture through the lens of an enthusiast community. Explore buildings, share routes, and create together with us.

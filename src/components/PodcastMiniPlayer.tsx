@@ -142,7 +142,7 @@ export default function PodcastMiniPlayer({
   if (!episode) {
     return (
       <div className="py-2 text-center text-sm text-muted-foreground">
-        Выберите подкаст для прослушивания
+        Select a podcast to listen
       </div>
     )
   }
@@ -150,166 +150,165 @@ export default function PodcastMiniPlayer({
   return (
     <div className="py-2">
       <div className="flex items-center gap-2">
-          {/* Close Button */}
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="flex-shrink-0 p-1 hover:bg-muted rounded-[var(--radius)] transition-colors"
+          title="Close player"
+        >
+          <X size={16} className="text-muted-foreground" />
+        </button>
+
+        {/* Episode Info */}
+        <div className="flex-1 min-w-0">
+          <h3 className="text-xs font-semibold text-foreground line-clamp-1">
+            {episode.title}
+          </h3>
+          {episode.series && (
+            <p className="text-[10px] text-muted-foreground">{episode.series.title}</p>
+          )}
+        </div>
+
+        {/* Playback Controls */}
+        <div className="flex items-center gap-2">
+          {/* Rewind */}
           <button
-            onClick={onClose}
-            className="flex-shrink-0 p-1 hover:bg-muted rounded-[var(--radius)] transition-colors"
-            title="Close player"
+            onClick={() => skip(-15)}
+            className="p-1 hover:bg-muted rounded-[var(--radius)] transition-colors"
+            title="Rewind 15 seconds"
           >
-            <X size={16} className="text-muted-foreground" />
+            <SkipBack size={14} className="text-muted-foreground" />
           </button>
 
-          {/* Episode Info */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-xs font-semibold text-foreground line-clamp-1">
-              {episode.title}
-            </h3>
-            {episode.series && (
-              <p className="text-[10px] text-muted-foreground">{episode.series.title}</p>
+          {/* Play/Pause */}
+          <button
+            onClick={onPlayPause}
+            className="p-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-[var(--radius)] transition-colors"
+            title={isPlaying ? 'Pause' : 'Play'}
+          >
+            {isPlaying ? (
+              <Pause size={16} />
+            ) : (
+              <Play size={16} className="ml-0.5" />
+            )}
+          </button>
+
+          {/* Fast Forward */}
+          <button
+            onClick={() => skip(15)}
+            className="p-1 hover:bg-muted rounded-[var(--radius)] transition-colors"
+            title="Fast forward 15 seconds"
+          >
+            <SkipForward size={14} className="text-muted-foreground" />
+          </button>
+
+          {/* Playback Speed Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowSpeedMenu(!showSpeedMenu)}
+              className="flex items-center gap-0.5 px-1.5 py-0.5 bg-muted border border-border rounded-[var(--radius)] text-[10px] font-medium text-foreground hover:bg-muted/80 transition-colors"
+              title="Change playback speed"
+            >
+              <span>{playbackRate}x</span>
+              <ChevronDown size={10} />
+            </button>
+
+            {/* Speed menu popup */}
+            {showSpeedMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowSpeedMenu(false)}
+                />
+                <div className="absolute bottom-full mb-1 right-0 bg-card border border-border rounded-[var(--radius)] shadow-lg py-1 z-50 min-w-[80px]">
+                  {speedOptions.map(rate => (
+                    <button
+                      key={rate}
+                      onClick={() => setSpeed(rate)}
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors ${playbackRate === rate ? 'bg-muted font-semibold text-primary' : 'text-foreground'
+                        }`}
+                    >
+                      {rate}x
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
-          {/* Playback Controls */}
-          <div className="flex items-center gap-2">
-            {/* Rewind */}
-            <button
-              onClick={() => skip(-15)}
-              className="p-1 hover:bg-muted rounded-[var(--radius)] transition-colors"
-              title="Rewind 15 seconds"
-            >
-              <SkipBack size={14} className="text-muted-foreground" />
-            </button>
-
-            {/* Play/Pause */}
-            <button
-              onClick={onPlayPause}
-              className="p-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-[var(--radius)] transition-colors"
-              title={isPlaying ? 'Pause' : 'Play'}
-            >
-              {isPlaying ? (
-                <Pause size={16} />
-              ) : (
-                <Play size={16} className="ml-0.5" />
-              )}
-            </button>
-
-            {/* Fast Forward */}
-            <button
-              onClick={() => skip(15)}
-              className="p-1 hover:bg-muted rounded-[var(--radius)] transition-colors"
-              title="Fast forward 15 seconds"
-            >
-              <SkipForward size={14} className="text-muted-foreground" />
-            </button>
-
-            {/* Playback Speed Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-                className="flex items-center gap-0.5 px-1.5 py-0.5 bg-muted border border-border rounded-[var(--radius)] text-[10px] font-medium text-foreground hover:bg-muted/80 transition-colors"
-                title="Change playback speed"
-              >
-                <span>{playbackRate}x</span>
-                <ChevronDown size={10} />
-              </button>
-
-              {/* Speed menu popup */}
-              {showSpeedMenu && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowSpeedMenu(false)}
-                  />
-                  <div className="absolute bottom-full mb-1 right-0 bg-card border border-border rounded-[var(--radius)] shadow-lg py-1 z-50 min-w-[80px]">
-                    {speedOptions.map(rate => (
-                      <button
-                        key={rate}
-                        onClick={() => setSpeed(rate)}
-                        className={`w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors ${
-                          playbackRate === rate ? 'bg-muted font-semibold text-primary' : 'text-foreground'
-                        }`}
-                      >
-                        {rate}x
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Time Display */}
-            <div className="text-[10px] text-muted-foreground font-medium w-20 text-right">
-              {formatTime(currentTime)} / {formatTime(episodeDuration)}
-            </div>
+          {/* Time Display */}
+          <div className="text-[10px] text-muted-foreground font-medium w-20 text-right">
+            {formatTime(currentTime)} / {formatTime(episodeDuration)}
           </div>
+        </div>
 
-          {/* Progress Bar */}
-          <div className="flex-1 max-w-xs hidden sm:block">
+        {/* Progress Bar */}
+        <div className="flex-1 max-w-xs hidden sm:block">
+          <div className="relative w-full h-1 bg-muted rounded-full">
+            {/* Filled part of the progress bar */}
+            <div
+              className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
+              style={{ width: `${progressPercentage}%` }}
+            />
+            <input
+              type="range"
+              min="0"
+              max={duration || 0}
+              value={currentTime}
+              onChange={handleSeek}
+              className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+          </div>
+        </div>
+
+        {/* Volume Control */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleMute}
+            className="p-1.5 hover:bg-muted rounded-[var(--radius)] transition-colors"
+            title={isMuted ? 'Unmute' : 'Mute'}
+          >
+            {isMuted || volume === 0 ? (
+              <VolumeX size={16} className="text-muted-foreground" />
+            ) : (
+              <Volume2 size={16} className="text-muted-foreground" />
+            )}
+          </button>
+          <div className="w-20 hidden sm:flex items-center">
             <div className="relative w-full h-1 bg-muted rounded-full">
-              {/* Заполненная часть прогресс-бара */}
+              {/* Filled part of the volume bar */}
               <div
                 className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
-                style={{ width: `${progressPercentage}%` }}
+                style={{ width: `${(isMuted ? 0 : volume) * 100}%` }}
               />
               <input
                 type="range"
                 min="0"
-                max={duration || 0}
-                value={currentTime}
-                onChange={handleSeek}
+                max="1"
+                step="0.05"
+                value={isMuted ? 0 : volume}
+                onChange={handleVolumeChange}
                 className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
             </div>
           </div>
-
-          {/* Volume Control */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleMute}
-              className="p-1.5 hover:bg-muted rounded-[var(--radius)] transition-colors"
-              title={isMuted ? 'Unmute' : 'Mute'}
-            >
-              {isMuted || volume === 0 ? (
-                <VolumeX size={16} className="text-muted-foreground" />
-              ) : (
-                <Volume2 size={16} className="text-muted-foreground" />
-              )}
-            </button>
-            <div className="w-20 hidden sm:flex items-center">
-              <div className="relative w-full h-1 bg-muted rounded-full">
-                {/* Заполненная часть громкости */}
-                <div
-                  className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
-                  style={{ width: `${(isMuted ? 0 : volume) * 100}%` }}
-                />
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={isMuted ? 0 : volume}
-                  onChange={handleVolumeChange}
-                  className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
-                />
-              </div>
-            </div>
-          </div>
         </div>
+      </div>
 
-        {/* Hidden Audio Element with WAV support */}
-        {storageAudioUrl && (
-          <audio
-            ref={audioRef}
-            onTimeUpdate={handleTimeUpdate}
-            onEnded={handleEnded}
-            onLoadedMetadata={handleLoadedMetadata}
-            crossOrigin="anonymous"
-          >
-            <source src={storageAudioUrl} type="audio/mpeg" />
-            <source src={storageAudioUrl} type="audio/wav" />
-            <source src={storageAudioUrl} type="audio/ogg" />
-          </audio>
-        )}
+      {/* Hidden Audio Element with WAV support */}
+      {storageAudioUrl && (
+        <audio
+          ref={audioRef}
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={handleEnded}
+          onLoadedMetadata={handleLoadedMetadata}
+          crossOrigin="anonymous"
+        >
+          <source src={storageAudioUrl} type="audio/mpeg" />
+          <source src={storageAudioUrl} type="audio/wav" />
+          <source src={storageAudioUrl} type="audio/ogg" />
+        </audio>
+      )}
     </div>
   )
 }

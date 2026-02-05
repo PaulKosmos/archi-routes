@@ -25,7 +25,7 @@ export default function PodcastCard({
   const formatDate = (dateString?: string) => {
     if (!dateString) return ''
     const date = new Date(dateString)
-    return new Intl.DateTimeFormat('ru-RU', {
+    return new Intl.DateTimeFormat('en-US', {
       day: 'numeric',
       month: 'short',
       year: 'numeric'
@@ -35,7 +35,7 @@ export default function PodcastCard({
   // Generate a consistent color based on series title
   const getGradientFromSeries = () => {
     if (!episode.series?.title) return 'from-purple-400 to-blue-500'
-    
+
     const hash = episode.series.title.charCodeAt(0) % 5
     const gradients = [
       'from-purple-400 to-blue-500',
@@ -176,7 +176,7 @@ export default function PodcastCard({
 
         {episode.duration_seconds && episode.duration_seconds > 0 ? (
           <p className="text-xs text-muted-foreground">
-            {Math.floor(episode.duration_seconds / 60)} мин
+            {Math.floor(episode.duration_seconds / 60)} min
           </p>
         ) : null}
       </button>
@@ -210,9 +210,8 @@ export default function PodcastCard({
         )}
 
         {/* Play/Pause Button Overlay - appears on hover or when playing */}
-        <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 flex items-center justify-center ${
-          isCurrentlyPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        }`}>
+        <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 flex items-center justify-center ${isCurrentlyPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+          }`}>
           <button
             onClick={(e) => {
               e.preventDefault()
@@ -255,7 +254,7 @@ export default function PodcastCard({
             {episode.duration_seconds && episode.duration_seconds > 0 ? (
               <div className="flex items-center gap-1">
                 <Clock size={14} />
-                <span>{Math.floor(episode.duration_seconds / 60)} мин</span>
+                <span>{Math.floor(episode.duration_seconds / 60)} min</span>
               </div>
             ) : null}
           </div>

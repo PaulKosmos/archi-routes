@@ -121,7 +121,7 @@ export default function PodcastEditPage() {
         .delete()
         .eq('id', episodeId)
 
-      if (deleteError) throw new Error(`Ошибка удаления подкаста: ${deleteError.message}`)
+      if (deleteError) throw new Error(`Error deleting podcast: ${deleteError.message}`)
 
       // Delete files from storage if they exist
       if (episode?.audio_url) {
@@ -170,7 +170,7 @@ export default function PodcastEditPage() {
           .from('podcasts')
           .upload(`audio/${audioFileName}`, audioFile)
 
-        if (audioError) throw new Error(`Ошибка загрузки аудио: ${audioError.message}`)
+        if (audioError) throw new Error(`Error uploading audio: ${audioError.message}`)
         audioUrl = `audio/${audioFileName}`
       }
 
@@ -181,7 +181,7 @@ export default function PodcastEditPage() {
           .from('podcasts')
           .upload(`covers/${coverFileName}`, coverImage)
 
-        if (coverError) throw new Error(`Ошибка загрузки обложки: ${coverError.message}`)
+        if (coverError) throw new Error(`Error uploading cover: ${coverError.message}`)
         coverImageUrl = `covers/${coverFileName}`
       }
 
@@ -204,7 +204,7 @@ export default function PodcastEditPage() {
         })
         .eq('id', episodeId)
 
-      if (updateError) throw new Error(`Ошибка обновления эпизода: ${updateError.message}`)
+      if (updateError) throw new Error(`Error updating episode: ${updateError.message}`)
 
       // Update tags - delete old ones and insert new ones
       await supabase

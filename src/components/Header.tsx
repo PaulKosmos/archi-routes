@@ -78,10 +78,11 @@ export default function Header({ buildings = [], onRouteCreated }: HeaderProps) 
             {/* Логотип */}
             <div className="flex items-center gap-2 sm:gap-3">
               <a href="/" className="flex items-center gap-2 sm:gap-3">
-                <div className="w-10 h-10 bg-primary bevel-edge flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-xl">A</span>
-                </div>
-                <h1 className="hidden sm:block text-lg sm:text-xl lg:text-2xl font-bold tracking-tight font-display">ArchiRoutes</h1>
+                <img
+                  src="/ar-logo.svg"
+                  alt="ArchiRoutes Logo"
+                  className="h-[34px] w-auto"
+                />
               </a>
             </div>
 
@@ -89,41 +90,37 @@ export default function Header({ buildings = [], onRouteCreated }: HeaderProps) 
             <nav className="hidden lg:flex items-center gap-8">
               <a
                 href="/map"
-                className={`font-medium transition-colors ${
-                  pathname === '/map'
-                    ? 'text-[hsl(var(--map-primary))]'
-                    : 'hover:text-[hsl(var(--map-primary))]'
-                }`}
+                className={`font-medium transition-colors ${pathname === '/map'
+                  ? 'text-[hsl(var(--map-primary))]'
+                  : 'hover:text-[hsl(var(--map-primary))]'
+                  }`}
               >
                 Map
               </a>
               <a
                 href="/news"
-                className={`font-medium transition-colors ${
-                  pathname === '/news' || pathname?.startsWith('/news/')
-                    ? 'text-[hsl(var(--news-primary))]'
-                    : 'hover:text-[hsl(var(--news-primary))]'
-                }`}
+                className={`font-medium transition-colors ${pathname === '/news' || pathname?.startsWith('/news/')
+                  ? 'text-[hsl(var(--news-primary))]'
+                  : 'hover:text-[hsl(var(--news-primary))]'
+                  }`}
               >
                 News
               </a>
               <a
                 href="/blog"
-                className={`font-medium transition-colors ${
-                  pathname === '/blog' || pathname?.startsWith('/blog/')
-                    ? 'text-[hsl(var(--blog-primary))]'
-                    : 'hover:text-[hsl(var(--blog-primary))]'
-                }`}
+                className={`font-medium transition-colors ${pathname === '/blog' || pathname?.startsWith('/blog/')
+                  ? 'text-[hsl(var(--blog-primary))]'
+                  : 'hover:text-[hsl(var(--blog-primary))]'
+                  }`}
               >
                 Blog
               </a>
               <a
                 href="/podcasts"
-                className={`font-medium transition-colors ${
-                  pathname === '/podcasts' || pathname?.startsWith('/podcasts/')
-                    ? 'text-[hsl(var(--podcast-primary))]'
-                    : 'hover:text-[hsl(var(--podcast-primary))]'
-                }`}
+                className={`font-medium transition-colors ${pathname === '/podcasts' || pathname?.startsWith('/podcasts/')
+                  ? 'text-[hsl(var(--podcast-primary))]'
+                  : 'hover:text-[hsl(var(--podcast-primary))]'
+                  }`}
               >
                 Podcasts
               </a>

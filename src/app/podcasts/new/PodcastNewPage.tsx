@@ -103,7 +103,7 @@ export default function PodcastNewPage() {
         .from('podcasts')
         .upload(`audio/${audioFileName}`, audioFile)
 
-      if (audioError) throw new Error(`Ошибка загрузки аудио: ${audioError.message}`)
+      if (audioError) throw new Error(`Error uploading audio: ${audioError.message}`)
 
       const audioUrl = `audio/${audioFileName}`
 
@@ -115,7 +115,7 @@ export default function PodcastNewPage() {
           .from('podcasts')
           .upload(`covers/${coverFileName}`, coverImage)
 
-        if (coverError) throw new Error(`Ошибка загрузки обложки: ${coverError.message}`)
+        if (coverError) throw new Error(`Error uploading cover: ${coverError.message}`)
         coverImageUrl = `covers/${coverFileName}`
       }
 
@@ -143,7 +143,7 @@ export default function PodcastNewPage() {
         .select()
         .single()
 
-      if (createError) throw new Error(`Ошибка создания эпизода: ${createError.message}`)
+      if (createError) throw new Error(`Error creating episode: ${createError.message}`)
 
       // Add tags if selected
       if (selectedTags.length > 0 && episodeData) {

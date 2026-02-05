@@ -13,7 +13,7 @@ interface BlogCardProps {
 
 export default function BlogCard({ post, viewMode }: BlogCardProps) {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ru-RU', {
+    return new Date(dateString).toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'

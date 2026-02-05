@@ -21,7 +21,7 @@ export default function RouteList({
   title = "🛤️ Routes",
   maxHeight = "max-h-64"
 }: RouteListProps) {
-  
+
   const getTransportIcon = useCallback((mode?: string) => {
     switch (mode) {
       case 'walking': return <Footprints className="w-4 h-4" />
@@ -69,15 +69,14 @@ export default function RouteList({
       <div className={`space-y-2 overflow-y-auto ${maxHeight}`}>
         {routes.map(route => {
           const isSelected = selectedRoute?.id === route.id
-          
+
           return (
             <div
               key={route.id}
-              className={`p-2 md:p-3 rounded-[var(--radius)] border transition-all duration-200 bg-card relative ${
-                isSelected
-                  ? 'border-[hsl(var(--map-primary))] bg-[hsl(var(--map-primary))]/5 shadow-md'
-                  : 'border-border hover:bg-muted hover:-translate-y-0.5 hover:shadow-md'
-              }`}
+              className={`p-2 md:p-3 rounded-[var(--radius)] border transition-all duration-200 bg-card relative ${isSelected
+                ? 'border-[hsl(var(--map-primary))] bg-[hsl(var(--map-primary))]/5 shadow-md'
+                : 'border-border hover:bg-muted hover:-translate-y-0.5 hover:shadow-md'
+                }`}
             >
               <div className="flex items-start justify-between" onClick={() => onRouteSelect(route)}>
                 <div className="flex-1 min-w-0 cursor-pointer pr-2">
@@ -151,7 +150,7 @@ export default function RouteList({
                     <div className="flex items-center space-x-4 text-xs text-muted-foreground font-metrics mt-1">
                       {route.rating && route.rating > 0 && (
                         <div className="flex items-center">
-                          <Star className="w-3 h-3 mr-1 fill-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]" />
+                          <Star className="w-3 h-3 mr-1" style={{ fill: '#facc15', color: '#facc15' }} />
                           <span>{route.rating.toFixed(1)}</span>
                           {route.review_count && route.review_count > 0 && (
                             <span className="ml-1">({route.review_count})</span>

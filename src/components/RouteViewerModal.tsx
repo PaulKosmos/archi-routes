@@ -8,6 +8,7 @@ import { getStorageUrl } from '@/lib/storage'
 import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import dynamic from 'next/dynamic'
+import AddRouteReviewModal from './routes/AddRouteReviewModal'
 
 // Dynamic MapLibre mini-map import (migrated from Leaflet)
 const DynamicMiniMap = dynamic(() => import('./MapLibreRouteViewer'), {
@@ -72,13 +73,18 @@ export default function RouteViewerModal({
   const [showAllReviews, setShowAllReviews] = useState(false)
   const [helpfulVotes, setHelpfulVotes] = useState<Set<string>>(new Set())
   const [userRatings, setUserRatings] = useState<Map<string, number>>(new Map())
-  const [hoveredRating, setHoveredRating] = useState<{reviewId: string, rating: number} | null>(null)
+  const [hoveredRating, setHoveredRating] = useState<{ reviewId: string, rating: number } | null>(null)
 
   // Photo gallery
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
 
   // Route export
   const [showExportMenu, setShowExportMenu] = useState(false)
+
+  // Route reviews state (reviews about the route itself)
+  const [routeReviews, setRouteReviews] = useState<any[]>([])
+  const [showAddRouteReviewModal, setShowAddRouteReviewModal] = useState(false)
+  const [showAllRouteReviews, setShowAllRouteReviews] = useState(false)
 
   // Load route points
   useEffect(() => {
@@ -122,10 +128,33 @@ export default function RouteViewerModal({
     }
 
     loadRoutePoints()
+    loadRouteReviews()
   }, [route?.id, isOpen])
 
+  // Load route reviews (reviews for the route itself)
+  const loadRouteReviews = async () => {
+    if (!route) return
+    try {
+      const { data, error } = await supabase
+        .from('route_reviews')
+        .select(`
+          id, rating, title, content, completion_time_minutes, created_at, user_id,
+          profiles:user_id (id, username, full_name, avatar_url)
+        `)
+        .eq('route_id', route.id)
+        .order('created_at', { ascending: false })
+        .limit(3)
+
+      if (!error && data) {
+        setRouteReviews(data)
+      }
+    } catch (error) {
+      console.error('Error loading route reviews:', error)
+    }
+  }
+
   // Current point
-  const currentPoint = useMemo(() => 
+  const currentPoint = useMemo(() =>
     routePoints[currentPointIndex] || null,
     [routePoints, currentPointIndex]
   )
@@ -153,7 +182,7 @@ export default function RouteViewerModal({
           // Check for "Complete Review"
           const aIsFull = !!(a.content && a.content.length >= 200 && a.photos && a.photos.length >= 2 && a.audio_url)
           const bIsFull = !!(b.content && b.content.length >= 200 && b.photos && b.photos.length >= 2 && b.audio_url)
-          
+
           if (aIsFull !== bIsFull) return aIsFull ? -1 : 1
           if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1
           if (a.is_verified !== b.is_verified) return a.is_verified ? -1 : 1
@@ -170,7 +199,7 @@ export default function RouteViewerModal({
             .select('review_id')
             .eq('user_id', user.id)
             .in('review_id', sortedReviews.map(r => r.id))
-          
+
           if (votesData) {
             setHelpfulVotes(new Set(votesData.map(v => v.review_id)))
           }
@@ -181,7 +210,7 @@ export default function RouteViewerModal({
             .select('review_id, rating')
             .eq('user_id', user.id)
             .in('review_id', sortedReviews.map(r => r.id))
-          
+
           if (ratingsData) {
             setUserRatings(new Map(ratingsData.map(r => [r.review_id, r.rating])))
           }
@@ -259,7 +288,7 @@ export default function RouteViewerModal({
 
     try {
       const isHelpful = helpfulVotes.has(reviewId)
-      
+
       if (isHelpful) {
         // Remove vote
         await supabase
@@ -267,15 +296,15 @@ export default function RouteViewerModal({
           .delete()
           .eq('review_id', reviewId)
           .eq('user_id', user.id)
-        
+
         setHelpfulVotes(prev => {
           const newSet = new Set(prev)
           newSet.delete(reviewId)
           return newSet
         })
-        
+
         // Update counter locally
-        setReviews(prev => prev.map(r => 
+        setReviews(prev => prev.map(r =>
           r.id === reviewId ? { ...r, helpful_count: Math.max(0, r.helpful_count - 1) } : r
         ))
       } else {
@@ -286,14 +315,14 @@ export default function RouteViewerModal({
             review_id: reviewId,
             user_id: user.id
           })
-        
+
         setHelpfulVotes(prev => new Set(prev).add(reviewId))
-        
+
         // Update counter locally
-        setReviews(prev => prev.map(r => 
+        setReviews(prev => prev.map(r =>
           r.id === reviewId ? { ...r, helpful_count: r.helpful_count + 1 } : r
         ))
-        
+
         toast.success('👍 Marked as helpful!')
       }
     } catch (error) {
@@ -319,7 +348,7 @@ export default function RouteViewerModal({
         }, {
           onConflict: 'review_id,user_id'
         })
-      
+
       setUserRatings(prev => new Map(prev).set(reviewId, rating))
       toast.success(`⭐ Rating ${rating}/5 saved!`)
     } catch (error) {
@@ -329,7 +358,7 @@ export default function RouteViewerModal({
   }
 
   // Selected review
-  const selectedReview = useMemo(() => 
+  const selectedReview = useMemo(() =>
     reviews.find(r => r.id === selectedReviewId) || null,
     [reviews, selectedReviewId]
   )
@@ -337,9 +366,9 @@ export default function RouteViewerModal({
   // All photos of current point (building + selected review)
   const currentPointPhotos = useMemo(() => {
     if (!currentPoint || !currentPoint.buildings) return []
-    
+
     const photos: string[] = []
-    
+
     // If review with photos is selected - show photos from review
     if (selectedReview && selectedReview.photos && Array.isArray(selectedReview.photos) && selectedReview.photos.length > 0) {
       photos.push(...selectedReview.photos)
@@ -349,7 +378,7 @@ export default function RouteViewerModal({
       if (currentPoint.buildings.image_url) {
         photos.push(currentPoint.buildings.image_url)
       }
-      
+
       // Add additional photos (if they don't duplicate main)
       if (currentPoint.buildings.image_urls && Array.isArray(currentPoint.buildings.image_urls)) {
         const uniquePhotos = currentPoint.buildings.image_urls.filter(
@@ -358,7 +387,7 @@ export default function RouteViewerModal({
         photos.push(...uniquePhotos)
       }
     }
-    
+
     return photos
   }, [currentPoint, selectedReview])
 
@@ -390,16 +419,16 @@ export default function RouteViewerModal({
   // URL for route export
   const exportUrls = useMemo(() => {
     if (routePoints.length === 0) return { google: '', apple: '' }
-    
+
     // Google Maps: first point as start, rest as waypoints
     const firstPoint = routePoints[0]
     const waypoints = routePoints.slice(1).map(p => `${p.latitude},${p.longitude}`).join('|')
     const googleUrl = `https://www.google.com/maps/dir/?api=1&origin=${firstPoint.latitude},${firstPoint.longitude}&waypoints=${waypoints}&travelmode=walking`
-    
+
     // Apple Maps: first point as start, last as destination
     const lastPoint = routePoints[routePoints.length - 1]
     const appleUrl = `https://maps.apple.com/?saddr=${firstPoint.latitude},${firstPoint.longitude}&daddr=${lastPoint.latitude},${lastPoint.longitude}&dirflg=w`
-    
+
     return { google: googleUrl, apple: appleUrl }
   }, [routePoints])
 
@@ -419,7 +448,7 @@ export default function RouteViewerModal({
               {route.city}, {route.country}
             </p>
           </div>
-          
+
           {/* Geolocation and export */}
           <div className="flex items-center space-x-2 md:space-x-4 ml-2 md:ml-4">
             {/* Route export - now visible on mobile */}
@@ -465,15 +494,13 @@ export default function RouteViewerModal({
               <span className="hidden md:inline text-xs md:text-sm text-muted-foreground">Geolocation:</span>
               <button
                 onClick={() => setGeolocationEnabled(!geolocationEnabled)}
-                className={`relative inline-flex h-5 w-9 md:h-6 md:w-11 items-center rounded-full transition-colors ${
-                  geolocationEnabled ? 'bg-primary' : 'bg-muted'
-                }`}
+                className={`relative inline-flex h-5 w-9 md:h-6 md:w-11 items-center rounded-full transition-colors ${geolocationEnabled ? 'bg-primary' : 'bg-muted'
+                  }`}
                 title={geolocationEnabled ? 'Geolocation enabled' : 'Geolocation disabled'}
               >
                 <span
-                  className={`inline-block h-3 w-3 md:h-4 md:w-4 transform rounded-full bg-white transition-transform ${
-                    geolocationEnabled ? 'translate-x-5 md:translate-x-6' : 'translate-x-1'
-                  }`}
+                  className={`inline-block h-3 w-3 md:h-4 md:w-4 transform rounded-full bg-white transition-transform ${geolocationEnabled ? 'translate-x-5 md:translate-x-6' : 'translate-x-1'
+                    }`}
                 />
               </button>
             </div>
@@ -553,6 +580,104 @@ export default function RouteViewerModal({
                 </div>
               </div>
 
+              {/* Route Reviews - only for published routes */}
+              {route.is_published && (
+                <div className="bg-card rounded-[var(--radius)] border-2 border-border p-4 mb-4 shadow-sm">
+                  <div
+                    className="cursor-pointer hover:bg-muted/50 -m-4 p-4 rounded-[var(--radius)] transition-colors"
+                    onClick={() => setShowAllRouteReviews(true)}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold font-display text-foreground flex items-center gap-1">
+                        <Star className="w-4 h-4" style={{ fill: '#facc15', color: '#facc15' }} />
+                        Route Reviews
+                      </h3>
+                      {(route.rating ?? 0) > 0 && (
+                        <div className="flex items-center gap-1">
+                          <span className="font-bold text-foreground">{Number(route.rating).toFixed(1)}</span>
+                          <span className="text-xs text-muted-foreground">({route.review_count || 0})</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {routeReviews.length > 0 ? (
+                      <div className="space-y-2">
+                        {routeReviews.slice(0, 3).map((review) => (
+                          <div key={review.id} className="text-xs border border-border rounded p-2 bg-background">
+                            <div className="flex items-center gap-1 mb-1">
+                              {[1, 2, 3, 4, 5].map(s => (
+                                <Star key={s} className="w-3 h-3" style={s <= review.rating ? { fill: '#facc15', color: '#facc15' } : { color: 'var(--muted)' }} />
+                              ))}
+                            </div>
+                            {review.title && (
+                              <p className="font-medium text-foreground mb-1">{review.title}</p>
+                            )}
+                            {review.content && (
+                              <p className="text-muted-foreground line-clamp-2">{review.content}</p>
+                            )}
+                          </div>
+                        ))}
+                        {routeReviews.length > 3 && (
+                          <p className="text-primary text-xs mt-1 text-center">+ {routeReviews.length - 3} more reviews</p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">No reviews yet. Be the first!</p>
+                    )}
+                  </div>
+
+                  {user && (
+                    <button
+                      onClick={() => setShowAddRouteReviewModal(true)}
+                      className="w-full mt-3 py-2 px-3 bg-primary text-primary-foreground text-sm font-medium rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
+                    >
+                      Write Review
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Route Reviews Modal */}
+              {showAllRouteReviews && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                  <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowAllRouteReviews(false)} />
+                  <div className="relative bg-card border border-border rounded-[var(--radius)] w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-xl">
+                    <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+                      <h2 className="text-lg font-semibold">Route Reviews</h2>
+                      <button onClick={() => setShowAllRouteReviews(false)} className="p-2 hover:bg-muted rounded-[var(--radius)]">
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      {routeReviews.length > 0 ? (
+                        routeReviews.map((review) => (
+                          <div key={review.id} className="border border-border rounded-[var(--radius)] p-3 bg-background">
+                            <div className="flex items-center gap-2 mb-2">
+                              {[1, 2, 3, 4, 5].map(s => (
+                                <Star key={s} className="w-4 h-4" style={s <= review.rating ? { fill: '#facc15', color: '#facc15' } : { color: 'var(--muted)' }} />
+                              ))}
+                            </div>
+                            {review.title && (
+                              <h4 className="font-medium text-foreground mb-1">{review.title}</h4>
+                            )}
+                            {review.content && (
+                              <p className="text-sm text-muted-foreground">{review.content}</p>
+                            )}
+                            {review.profiles && (
+                              <p className="text-xs text-muted-foreground mt-2">
+                                — {review.profiles.full_name || review.profiles.username || 'Anonymous'}
+                              </p>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-center text-muted-foreground py-8">No reviews yet</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Points list */}
               <div className="space-y-2">
                 <h3 className="font-semibold font-display text-foreground mb-3">Route Points</h3>
@@ -571,23 +696,21 @@ export default function RouteViewerModal({
                       <button
                         key={point.id}
                         onClick={() => setCurrentPointIndex(index)}
-                        className={`w-full p-3 rounded-[var(--radius)] border-2 transition-all text-left ${
-                          isCurrent
-                            ? 'border-primary bg-primary/5'
-                            : isPassed
+                        className={`w-full p-3 rounded-[var(--radius)] border-2 transition-all text-left ${isCurrent
+                          ? 'border-primary bg-primary/5'
+                          : isPassed
                             ? 'border-border bg-muted'
                             : 'border-border bg-card hover:border-primary/50'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center space-x-3">
                           {/* Number/Status */}
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 font-metrics ${
-                            isCurrent
-                              ? 'bg-primary text-primary-foreground'
-                              : isPassed
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 font-metrics ${isCurrent
+                            ? 'bg-primary text-primary-foreground'
+                            : isPassed
                               ? 'bg-primary/60 text-primary-foreground'
                               : 'bg-muted text-muted-foreground'
-                          }`}>
+                            }`}>
                             {isPassed ? <Check className="w-4 h-4" /> : index + 1}
                           </div>
 
@@ -674,11 +797,10 @@ export default function RouteViewerModal({
                           <button
                             key={index}
                             onClick={() => setCurrentPhotoIndex(index)}
-                            className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${
-                              index === currentPhotoIndex
-                                ? 'bg-white w-6 md:w-8'
-                                : 'bg-white/60 hover:bg-white/80'
-                            }`}
+                            className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${index === currentPhotoIndex
+                              ? 'bg-white w-6 md:w-8'
+                              : 'bg-white/60 hover:bg-white/80'
+                              }`}
                           />
                         ))}
                       </div>
@@ -769,170 +891,167 @@ export default function RouteViewerModal({
                     <>
                       <div className="space-y-2 md:space-y-3">
                         {(showAllReviews ? reviews : reviews.slice(0, 3)).map((review) => {
-                        const isSelected = review.id === selectedReviewId
+                          const isSelected = review.id === selectedReviewId
 
-                        // Check for "Complete Review"
-                        const isFullReview = !!(
-                          review.content && review.content.length >= 200 &&
-                          review.photos && review.photos.length >= 2 &&
-                          review.audio_url
-                        )
+                          // Check for "Complete Review"
+                          const isFullReview = !!(
+                            review.content && review.content.length >= 200 &&
+                            review.photos && review.photos.length >= 2 &&
+                            review.audio_url
+                          )
 
-                        return (
-                          <div
-                            key={review.id}
-                            onClick={() => !isSelected && handleSelectReview(review.id)}
-                            className={`border-2 rounded-[var(--radius)] p-3 md:p-4 transition-all ${
-                              isSelected
+                          return (
+                            <div
+                              key={review.id}
+                              onClick={() => !isSelected && handleSelectReview(review.id)}
+                              className={`border-2 rounded-[var(--radius)] p-3 md:p-4 transition-all ${isSelected
                                 ? 'border-primary bg-primary/5'
                                 : 'border-border bg-card hover:border-primary/50 hover:shadow-md cursor-pointer'
-                            }`}
-                          >
-                            {/* Header */}
-                            <div className="flex items-start justify-between mb-2 md:mb-3">
-                              <div className="flex items-center flex-wrap gap-1.5 md:gap-2">
-                                {/* User ratings */}
-                                {review.user_rating_count > 0 && (
-                                  <div className="flex items-center bg-yellow-50 px-1.5 md:px-2 py-0.5 md:py-1 rounded">
-                                    <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 fill-yellow-400 mr-0.5 md:mr-1" />
-                                    <span className="text-xs md:text-sm font-semibold text-foreground font-metrics">
-                                      {review.user_rating_avg.toFixed(1)}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground ml-1 font-metrics">
-                                      ({review.user_rating_count})
-                                    </span>
-                                  </div>
-                                )}
+                                }`}
+                            >
+                              {/* Header */}
+                              <div className="flex items-start justify-between mb-2 md:mb-3">
+                                <div className="flex items-center flex-wrap gap-1.5 md:gap-2">
+                                  {/* User ratings */}
+                                  {review.user_rating_count > 0 && (
+                                    <div className="flex items-center bg-yellow-50 px-1.5 md:px-2 py-0.5 md:py-1 rounded">
+                                      <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-400 fill-yellow-400 mr-0.5 md:mr-1" />
+                                      <span className="text-xs md:text-sm font-semibold text-foreground font-metrics">
+                                        {review.user_rating_avg.toFixed(1)}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground ml-1 font-metrics">
+                                        ({review.user_rating_count})
+                                      </span>
+                                    </div>
+                                  )}
 
-                                {/* Полный обзор - ГЛАВНЫЙ бейдж */}
-                                {isFullReview && (
-                                  <span className="flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-bold border border-yellow-300">
-                                    ⭐ COMPLETE
-                                  </span>
-                                )}
+                                  {/* Полный обзор - ГЛАВНЫЙ бейдж */}
+                                  {isFullReview && (
+                                    <span className="flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-bold border border-yellow-300">
+                                      ⭐ COMPLETE
+                                    </span>
+                                  )}
 
-                                {/* Остальные бейджи */}
-                                {review.audio_url && (
-                                  <span className="flex items-center bg-purple-50 text-purple-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
-                                    <Headphones className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
-                                    <span className="hidden md:inline">Audio</span>
-                                  </span>
-                                )}
-                                {review.is_verified && (
-                                  <span className="flex items-center bg-green-50 text-green-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
-                                    <CheckCircle className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
-                                    <span className="hidden md:inline">Verified</span>
-                                  </span>
-                                )}
-                                {review.is_featured && (
-                                  <span className="flex items-center bg-primary/10 text-primary px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
-                                    <Award className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
-                                    <span className="hidden md:inline">Recommended</span>
-                                  </span>
-                                )}
-                                {review.review_type === 'expert' && (
-                                  <span className="bg-indigo-50 text-indigo-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
-                                    👨‍🎓 <span className="hidden md:inline">Expert</span>
-                                  </span>
-                                )}
-                                {review.review_type === 'historical' && (
-                                  <span className="bg-amber-50 text-amber-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
-                                    📜 <span className="hidden md:inline">Historical</span>
+                                  {/* Остальные бейджи */}
+                                  {review.audio_url && (
+                                    <span className="flex items-center bg-purple-50 text-purple-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                      <Headphones className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+                                      <span className="hidden md:inline">Audio</span>
+                                    </span>
+                                  )}
+                                  {review.is_verified && (
+                                    <span className="flex items-center bg-green-50 text-green-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                      <CheckCircle className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+                                      <span className="hidden md:inline">Verified</span>
+                                    </span>
+                                  )}
+                                  {review.is_featured && (
+                                    <span className="flex items-center bg-primary/10 text-primary px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                      <Award className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+                                      <span className="hidden md:inline">Recommended</span>
+                                    </span>
+                                  )}
+                                  {review.review_type === 'expert' && (
+                                    <span className="bg-indigo-50 text-indigo-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                      👨‍🎓 <span className="hidden md:inline">Expert</span>
+                                    </span>
+                                  )}
+                                  {review.review_type === 'historical' && (
+                                    <span className="bg-amber-50 text-amber-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                      📜 <span className="hidden md:inline">Historical</span>
+                                    </span>
+                                  )}
+                                </div>
+
+                                {isSelected && (
+                                  <span className="flex items-center text-primary text-xs md:text-sm font-medium">
+                                    <Check className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                                    <span className="hidden md:inline">Selected</span>
                                   </span>
                                 )}
                               </div>
 
-                              {isSelected && (
-                                <span className="flex items-center text-primary text-xs md:text-sm font-medium">
-                                  <Check className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                                  <span className="hidden md:inline">Selected</span>
-                                </span>
+                              {/* Title */}
+                              {review.title && (
+                                <h5 className="font-semibold font-display text-foreground mb-1 md:mb-2 text-sm md:text-base">
+                                  {review.title}
+                                </h5>
                               )}
-                            </div>
 
-                            {/* Title */}
-                            {review.title && (
-                              <h5 className="font-semibold font-display text-foreground mb-1 md:mb-2 text-sm md:text-base">
-                                {review.title}
-                              </h5>
-                            )}
-
-                            {/* Text preview */}
-                            {review.content && (
-                              <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3 line-clamp-2">
-                                {review.content}
-                              </p>
-                            )}
-
-                            {/* Metadata */}
-                            <div className="flex items-center space-x-2 md:space-x-3 text-xs text-muted-foreground mb-2 md:mb-3 font-metrics">
-                              {review.audio_duration_seconds && (
-                                <span className="flex items-center">
-                                  <Headphones className="w-3 h-3 mr-1" />
-                                  {Math.floor(review.audio_duration_seconds / 60)} min
-                                </span>
-                              )}
+                              {/* Text preview */}
                               {review.content && (
-                                <span>
-                                  ~{Math.round(review.content.length / 5)} words
-                                </span>
+                                <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3 line-clamp-2">
+                                  {review.content}
+                                </p>
                               )}
-                            </div>
 
-                            {/* Review rating */}
-                            <div className="border-t border-border pt-2 md:pt-3 flex items-center justify-between flex-wrap gap-2 md:gap-3">
-                              {/* Звезды для оценки */}
-                              <div onClick={(e) => e.stopPropagation()}>
-                                <p className="text-xs text-muted-foreground mb-1 hidden md:block">Rate review:</p>
-                                <div className="flex items-center space-x-0.5 md:space-x-1">
-                                  {[1, 2, 3, 4, 5].map(star => {
-                                    const userRating = userRatings.get(review.id) || 0
-                                    const isActive = userRating >= star || (hoveredRating?.reviewId === review.id && hoveredRating.rating >= star)
+                              {/* Metadata */}
+                              <div className="flex items-center space-x-2 md:space-x-3 text-xs text-muted-foreground mb-2 md:mb-3 font-metrics">
+                                {review.audio_duration_seconds && (
+                                  <span className="flex items-center">
+                                    <Headphones className="w-3 h-3 mr-1" />
+                                    {Math.floor(review.audio_duration_seconds / 60)} min
+                                  </span>
+                                )}
+                                {review.content && (
+                                  <span>
+                                    ~{Math.round(review.content.length / 5)} words
+                                  </span>
+                                )}
+                              </div>
 
-                                    return (
-                                      <button
-                                        key={star}
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          handleRateReview(review.id, star)
-                                        }}
-                                        onMouseEnter={() => setHoveredRating({ reviewId: review.id, rating: star })}
-                                        onMouseLeave={() => setHoveredRating(null)}
-                                        className="p-0.5 transition-transform hover:scale-110"
-                                      >
-                                        <Star
-                                          className={`w-3 h-3 md:w-4 md:h-4 transition-colors ${
-                                            isActive
+                              {/* Review rating */}
+                              <div className="border-t border-border pt-2 md:pt-3 flex items-center justify-between flex-wrap gap-2 md:gap-3">
+                                {/* Звезды для оценки */}
+                                <div onClick={(e) => e.stopPropagation()}>
+                                  <p className="text-xs text-muted-foreground mb-1 hidden md:block">Rate review:</p>
+                                  <div className="flex items-center space-x-0.5 md:space-x-1">
+                                    {[1, 2, 3, 4, 5].map(star => {
+                                      const userRating = userRatings.get(review.id) || 0
+                                      const isActive = userRating >= star || (hoveredRating?.reviewId === review.id && hoveredRating.rating >= star)
+
+                                      return (
+                                        <button
+                                          key={star}
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleRateReview(review.id, star)
+                                          }}
+                                          onMouseEnter={() => setHoveredRating({ reviewId: review.id, rating: star })}
+                                          onMouseLeave={() => setHoveredRating(null)}
+                                          className="p-0.5 transition-transform hover:scale-110"
+                                        >
+                                          <Star
+                                            className={`w-3 h-3 md:w-4 md:h-4 transition-colors ${isActive
                                               ? 'fill-yellow-400 text-yellow-400'
                                               : 'text-muted-foreground/30'
-                                          }`}
-                                        />
-                                      </button>
-                                    )
-                                  })}
+                                              }`}
+                                          />
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
                                 </div>
-                              </div>
 
-                              {/* "Helpful" button */}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleToggleHelpful(review.id)
-                                }}
-                                className={`flex items-center px-2 py-1 rounded transition-all ${
-                                  helpfulVotes.has(review.id)
+                                {/* "Helpful" button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleToggleHelpful(review.id)
+                                  }}
+                                  className={`flex items-center px-2 py-1 rounded transition-all ${helpfulVotes.has(review.id)
                                     ? 'bg-primary/10 text-primary font-medium'
                                     : 'hover:bg-muted text-muted-foreground'
-                                }`}
-                                title={helpfulVotes.has(review.id) ? 'Remove rating' : 'Mark as helpful'}
-                              >
-                                <span className="mr-1">{helpfulVotes.has(review.id) ? '👍' : '👍🏻'}</span>
-                                <span className="text-xs font-metrics">{review.helpful_count}</span>
-                              </button>
+                                    }`}
+                                  title={helpfulVotes.has(review.id) ? 'Remove rating' : 'Mark as helpful'}
+                                >
+                                  <span className="mr-1">{helpfulVotes.has(review.id) ? '👍' : '👍🏻'}</span>
+                                  <span className="text-xs font-metrics">{review.helpful_count}</span>
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        )
-                      })}
+                          )
+                        })}
                       </div>
 
                       {/* Кнопка показать еще обзоры */}
@@ -1019,17 +1138,15 @@ export default function RouteViewerModal({
                 <button
                   key={point.id}
                   onClick={() => setCurrentPointIndex(index)}
-                  className={`flex-shrink-0 w-20 transition-all ${
-                    isCurrent ? 'scale-105' : isPassed ? 'opacity-40' : ''
-                  }`}
+                  className={`flex-shrink-0 w-20 transition-all ${isCurrent ? 'scale-105' : isPassed ? 'opacity-40' : ''
+                    }`}
                 >
-                  <div className={`relative rounded-[var(--radius)] border-2 overflow-hidden ${
-                    isCurrent
-                      ? 'border-primary shadow-md'
-                      : isPassed
+                  <div className={`relative rounded-[var(--radius)] border-2 overflow-hidden ${isCurrent
+                    ? 'border-primary shadow-md'
+                    : isPassed
                       ? 'border-border bg-muted'
                       : 'border-border'
-                  }`}>
+                    }`}>
                     {/* Миниатюра или placeholder */}
                     {point.buildings?.image_url ? (
                       <img
@@ -1038,21 +1155,19 @@ export default function RouteViewerModal({
                         className={`w-full h-16 object-cover ${isPassed ? 'grayscale' : ''}`}
                       />
                     ) : (
-                      <div className={`w-full h-16 bg-muted flex items-center justify-center ${
-                        isPassed ? 'opacity-50' : ''
-                      }`}>
+                      <div className={`w-full h-16 bg-muted flex items-center justify-center ${isPassed ? 'opacity-50' : ''
+                        }`}>
                         <MapPin className="w-6 h-6 text-muted-foreground" />
                       </div>
                     )}
 
                     {/* Номер точки */}
-                    <div className={`absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold font-metrics ${
-                      isCurrent
-                        ? 'bg-primary text-primary-foreground'
-                        : isPassed
+                    <div className={`absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold font-metrics ${isCurrent
+                      ? 'bg-primary text-primary-foreground'
+                      : isPassed
                         ? 'bg-muted-foreground/60 text-white'
                         : 'bg-card text-foreground border border-border'
-                    }`}>
+                      }`}>
                       {isPassed ? <Check className="w-3 h-3" /> : index + 1}
                     </div>
 
@@ -1065,13 +1180,12 @@ export default function RouteViewerModal({
                   </div>
 
                   {/* Название точки */}
-                  <div className={`mt-1 text-xs font-medium text-center truncate ${
-                    isCurrent
-                      ? 'text-primary'
-                      : isPassed
+                  <div className={`mt-1 text-xs font-medium text-center truncate ${isCurrent
+                    ? 'text-primary'
+                    : isPassed
                       ? 'text-muted-foreground'
                       : 'text-foreground'
-                  }`}>
+                    }`}>
                     {point.title}
                   </div>
                 </button>
@@ -1112,6 +1226,17 @@ export default function RouteViewerModal({
           </button>
         </div>
       </div>
+
+      {/* Add Route Review Modal */}
+      {route.is_published && (
+        <AddRouteReviewModal
+          routeId={route.id}
+          routeTitle={route.title}
+          isOpen={showAddRouteReviewModal}
+          onClose={() => setShowAddRouteReviewModal(false)}
+          onSuccess={loadRouteReviews}
+        />
+      )}
     </div>
   )
 }

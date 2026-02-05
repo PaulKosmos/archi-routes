@@ -13,6 +13,8 @@ import dynamic from 'next/dynamic'
 import DeleteContentModal from '../../../components/DeleteContentModal'
 import RouteFavoriteButton, { RouteCompletedButton } from '../../../components/RouteFavoriteButton'
 import { Route, TransportModeHelper, formatDistance, formatDuration } from '../../../types/route'
+import RouteReviewsList from '../../../components/routes/RouteReviewsList'
+import AddRouteReviewModal from '../../../components/routes/AddRouteReviewModal'
 
 // Dynamic import of MapLibre map (migrated from Leaflet)
 const MapLibreRouteMap = dynamic(() => import('./MapLibreRouteMap'), {
@@ -40,10 +42,10 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
   const Δφ = (lat2 - lat1) * Math.PI / 180
   const Δλ = (lng2 - lng1) * Math.PI / 180
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ/2) * Math.sin(Δλ/2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
   return R * c
 }
@@ -67,6 +69,11 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
   const [exportStatus, setExportStatus] = useState<string>('')
   const [copySuccess, setCopySuccess] = useState(false)
 
+  // Reviews state
+  const [reviews, setReviews] = useState<any[]>([])
+  const [showAddReviewModal, setShowAddReviewModal] = useState(false)
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+
   // Check authorization
   useEffect(() => {
     const checkAuth = async () => {
@@ -75,7 +82,35 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
     }
 
     checkAuth()
+
+    // Load reviews only for published routes
+    if (route.is_published) {
+      loadReviews()
+    }
   }, [route.id, supabase])
+
+  // Load reviews
+  const loadReviews = async () => {
+    setReviewsLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('route_reviews')
+        .select(`
+          id, rating, title, content, completion_time_minutes, photos, created_at, user_id,
+          profiles:user_id (id, username, full_name, avatar_url)
+        `)
+        .eq('route_id', route.id)
+        .order('created_at', { ascending: false })
+
+      if (!error && data) {
+        setReviews(data)
+      }
+    } catch (error) {
+      console.error('Error loading reviews:', error)
+    } finally {
+      setReviewsLoading(false)
+    }
+  }
 
   // Use hook to check permissions
   const permissions = useEditPermissions('route', route.id, user?.id || null)
@@ -664,11 +699,10 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
 
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Quality:</span>
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    hasRealRoute
-                      ? 'bg-primary/10 text-primary'
-                      : 'bg-muted text-muted-foreground'
-                  }`}>
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${hasRealRoute
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-muted text-muted-foreground'
+                    }`}>
                     {hasRealRoute ? 'Precise' : 'Approximate'}
                   </span>
                 </div>
@@ -704,22 +738,20 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                       <button
                         key={point.id}
                         onClick={() => setCurrentStepIndex(index)}
-                        className={`w-full p-2 rounded-[var(--radius)] border-2 transition-all text-left ${
-                          isCurrent
-                            ? 'border-primary bg-primary/5'
-                            : isPassed
+                        className={`w-full p-2 rounded-[var(--radius)] border-2 transition-all text-left ${isCurrent
+                          ? 'border-primary bg-primary/5'
+                          : isPassed
                             ? 'border-border bg-muted'
                             : 'border-border bg-card hover:border-primary/50'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center space-x-2">
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 font-metrics ${
-                            isCurrent
-                              ? 'bg-primary text-primary-foreground'
-                              : isPassed
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 font-metrics ${isCurrent
+                            ? 'bg-primary text-primary-foreground'
+                            : isPassed
                               ? 'bg-primary/60 text-primary-foreground'
                               : 'bg-muted text-muted-foreground'
-                          }`}>
+                            }`}>
                             {isPassed ? <Check className="w-3 h-3" /> : index + 1}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -772,32 +804,29 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                   return (
                     <div
                       key={point.id}
-                      className={`bg-card border-2 rounded-[var(--radius)] p-4 transition-all ${
-                        isCurrent
-                          ? 'border-primary bg-primary/5 shadow-lg'
-                          : isPassed
+                      className={`bg-card border-2 rounded-[var(--radius)] p-4 transition-all ${isCurrent
+                        ? 'border-primary bg-primary/5 shadow-lg'
+                        : isPassed
                           ? 'border-border bg-muted/50'
                           : 'border-border hover:border-primary/50 shadow-sm hover:shadow-md'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start space-x-4">
                         {/* Point number */}
-                        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm ${
-                          isCurrent
-                            ? 'bg-primary text-primary-foreground'
-                            : isPassed
+                        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm ${isCurrent
+                          ? 'bg-primary text-primary-foreground'
+                          : isPassed
                             ? 'bg-muted text-muted-foreground'
                             : 'bg-primary/10 text-primary'
-                        }`}>
+                          }`}>
                           {isPassed ? <Check className="w-5 h-5" /> : <span className="font-metrics">{index + 1}</span>}
                         </div>
 
                         {/* Point information */}
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-2">
-                            <h3 className={`font-semibold text-lg font-display ${
-                              isCurrent ? 'text-primary' : 'text-foreground'
-                            }`}>
+                            <h3 className={`font-semibold text-lg font-display ${isCurrent ? 'text-primary' : 'text-foreground'
+                              }`}>
                               {point.title}
                               {isCurrent && (
                                 <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full font-normal">
@@ -915,16 +944,47 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                     </div>
                   )
                 }) || (
-                  <div className="text-center py-12 bg-card rounded-[var(--radius)] border-2 border-dashed border-border">
-                    <MapPin size={64} className="mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-medium font-display text-foreground mb-2">No Route Points</h3>
-                    <p className="text-sm text-muted-foreground">This route doesn't have any points yet</p>
-                  </div>
-                )}
+                    <div className="text-center py-12 bg-card rounded-[var(--radius)] border-2 border-dashed border-border">
+                      <MapPin size={64} className="mx-auto mb-4 text-muted-foreground" />
+                      <h3 className="text-lg font-medium font-display text-foreground mb-2">No Route Points</h3>
+                      <p className="text-sm text-muted-foreground">This route doesn't have any points yet</p>
+                    </div>
+                  )}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Reviews Section - Only for published routes */}
+        {route.is_published && (
+          <div className="bg-card rounded-[var(--radius)] border-2 border-border p-4 md:p-6 mt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold font-display text-foreground flex items-center gap-2">
+                <Star className="w-5 h-5 text-yellow-400" />
+                Reviews
+                {route.review_count > 0 && (
+                  <span className="text-sm font-normal text-muted-foreground">({route.review_count})</span>
+                )}
+              </h2>
+              {route.rating > 0 && (
+                <div className="flex items-center gap-1">
+                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  <span className="font-semibold">{Number(route.rating).toFixed(1)}</span>
+                </div>
+              )}
+            </div>
+
+            {reviewsLoading ? (
+              <div className="text-center py-8 text-muted-foreground">Loading reviews...</div>
+            ) : (
+              <RouteReviewsList
+                routeId={route.id}
+                reviews={reviews}
+                onOpenAddReview={() => setShowAddReviewModal(true)}
+              />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Delete modal */}
@@ -935,6 +995,17 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
           contentTitle={route.title}
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
+        />
+      )}
+
+      {/* Add Review Modal */}
+      {route.is_published && (
+        <AddRouteReviewModal
+          routeId={route.id}
+          routeTitle={route.title}
+          isOpen={showAddReviewModal}
+          onClose={() => setShowAddReviewModal(false)}
+          onSuccess={loadReviews}
         />
       )}
 
