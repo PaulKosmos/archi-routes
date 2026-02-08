@@ -37,6 +37,31 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const origin = request.headers.get('origin')
 
+  // ========================================
+  // Site Access Protection (Coming Soon Mode)
+  // ========================================
+  const siteAccessEnabled = process.env.SITE_ACCESS_ENABLED === 'true'
+
+  if (siteAccessEnabled) {
+    // Paths that should be accessible without password
+    const publicPaths = [
+      '/coming-soon',
+      '/api/site-access',
+      '/_next',
+      '/favicon.ico',
+      '/ar-logo.svg',
+      '/ar-logo.png',
+    ]
+
+    const isPublicPath = publicPaths.some(path => pathname.startsWith(path))
+    const hasAccess = request.cookies.get('site_access_granted')?.value === 'true'
+
+    if (!isPublicPath && !hasAccess) {
+      return NextResponse.redirect(new URL('/coming-soon', request.url))
+    }
+  }
+  // ========================================
+
   // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
     return new NextResponse(null, {
@@ -116,9 +141,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/admin/:path*',
-    '/settings/:path*',
-    '/profile/edit/:path*',
-    '/api/:path*',
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (images, etc.)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ]
 }

@@ -33,10 +33,18 @@ export interface BuildingFormData {
     rating?: number
     opening_hours?: string
     entry_fee?: string
+    website?: string
+    visit_difficulty?: string
+    best_visit_time?: string
+    transport_accessibility?: string
+    language?: string
   }
   // Медиа файлы
   photoFiles?: File[]
   audioFile?: File | null
+  // Photo attribution
+  isOwnPhoto?: boolean
+  photoSource?: string
 }
 
 // Список архитектурных стилей
@@ -57,8 +65,8 @@ const ARCHITECTURAL_STYLES = [
   'Other'
 ]
 
-// Список типов зданий
-const BUILDING_TYPES = [
+// List of object types
+const OBJECT_TYPES = [
   'Architectural Monument',
   'Residential Building',
   'Public Building',
@@ -68,8 +76,27 @@ const BUILDING_TYPES = [
   'Railway Station',
   'Bridge',
   'Park',
+  'Sculpture / Monument',
+  'Historic Personality',
+  'Memorial Place',
+  'Cafe',
+  'Bar',
   'Other'
 ]
+
+// Review languages
+const REVIEW_LANGUAGES = [
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'pt', name: 'Português', flag: '🇵🇹' },
+  { code: 'zh', name: '中文', flag: '🇨🇳' }
+] as const
+
+type ReviewLanguage = typeof REVIEW_LANGUAGES[number]['code']
 
 export default function AddBuildingFormModal({
   isOpen,
@@ -112,7 +139,7 @@ export default function AddBuildingFormModal({
     longitude: formData.longitude,
     debounceMs: 800
   })
-  
+
   // Данные обзора
   const [reviewData, setReviewData] = useState({
     title: '',
@@ -120,15 +147,24 @@ export default function AddBuildingFormModal({
     tags: [] as string[],
     rating: 0,
     opening_hours: '',
-    entry_fee: ''
+    entry_fee: '',
+    website: '',
+    visit_difficulty: '',
+    best_visit_time: '',
+    transport_accessibility: '',
+    language: 'en' as ReviewLanguage
   })
-  
+
   const [currentTag, setCurrentTag] = useState('') // Для ввода нового тега
-  
+
   // Фотографии
   const [photoFiles, setPhotoFiles] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
-  
+
+  // Photo attribution
+  const [isOwnPhoto, setIsOwnPhoto] = useState(true)
+  const [photoSource, setPhotoSource] = useState('')
+
   // Аудио
   const [audioFile, setAudioFile] = useState<File | null>(null)
   const [audioPreview, setAudioPreview] = useState<string | null>(null)
@@ -138,7 +174,7 @@ export default function AddBuildingFormModal({
   useEffect(() => {
     if (location && isOpen) {
       console.log('🏛️ [FORM] Location received:', location)
-      
+
       // Устанавливаем координаты
       setFormData(prev => ({
         ...prev,
@@ -153,10 +189,10 @@ export default function AddBuildingFormModal({
 
   const performGeocoding = async (lat: number, lng: number) => {
     setGeocoding(true)
-    
+
     try {
       const result = await reverseGeocode(lat, lng)
-      
+
       if (result) {
         console.log('🏛️ [FORM] Geocoding successful:', result)
         setFormData(prev => ({
@@ -222,6 +258,11 @@ export default function AddBuildingFormModal({
       newErrors.year_built = 'Year must be between 1000 and 2025'
     }
 
+    // Photo attribution validation
+    if (photoFiles.length > 0 && !isOwnPhoto && !photoSource.trim()) {
+      newErrors.photoSource = 'Please provide photo source/credit'
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -233,13 +274,13 @@ export default function AddBuildingFormModal({
     }
 
     setSaving(true)
-    
+
     try {
       // Добавляем данные обзора если форма расширена и заполнены поля
       const dataToSave: BuildingFormData = {
         ...formData
       }
-      
+
       if (isExpanded && (reviewData.rating > 0 || reviewData.content.trim())) {
         dataToSave.review = {
           rating: reviewData.rating,
@@ -247,19 +288,28 @@ export default function AddBuildingFormModal({
           content: reviewData.content,
           tags: reviewData.tags,
           opening_hours: reviewData.opening_hours,
-          entry_fee: reviewData.entry_fee
+          entry_fee: reviewData.entry_fee,
+          website: reviewData.website,
+          visit_difficulty: reviewData.visit_difficulty,
+          best_visit_time: reviewData.best_visit_time,
+          transport_accessibility: reviewData.transport_accessibility,
+          language: reviewData.language
         }
       }
-      
+
       // Добавляем медиа файлы если есть
       if (photoFiles.length > 0) {
         dataToSave.photoFiles = photoFiles
+        dataToSave.isOwnPhoto = isOwnPhoto
+        if (!isOwnPhoto && photoSource.trim()) {
+          dataToSave.photoSource = photoSource.trim()
+        }
       }
-      
+
       if (audioFile) {
         dataToSave.audioFile = audioFile
       }
-      
+
       await onSave(dataToSave)
       toast.success(isExpanded && dataToSave.review ? 'Building and review successfully added!' : 'Building successfully added!')
       handleClose()
@@ -270,11 +320,11 @@ export default function AddBuildingFormModal({
       setSaving(false)
     }
   }
-  
+
   const handleToggleExpanded = () => {
     setIsExpanded(!isExpanded)
   }
-  
+
   const handleAddTag = () => {
     if (currentTag.trim() && !reviewData.tags.includes(currentTag.trim())) {
       setReviewData(prev => ({
@@ -284,14 +334,14 @@ export default function AddBuildingFormModal({
       setCurrentTag('')
     }
   }
-  
+
   const handleRemoveTag = (tagToRemove: string) => {
     setReviewData(prev => ({
       ...prev,
       tags: prev.tags.filter(tag => tag !== tagToRemove)
     }))
   }
-  
+
   // Обработчики для фотографий
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -309,9 +359,9 @@ export default function AddBuildingFormModal({
       }
       return true
     })
-    
+
     setPhotoFiles(prev => [...prev, ...validFiles])
-    
+
     // Создаем превью
     validFiles.forEach(file => {
       const reader = new FileReader()
@@ -321,12 +371,12 @@ export default function AddBuildingFormModal({
       reader.readAsDataURL(file)
     })
   }
-  
+
   const handleRemovePhoto = (index: number) => {
     setPhotoFiles(prev => prev.filter((_, i) => i !== index))
     setPhotoPreviews(prev => prev.filter((_, i) => i !== index))
   }
-  
+
   // Обработчики для аудио
   const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -337,14 +387,14 @@ export default function AddBuildingFormModal({
       toast.error('Audio file is too large (max 10MB)')
       return
     }
-    
+
     setAudioFile(file)
-    
+
     // Создаем URL для превью
     const url = URL.createObjectURL(file)
     setAudioPreview(url)
   }
-  
+
   const handleRemoveAudio = () => {
     if (audioPreview) {
       URL.revokeObjectURL(audioPreview)
@@ -363,7 +413,7 @@ export default function AddBuildingFormModal({
     if (audioPreview) {
       URL.revokeObjectURL(audioPreview)
     }
-    
+
     setFormData({
       name: '',
       latitude: 0,
@@ -382,10 +432,17 @@ export default function AddBuildingFormModal({
       content: '',
       tags: [],
       opening_hours: '',
-      entry_fee: ''
+      entry_fee: '',
+      website: '',
+      visit_difficulty: '',
+      best_visit_time: '',
+      transport_accessibility: '',
+      language: 'en'
     })
     setPhotoFiles([])
     setPhotoPreviews([])
+    setIsOwnPhoto(true)
+    setPhotoSource('')
     setAudioFile(null)
     setAudioPreview(null)
     setErrors({})
@@ -399,14 +456,14 @@ export default function AddBuildingFormModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Фон */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50"
         onClick={handleClose}
       />
-      
+
       {/* Модальное окно */}
       <div className="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
-        
+
         {/* Заголовок */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
           <div className="flex items-center space-x-3">
@@ -427,7 +484,7 @@ export default function AddBuildingFormModal({
         {/* Контент формы */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="space-y-5">
-            
+
             {/* Местоположение */}
             <div>
               <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
@@ -467,9 +524,8 @@ export default function AddBuildingFormModal({
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    errors.name ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${errors.name ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="e.g. Reichstag"
                 />
                 {checking && (
@@ -512,16 +568,15 @@ export default function AddBuildingFormModal({
                                 </p>
                               )}
                               {duplicate.confidence && (
-                                <span className={`inline-block px-2 py-0.5 rounded text-xs mt-1 ${
-                                  duplicate.confidence === 'high'
-                                    ? 'bg-red-100 text-red-800'
-                                    : duplicate.confidence === 'medium'
+                                <span className={`inline-block px-2 py-0.5 rounded text-xs mt-1 ${duplicate.confidence === 'high'
+                                  ? 'bg-red-100 text-red-800'
+                                  : duplicate.confidence === 'medium'
                                     ? 'bg-orange-100 text-orange-800'
                                     : 'bg-yellow-100 text-yellow-800'
-                                }`}>
+                                  }`}>
                                   Match: {
                                     duplicate.confidence === 'high' ? 'High' :
-                                    duplicate.confidence === 'medium' ? 'Medium' : 'Low'
+                                      duplicate.confidence === 'medium' ? 'Medium' : 'Low'
                                   }
                                 </span>
                               )}
@@ -587,9 +642,8 @@ export default function AddBuildingFormModal({
                   type="text"
                   value={formData.city}
                   onChange={(e) => handleInputChange('city', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    errors.city ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${errors.city ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Berlin"
                 />
                 {errors.city && (
@@ -605,9 +659,8 @@ export default function AddBuildingFormModal({
                   type="text"
                   value={formData.country}
                   onChange={(e) => handleInputChange('country', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    errors.country ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${errors.country ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Germany"
                 />
                 {errors.country && (
@@ -642,9 +695,8 @@ export default function AddBuildingFormModal({
                   type="number"
                   value={formData.year_built || ''}
                   onChange={(e) => handleInputChange('year_built', e.target.value ? parseInt(e.target.value) : undefined)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    errors.year_built ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${errors.year_built ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="1894"
                   min="1000"
                   max="2025"
@@ -676,7 +728,7 @@ export default function AddBuildingFormModal({
             <div>
               <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                 <BuildingIcon className="w-4 h-4 mr-2 text-indigo-600" />
-                Building Type
+                Object Type
               </label>
               <select
                 value={formData.building_type || ''}
@@ -684,7 +736,7 @@ export default function AddBuildingFormModal({
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 <option value="">Select type</option>
-                {BUILDING_TYPES.map(type => (
+                {OBJECT_TYPES.map(type => (
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>
@@ -708,7 +760,7 @@ export default function AddBuildingFormModal({
             {/* РАСШИРЕННАЯ ЧАСТЬ ФОРМЫ - Уровень 2 */}
             {isExpanded && (
               <div className="space-y-5 mt-6 pt-6 border-t-2 border-dashed border-gray-300 animate-slideDown">
-                
+
                 {/* Заголовок расширенной секции */}
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -720,10 +772,31 @@ export default function AddBuildingFormModal({
                   </p>
                 </div>
 
+                {/* Review Language Selector */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-700 mb-3 block">
+                    🌐 Review Language
+                  </label>
+                  <select
+                    value={reviewData.language}
+                    onChange={(e) => setReviewData(prev => ({ ...prev, language: e.target.value as ReviewLanguage }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-lg"
+                  >
+                    {REVIEW_LANGUAGES.map(lang => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.flag} {lang.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-blue-600 mt-2">
+                    Title, description and audio will be saved for the selected language
+                  </p>
+                </div>
+
                 {/* Заголовок обзора */}
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    📄 Review Title
+                    📄 Review Title ({REVIEW_LANGUAGES.find(l => l.code === reviewData.language)?.name || 'English'})
                   </label>
                   <input
                     type="text"
@@ -738,7 +811,7 @@ export default function AddBuildingFormModal({
                 {/* Описание обзора */}
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    📝 Description (minimum 50 characters for quality review)
+                    📝 Description ({REVIEW_LANGUAGES.find(l => l.code === reviewData.language)?.name || 'English'})
                   </label>
                   <textarea
                     value={reviewData.content}
@@ -746,10 +819,10 @@ export default function AddBuildingFormModal({
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     rows={6}
                     placeholder="Tell more about the building, its history, architectural features..."
-                    maxLength={2000}
+                    maxLength={4000}
                   />
                   <div className="text-xs text-gray-500 mt-1 text-right">
-                    {reviewData.content.length} / 2000 characters
+                    {reviewData.content.length} / 4000 characters
                   </div>
                 </div>
 
@@ -802,6 +875,46 @@ export default function AddBuildingFormModal({
                             </button>
                           </div>
                         ))}
+                      </div>
+                    )}
+
+                    {/* Photo Attribution */}
+                    {photoFiles.length > 0 && (
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
+                        <label className="flex items-center space-x-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={isOwnPhoto}
+                            onChange={(e) => setIsOwnPhoto(e.target.checked)}
+                            className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                          />
+                          <span className="text-sm text-gray-700">
+                            📸 This is my own photo
+                          </span>
+                        </label>
+
+                        {!isOwnPhoto && (
+                          <div className="animate-slideDown">
+                            <label className="text-sm font-medium text-gray-700 mb-2 block">
+                              🔗 Photo Source / Credit *
+                            </label>
+                            <input
+                              type="text"
+                              value={photoSource}
+                              onChange={(e) => setPhotoSource(e.target.value)}
+                              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.photoSource ? 'border-red-500' : 'border-gray-300'
+                                }`}
+                              placeholder="e.g. Wikipedia, ArchDaily, photographer name..."
+                            />
+                            {errors.photoSource ? (
+                              <p className="text-red-500 text-xs mt-1">{errors.photoSource}</p>
+                            ) : (
+                              <p className="text-xs text-gray-500 mt-1">
+                                Please provide the source or photographer credit
+                              </p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -887,6 +1000,71 @@ export default function AddBuildingFormModal({
                       onChange={(e) => setReviewData(prev => ({ ...prev, entry_fee: e.target.value }))}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Free / $10"
+                    />
+                  </div>
+                </div>
+
+                {/* Additional Practical Information */}
+                <div className="space-y-4">
+                  {/* Website */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      🌐 Website
+                    </label>
+                    <input
+                      type="url"
+                      value={reviewData.website}
+                      onChange={(e) => setReviewData(prev => ({ ...prev, website: e.target.value }))}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="https://..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Visit Difficulty */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-2 block">
+                        🎯 Visit Difficulty
+                      </label>
+                      <select
+                        value={reviewData.visit_difficulty}
+                        onChange={(e) => setReviewData(prev => ({ ...prev, visit_difficulty: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Select...</option>
+                        <option value="easy">Easy - Open to public</option>
+                        <option value="moderate">Moderate - Requires booking</option>
+                        <option value="difficult">Difficult - Limited access</option>
+                        <option value="exterior_only">Exterior only</option>
+                      </select>
+                    </div>
+
+                    {/* Best Visit Time */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-2 block">
+                        ⏰ Best Visit Time
+                      </label>
+                      <input
+                        type="text"
+                        value={reviewData.best_visit_time}
+                        onChange={(e) => setReviewData(prev => ({ ...prev, best_visit_time: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Morning, golden hour..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Transport & Accessibility */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      🚇 Transport & Accessibility
+                    </label>
+                    <textarea
+                      value={reviewData.transport_accessibility}
+                      onChange={(e) => setReviewData(prev => ({ ...prev, transport_accessibility: e.target.value }))}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      rows={2}
+                      placeholder="Metro station nearby, parking available, wheelchair accessible..."
                     />
                   </div>
                 </div>
@@ -1012,7 +1190,7 @@ export default function AddBuildingFormModal({
           </div>
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 

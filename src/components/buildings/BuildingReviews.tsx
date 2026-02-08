@@ -44,29 +44,29 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
       console.log('⏰ Time update:', audio.currentTime, '/', audio.duration)
       setCurrentTime(audio.currentTime)
     }
-    
+
     const updateDuration = () => {
       console.log('📏 Duration loaded:', audio.duration)
       setTotalDuration(audio.duration || 0)
       setIsLoading(false)
     }
-    
+
     const handleEnded = () => {
       console.log('🔚 Audio ended')
       setIsPlaying(false)
       setCurrentTime(0)
     }
-    
+
     const handleLoadStart = () => {
       console.log('🔄 Audio loading started')
       setIsLoading(true)
     }
-    
+
     const handleCanPlay = () => {
       console.log('✅ Audio can play')
       setIsLoading(false)
     }
-    
+
     const handleLoadedData = () => {
       console.log('📊 Audio data loaded, duration:', audio.duration)
       if (audio.duration && !isNaN(audio.duration)) {
@@ -74,7 +74,7 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
       }
       setIsLoading(false)
     }
-    
+
     const handleError = (e: any) => {
       console.error('🎵 Audio loading error:', e)
       console.error('🎵 Audio error details:', {
@@ -196,7 +196,7 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
           {isLoading ? 'Loading...' : formatTime(totalDuration)}
         </span>
       </div>
-      
+
       <div className="flex items-center space-x-4">
         {/* Play/Pause кнопка */}
         <button
@@ -271,7 +271,7 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
           />
         </div>
       </div>
-      
+
       {/* CSS для стилизации слайдера */}
       <style jsx>{`
         .slider::-webkit-slider-thumb {
@@ -321,7 +321,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
   return (
     <div className={`transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
       <div className="bg-card border border-border rounded-[var(--radius)] p-6">
-        
+
         {/* Заголовок обзора */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
@@ -335,7 +335,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
                 </span>
               )}
             </div>
-            
+
             {review.title && (
               <h3 className="text-lg font-semibold font-display text-foreground mb-2">
                 {review.title}
@@ -349,9 +349,8 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`h-4 w-4 ${
-                    i < review.rating ? 'fill-current' : 'fill-gray-200'
-                  }`}
+                  className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'fill-gray-200'
+                    }`}
                 />
               ))}
             </div>
@@ -367,7 +366,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
             {review.profiles?.avatar_url ? (
               <img
                 src={review.profiles.avatar_url}
-                alt={review.profiles.full_name || review.profiles.username}
+                alt={review.profiles.display_name || review.profiles.full_name || review.profiles.username}
                 className="w-8 h-8 rounded-full mr-3"
               />
             ) : (
@@ -377,11 +376,22 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
             )}
             <div>
               <p className="font-medium text-sm">
-                {review.profiles?.full_name || review.profiles?.username || 'Anonymous user'}
+                {review.profiles?.display_name || review.profiles?.full_name || review.profiles?.username || 'Anonymous user'}
               </p>
-              <div className="flex items-center text-xs text-muted-foreground font-metrics">
+              <div className="flex items-center flex-wrap gap-1 text-xs text-muted-foreground font-metrics">
                 <Calendar className="h-3 w-3 mr-1" />
                 {new Date(review.created_at).toLocaleDateString('en-US')}
+                {review.language && (
+                  <span className="ml-2 px-1.5 py-0.5 rounded bg-muted text-foreground text-xs font-medium">
+                    {review.language === 'ru' ? '🇷🇺 RU' :
+                      review.language === 'de' ? '🇩🇪 DE' :
+                        review.language === 'es' ? '🇪🇸 ES' :
+                          review.language === 'fr' ? '🇫🇷 FR' :
+                            review.language === 'it' ? '🇮🇹 IT' :
+                              review.language === 'pt' ? '🇵🇹 PT' :
+                                review.language === 'zh' ? '🇨🇳 ZH' : '🇬🇧 EN'}
+                  </span>
+                )}
                 {review.profiles?.role === 'expert' && (
                   <>
                     <Award className="h-3 w-3 ml-2 mr-1" />
@@ -395,8 +405,8 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
 
         {/* Аудио плеер */}
         {review.audio_url && (
-          <AudioPlayer 
-            audioUrl={review.audio_url} 
+          <AudioPlayer
+            audioUrl={review.audio_url}
             duration={review.audio_duration_seconds}
           />
         )}
@@ -413,7 +423,7 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
         {/* Фото */}
         {review.photos && review.photos.length > 0 && (
           <div className="mt-4">
-            <PhotoGallery 
+            <PhotoGallery
               photos={review.photos}
               className="grid-cols-2 md:grid-cols-3"
               maxPhotos={6}
@@ -490,7 +500,7 @@ export default function BuildingReviews({
   onReviewAdded,
   onOpenAddReview
 }: BuildingReviewsProps) {
-  
+
   if (reviews.length === 0) {
     return (
       <div className="bg-card border border-border rounded-[var(--radius)] p-8 text-center">
@@ -524,7 +534,7 @@ export default function BuildingReviews({
 
   return (
     <div className="space-y-6">
-      
+
       {/* Заголовок и переключатели */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold font-display text-foreground">
@@ -541,9 +551,8 @@ export default function BuildingReviews({
                 <button
                   key={index}
                   onClick={() => onActiveIndexChange(index)}
-                  className={`w-2 h-2 rounded-full transition-colors ${
-                    index === activeIndex ? 'bg-primary' : 'bg-muted-foreground/30'
-                  }`}
+                  className={`w-2 h-2 rounded-full transition-colors ${index === activeIndex ? 'bg-primary' : 'bg-muted-foreground/30'
+                    }`}
                 />
               ))}
             </div>
@@ -577,8 +586,8 @@ export default function BuildingReviews({
       )}
 
       {/* Активный обзор */}
-      <ReviewCard 
-        review={reviews[activeIndex]} 
+      <ReviewCard
+        review={reviews[activeIndex]}
         isActive={true}
       />
 

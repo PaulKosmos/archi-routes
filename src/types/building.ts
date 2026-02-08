@@ -14,6 +14,7 @@ export interface Building {
   longitude: number
   image_url?: string
   image_urls?: string[]
+  image_source?: string
   website_url?: string
   opening_hours?: any
   entry_fee?: string
@@ -81,6 +82,7 @@ export interface BuildingReviewWithProfile extends BuildingReview {
     id: string
     username?: string
     full_name?: string
+    display_name?: string
     avatar_url?: string
     role?: string
   }
@@ -174,7 +176,7 @@ export interface Route {
   route_summary?: Record<string, any>
   route_options?: Record<string, any>
   route_visibility?: 'private' | 'public' | 'featured'
-  
+
   // Связанные данные
   profiles?: {
     full_name: string | null
@@ -198,10 +200,10 @@ export interface RoutePoint {
   estimated_time_minutes: number | null
   point_type: 'building' | 'landmark' | 'viewpoint' | 'info' | 'rest' | null
   created_at: string
-  
+
   // Поле только для интерфейса
   duration_minutes?: number
-  
+
   // Связанные данные о здании
   buildings?: Building
 }
@@ -274,7 +276,7 @@ export interface BuildingSearchResult {
 // Константы
 export const REVIEW_TYPES = {
   GENERAL: 'general',
-  EXPERT: 'expert', 
+  EXPERT: 'expert',
   HISTORICAL: 'historical',
   AMATEUR: 'amateur'
 } as const

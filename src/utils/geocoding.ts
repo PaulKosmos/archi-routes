@@ -17,15 +17,15 @@ export interface GeocodingResult {
  * @returns Информация об адресе или null при ошибке
  */
 export async function reverseGeocode(
-  lat: number, 
+  lat: number,
   lng: number
 ): Promise<GeocodingResult | null> {
   try {
     console.log('🗺️ [GEOCODING] Starting reverse geocoding for:', { lat, lng })
-    
+
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?` +
-      `format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=ru`,
+      `format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en`,
       {
         headers: {
           'User-Agent': 'ArchiRoutes/1.0' // Nominatim требует User-Agent
@@ -43,17 +43,17 @@ export async function reverseGeocode(
 
     // Извлекаем компоненты адреса
     const address = data.address || {}
-    
+
     // Определяем город (приоритет: city > town > village > municipality)
-    const city = address.city || 
-                 address.town || 
-                 address.village || 
-                 address.municipality || 
-                 address.county ||
-                 'Неизвестный город'
+    const city = address.city ||
+      address.town ||
+      address.village ||
+      address.municipality ||
+      address.county ||
+      'Unknown city'
 
     // Определяем страну
-    const country = address.country || 'Неизвестная страна'
+    const country = address.country || 'Unknown country'
 
     // Полный адрес
     const formattedAddress = data.display_name || `${lat}, ${lng}`
@@ -87,13 +87,13 @@ export function delayForRateLimit(ms: number = 1000): Promise<void> {
  * Упрощенная версия - только город и страна
  */
 export async function getLocationInfo(
-  lat: number, 
+  lat: number,
   lng: number
 ): Promise<{ city: string; country: string } | null> {
   const result = await reverseGeocode(lat, lng)
-  
+
   if (!result) return null
-  
+
   return {
     city: result.city,
     country: result.country

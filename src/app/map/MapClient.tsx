@@ -651,12 +651,17 @@ export default function TestMapPage() {
           uploadedPhotos = results.map(r => r.path)
           console.log('📷 [SAVE] Photos uploaded:', uploadedPhotos)
 
-          // Обновляем здание с фотографиями
+          // Обновляем здание с фотографиями и источником
+          const photoSource = buildingData.isOwnPhoto
+            ? 'Personal photo'
+            : buildingData.photoSource || null
+
           await supabase
             .from('buildings')
             .update({
               image_url: results[0]?.path, // Первое фото - основное
-              image_urls: uploadedPhotos
+              image_urls: uploadedPhotos,
+              image_source: photoSource
             })
             .eq('id', building.id)
 
@@ -690,17 +695,19 @@ export default function TestMapPage() {
           .insert({
             building_id: building.id,
             user_id: user.id,
-            rating: buildingData.review.rating ?? 0,
+            rating: buildingData.review.rating && buildingData.review.rating > 0 ? buildingData.review.rating : 1,
             title: buildingData.review.title || null,
             content: buildingData.review.content || null,
             review_type: 'general',
             opening_hours: buildingData.review.opening_hours || null,
             entry_fee: buildingData.review.entry_fee || null,
             tags: buildingData.review.tags.length > 0 ? buildingData.review.tags : null,
-            audio_url: audioPath
+            audio_url: audioPath,
+            language: buildingData.review.language || 'en'
           })
           .select()
           .single()
+
 
         if (reviewError) {
           console.error('📝 [SAVE] Review error:', reviewError)

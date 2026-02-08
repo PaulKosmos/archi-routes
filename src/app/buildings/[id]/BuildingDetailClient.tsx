@@ -36,23 +36,23 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
   const supabase = useMemo(() => createClient(), [])
   console.log('🏢 [DEBUG] BuildingDetailClient component rendered')
   console.log('🏢 [DEBUG] Building prop:', building)
-  
+
   const [data, setData] = useState<BuildingPageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeReviewIndex, setActiveReviewIndex] = useState(0)
-  
+
   console.log('🏢 [DEBUG] Component state - loading:', loading, 'data:', data)
-  
+
   const fetchBuildingData = async () => {
     console.log('🏢 [DEBUG] fetchBuildingData function called')
     console.log('🏢 [DEBUG] Function start time:', new Date().toISOString())
-    
+
     try {
       console.log('🏢 [DEBUG] Setting loading to true')
       setLoading(true)
-      
+
       console.log('🏢 [DEBUG] Starting PARALLEL data fetch for:', building.id)
-      
+
       const startTime = Date.now()
 
       // Get current user
@@ -70,6 +70,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
               id,
               username,
               full_name,
+              display_name,
               avatar_url,
               role
             )
@@ -144,19 +145,19 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
       } else if (reviewsResult.status === 'rejected') {
         console.error('❌ Reviews error:', reviewsResult.reason)
       }
-      
+
       let blogPosts = []
       if (blogResult.status === 'fulfilled' && blogResult.value.data) {
         blogPosts = blogResult.value.data
         console.log('✅ Blog posts loaded:', blogPosts.length)
       }
-      
+
       let routes: { routes: RouteWithPoints }[] = []
       if (routesResult.status === 'fulfilled' && routesResult.value.data) {
         routes = routesResult.value.data as unknown as { routes: RouteWithPoints }[]
         console.log('✅ Routes loaded:', routes.length)
       }
-      
+
       let userFavorite = null
       if (favoriteResult.status === 'fulfilled' && favoriteResult.value.data) {
         userFavorite = favoriteResult.value.data
@@ -380,13 +381,12 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
                             </div>
 
                             {/* Difficulty */}
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              route.difficulty_level === 'easy'
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${route.difficulty_level === 'easy'
                                 ? 'bg-green-100 text-green-800'
                                 : route.difficulty_level === 'medium'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}>
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
                               {route.difficulty_level === 'easy' && 'Easy'}
                               {route.difficulty_level === 'medium' && 'Medium'}
                               {route.difficulty_level === 'hard' && 'Hard'}
@@ -426,7 +426,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
               {/* Main information */}
               <div className="space-y-4">
-                
+
                 {building.architect && (
                   <div className="flex items-start">
                     <User className="h-4 w-4 text-muted-foreground mr-3 mt-1 flex-shrink-0" />

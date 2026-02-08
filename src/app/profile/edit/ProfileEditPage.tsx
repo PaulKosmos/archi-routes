@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import {
   Save,
   X,
@@ -33,13 +33,37 @@ export default function ProfileEditPage() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Store initial profile values for comparison
+  const initialProfileRef = useRef<{
+    display_name: string
+    username: string
+    bio: string
+    city: string
+    avatar_url: string
+  } | null>(null)
+
   const [formData, setFormData] = useState<FormData>({
-    display_name: profile?.display_name || profile?.full_name || '',
-    username: profile?.username || '',
-    bio: profile?.bio || '',
-    city: profile?.city || '',
-    avatar_url: profile?.avatar_url || ''
+    display_name: '',
+    username: '',
+    bio: '',
+    city: '',
+    avatar_url: ''
   })
+
+  // Sync form data when profile loads
+  useEffect(() => {
+    if (profile && !initialProfileRef.current) {
+      const initialValues = {
+        display_name: profile.display_name || profile.full_name || '',
+        username: profile.username || '',
+        bio: profile.bio || '',
+        city: profile.city || '',
+        avatar_url: profile.avatar_url || ''
+      }
+      initialProfileRef.current = initialValues
+      setFormData(initialValues)
+    }
+  }, [profile])
 
   const [loading, setLoading] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
@@ -48,6 +72,10 @@ export default function ProfileEditPage() {
 
   // Валидация формы
   const [errors, setErrors] = useState<Partial<FormData>>({})
+
+  // Regex for Latin characters only (letters, spaces, common punctuation)
+  const latinOnlyRegex = /^[a-zA-Z\s'-]+$/
+  const latinWithNumbersRegex = /^[a-zA-Z0-9\s,.'\-]+$/
 
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {}
@@ -58,8 +86,8 @@ export default function ProfileEditPage() {
       newErrors.display_name = 'Name must be at least 2 characters'
     } else if (formData.display_name.length > 50) {
       newErrors.display_name = 'Name must not exceed 50 characters'
-    } else if (!/^[a-zA-Zа-яА-Я\s]+$/.test(formData.display_name)) {
-      newErrors.display_name = 'Name can only contain letters and spaces'
+    } else if (!latinOnlyRegex.test(formData.display_name)) {
+      newErrors.display_name = 'Name can only contain Latin letters (A-Z)'
     }
 
     if (!formData.username.trim()) {
@@ -74,6 +102,8 @@ export default function ProfileEditPage() {
 
     if (formData.city && formData.city.length > 100) {
       newErrors.city = 'City name must not exceed 100 characters'
+    } else if (formData.city && !latinWithNumbersRegex.test(formData.city)) {
+      newErrors.city = 'City can only contain Latin letters (A-Z)'
     }
 
     if (formData.bio && formData.bio.length > 500) {
@@ -177,25 +207,87 @@ export default function ProfileEditPage() {
     setMessage(null)
 
     try {
-      const { error } = await updateProfile(formData)
+      // Only send fields that have actually changed to avoid unique constraint issues
+      const updates: Partial<FormData> = {}
+      const initial = initialProfileRef.current
+
+      if (!initial) {
+        setMessage({ type: 'error', text: 'Profile data not loaded. Please refresh the page.' })
+        setLoading(false)
+        return
+      }
+
+      if (formData.display_name !== initial.display_name) {
+        updates.display_name = formData.display_name
+      }
+      if (formData.username !== initial.username) {
+        updates.username = formData.username
+      }
+      if (formData.bio !== initial.bio) {
+        updates.bio = formData.bio
+      }
+      if (formData.city !== initial.city) {
+        updates.city = formData.city
+      }
+      if (formData.avatar_url !== initial.avatar_url) {
+        updates.avatar_url = formData.avatar_url
+      }
+
+      // If nothing changed, just show success
+      if (Object.keys(updates).length === 0) {
+        setMessage({ type: 'success', text: 'No changes to save.' })
+        setLoading(false)
+        return
+      }
+
+      const { error } = await updateProfile(updates)
 
       if (error) {
-        throw error
+        // Extract meaningful error message from Supabase error
+        let errorMessage = 'Error saving profile'
+        if (typeof error === 'object' && error !== null) {
+          const supabaseError = error as { message?: string; details?: string; hint?: string; code?: string }
+          if (supabaseError.message) {
+            errorMessage = supabaseError.message
+          } else if (supabaseError.details) {
+            errorMessage = supabaseError.details
+          } else if (supabaseError.hint) {
+            errorMessage = supabaseError.hint
+          }
+          // Handle unique constraint violations
+          if (supabaseError.code === '23505') {
+            if (supabaseError.message?.includes('username')) {
+              errorMessage = 'This username is already taken. Please choose another.'
+            } else {
+              errorMessage = 'This value is already in use. Please choose another.'
+            }
+          }
+        }
+        console.error('Error updating profile:', error)
+        setMessage({ type: 'error', text: errorMessage })
+        return
       }
 
       setMessage({ type: 'success', text: 'Profile updated successfully!' })
 
-      // Перенаправляем на страницу профиля через 2 секунды
+      // Update initial profile ref with new values for future comparisons
+      initialProfileRef.current = { ...formData }
+
+      // Redirect to profile page after 2 seconds
       setTimeout(() => {
         router.push('/profile')
       }, 2000)
 
     } catch (error) {
       console.error('Error updating profile:', error)
-      setMessage({
-        type: 'error',
-        text: error instanceof Error ? error.message : 'Error saving profile'
-      })
+      let errorMessage = 'Error saving profile'
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else if (typeof error === 'object' && error !== null) {
+        const err = error as { message?: string }
+        errorMessage = err.message || errorMessage
+      }
+      setMessage({ type: 'error', text: errorMessage })
     } finally {
       setLoading(false)
     }

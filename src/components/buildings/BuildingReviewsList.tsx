@@ -216,11 +216,11 @@ export default function BuildingReviewsList({
                   {review.profiles?.avatar_url ? (
                     <img
                       src={getStorageUrl(review.profiles.avatar_url, 'avatars')}
-                      alt={review.profiles.full_name || 'Avatar'}
+                      alt={review.profiles.display_name || review.profiles.full_name || 'Avatar'}
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span>{review.profiles?.full_name?.[0] || review.profiles?.username?.[0] || '?'}</span>
+                    <span>{review.profiles?.display_name?.[0] || review.profiles?.full_name?.[0] || review.profiles?.username?.[0] || '?'}</span>
                   )}
                 </div>
 
@@ -230,16 +230,24 @@ export default function BuildingReviewsList({
                       href={`/user/${review.profiles.username}`}
                       className="font-semibold text-gray-900 text-sm md:text-base hover:text-primary hover:underline transition-colors"
                     >
-                      {review.profiles?.full_name || review.profiles?.username || 'User'}
+                      {review.profiles?.display_name || review.profiles?.full_name || review.profiles?.username || 'User'}
                     </Link>
                   ) : (
                     <p className="font-semibold text-gray-900 text-sm md:text-base">
-                      {review.profiles?.full_name || 'User'}
+                      {review.profiles?.display_name || review.profiles?.full_name || 'User'}
                     </p>
                   )}
-                  <div className="flex items-center text-xs text-gray-500 space-x-1 md:space-x-2">
+                  <div className="flex items-center flex-wrap gap-1 text-xs text-gray-500">
                     <Calendar className="w-3 h-3" />
                     <span>{new Date(review.created_at).toLocaleDateString('en-US')}</span>
+                    {review.language && (
+                      <span className="ml-1 px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 text-xs font-medium">
+                        {review.language === 'ru' ? '🇷🇺' :
+                          review.language === 'de' ? '🇩🇪' :
+                            review.language === 'es' ? '🇪🇸' :
+                              review.language === 'fr' ? '🇫🇷' : '🇬🇧'} {review.language.toUpperCase()}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -376,8 +384,8 @@ export default function BuildingReviewsList({
                         >
                           <Star
                             className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isActive
-                                ? 'fill-yellow-400 text-yellow-400'
-                                : 'text-gray-300'
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-gray-300'
                               }`}
                           />
                         </button>
@@ -395,8 +403,8 @@ export default function BuildingReviewsList({
                 <button
                   onClick={() => handleToggleHelpful(review.id)}
                   className={`flex items-center px-2 py-1.5 md:px-3 md:py-2 rounded-lg transition-all text-xs md:text-sm ${helpfulVotes.has(review.id)
-                      ? 'bg-blue-100 text-blue-700 font-medium'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-blue-100 text-blue-700 font-medium'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                 >
                   <ThumbsUp className={`w-3 h-3 md:w-4 md:h-4 mr-1 ${helpfulVotes.has(review.id) ? 'fill-current' : ''}`} />

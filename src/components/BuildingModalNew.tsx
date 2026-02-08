@@ -58,14 +58,14 @@ const timeLabels: Record<string, string> = {
 export default function BuildingModalNew({ building, isOpen, onClose }: BuildingModalProps) {
   // ✅ Создаем НОВЫЙ Supabase клиент для этого компонента
   const supabase = useMemo(() => createClient(), [])
-  
+
   const { user, profile } = useAuth()
   const [activeTab, setActiveTab] = useState<'reviews' | 'routes' | 'news'>('reviews')
   const [isFavorite, setIsFavorite] = useState(false)
   const [isAddReviewModalOpen, setIsAddReviewModalOpen] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [showPracticalInfo, setShowPracticalInfo] = useState(false)
-  
+
   // Проверка прав на редактирование/удаление
   const canEdit = user && building && (
     user.id === building.created_by ||
@@ -103,7 +103,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
       })
     }
   }, [isOpen, building, user, profile, canEdit])
-  
+
   // Данные табов
   const [reviews, setReviews] = useState<BuildingReviewWithProfile[]>([])
   const [routes, setRoutes] = useState<RouteInfo[]>([])
@@ -114,11 +114,11 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
   // Счётчики для вкладок (загружаются сразу при открытии)
   const [routesCount, setRoutesCount] = useState(0)
   const [newsCount, setNewsCount] = useState(0)
-  
+
   // Hero галерея
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
-  
+
   // Ref для отслеживания был ли увеличен счетчик
   const viewCountIncremented = useRef(false)
 
@@ -159,7 +159,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
       viewCountIncremented.current = false
       return
     }
-    
+
     // Увеличиваем только если еще не увеличивали для этого здания
     if (!viewCountIncremented.current) {
       console.log('📊 Вызов incrementViewCount для:', building.name)
@@ -170,15 +170,15 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
   const incrementViewCount = async () => {
     if (!building) return
-    
+
     try {
       console.log('📊 Увеличиваем view_count для здания:', building.name, 'с', building.view_count, 'на', (building.view_count || 0) + 1)
-      
+
       const { error } = await supabase
         .from('buildings')
         .update({ view_count: (building.view_count || 0) + 1 })
         .eq('id', building.id)
-      
+
       if (error) {
         console.error('❌ Ошибка обновления view_count:', error)
       } else {
@@ -191,7 +191,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
   const checkFavoriteStatus = async () => {
     if (!user || !building) return
-    
+
     try {
       const { data } = await supabase
         .from('user_building_favorites')
@@ -199,7 +199,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
         .eq('user_id', user.id)
         .eq('building_id', building.id)
         .single()
-      
+
       setIsFavorite(!!data)
     } catch (error) {
       // Не в избранном
@@ -299,6 +299,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
               id,
               username,
               full_name,
+              display_name,
               avatar_url
             )
           `)
@@ -383,20 +384,20 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
   const heroPhotos = reviews
     .filter(r => r.photos && r.photos.length > 0)
     .map(r => r.photos![0])
-  
+
   // Если нет обзоров с фото, показываем фото здания
-  const displayHeroPhotos = heroPhotos.length > 0 
-    ? heroPhotos 
+  const displayHeroPhotos = heroPhotos.length > 0
+    ? heroPhotos
     : (building.image_url ? [building.image_url] : [])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative w-full md:w-11/12 max-w-5xl max-h-[95vh] md:max-h-[90vh] bg-card md:rounded-[var(--radius)] shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
@@ -513,16 +514,22 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                           e.stopPropagation()
                           setHeroPhotoIndex(idx)
                         }}
-                        className={`h-1.5 md:h-2 rounded-full transition-all ${
-                          idx === heroPhotoIndex
-                            ? 'bg-white w-6 md:w-8'
-                            : 'bg-white/60 hover:bg-white/80 w-1.5 md:w-2'
-                        }`}
+                        className={`h-1.5 md:h-2 rounded-full transition-all ${idx === heroPhotoIndex
+                          ? 'bg-white w-6 md:w-8'
+                          : 'bg-white/60 hover:bg-white/80 w-1.5 md:w-2'
+                          }`}
                       />
                     ))}
                   </div>
                 </>
               )}
+            </div>
+          )}
+
+          {/* Photo Source Attribution */}
+          {building.image_source && (
+            <div className="bg-gray-50 border-b border-gray-200 px-3 md:px-6 py-1.5 md:py-2 text-xs text-gray-500 italic">
+              📷 Photo: {building.image_source}
             </div>
           )}
 
@@ -708,11 +715,10 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
             <div className="flex space-x-4 md:space-x-6">
               <button
                 onClick={() => setActiveTab('reviews')}
-                className={`py-3 border-b-2 font-medium transition-colors text-sm md:text-base ${
-                  activeTab === 'reviews'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
+                className={`py-3 border-b-2 font-medium transition-colors text-sm md:text-base ${activeTab === 'reviews'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 📝 Reviews
                 {reviews.length > 0 && ` (${reviews.length})`}
@@ -720,11 +726,10 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
               <button
                 onClick={() => setActiveTab('routes')}
-                className={`py-3 border-b-2 font-medium transition-colors text-sm md:text-base ${
-                  activeTab === 'routes'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
+                className={`py-3 border-b-2 font-medium transition-colors text-sm md:text-base ${activeTab === 'routes'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 🗺️ Routes
                 {routesCount > 0 && ` (${routesCount})`}
@@ -732,11 +737,10 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
               <button
                 onClick={() => setActiveTab('news')}
-                className={`py-3 border-b-2 font-medium transition-colors text-sm md:text-base ${
-                  activeTab === 'news'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
+                className={`py-3 border-b-2 font-medium transition-colors text-sm md:text-base ${activeTab === 'news'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 📰 News
                 {newsCount > 0 && ` (${newsCount})`}
@@ -768,21 +772,19 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     <div className="flex items-center justify-center bg-gray-100 rounded-lg p-1">
                       <button
                         onClick={() => setRouteViewMode('personal')}
-                        className={`flex-1 px-3 py-2 md:px-4 rounded-md font-medium text-sm transition-colors ${
-                          routeViewMode === 'personal'
-                            ? 'bg-white text-blue-600 shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
-                        }`}
+                        className={`flex-1 px-3 py-2 md:px-4 rounded-md font-medium text-sm transition-colors ${routeViewMode === 'personal'
+                          ? 'bg-white text-blue-600 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
+                          }`}
                       >
                         🙋 Personal
                       </button>
                       <button
                         onClick={() => setRouteViewMode('public')}
-                        className={`flex-1 px-3 py-2 md:px-4 rounded-md font-medium text-sm transition-colors ${
-                          routeViewMode === 'public'
-                            ? 'bg-white text-blue-600 shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
-                        }`}
+                        className={`flex-1 px-3 py-2 md:px-4 rounded-md font-medium text-sm transition-colors ${routeViewMode === 'public'
+                          ? 'bg-white text-blue-600 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
+                          }`}
                       >
                         🌍 Public
                       </button>
@@ -867,7 +869,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
           </div>
         </div>
       </div>
-      
+
       {/* Модальное окно добавления обзора */}
       <AddReviewModal
         isOpen={isAddReviewModalOpen}
