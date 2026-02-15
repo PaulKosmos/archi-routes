@@ -51,7 +51,7 @@ export function useEditPermissions(
           if (isMounted) {
             setPermissions({
               canEdit: false,
-              reason: 'Ошибка получения сессии',
+              reason: 'Session error',
               isLoading: false,
               isAuthenticated: false
             })
@@ -64,7 +64,7 @@ export function useEditPermissions(
           if (isMounted) {
             setPermissions({
               canEdit: false,
-              reason: 'Необходимо войти в систему',
+              reason: 'You must be logged in',
               isLoading: false,
               isAuthenticated: false
             })
@@ -87,7 +87,7 @@ export function useEditPermissions(
           if (isMounted) {
             setPermissions({
               canEdit: false,
-              reason: 'Профиль пользователя не найден',
+              reason: 'User profile not found',
               isLoading: false,
               isAuthenticated: true
             })
@@ -124,7 +124,7 @@ export function useEditPermissions(
           if (isMounted) {
             setPermissions({
               canEdit: false,
-              reason: `${contentType === 'building' ? 'Здание' : 'Маршрут'} не найден`,
+              reason: `${contentType === 'building' ? 'Building' : 'Route'} not found`,
               isLoading: false,
               isAuthenticated: true,
               userRole: profile.role
@@ -159,7 +159,7 @@ export function useEditPermissions(
         if (isMounted) {
           setPermissions({
             canEdit: false,
-            reason: 'Только автор или модератор может редактировать контент',
+            reason: 'Only the author or a moderator can edit this content',
             userRole: profile.role,
             isLoading: false,
             isAuthenticated: true
@@ -171,7 +171,7 @@ export function useEditPermissions(
         if (isMounted) {
           setPermissions({
             canEdit: false,
-            reason: 'Ошибка проверки прав доступа',
+            reason: 'Permission check error',
             isLoading: false,
             isAuthenticated: false
           })

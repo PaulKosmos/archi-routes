@@ -474,15 +474,15 @@ export default function RoutePreview({
             
             <div className="flex items-center space-x-3">
               <button
-                onClick={() => alert('Экспорт маршрута в разработке')}
+                onClick={() => alert('Route export coming soon')}
                 className="flex items-center space-x-2 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <Download className="w-4 h-4" />
-                <span>Экспорт</span>
+                <span>Export</span>
               </button>
               
               <button
-                onClick={() => alert('Поделиться маршрутом в разработке')}
+                onClick={() => alert('Route sharing coming soon')}
                 className="flex items-center space-x-2 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <Share2 className="w-4 h-4" />

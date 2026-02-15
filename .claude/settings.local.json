@@ -81,7 +81,15 @@
       "Bash(ping:*)",
       "Bash(cut:*)",
       "mcp__playwright__playwright_select",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(npx next build:*)",
+      "Bash(pkill:*)",
+      "Bash(npx next lint:*)",
+      "mcp__supabase__get_logs",
+      "mcp__playwright__playwright_post",
+      "mcp__plugin_supabase_supabase__list_projects",
+      "mcp__plugin_supabase_supabase__execute_sql",
+      "mcp__plugin_supabase_supabase__apply_migration"
     ],
     "deny": [],
     "ask": []

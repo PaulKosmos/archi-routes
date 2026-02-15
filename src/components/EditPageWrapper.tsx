@@ -23,7 +23,7 @@ export default function EditPageWrapper({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Проверка прав доступа...</p>
+          <p className="text-gray-600">Checking permissions...</p>
         </div>
       </div>
     )
@@ -45,7 +45,7 @@ export default function EditPageWrapper({
           </div>
           
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Нет прав доступа
+            Access Denied
           </h3>
           
           <p className="text-sm text-gray-500 mb-6">
@@ -54,7 +54,7 @@ export default function EditPageWrapper({
 
           {permissions.isAuthenticated && permissions.userRole && (
             <p className="text-xs text-gray-400 mb-6">
-              Ваша роль: <span className="font-medium">{permissions.userRole}</span>
+              Your role: <span className="font-medium">{permissions.userRole}</span>
             </p>
           )}
 
@@ -63,7 +63,7 @@ export default function EditPageWrapper({
               href={backUrl}
               className="w-full inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Вернуться к просмотру
+              Back to viewing
             </Link>
             
             {!permissions.isAuthenticated && (
@@ -71,7 +71,7 @@ export default function EditPageWrapper({
                 href="/auth"
                 className="w-full inline-flex justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Войти в систему
+                Sign in
               </Link>
             )}
           </div>
@@ -90,7 +90,7 @@ export default function EditPageWrapper({
           <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
-          Режим редактирования активен
+          Edit mode active
           {permissions.userRole && (
             <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
               {permissions.userRole}

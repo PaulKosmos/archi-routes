@@ -253,7 +253,7 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
 
   // Удалить карточку (пока не реализовано в UI, но API готово)
   const handleDeleteCard = async (cardId: string) => {
-    if (!confirm('Удалить эту карточку из сетки?')) return;
+    if (!confirm('Remove this card from the grid?')) return;
 
     try {
       await deleteCard(cardId);
@@ -273,7 +273,7 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
   // Отмена
   const handleCancel = () => {
     if (hasChanges) {
-      if (confirm('У вас есть несохраненные изменения. Выйти без сохранения?')) {
+      if (confirm('You have unsaved changes. Leave without saving?')) {
         onCancel?.();
       }
     } else {

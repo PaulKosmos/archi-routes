@@ -57,7 +57,6 @@ export default function EditBuildingClient({
 
   const [formData, setFormData] = useState({
     name: building.name || '',
-    description: building.description || '',
     architect: building.architect || '',
     year_built: building.year_built || '',
     architectural_style: building.architectural_style || '',
@@ -171,11 +170,11 @@ export default function EditBuildingClient({
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.message || result.error || 'Ошибка удаления')
+        throw new Error(result.message || result.error || 'Delete error')
       }
 
       console.log('✅ Здание успешно удалено!')
-      alert('✅ Здание успешно удалено!')
+      alert('Building deleted successfully!')
 
       // Перенаправляем на главную страницу
       router.push('/')
@@ -248,7 +247,7 @@ export default function EditBuildingClient({
       }
 
       console.log('💾 Building updated successfully:', data)
-      alert('✅ Здание успешно обновлено!')
+      alert('Building updated successfully!')
       router.push(`/buildings/${building.id}`)
       router.refresh()
     } catch (error) {
@@ -357,18 +356,6 @@ export default function EditBuildingClient({
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Detailed description of the building, its history and features"
-              />
-            </div>
           </div>
 
           {/* Изображения */}
@@ -416,7 +403,7 @@ export default function EditBuildingClient({
                     className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 ${uploadingMain ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                   >
-                    {uploadingMain ? '⏳ Uploading...' : '📸 Select Main Image'}
+                    {uploadingMain ? 'Uploading...' : 'Select Main Image'}
                   </label>
                 </div>
               </div>
@@ -467,7 +454,7 @@ export default function EditBuildingClient({
                     className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 ${uploadingGallery ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                   >
-                    {uploadingGallery ? '⏳ Uploading...' : '🖼️ Add to Gallery'}
+                    {uploadingGallery ? 'Uploading...' : 'Add to Gallery'}
                   </label>
                 </div>
               </div>
@@ -617,7 +604,7 @@ export default function EditBuildingClient({
               className={`flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors ${loading || uploadingMain || uploadingGallery ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
             >
-              {loading ? '⏳ Saving...' : '💾 Save Changes'}
+              {loading ? 'Saving...' : 'Save Changes'}
             </button>
 
             <button
@@ -625,15 +612,7 @@ export default function EditBuildingClient({
               onClick={() => router.back()}
               className="px-6 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors"
             >
-              🔙 Cancel
-            </button>
-
-            <button
-              type="button"
-              onClick={() => router.push(`/buildings/${building.id}`)}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
-            >
-              👁️ Preview
+              Cancel
             </button>
 
             {/* Кнопка удаления */}
@@ -642,7 +621,7 @@ export default function EditBuildingClient({
               onClick={() => setShowDeleteModal(true)}
               className="px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
             >
-              🗑️ Delete Building
+              Delete Building
             </button>
           </div>
         </form>
@@ -667,14 +646,14 @@ export default function EditBuildingClient({
                 className={`flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors ${deleting ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
               >
-                {deleting ? '⏳ Deleting...' : '🗑️ Yes, Delete'}
+                {deleting ? 'Deleting...' : 'Yes, Delete'}
               </button>
               <button
                 onClick={() => setShowDeleteModal(false)}
                 disabled={deleting}
                 className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
               >
-                ❌ Cancel
+                Cancel
               </button>
             </div>
           </div>

@@ -95,7 +95,7 @@ export default function SocialActions({
    */
   const toggleLike = useCallback(async () => {
     if (!userId) {
-      alert('Войдите, чтобы поставить лайк');
+      alert('Sign in to like');
       return;
     }
 
@@ -135,7 +135,7 @@ export default function SocialActions({
    */
   const toggleSave = useCallback(async () => {
     if (!userId) {
-      alert('Войдите, чтобы сохранить в коллекцию');
+      alert('Sign in to save to collection');
       return;
     }
 

@@ -67,7 +67,7 @@ export default function RoutePanel({
 
   const handleSaveRoute = async () => {
     if (!routeData.name.trim()) {
-      alert('Введите название маршрута')
+      alert('Enter route name')
       return
     }
 
@@ -81,10 +81,10 @@ export default function RoutePanel({
       
       setShowSaveForm(false)
       setRouteData({ name: '', description: '', is_public: false })
-      alert('Маршрут сохранен!')
+      alert('Route saved!')
     } catch (error) {
       console.error('Error saving route:', error)
-      alert('Ошибка при сохранении маршрута')
+      alert('Error saving route')
     }
   }
 

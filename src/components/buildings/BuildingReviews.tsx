@@ -2,12 +2,15 @@
 
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { BuildingReviewWithProfile } from '@/types/building'
-import { Play, Pause, Volume2, VolumeX, Star, User, Calendar, Award, MessageSquare } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, Star, User, Calendar, Award, MessageSquare, Pencil, Globe, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { getStorageUrl } from '@/lib/storage'
 import PhotoGallery from '@/components/ui/PhotoGallery'
+import { useAuth } from '@/hooks/useAuth'
+import { createClient } from '@/lib/supabase'
+import toast from 'react-hot-toast'
 
 interface BuildingReviewsProps {
   reviews: BuildingReviewWithProfile[]
@@ -241,12 +244,6 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
             </span>
           </div>
 
-          {/* Процент прогресса (для отладки) */}
-          {totalDuration > 0 && (
-            <div className="text-xs text-muted-foreground/60 font-metrics">
-              Прогресс: {progressPercentage.toFixed(1)}%
-            </div>
-          )}
         </div>
 
         {/* Громкость */}
@@ -299,7 +296,20 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
   )
 }
 
-function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; isActive: boolean }) {
+function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, onRate, onHoverRating, onLeaveRating }: {
+  review: BuildingReviewWithProfile
+  isActive: boolean
+  buildingId: string
+  userRating: number
+  hoveredRating: number
+  onRate: (reviewId: string, rating: number) => void
+  onHoverRating: (reviewId: string, rating: number) => void
+  onLeaveRating: () => void
+}) {
+  const { user, profile } = useAuth()
+  const avgRating = review.user_rating_avg || 0
+  const ratingCount = review.user_rating_count || 0
+
   const getReviewTypeLabel = (type: string) => {
     switch (type) {
       case 'expert': return 'Expert Review'
@@ -334,6 +344,15 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
                   Recommended
                 </span>
               )}
+              {review.moderation_status && review.moderation_status !== 'approved' && (
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  review.moderation_status === 'rejected'
+                    ? 'bg-red-100 text-red-800'
+                    : 'bg-amber-100 text-amber-800'
+                }`}>
+                  {review.moderation_status === 'rejected' ? 'Rejected' : 'Pending moderation'}
+                </span>
+              )}
             </div>
 
             {review.title && (
@@ -343,8 +362,17 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
             )}
           </div>
 
-          {/* Рейтинг */}
-          <div className="flex items-center ml-4">
+          {/* Рейтинг + Edit */}
+          <div className="flex items-center ml-4 gap-2">
+            {user && (user.id === review.user_id || profile?.role === 'admin' || profile?.role === 'moderator') && (
+              <Link
+                href={`/buildings/${buildingId}/review/${review.id}/edit`}
+                className="flex items-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 p-1.5 rounded transition-colors"
+                title="Edit review"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </Link>
+            )}
             <div className="flex text-yellow-400">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -472,24 +500,79 @@ function ReviewCard({ review, isActive }: { review: BuildingReviewWithProfile; i
           </div>
         )}
 
-        {/* Полезность */}
-        <div className="mt-4 pt-4 border-t border-border">
-          <div className="flex items-center justify-between">
-            <button className="flex items-center text-muted-foreground hover:text-foreground text-sm">
-              <MessageSquare className="h-4 w-4 mr-1" />
-              Helpful ({review.helpful_count})
-            </button>
+        {/* Visit date */}
+        {review.visit_date && (
+          <div className="mt-4 pt-4 border-t border-border">
+            <span className="text-xs text-muted-foreground font-metrics">
+              Visited: {new Date(review.visit_date).toLocaleDateString('en-US')}
+            </span>
+          </div>
+        )}
 
-            {review.visit_date && (
-              <span className="text-xs text-muted-foreground font-metrics">
-                Visited: {new Date(review.visit_date).toLocaleDateString('en-US')}
-              </span>
+        {/* User rating section */}
+        <div className="mt-4 pt-4 border-t border-border">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1.5">Rate this review:</p>
+              <div className="flex items-center space-x-1">
+                {[1, 2, 3, 4, 5].map(star => {
+                  const isStarActive = userRating >= star || (hoveredRating >= star && hoveredRating > 0)
+
+                  return (
+                    <button
+                      key={star}
+                      onClick={() => onRate(review.id, star)}
+                      onMouseEnter={() => onHoverRating(review.id, star)}
+                      onMouseLeave={onLeaveRating}
+                      className="p-0.5 transition-transform hover:scale-110"
+                      title={`Rate ${star}/5`}
+                    >
+                      <Star
+                        className={`w-5 h-5 transition-colors ${
+                          isStarActive
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-muted-foreground/30'
+                        }`}
+                      />
+                    </button>
+                  )
+                })}
+                {userRating > 0 && (
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    Your rating: {userRating}/5
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {ratingCount > 0 && (
+              <div className="flex items-center bg-yellow-50 dark:bg-yellow-950/30 px-3 py-1.5 rounded-[var(--radius)]">
+                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1.5" />
+                <span className="font-semibold text-foreground text-sm font-metrics">{avgRating.toFixed(1)}</span>
+                <span className="text-xs text-muted-foreground ml-1.5 font-metrics">({ratingCount} ratings)</span>
+              </div>
             )}
           </div>
         </div>
       </div>
     </div>
   )
+}
+
+const LANGUAGE_LABELS: Record<string, string> = {
+  en: '🇬🇧 English',
+  ru: '🇷🇺 Русский',
+  de: '🇩🇪 Deutsch',
+  fr: '🇫🇷 Français',
+  es: '🇪🇸 Español',
+  it: '🇮🇹 Italiano',
+  uz: '🇺🇿 Oʻzbek',
+  tr: '🇹🇷 Türkçe',
+  ja: '🇯🇵 日本語',
+  ko: '🇰🇷 한국어',
+  zh: '🇨🇳 中文',
+  pt: '🇵🇹 Português',
+  ar: '🇸🇦 العربية',
 }
 
 export default function BuildingReviews({
@@ -500,6 +583,120 @@ export default function BuildingReviews({
   onReviewAdded,
   onOpenAddReview
 }: BuildingReviewsProps) {
+  const supabase = useMemo(() => createClient(), [])
+  const { user } = useAuth()
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('all')
+  const [userRatings, setUserRatings] = useState<Map<string, number>>(new Map())
+  const [hoveredRating, setHoveredRating] = useState<{ reviewId: string, rating: number } | null>(null)
+  const [localReviews, setLocalReviews] = useState<BuildingReviewWithProfile[]>(reviews)
+
+  // Sync localReviews when reviews prop changes
+  useEffect(() => {
+    setLocalReviews(reviews)
+  }, [reviews])
+
+  // Load user ratings
+  useEffect(() => {
+    if (!user || reviews.length === 0) return
+
+    const loadUserRatings = async () => {
+      const { data } = await supabase
+        .from('building_review_ratings')
+        .select('review_id, rating')
+        .eq('user_id', user.id)
+        .in('review_id', reviews.map(r => r.id))
+
+      if (data) {
+        setUserRatings(new Map(data.map(r => [r.review_id, r.rating])))
+      }
+    }
+
+    loadUserRatings()
+  }, [user, reviews])
+
+  const handleRateReview = async (reviewId: string, rating: number) => {
+    if (!user) {
+      toast.error('Sign in to rate this review')
+      return
+    }
+
+    try {
+      const existingRating = userRatings.get(reviewId)
+
+      if (existingRating) {
+        const { error } = await supabase
+          .from('building_review_ratings')
+          .update({ rating, updated_at: new Date().toISOString() })
+          .eq('review_id', reviewId)
+          .eq('user_id', user.id)
+
+        if (error) {
+          console.error('Error updating review rating:', error.message, error.code, error.details)
+          toast.error(`Error saving rating: ${error.message}`)
+          return
+        }
+      } else {
+        const { error } = await supabase
+          .from('building_review_ratings')
+          .insert({
+            review_id: reviewId,
+            user_id: user.id,
+            rating
+          })
+
+        if (error) {
+          console.error('Error inserting review rating:', error.message, error.code, error.details)
+          toast.error(`Error saving rating: ${error.message}`)
+          return
+        }
+      }
+
+      const oldRating = userRatings.get(reviewId)
+      setUserRatings(prev => new Map(prev).set(reviewId, rating))
+
+      // Optimistic UI update
+      setLocalReviews(prev => prev.map(r => {
+        if (r.id !== reviewId) return r
+        const oldAvg = r.user_rating_avg || 0
+        const oldCount = r.user_rating_count || 0
+        let newCount: number
+        let newAvg: number
+        if (oldRating) {
+          newCount = oldCount
+          newAvg = oldCount > 0 ? (oldAvg * oldCount - oldRating + rating) / oldCount : rating
+        } else {
+          newCount = oldCount + 1
+          newAvg = (oldAvg * oldCount + rating) / newCount
+        }
+        return { ...r, user_rating_avg: newAvg, user_rating_count: newCount }
+      }))
+
+      toast.success(`Rating ${rating}/5 saved!`)
+    } catch (error: any) {
+      console.error('Error rating review:', error?.message || JSON.stringify(error))
+      toast.error('Error saving rating')
+    }
+  }
+
+  // Compute available languages from reviews
+  const availableLanguages = useMemo(() => {
+    const langs = new Set<string>()
+    reviews.forEach(r => {
+      if (r.language) langs.add(r.language)
+    })
+    return Array.from(langs).sort()
+  }, [reviews])
+
+  // Filter reviews by selected language
+  const filteredReviews = useMemo(() => {
+    if (selectedLanguage === 'all') return localReviews
+    return localReviews.filter(r => r.language === selectedLanguage)
+  }, [localReviews, selectedLanguage])
+
+  // Reset active index when language changes
+  useEffect(() => {
+    onActiveIndexChange(0)
+  }, [selectedLanguage])
 
   if (reviews.length === 0) {
     return (
@@ -532,86 +729,93 @@ export default function BuildingReviews({
     )
   }
 
+  // Clamp activeIndex within bounds of filteredReviews
+  const safeIndex = Math.min(activeIndex, Math.max(0, filteredReviews.length - 1))
+
   return (
     <div className="space-y-6">
 
-      {/* Заголовок и переключатели */}
-      <div className="flex items-center justify-between">
+      {/* Header row: title, language filter, dot indicators */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <h2 className="text-xl font-semibold font-display text-foreground">
-          Reviews ({reviews.length})
+          Reviews ({filteredReviews.length})
         </h2>
 
-        {reviews.length > 1 && (
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground font-metrics">
-              {activeIndex + 1} of {reviews.length}
-            </span>
-            <div className="flex space-x-1">
-              {reviews.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => onActiveIndexChange(index)}
-                  className={`w-2 h-2 rounded-full transition-colors ${index === activeIndex ? 'bg-primary' : 'bg-muted-foreground/30'
-                    }`}
-                />
-              ))}
+        <div className="flex items-center gap-3">
+          {/* Language filter dropdown */}
+          {availableLanguages.length > 1 && (
+            <div className="flex items-center gap-1.5">
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              <select
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+                className="text-sm border border-border rounded-[var(--radius)] px-2 py-1 bg-card text-foreground focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer"
+              >
+                <option value="all">All languages ({reviews.length})</option>
+                {availableLanguages.map(lang => {
+                  const count = reviews.filter(r => r.language === lang).length
+                  return (
+                    <option key={lang} value={lang}>
+                      {LANGUAGE_LABELS[lang] || lang.toUpperCase()} ({count})
+                    </option>
+                  )
+                })}
+              </select>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Фильтры по типам обзоров */}
-      {reviews.length > 1 && (
-        <div className="flex flex-wrap gap-2">
-          {Array.from(new Set(reviews.map(r => r.review_type))).map(type => {
-            const count = reviews.filter(r => r.review_type === type).length
-            return (
-              <button
-                key={type}
-                onClick={() => {
-                  const firstIndexOfType = reviews.findIndex(r => r.review_type === type)
-                  onActiveIndexChange(firstIndexOfType)
-                }}
-                className="px-3 py-1 rounded-full text-sm border border-border hover:border-primary hover:text-primary transition-colors"
-              >
-                {type === 'expert' && 'Expert'}
-                {type === 'historical' && 'Historical'}
-                {type === 'amateur' && 'User'}
-                {type === 'general' && 'General'}
-                {' '}({count})
-              </button>
-            )
-          })}
+      {/* Active review with arrow navigation */}
+      {filteredReviews.length > 0 ? (
+        <div className="relative group">
+          {/* Left arrow */}
+          {filteredReviews.length > 1 && (
+            <button
+              onClick={() => onActiveIndexChange(Math.max(0, safeIndex - 1))}
+              disabled={safeIndex === 0}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 bg-card border border-border shadow-lg rounded-full p-2 hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="h-5 w-5 text-foreground" />
+            </button>
+          )}
+
+          <ReviewCard
+            review={filteredReviews[safeIndex]}
+            isActive={true}
+            buildingId={buildingId}
+            userRating={userRatings.get(filteredReviews[safeIndex]?.id) || 0}
+            hoveredRating={hoveredRating?.reviewId === filteredReviews[safeIndex]?.id ? hoveredRating.rating : 0}
+            onRate={handleRateReview}
+            onHoverRating={(reviewId, rating) => setHoveredRating({ reviewId, rating })}
+            onLeaveRating={() => setHoveredRating(null)}
+          />
+
+          {/* Right arrow */}
+          {filteredReviews.length > 1 && (
+            <button
+              onClick={() => onActiveIndexChange(Math.min(filteredReviews.length - 1, safeIndex + 1))}
+              disabled={safeIndex === filteredReviews.length - 1}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 bg-card border border-border shadow-lg rounded-full p-2 hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ChevronRight className="h-5 w-5 text-foreground" />
+            </button>
+          )}
         </div>
-      )}
-
-      {/* Активный обзор */}
-      <ReviewCard
-        review={reviews[activeIndex]}
-        isActive={true}
-      />
-
-      {/* Навигация между обзорами */}
-      {reviews.length > 1 && (
-        <div className="flex justify-center space-x-4">
+      ) : (
+        /* Empty filtered state */
+        <div className="bg-card border border-border rounded-[var(--radius)] p-8 text-center">
+          <p className="text-muted-foreground mb-3">No reviews in this language</p>
           <button
-            onClick={() => onActiveIndexChange(Math.max(0, activeIndex - 1))}
-            disabled={activeIndex === 0}
-            className="px-4 py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setSelectedLanguage('all')}
+            className="text-primary hover:text-primary/80 font-medium text-sm transition-colors"
           >
-            Previous
-          </button>
-          <button
-            onClick={() => onActiveIndexChange(Math.min(reviews.length - 1, activeIndex + 1))}
-            disabled={activeIndex === reviews.length - 1}
-            className="px-4 py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Next
+            Show all languages
           </button>
         </div>
       )}
 
-      {/* Кнопка добавить обзор */}
+      {/* Add Review button */}
       <div className="text-center pt-6 border-t border-border">
         {onOpenAddReview ? (
           <button

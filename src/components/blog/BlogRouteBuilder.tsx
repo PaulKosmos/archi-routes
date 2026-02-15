@@ -112,12 +112,12 @@ export default function BlogRouteBuilder({
    */
   const handleCreateRoute = useCallback(() => {
     if (selectedBuildingIds.size === 0) {
-      alert('Выберите хотя бы один объект для маршрута');
+      alert('Select at least one building for the route');
       return;
     }
 
     if (!user) {
-      alert('Войдите, чтобы создать маршрут');
+      alert('Sign in to create a route');
       return;
     }
 

@@ -111,6 +111,7 @@ interface MapLibreEnhancedProps {
   selectedBuildingsForRoute?: string[]
   hideLegend?: boolean
   compactControls?: boolean
+  onViewStateChange?: (center: { lat: number; lng: number }, zoom: number) => void
 }
 
 // Map styles - free, no API key required
@@ -343,11 +344,11 @@ const BuildingPopup = ({
                 ? `${building.architect || ''}${building.architect && building.year_built ? ' • ' : ''}${building.year_built || ''}`
                 : building.city || ''}
             </div>
-            {building.rating && (
+            {Number(building.rating) > 0 && (building.review_count ?? 0) > 0 && (
               <div className="flex items-center">
                 <span className="text-amber-400 text-xs">★</span>
                 <span className="text-[11px] text-gray-500 ml-0.5 font-medium">
-                  {building.rating.toFixed(1)}
+                  {Number(building.rating).toFixed(1)}
                 </span>
               </div>
             )}
@@ -385,23 +386,22 @@ const BuildingPopup = ({
             <h3 className="text-[15px] font-semibold text-gray-900 leading-tight flex-1">
               {building.name}
             </h3>
-            {building.rating && (
+            {Number(building.rating) > 0 && (building.review_count ?? 0) > 0 && (
               <div className="flex items-center flex-shrink-0">
                 <span className="text-amber-400 text-[15px]">★</span>
                 <span className="text-[13px] text-gray-500 ml-0.5 font-semibold">
-                  {building.rating.toFixed(1)}
+                  {Number(building.rating).toFixed(1)}
                 </span>
               </div>
             )}
           </div>
 
           {(building.moderation_status === 'pending' || building.moderation_status === 'rejected') && (
-            <span className={`inline-block mt-1 px-1.5 py-0.5 text-[10px] rounded-full font-medium ${
-              building.moderation_status === 'pending'
+            <span className={`inline-block mt-1 px-1.5 py-0.5 text-[10px] rounded-full font-medium ${building.moderation_status === 'pending'
                 ? 'bg-amber-100 text-amber-800'
                 : 'bg-red-100 text-red-800'
-            }`}>
-              {building.moderation_status === 'pending' ? 'На модерации' : 'Отклонено'}
+              }`}>
+              {building.moderation_status === 'pending' ? 'Pending review' : 'Rejected'}
             </span>
           )}
         </div>
@@ -483,13 +483,12 @@ const BuildingPopup = ({
           <button
             onClick={() => onAddToRoute?.(building.id)}
             disabled={isInRoute}
-            className={`w-full py-1.5 rounded-md text-[11px] font-medium transition-colors ${
-              isInRoute
+            className={`w-full py-1.5 rounded-md text-[11px] font-medium transition-colors ${isInRoute
                 ? 'bg-purple-600/50 text-white cursor-not-allowed'
                 : 'bg-purple-600 hover:bg-purple-700 text-white cursor-pointer'
-            }`}
+              }`}
           >
-            {isInRoute ? '✅ Добавлено' : '➕ В маршрут'}
+            {isInRoute ? '✅ Added' : '➕ Add to route'}
           </button>
         )}
       </div>
@@ -603,7 +602,8 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
       routeCreationMode = false,
       selectedBuildingsForRoute = [],
       hideLegend = false,
-      compactControls = false
+      compactControls = false,
+      onViewStateChange
     } = props
 
     const mapRef = useRef<MapRef>(null)
@@ -611,7 +611,7 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
     const [viewState, setViewState] = useState({
       longitude: 13.4050,
       latitude: 52.5200,
-      zoom: 12
+      zoom: 3
     })
 
     // Popup state
@@ -660,7 +660,7 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
       mapRef.current.fitBounds(bounds, {
         padding: 50,
         maxZoom: 15,
-        duration: 1000
+        duration: 0
       })
 
       isFirstLoad.current = false
@@ -732,39 +732,47 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
       console.log('centerOnBuilding:', building.name, 'isMobile:', isMobile)
 
       if (isMobile) {
-        // Mobile: center building in visible area between header and bottom sheet
-        // Header is ~64px, bottom sheet covers bottom 60% of screen
-        const headerHeight = 64
-        const bottomSheetHeight = window.innerHeight * 0.6
-        const visibleTop = headerHeight
-        const visibleBottom = window.innerHeight - bottomSheetHeight
-        const visibleCenterY = (visibleTop + visibleBottom) / 2
-        const screenCenterY = window.innerHeight / 2
-
-        // Offset needed to move building from screen center to visible center
-        const pixelOffsetY = screenCenterY - visibleCenterY
-
-        // Use map's project/unproject for accurate conversion
         const map = mapRef.current.getMap()
         const targetZoom = 16
+        const currentZoom = map.getZoom()
 
-        // Project building coords to pixels at current view
-        const buildingPoint = map.project([building.longitude, building.latitude])
+        const applyOffsetFly = () => {
+          // Mobile: center building in visible area between header and bottom sheet
+          const headerHeight = 64
+          const bottomSheetHeight = window.innerHeight * 0.6
+          const visibleTop = headerHeight
+          const visibleBottom = window.innerHeight - bottomSheetHeight
+          const visibleCenterY = (visibleTop + visibleBottom) / 2
+          const screenCenterY = window.innerHeight / 2
+          const pixelOffsetY = screenCenterY - visibleCenterY
 
-        // Offset the point (use array format for PointLike)
-        const offsetPoint: [number, number] = [
-          buildingPoint.x,
-          buildingPoint.y + pixelOffsetY
-        ]
+          // project/unproject works correctly when already at target zoom
+          const buildingPoint = map.project([building.longitude, building.latitude])
+          const offsetPoint: [number, number] = [
+            buildingPoint.x,
+            buildingPoint.y + pixelOffsetY
+          ]
+          const newCenter = map.unproject(offsetPoint)
 
-        // Unproject back to coordinates - this gives us the new center
-        const newCenter = map.unproject(offsetPoint)
+          mapRef.current!.flyTo({
+            center: [newCenter.lng, newCenter.lat],
+            zoom: targetZoom,
+            duration: 800
+          })
+        }
 
-        mapRef.current.flyTo({
-          center: [newCenter.lng, newCenter.lat],
-          zoom: targetZoom,
-          duration: 800
-        })
+        if (Math.abs(currentZoom - targetZoom) > 2) {
+          // Far from target zoom: first jump to building, then apply offset
+          mapRef.current.flyTo({
+            center: [building.longitude, building.latitude],
+            zoom: targetZoom,
+            duration: 600
+          })
+          map.once('moveend', applyOffsetFly)
+        } else {
+          // Already close to target zoom: apply offset directly
+          applyOffsetFly()
+        }
       } else {
         mapRef.current.flyTo({
           center: [building.longitude, building.latitude],
@@ -871,8 +879,8 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
             <div className="flex items-center space-x-3">
               <span className="text-2xl">📍</span>
               <div>
-                <p className="font-semibold">Выберите местоположение объекта</p>
-                <p className="text-xs text-green-100">Кликните на карту в нужном месте</p>
+                <p className="font-semibold">Select building location</p>
+                <p className="text-xs text-green-100">Click on the map at the desired location</p>
               </div>
             </div>
           </div>
@@ -880,30 +888,29 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
 
         {/* Route creation mode overlay */}
         {routeCreationMode && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-2xl border-2 border-purple-400">
-            <div className="flex items-center space-x-3">
-              <span className="text-2xl">🗺️</span>
+          <div className="absolute top-2 md:top-4 left-1/2 -translate-x-1/2 z-40 bg-purple-600 text-white px-3 md:px-6 py-2 md:py-3 rounded-lg shadow-2xl border-2 border-purple-400">
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <span className="text-lg md:text-2xl">🗺️</span>
               <div>
-                <p className="font-semibold">Режим создания маршрута</p>
-                <p className="text-xs text-purple-100">Кликайте на здания для добавления в маршрут</p>
+                <p className="font-semibold text-sm md:text-base">Route creation mode</p>
+                <p className="text-[10px] md:text-xs text-purple-100">Tap buildings to add them to the route</p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Style selector - top left corner */}
-        <div className="absolute top-4 left-4 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+        {/* Style selector - positioned below Buildings/Routes buttons on desktop, top-left on mobile */}
+        <div className="absolute top-4 left-4 md:top-[5.5rem] md:right-14 md:left-auto z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
           {/* Desktop: horizontal with text */}
           <div className="hidden md:flex space-x-1">
             {Object.entries(MAP_STYLES).map(([key, style]) => (
               <button
                 key={key}
                 onClick={() => setCurrentStyle(key as keyof typeof MAP_STYLES)}
-                className={`px-3 py-1 text-xs rounded transition-colors ${
-                  currentStyle === key
+                className={`px-3 py-1 text-xs rounded transition-colors ${currentStyle === key
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 {key === 'light' ? '☀️ Light' : key === 'dark' ? '🌙 Dark' : '🌿 Bright'}
               </button>
@@ -916,11 +923,10 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
               <button
                 key={key}
                 onClick={() => setCurrentStyle(key as keyof typeof MAP_STYLES)}
-                className={`p-2 text-base rounded transition-colors ${
-                  currentStyle === key
+                className={`p-2 text-base rounded transition-colors ${currentStyle === key
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 {key === 'light' ? '☀️' : key === 'dark' ? '🌙' : '🌿'}
               </button>
@@ -973,7 +979,15 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
         <Map
           ref={mapRef}
           {...viewState}
-          onMove={(evt: ViewStateChangeEvent) => setViewState(evt.viewState)}
+          onMove={(evt: ViewStateChangeEvent) => {
+            setViewState(evt.viewState)
+          }}
+          onMoveEnd={(evt: ViewStateChangeEvent) => {
+            onViewStateChange?.(
+              { lat: evt.viewState.latitude, lng: evt.viewState.longitude },
+              evt.viewState.zoom
+            )
+          }}
           mapStyle={MAP_STYLES[currentStyle].url}
           style={{ width: '100%', height: '100%', minHeight: '400px', cursor: cursorStyle }}
           attributionControl={false}
@@ -984,8 +998,8 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
           <div className="absolute bottom-0 right-0 z-10 bg-white/80 backdrop-blur-sm px-2 py-0.5 text-[10px] text-gray-600 rounded-tl flex items-center gap-1.5">
             <a href="https://maplibre.org" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 flex items-center gap-0.5">
               <svg width="12" height="12" viewBox="0 0 1024 1024" className="opacity-70">
-                <path fill="currentColor" d="M512 0C229.2 0 0 229.2 0 512s229.2 512 512 512 512-229.2 512-512S794.8 0 512 0zm0 960C264.6 960 64 759.4 64 512S264.6 64 512 64s448 200.6 448 448-200.6 448-448 448z"/>
-                <path fill="currentColor" d="M512 192c-176.7 0-320 143.3-320 320s143.3 320 320 320 320-143.3 320-320-143.3-320-320-320zm0 576c-141.4 0-256-114.6-256-256s114.6-256 256-256 256 114.6 256 256-114.6 256-256 256z"/>
+                <path fill="currentColor" d="M512 0C229.2 0 0 229.2 0 512s229.2 512 512 512 512-229.2 512-512S794.8 0 512 0zm0 960C264.6 960 64 759.4 64 512S264.6 64 512 64s448 200.6 448 448-200.6 448-448 448z" />
+                <path fill="currentColor" d="M512 192c-176.7 0-320 143.3-320 320s143.3 320 320 320 320-143.3 320-320-143.3-320-320-320zm0 576c-141.4 0-256-114.6-256-256s114.6-256 256-256 256 114.6 256 256-114.6 256-256 256z" />
               </svg>
               MapLibre
             </a>

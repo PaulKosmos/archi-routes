@@ -288,12 +288,12 @@ export default function BlogContent({
             : ''
           }
           
-          ${building.rating 
+          ${Number(building.rating) > 0
             ? `<div class="flex items-center text-sm">
                  <svg class="w-4 h-4 text-yellow-400 fill-current mr-1" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                 <span class="font-medium text-gray-900">${building.rating.toFixed(1)}</span>
+                 <span class="font-medium text-gray-900">${Number(building.rating).toFixed(1)}</span>
                  <span class="text-gray-500 ml-1">из 5 (рейтинг)</span>
-               </div>` 
+               </div>`
             : ''
           }
           

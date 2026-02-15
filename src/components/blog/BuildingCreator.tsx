@@ -39,27 +39,27 @@ export default function BuildingCreator({
     const newErrors: Record<string, string> = {}
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Название здания обязательно'
+      newErrors.name = 'Building name is required'
     }
 
     if (!formData.city.trim()) {
-      newErrors.city = 'Город обязателен'
+      newErrors.city = 'City is required'
     }
 
     if (!formData.country.trim()) {
-      newErrors.country = 'Страна обязательна'
+      newErrors.country = 'Country is required'
     }
 
     if (formData.year_built && (isNaN(Number(formData.year_built)) || Number(formData.year_built) < 1 || Number(formData.year_built) > new Date().getFullYear())) {
-      newErrors.year_built = 'Введите корректный год постройки'
+      newErrors.year_built = 'Enter a valid year of construction'
     }
 
     if (formData.latitude && (isNaN(Number(formData.latitude)) || Number(formData.latitude) < -90 || Number(formData.latitude) > 90)) {
-      newErrors.latitude = 'Введите корректную широту (-90 до 90)'
+      newErrors.latitude = 'Enter a valid latitude (-90 to 90)'
     }
 
     if (formData.longitude && (isNaN(Number(formData.longitude)) || Number(formData.longitude) < -180 || Number(formData.longitude) > 180)) {
-      newErrors.longitude = 'Введите корректную долготу (-180 до 180)'
+      newErrors.longitude = 'Enter a valid longitude (-180 to 180)'
     }
 
     setErrors(newErrors)
@@ -74,7 +74,7 @@ export default function BuildingCreator({
     }
 
     if (!user) {
-      alert('Необходимо войти в систему для создания зданий')
+      alert('You must be logged in to create buildings')
       return
     }
 
@@ -131,7 +131,7 @@ export default function BuildingCreator({
       
     } catch (error) {
       console.error('❌ Error creating building:', error)
-      alert('Ошибка при создании здания. Попробуйте еще раз.')
+      alert('Error creating building. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -150,13 +150,13 @@ export default function BuildingCreator({
 
     // Проверяем размер файла (макс 5МБ)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Размер файла не должен превышать 5МБ')
+      alert('File size must not exceed 5MB')
       return
     }
 
     // Проверяем тип файла
     if (!file.type.startsWith('image/')) {
-      alert('Можно загружать только изображения')
+      alert('Only images can be uploaded')
       return
     }
 
@@ -180,7 +180,7 @@ export default function BuildingCreator({
       console.log('✅ Image uploaded successfully:', publicUrl)
     } catch (error) {
       console.error('❌ Error uploading image:', error)
-      alert('Ошибка при загрузке изображения')
+      alert('Error uploading image')
     } finally {
       setLoading(false)
     }
@@ -205,7 +205,7 @@ export default function BuildingCreator({
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center">
             <Building2 className="w-5 h-5 mr-2" />
-            Создать новое здание
+            Create New Building
           </h2>
           <button
             onClick={handleClose}
@@ -225,13 +225,13 @@ export default function BuildingCreator({
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Building2 className="w-4 h-4 inline mr-1" />
-                  Название здания *
+                  Building Name *
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleChange('name', e.target.value)}
-                  placeholder="Например: Рейхстаг"
+                  placeholder="e.g. Reichstag"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     errors.name ? 'border-red-500' : 'border-gray-300'
                   }`}
@@ -242,13 +242,13 @@ export default function BuildingCreator({
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <MapPin className="w-4 h-4 inline mr-1" />
-                  Город *
+                  City *
                 </label>
                 <input
                   type="text"
                   value={formData.city}
                   onChange={(e) => handleChange('city', e.target.value)}
-                  placeholder="Например: Берлин"
+                  placeholder="e.g. Berlin"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     errors.city ? 'border-red-500' : 'border-gray-300'
                   }`}
@@ -260,7 +260,7 @@ export default function BuildingCreator({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Страна *
+                  Country *
                 </label>
                 <select
                   value={formData.country}
@@ -269,16 +269,16 @@ export default function BuildingCreator({
                     errors.country ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
-                  <option value="Germany">Германия</option>
-                  <option value="Russia">Россия</option>
-                  <option value="France">Франция</option>
-                  <option value="Italy">Италия</option>
-                  <option value="Spain">Испания</option>
-                  <option value="United Kingdom">Великобритания</option>
-                  <option value="Austria">Австрия</option>
-                  <option value="Netherlands">Нидерланды</option>
-                  <option value="Czech Republic">Чехия</option>
-                  <option value="Other">Другая</option>
+                  <option value="Germany">Germany</option>
+                  <option value="Russia">Russia</option>
+                  <option value="France">France</option>
+                  <option value="Italy">Italy</option>
+                  <option value="Spain">Spain</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Austria">Austria</option>
+                  <option value="Netherlands">Netherlands</option>
+                  <option value="Czech Republic">Czech Republic</option>
+                  <option value="Other">Other</option>
                 </select>
                 {errors.country && <p className="text-sm text-red-600 mt-1">{errors.country}</p>}
               </div>
@@ -286,13 +286,13 @@ export default function BuildingCreator({
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <User className="w-4 h-4 inline mr-1" />
-                  Архитектор
+                  Architect
                 </label>
                 <input
                   type="text"
                   value={formData.architect}
                   onChange={(e) => handleChange('architect', e.target.value)}
-                  placeholder="Например: Норман Фостер"
+                  placeholder="e.g. Norman Foster"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -302,7 +302,7 @@ export default function BuildingCreator({
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Calendar className="w-4 h-4 inline mr-1" />
-                  Год постройки
+                  Year Built
                 </label>
                 <input
                   type="number"
@@ -321,13 +321,13 @@ export default function BuildingCreator({
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Palette className="w-4 h-4 inline mr-1" />
-                  Архитектурный стиль
+                  Architectural Style
                 </label>
                 <input
                   type="text"
                   value={formData.architectural_style}
                   onChange={(e) => handleChange('architectural_style', e.target.value)}
-                  placeholder="Например: Модернизм"
+                  placeholder="e.g. Modernism"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -335,12 +335,12 @@ export default function BuildingCreator({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Описание
+                Description
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}
-                placeholder="Краткое описание здания, его истории и особенностей..."
+                placeholder="Brief description of the building, its history and features..."
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -349,14 +349,14 @@ export default function BuildingCreator({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Camera className="w-4 h-4 inline mr-1" />
-                Изображение здания
+                Building Image
               </label>
               
               {formData.image_url ? (
                 <div className="relative">
                   <img
                     src={formData.image_url}
-                    alt="Превью здания"
+                    alt="Building preview"
                     className="w-full h-32 object-cover rounded-lg"
                   />
                   <button
@@ -377,12 +377,12 @@ export default function BuildingCreator({
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <div className="text-center text-gray-500">
-                    <span className="text-sm">или</span>
+                    <span className="text-sm">or</span>
                   </div>
                   <label className="block w-full h-32 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors cursor-pointer">
                     <div className="flex flex-col items-center justify-center h-full">
                       <Camera className="w-8 h-8 text-gray-400 mb-2" />
-                      <span className="text-sm text-gray-600">Загрузить с компьютера</span>
+                      <span className="text-sm text-gray-600">Upload from computer</span>
                     </div>
                     <input
                       type="file"
@@ -397,13 +397,13 @@ export default function BuildingCreator({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Адрес
+                Address
               </label>
               <input
                 type="text"
                 value={formData.address}
                 onChange={(e) => handleChange('address', e.target.value)}
-                placeholder="Полный адрес здания"
+                placeholder="Full building address"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -411,7 +411,7 @@ export default function BuildingCreator({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Широта
+                  Latitude
                 </label>
                 <input
                   type="number"
@@ -428,7 +428,7 @@ export default function BuildingCreator({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Долгота
+                  Longitude
                 </label>
                 <input
                   type="number"
@@ -448,7 +448,7 @@ export default function BuildingCreator({
           {/* Footer */}
           <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
             <div className="text-sm text-gray-600">
-              * Обязательные поля
+              * Required fields
             </div>
             
             <div className="flex gap-3">
@@ -458,7 +458,7 @@ export default function BuildingCreator({
                 disabled={loading}
                 className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
-                Отмена
+                Cancel
               </button>
               <button
                 type="submit"
@@ -468,12 +468,12 @@ export default function BuildingCreator({
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Создание...
+                    Creating...
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    Создать здание
+                    Create Building
                   </>
                 )}
               </button>

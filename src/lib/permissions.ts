@@ -21,7 +21,7 @@ export async function checkEditPermissions(
   if (!userId) {
     return {
       canEdit: false,
-      reason: 'Необходимо войти в систему'
+      reason: 'You must be logged in'
     }
   }
 
@@ -39,7 +39,7 @@ export async function checkEditPermissions(
     if (!profile) {
       return {
         canEdit: false,
-        reason: 'Профиль пользователя не найден'
+        reason: 'User profile not found'
       }
     }
 
@@ -62,7 +62,7 @@ export async function checkEditPermissions(
     if (!content) {
       return {
         canEdit: false,
-        reason: `${contentType === 'building' ? 'Здание' : 'Маршрут'} не найден`
+        reason: `${contentType === 'building' ? 'Building' : 'Route'} not found`
       }
     }
 
@@ -76,7 +76,7 @@ export async function checkEditPermissions(
 
     return {
       canEdit: false,
-      reason: 'Только автор или модератор может редактировать контент',
+      reason: 'Only the author or a moderator can edit this content',
       userRole: profile.role
     }
 
@@ -84,7 +84,7 @@ export async function checkEditPermissions(
     console.error('Error checking edit permissions:', error)
     return {
       canEdit: false,
-      reason: 'Ошибка проверки прав доступа'
+      reason: 'Permission check error'
     }
   }
 }

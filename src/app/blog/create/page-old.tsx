@@ -209,7 +209,7 @@ export default function CreateBlogPage() {
       }
     } catch (error) {
       console.error('Error saving post:', error)
-      alert('Ошибка при сохранении статьи')
+      alert('Error saving article')
     } finally {
       setSaving(false)
     }

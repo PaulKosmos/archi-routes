@@ -291,12 +291,12 @@ export default function EditBlogPage() {
           router.push(`/blog/${newSlug}/edit`)
         } else {
           // Показываем уведомление об успешном сохранении
-          alert('Черновик успешно сохранен')
+          alert('Draft saved successfully')
         }
       }
     } catch (error) {
       console.error('Error saving post:', error)
-      alert('Ошибка при сохранении статьи')
+      alert('Error saving article')
     } finally {
       setSaving(false)
     }

@@ -112,6 +112,9 @@ export default function TestMapPage() {
   const [showMobileBuildings, setShowMobileBuildings] = useState(false)
   const [showMobileRoutes, setShowMobileRoutes] = useState(false)
 
+  // Map viewport center for proximity sorting
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 52.52, lng: 13.405 })
+
   // Состояние фильтров
   const [filters, setFilters] = useState<Filters>({
     search: '',
@@ -267,6 +270,14 @@ export default function TestMapPage() {
 
     // Исключаем здание "Знания"
     filteredB = filteredB.filter(b => b.name !== 'Knowledge')
+
+    // Moderation filter: show only approved buildings (+ legacy without status + user's own)
+    filteredB = filteredB.filter(b =>
+      b.moderation_status === 'approved' ||
+      b.moderation_status === undefined ||
+      b.moderation_status === null ||
+      (user && b.created_by === user.id)
+    )
 
     // Фильтр по поиску
     if (filters.search) {
@@ -608,7 +619,7 @@ export default function TestMapPage() {
     console.log('🏛️ [SAVE] Saving new building:', buildingData)
 
     try {
-      // 1. Создаем здание
+      // 1. Create building with practical info at building level
       const { data: building, error: buildingError } = await supabase
         .from('buildings')
         .insert({
@@ -622,9 +633,15 @@ export default function TestMapPage() {
           year_built: buildingData.year_built,
           architectural_style: buildingData.architectural_style,
           building_type: buildingData.building_type,
-          // Если есть обзор с контентом - используем его как описание здания
-          description: buildingData.review?.content || null,
-          created_by: user.id
+          // Practical info saved directly to building
+          opening_hours: buildingData.opening_hours || null,
+          entry_fee: buildingData.entry_fee || null,
+          website_url: buildingData.website || null,
+          visit_difficulty: buildingData.visit_difficulty || null,
+          best_visit_time: buildingData.best_visit_time || null,
+          accessibility_info: buildingData.accessibility_info || null,
+          created_by: user.id,
+          rating: null
         })
         .select()
         .single()
@@ -636,22 +653,20 @@ export default function TestMapPage() {
 
       console.log('🏛️ [SAVE] Building created successfully:', building)
 
-      // 2. Загружаем фотографии если есть
-      let uploadedPhotos: string[] = []
-      if (buildingData.photoFiles && buildingData.photoFiles.length > 0) {
-        console.log('📷 [SAVE] Uploading photos:', buildingData.photoFiles.length)
+      // 2. Upload building photo if provided
+      if (buildingData.buildingPhotoFile) {
+        console.log('📷 [SAVE] Uploading building photo')
 
         try {
           const results = await uploadMultipleImages(
-            buildingData.photoFiles,
+            [buildingData.buildingPhotoFile],
             'buildings/gallery',
             user.id
           )
 
-          uploadedPhotos = results.map(r => r.path)
-          console.log('📷 [SAVE] Photos uploaded:', uploadedPhotos)
+          const photoPath = results[0]?.path
+          console.log('📷 [SAVE] Building photo uploaded:', photoPath)
 
-          // Обновляем здание с фотографиями и источником
           const photoSource = buildingData.isOwnPhoto
             ? 'Personal photo'
             : buildingData.photoSource || null
@@ -659,23 +674,23 @@ export default function TestMapPage() {
           await supabase
             .from('buildings')
             .update({
-              image_url: results[0]?.path, // Первое фото - основное
-              image_urls: uploadedPhotos,
+              image_url: photoPath,
+              image_urls: [photoPath],
               image_source: photoSource
             })
             .eq('id', building.id)
 
         } catch (photoError) {
-          console.error('📷 [SAVE] Photo upload error:', photoError)
+          console.error('📷 [SAVE] Building photo upload error:', photoError)
           toast.error('Building created, but photo upload failed')
         }
       }
 
-      // 3. Создаем обзор если есть данные
+      // 3. Create review if review data is present
       if (buildingData.review && ((buildingData.review.rating ?? 0) > 0 || buildingData.review.content)) {
         console.log('📝 [SAVE] Creating review for building:', building.id)
 
-        // Загружаем аудио если есть
+        // Upload audio if present
         let audioPath: string | null = null
         if (buildingData.audioFile) {
           console.log('🎤 [SAVE] Uploading audio:', buildingData.audioFile.name)
@@ -690,24 +705,41 @@ export default function TestMapPage() {
           }
         }
 
+        // Upload review photos first if present
+        let reviewPhotoUrls: string[] = []
+        if (buildingData.reviewPhotoFiles && buildingData.reviewPhotoFiles.length > 0) {
+          try {
+            const reviewPhotoResults = await uploadMultipleImages(
+              buildingData.reviewPhotoFiles,
+              'reviews',
+              user.id
+            )
+            reviewPhotoUrls = reviewPhotoResults.map(r => r.path)
+            console.log('📷 [SAVE] Review photos uploaded:', reviewPhotoUrls)
+          } catch (photoError) {
+            console.error('📷 [SAVE] Review photo upload error:', photoError)
+          }
+        }
+
+        const reviewLanguage = buildingData.review.language || 'en'
+
         const { data: review, error: reviewError } = await supabase
           .from('building_reviews')
           .insert({
             building_id: building.id,
             user_id: user.id,
-            rating: buildingData.review.rating && buildingData.review.rating > 0 ? buildingData.review.rating : 1,
+            rating: buildingData.review.rating && buildingData.review.rating > 0 ? buildingData.review.rating : null,
             title: buildingData.review.title || null,
             content: buildingData.review.content || null,
             review_type: 'general',
-            opening_hours: buildingData.review.opening_hours || null,
-            entry_fee: buildingData.review.entry_fee || null,
             tags: buildingData.review.tags.length > 0 ? buildingData.review.tags : null,
+            photos: reviewPhotoUrls.length > 0 ? reviewPhotoUrls : null,
             audio_url: audioPath,
-            language: buildingData.review.language || 'en'
+            language: reviewLanguage,
+            original_language: reviewLanguage
           })
           .select()
           .single()
-
 
         if (reviewError) {
           console.error('📝 [SAVE] Review error:', reviewError)
@@ -715,43 +747,18 @@ export default function TestMapPage() {
         } else {
           console.log('📝 [SAVE] Review created successfully:', review)
 
-          // Обновляем рейтинг здания
-          if ((buildingData.review.rating ?? 0) > 0) {
-            await supabase
-              .from('buildings')
-              .update({
-                rating: buildingData.review.rating ?? 0,
-                review_count: 1
-              })
-              .eq('id', building.id)
-            console.log('⭐ [SAVE] Building rating updated:', buildingData.review.rating ?? 0)
-          }
-
-          // Загружаем фото обзора если есть и они отличаются от фото здания
-          if (buildingData.photoFiles && buildingData.photoFiles.length > 0 && review) {
-            try {
-              // Связываем фото с обзором
-              const photoPromises = uploadedPhotos.map(photoPath =>
-                supabase
-                  .from('review_photos')
-                  .insert({
-                    review_id: review.id,
-                    photo_url: photoPath,
-                    uploaded_by: user.id
-                  })
-              )
-
-              await Promise.all(photoPromises)
-              console.log('📷 [SAVE] Review photos linked successfully')
-            } catch (linkError) {
-              console.error('📷 [SAVE] Error linking photos to review:', linkError)
-            }
-          }
+          // Update building review count (but NOT rating - rating 1 is just a DB requirement)
+          await supabase
+            .from('buildings')
+            .update({ review_count: 1 })
+            .eq('id', building.id)
         }
       }
 
-      // 3. Обновляем список зданий
+      // 4. Reload buildings list
       await loadData()
+
+      toast.success('Building submitted! It will appear on the map after moderation review.')
 
       return building
     } catch (error: any) {
@@ -785,6 +792,16 @@ export default function TestMapPage() {
     setSelectedRoute(route || null)
     setSelectedBuilding(null)
   }, [filteredRoutes])
+
+  // Buildings sorted by distance from map center (for mobile list)
+  const buildingsSortedByProximity = useMemo(() => {
+    if (!mapCenter || filteredBuildings.length === 0) return filteredBuildings
+    return [...filteredBuildings].sort((a, b) => {
+      const distA = calculateDistance(mapCenter.lat, mapCenter.lng, a.latitude, a.longitude)
+      const distB = calculateDistance(mapCenter.lat, mapCenter.lng, b.latitude, b.longitude)
+      return distA - distB
+    })
+  }, [filteredBuildings, mapCenter])
 
   // Вычисляем статистику (мемоизировано)
   const stats = useMemo(() => ({
@@ -834,20 +851,20 @@ export default function TestMapPage() {
     }
 
     setSelectedBuildingsForRoute(prev => [...prev, buildingId])
-    toast.success('✅ Добавлено в маршрут')
+    toast.success('✅ Added to route')
   }, [selectedBuildingsForRoute])
 
   // Обработчик удаления здания из маршрута
   const handleRemoveBuildingFromRoute = useCallback((buildingId: string) => {
     setSelectedBuildingsForRoute(prev => prev.filter(id => id !== buildingId))
-    toast.success('🗑️ Удалено из маршрута')
+    toast.success('🗑️ Removed from route')
   }, [])
 
   // Обработчик начала маршрута с выбранного здания
   const handleStartRouteFromBuilding = useCallback((buildingId: string) => {
     setSelectedBuildingsForRoute([buildingId])
     setRouteCreationMode(true)
-    toast.success('🚀 Маршрут начат с этого здания')
+    toast.success('🚀 Route started from this building')
   }, [])
 
   // Обработчик изменения порядка зданий
@@ -870,7 +887,7 @@ export default function TestMapPage() {
     if (routeCreationMode) {
       console.log('🔍 [BUTTON] Exiting creation mode...')
       if (selectedBuildingsForRoute.length > 0) {
-        if (confirm('Выйти из режима создания? Выбранные здания будут сброшены.')) {
+        if (confirm('Exit creation mode? Selected buildings will be reset.')) {
           setRouteCreationMode(false)
           setSelectedBuildingsForRoute([])
         }
@@ -889,13 +906,13 @@ export default function TestMapPage() {
   const handleSelectManualCreation = useCallback(() => {
     setIsRouteMethodModalOpen(false)
     setRouteCreationMode(true)
-    toast.success('🗺️ Режим создания маршрута активирован! Кликайте на объекты для добавления.')
+    toast.success('🗺️ Route creation mode activated! Click on buildings to add them.')
   }, [])
 
   const handleSelectAICreation = useCallback(() => {
     setIsRouteMethodModalOpen(false)
     // Пока заглушка - позже добавим AI форму
-    toast('🤖 AI генерация маршрутов скоро будет доступна!', { icon: 'ℹ️' })
+    toast('🤖 AI route generation coming soon!', { icon: 'ℹ️' })
   }, [])
 
   // Сохранение личного маршрута
@@ -906,7 +923,7 @@ export default function TestMapPage() {
     }
 
     if (selectedBuildingsForRoute.length < 2) {
-      toast.error('⚠️ Добавьте минимум 2 здания')
+      toast.error('Add at least 2 buildings')
       return
     }
 
@@ -915,7 +932,7 @@ export default function TestMapPage() {
       const buildingsData = buildings.filter(b => selectedBuildingsForRoute.includes(b.id))
 
       // Строим маршрут по реальным дорогам с использованием MapBox
-      toast.loading('🗺️ Строим маршрут по реальным дорогам...')
+      toast.loading('Building route along real roads...')
 
       const routePointsForApi = buildingsData.map(building => ({
         latitude: building.latitude,
@@ -931,7 +948,7 @@ export default function TestMapPage() {
         console.log('✅ Маршрут построен:', routeResult)
       } catch (routeError) {
         console.error('⚠️ Ошибка построения маршрута:', routeError)
-        toast('⚠️ Используются прямые линии (MapBox недоступен)', { icon: '⚠️' })
+        toast('Using straight lines (MapBox unavailable)', { icon: '⚠️' })
         // Fallback к простой геометрии
         routeResult = {
           geometry: {
@@ -950,7 +967,7 @@ export default function TestMapPage() {
         .from('routes')
         .insert({
           title: routeName,
-          description: `Личный маршрут из ${selectedBuildingsForRoute.length} объектов`,
+          description: `Personal route with ${selectedBuildingsForRoute.length} buildings`,
           city: buildingsData[0]?.city || '',
           country: buildingsData[0]?.country || '',
           route_geometry: routeResult.geometry as any,
@@ -992,7 +1009,7 @@ export default function TestMapPage() {
 
       if (linkError) throw linkError
 
-      toast.success('🎉 Маршрут успешно создан!')
+      toast.success('Route created successfully!')
 
       // Очищаем состояние
       setSelectedBuildingsForRoute([])
@@ -1036,17 +1053,17 @@ export default function TestMapPage() {
         const buildingId = button.dataset.buildingId
 
         if (selectedBuildingsForRoute.includes(buildingId)) {
-          toast('ℹ️ Здание уже добавлено', { icon: 'ℹ️' })
+          toast('Building already added', { icon: 'ℹ️' })
           return
         }
 
         if (selectedBuildingsForRoute.length >= 20) {
-          toast.error('⚠️ Максимум 20 зданий в одном маршруте')
+          toast.error('⚠️ Maximum 20 buildings per route')
           return
         }
 
         setSelectedBuildingsForRoute(prev => [...prev, buildingId])
-        toast.success('✅ Добавлено в маршрут')
+        toast.success('✅ Added to route')
       }
     }
 
@@ -1155,16 +1172,23 @@ export default function TestMapPage() {
                             <div className="flex flex-col gap-1">
                               <h3 className="font-semibold text-gray-900 text-sm lg:text-base truncate">{building.name}</h3>
                               {(building.moderation_status === 'pending' || building.moderation_status === 'rejected') && (
-                                <div className="flex items-center gap-1">
+                                <div className="flex flex-col gap-1">
                                   {building.moderation_status === 'pending' && (
-                                    <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full whitespace-nowrap">
-                                      На модерации
+                                    <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs font-medium rounded-full whitespace-nowrap w-fit">
+                                      Pending review
                                     </span>
                                   )}
                                   {building.moderation_status === 'rejected' && (
-                                    <span className="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full whitespace-nowrap">
-                                      Отклонено
-                                    </span>
+                                    <>
+                                      <span className="px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium rounded-full whitespace-nowrap w-fit">
+                                        Rejected
+                                      </span>
+                                      {(building as any).rejection_reason && (
+                                        <span className="text-xs text-red-600 line-clamp-1">
+                                          {(building as any).rejection_reason}
+                                        </span>
+                                      )}
+                                    </>
                                   )}
                                 </div>
                               )}
@@ -1176,10 +1200,10 @@ export default function TestMapPage() {
                                 {building.architectural_style && (
                                   <span className="truncate max-w-[120px]">{building.architectural_style}</span>
                                 )}
-                                {building.rating && (
+                                {Number(building.rating) > 0 && (building.review_count ?? 0) > 0 && (
                                   <div className="flex items-center whitespace-nowrap">
                                     <Star className="w-3 h-3 text-yellow-400 mr-1" />
-                                    {building.rating.toFixed(1)}
+                                    {Number(building.rating).toFixed(1)}
                                   </div>
                                 )}
                               </div>
@@ -1212,7 +1236,7 @@ export default function TestMapPage() {
                             : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                             }`}
                         >
-                          🌍 Публичные
+                          🌍 Public
                         </button>
                         <button
                           onClick={() => setRouteViewMode('personal')}
@@ -1221,7 +1245,7 @@ export default function TestMapPage() {
                             : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                             }`}
                         >
-                          👤 Личные
+                          👤 Personal
                         </button>
                       </div>
                     )}
@@ -1229,8 +1253,8 @@ export default function TestMapPage() {
                     {filteredRoutes.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">
                         {routeViewMode === 'personal'
-                          ? '📭 У вас пока нет личных маршрутов'
-                          : '🗺️ Нет доступных маршрутов'
+                          ? '📭 You don\'t have any personal routes yet'
+                          : '🗺️ No routes available'
                         }
                       </div>
                     ) : (
@@ -1266,7 +1290,7 @@ export default function TestMapPage() {
                                 <div className="flex items-center space-x-3 text-xs text-gray-500">
                                   <span>{route.city}</span>
                                   {route.distance_km && (
-                                    <span>{route.distance_km} км</span>
+                                    <span>{route.distance_km} km</span>
                                   )}
                                   {(route.rating ?? 0) > 0 && (
                                     <div className="flex items-center">
@@ -1307,8 +1331,8 @@ export default function TestMapPage() {
                 hoveredBuilding={hoveredBuilding}
                 onBuildingClick={handleBuildingClick}
                 onRouteClick={handleRouteClick}
-                onAddToRoute={undefined}
-                onStartRouteFrom={undefined}
+                onAddToRoute={routeCreationMode ? handleAddBuildingToRoute : undefined}
+                onStartRouteFrom={routeCreationMode ? handleStartRouteFromBuilding : undefined}
                 onBuildingDetails={handleBuildingDetails}
                 onRouteDetails={handleRouteDetails}
                 // Обработчик клика на карте (для радиуса и добавления объекта)
@@ -1327,11 +1351,12 @@ export default function TestMapPage() {
                 addBuildingMode={addBuildingMode}
                 routeCreationMode={routeCreationMode}
                 selectedBuildingsForRoute={selectedBuildingsForRoute}
+                onViewStateChange={(center) => setMapCenter(center)}
                 className="h-full w-full"
               />
 
               {/* Островок с кнопками управления (как стили карты) - ТОЛЬКО НА DESKTOP */}
-              <div className="hidden md:flex absolute top-4 right-4 z-40 bg-white rounded-lg shadow-lg border border-gray-200 p-3">
+              <div className="hidden md:flex absolute top-4 right-14 z-40 bg-white rounded-lg shadow-lg border border-gray-200 p-3">
                 <div className="flex space-x-2">
                   {/* Кнопка Объекты */}
                   <button
@@ -1464,6 +1489,49 @@ export default function TestMapPage() {
         onSave={handleSaveNewBuilding}
       />
 
+      {/* Mobile Route Creation Floating Panel */}
+      {routeCreationMode && (
+        <div className="md:hidden fixed bottom-24 left-2 right-2 z-[35] animate-fadeIn">
+          <div className="bg-card border-2 border-[#E07A5F] rounded-[var(--radius)] shadow-xl p-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-foreground">
+                  Route creation
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  {selectedBuildingsForRoute.length === 0
+                    ? 'Tap buildings on the map to add'
+                    : `${selectedBuildingsForRoute.length} building${selectedBuildingsForRoute.length !== 1 ? 's' : ''} selected`
+                  }
+                  {selectedBuildingsForRoute.length > 0 && selectedBuildingsForRoute.length < 2 && (
+                    <span className="text-[#E07A5F]"> — need at least 2</span>
+                  )}
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                {selectedBuildingsForRoute.length >= 2 && (
+                  <button
+                    onClick={() => setIsRouteCreationModalOpen(true)}
+                    className="px-3 py-1.5 bg-[#E07A5F] text-white text-xs font-medium rounded-[var(--radius)] hover:bg-[#D06A4F] transition-colors"
+                  >
+                    Create ({selectedBuildingsForRoute.length})
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setRouteCreationMode(false)
+                    setSelectedBuildingsForRoute([])
+                  }}
+                  className="px-2.5 py-1.5 bg-muted text-muted-foreground text-xs font-medium rounded-[var(--radius)] hover:bg-muted/80 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Control Bar */}
       <MobileControlBar
         onShowFilters={() => {
@@ -1519,10 +1587,11 @@ export default function TestMapPage() {
                 setShowMobileBuildings(false)
                 handleToggleAddBuildingMode()
               }}
-              className={`w-full px-4 py-3 text-sm rounded-[var(--radius)] transition-all flex items-center justify-center gap-2 font-medium ${addBuildingMode || showInstructionModal
-                ? 'bg-green-600 text-white ring-2 ring-green-200'
-                : 'bg-green-600 text-white hover:bg-green-700 active:bg-green-800'
+              className={`w-full px-4 py-3 text-sm rounded-[var(--radius)] transition-all flex items-center justify-center gap-2 font-medium text-white ${addBuildingMode || showInstructionModal
+                ? 'ring-2 ring-orange-200'
+                : 'hover:opacity-90 active:opacity-80'
                 }`}
+              style={{ backgroundColor: '#F26438' }}
             >
               <span className="text-lg">➕</span>
               <span>Add building to map</span>
@@ -1531,7 +1600,7 @@ export default function TestMapPage() {
         )}
 
         <LazyBuildingList
-          buildings={filteredBuildings}
+          buildings={buildingsSortedByProximity}
           selectedBuilding={selectedBuilding}
           currentRouteBuildings={selectedBuildingsForRoute}
           onBuildingSelect={(building) => handleBuildingClick(building.id)}
@@ -1549,51 +1618,51 @@ export default function TestMapPage() {
         title={`Routes (${filteredRoutes.length})`}
         showBackdrop={false}
       >
-        {/* Переключатель публичных/личных маршрутов */}
-        <div className="mb-4 -mt-2">
-          <div className="flex gap-2 p-1 bg-muted rounded-[var(--radius)]">
+        {/* Public/Personal routes toggle */}
+        <div className="mb-2 -mt-2">
+          <div className="flex gap-2">
             <button
               onClick={() => setRouteViewMode('public')}
-              className={`flex-1 px-4 py-2 rounded-[var(--radius)] font-medium transition-all text-sm ${routeViewMode === 'public'
-                ? 'bg-white text-foreground shadow-sm border-2 border-gray-400'
-                : 'text-muted-foreground hover:text-foreground border-2 border-gray-300'
+              className={`flex-1 px-4 py-2 rounded-[var(--radius)] font-medium transition-all text-sm border ${routeViewMode === 'public'
+                ? 'border-foreground text-foreground'
+                : 'border-border text-muted-foreground hover:text-foreground'
                 }`}
             >
-              Публичные
+              Public
             </button>
             <button
               onClick={() => setRouteViewMode('personal')}
-              className={`flex-1 px-4 py-2 rounded-[var(--radius)] font-medium transition-all text-sm ${routeViewMode === 'personal'
-                ? 'bg-white text-foreground shadow-sm border-2 border-gray-400'
-                : 'text-muted-foreground hover:text-foreground border-2 border-gray-300'
+              className={`flex-1 px-4 py-2 rounded-[var(--radius)] font-medium transition-all text-sm border ${routeViewMode === 'personal'
+                ? 'border-foreground text-foreground'
+                : 'border-border text-muted-foreground hover:text-foreground'
                 }`}
             >
-              Личные
+              Personal
             </button>
           </div>
         </div>
 
-        {/* Кнопка создания маршрута */}
+        {/* Create route button */}
         {user && (
-          <div className="mb-4">
+          <div className="mb-2">
             <button
               onClick={() => {
                 setShowMobileRoutes(false)
                 handleRouteCreationButtonClick()
               }}
               className={`w-full px-4 py-3 text-sm rounded-[var(--radius)] transition-all flex items-center justify-center gap-2 font-medium ${selectedBuildingsForRoute.length >= 2
-                ? 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
+                ? 'bg-[#E07A5F] text-white hover:bg-[#D06A4F] active:bg-[#C05A3F]'
                 : routeCreationMode
-                  ? 'bg-purple-600 text-white ring-2 ring-purple-200'
-                  : 'bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800'
+                  ? 'bg-[#E07A5F] text-white ring-2 ring-[#E07A5F]/30'
+                  : 'bg-[#E07A5F] text-white hover:bg-[#D06A4F] active:bg-[#C05A3F]'
                 }`}
             >
               <span>
                 {selectedBuildingsForRoute.length >= 2
-                  ? `Создать маршрут (${selectedBuildingsForRoute.length} объектов)`
+                  ? `Create route (${selectedBuildingsForRoute.length} buildings)`
                   : routeCreationMode
-                    ? 'Выйти из режима создания'
-                    : 'Создать новый маршрут'}
+                    ? 'Exit creation mode'
+                    : 'Create new route'}
               </span>
             </button>
           </div>

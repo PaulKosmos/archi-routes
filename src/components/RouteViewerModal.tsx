@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { X, ChevronLeft, ChevronRight, MapPin, Clock, Navigation, Star, Check, Headphones, CheckCircle, Award, Pencil } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, MapPin, Clock, Navigation, Star, Check, Headphones, CheckCircle, Award, Pencil, Share2 } from 'lucide-react'
 import { Route, RoutePoint, Building, BuildingReview } from '@/types/building'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
@@ -71,7 +71,6 @@ export default function RouteViewerModal({
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
   const [loadingReviews, setLoadingReviews] = useState(false)
   const [showAllReviews, setShowAllReviews] = useState(false)
-  const [helpfulVotes, setHelpfulVotes] = useState<Set<string>>(new Set())
   const [userRatings, setUserRatings] = useState<Map<string, number>>(new Map())
   const [hoveredRating, setHoveredRating] = useState<{ reviewId: string, rating: number } | null>(null)
 
@@ -191,20 +190,8 @@ export default function RouteViewerModal({
 
         setReviews(sortedReviews)
 
-        // Load user votes and ratings
+        // Load user ratings
         if (user) {
-          // Helpful votes
-          const { data: votesData } = await supabase
-            .from('review_helpful_votes')
-            .select('review_id')
-            .eq('user_id', user.id)
-            .in('review_id', sortedReviews.map(r => r.id))
-
-          if (votesData) {
-            setHelpfulVotes(new Set(votesData.map(v => v.review_id)))
-          }
-
-          // Ratings
           const { data: ratingsData } = await supabase
             .from('building_review_ratings')
             .select('review_id, rating')
@@ -279,58 +266,6 @@ export default function RouteViewerModal({
     }
   }
 
-  // Mark review as "helpful"
-  const handleToggleHelpful = async (reviewId: string) => {
-    if (!user) {
-      toast.error('Please log in')
-      return
-    }
-
-    try {
-      const isHelpful = helpfulVotes.has(reviewId)
-
-      if (isHelpful) {
-        // Remove vote
-        await supabase
-          .from('review_helpful_votes')
-          .delete()
-          .eq('review_id', reviewId)
-          .eq('user_id', user.id)
-
-        setHelpfulVotes(prev => {
-          const newSet = new Set(prev)
-          newSet.delete(reviewId)
-          return newSet
-        })
-
-        // Update counter locally
-        setReviews(prev => prev.map(r =>
-          r.id === reviewId ? { ...r, helpful_count: Math.max(0, r.helpful_count - 1) } : r
-        ))
-      } else {
-        // Add vote
-        await supabase
-          .from('review_helpful_votes')
-          .insert({
-            review_id: reviewId,
-            user_id: user.id
-          })
-
-        setHelpfulVotes(prev => new Set(prev).add(reviewId))
-
-        // Update counter locally
-        setReviews(prev => prev.map(r =>
-          r.id === reviewId ? { ...r, helpful_count: r.helpful_count + 1 } : r
-        ))
-
-        toast.success('👍 Marked as helpful!')
-      }
-    } catch (error) {
-      console.error('Error toggling helpful:', error)
-      toast.error('Error saving rating')
-    }
-  }
-
   // Rate review with stars (1-5)
   const handleRateReview = async (reviewId: string, rating: number) => {
     if (!user) {
@@ -339,20 +274,59 @@ export default function RouteViewerModal({
     }
 
     try {
-      await supabase
-        .from('building_review_ratings')
-        .upsert({
-          review_id: reviewId,
-          user_id: user.id,
-          rating: rating
-        }, {
-          onConflict: 'review_id,user_id'
-        })
+      const existingRating = userRatings.get(reviewId)
 
+      if (existingRating) {
+        const { error } = await supabase
+          .from('building_review_ratings')
+          .update({ rating, updated_at: new Date().toISOString() })
+          .eq('review_id', reviewId)
+          .eq('user_id', user.id)
+
+        if (error) {
+          console.error('Error updating review rating:', error.message, error.code, error.details)
+          toast.error(`Error saving rating: ${error.message}`)
+          return
+        }
+      } else {
+        const { error } = await supabase
+          .from('building_review_ratings')
+          .insert({
+            review_id: reviewId,
+            user_id: user.id,
+            rating
+          })
+
+        if (error) {
+          console.error('Error inserting review rating:', error.message, error.code, error.details)
+          toast.error(`Error saving rating: ${error.message}`)
+          return
+        }
+      }
+
+      const oldRating = userRatings.get(reviewId)
       setUserRatings(prev => new Map(prev).set(reviewId, rating))
-      toast.success(`⭐ Rating ${rating}/5 saved!`)
-    } catch (error) {
-      console.error('Error rating review:', error)
+
+      // Update local review's avg/count to reflect immediately in UI
+      setReviews(prev => prev.map(r => {
+        if (r.id !== reviewId) return r
+        const oldAvg = r.user_rating_avg || 0
+        const oldCount = r.user_rating_count || 0
+        let newCount: number
+        let newAvg: number
+        if (oldRating) {
+          newCount = oldCount
+          newAvg = oldCount > 0 ? (oldAvg * oldCount - oldRating + rating) / oldCount : rating
+        } else {
+          newCount = oldCount + 1
+          newAvg = (oldAvg * oldCount + rating) / newCount
+        }
+        return { ...r, user_rating_avg: newAvg, user_rating_count: newCount }
+      }))
+
+      toast.success(`Rating ${rating}/5 saved!`)
+    } catch (error: any) {
+      console.error('Error rating review:', error?.message || JSON.stringify(error))
       toast.error('Error saving rating')
     }
   }
@@ -420,14 +394,29 @@ export default function RouteViewerModal({
   const exportUrls = useMemo(() => {
     if (routePoints.length === 0) return { google: '', apple: '' }
 
-    // Google Maps: first point as start, rest as waypoints
     const firstPoint = routePoints[0]
-    const waypoints = routePoints.slice(1).map(p => `${p.latitude},${p.longitude}`).join('|')
-    const googleUrl = `https://www.google.com/maps/dir/?api=1&origin=${firstPoint.latitude},${firstPoint.longitude}&waypoints=${waypoints}&travelmode=walking`
-
-    // Apple Maps: first point as start, last as destination
     const lastPoint = routePoints[routePoints.length - 1]
-    const appleUrl = `https://maps.apple.com/?saddr=${firstPoint.latitude},${firstPoint.longitude}&daddr=${lastPoint.latitude},${lastPoint.longitude}&dirflg=w`
+
+    // Google Maps: origin + destination + intermediate waypoints
+    const middlePoints = routePoints.slice(1, -1)
+    const waypointsParam = middlePoints.length > 0
+      ? `&waypoints=${middlePoints.map(p => `${p.latitude},${p.longitude}`).join('|')}`
+      : ''
+    const googleUrl = routePoints.length === 1
+      ? `https://www.google.com/maps/search/?api=1&query=${firstPoint.latitude},${firstPoint.longitude}`
+      : `https://www.google.com/maps/dir/?api=1&origin=${firstPoint.latitude},${firstPoint.longitude}&destination=${lastPoint.latitude},${lastPoint.longitude}${waypointsParam}&travelmode=walking`
+
+    // Apple Maps: chain all points with +to: for intermediate stops
+    let appleUrl: string
+    if (routePoints.length === 1) {
+      appleUrl = `https://maps.apple.com/?ll=${firstPoint.latitude},${firstPoint.longitude}&q=${encodeURIComponent(firstPoint.title || 'Point')}`
+    } else if (routePoints.length === 2) {
+      appleUrl = `https://maps.apple.com/?saddr=${firstPoint.latitude},${firstPoint.longitude}&daddr=${lastPoint.latitude},${lastPoint.longitude}&dirflg=w`
+    } else {
+      // Apple Maps supports multiple destinations via +to: syntax
+      const destinations = routePoints.slice(1).map(p => `${p.latitude},${p.longitude}`).join('+to:')
+      appleUrl = `https://maps.apple.com/?saddr=${firstPoint.latitude},${firstPoint.longitude}&daddr=${destinations}&dirflg=w`
+    }
 
     return { google: googleUrl, apple: appleUrl }
   }, [routePoints])
@@ -458,7 +447,7 @@ export default function RouteViewerModal({
                 className="flex items-center px-2 md:px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-all shadow-md hover:shadow-lg font-medium text-xs md:text-sm"
                 title="Export route"
               >
-                <Navigation className="w-4 h-4 md:mr-2" />
+                <Share2 className="w-4 h-4 md:mr-2" />
                 <span className="hidden md:inline">Export Route</span>
               </button>
 
@@ -472,7 +461,6 @@ export default function RouteViewerModal({
                     className="flex items-center px-3 md:px-4 py-2 hover:bg-muted transition-colors"
                     onClick={() => setShowExportMenu(false)}
                   >
-                    <span className="text-base md:text-lg mr-2 md:mr-3">🗺️</span>
                     <span className="text-xs md:text-sm font-medium text-foreground">Google Maps</span>
                   </a>
                   <a
@@ -482,7 +470,6 @@ export default function RouteViewerModal({
                     className="flex items-center px-3 md:px-4 py-2 hover:bg-muted transition-colors"
                     onClick={() => setShowExportMenu(false)}
                   >
-                    <span className="text-base md:text-lg mr-2 md:mr-3">🍎</span>
                     <span className="text-xs md:text-sm font-medium text-foreground">Apple Maps</span>
                   </a>
                 </div>
@@ -1033,21 +1020,6 @@ export default function RouteViewerModal({
                                   </div>
                                 </div>
 
-                                {/* "Helpful" button */}
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleToggleHelpful(review.id)
-                                  }}
-                                  className={`flex items-center px-2 py-1 rounded transition-all ${helpfulVotes.has(review.id)
-                                    ? 'bg-primary/10 text-primary font-medium'
-                                    : 'hover:bg-muted text-muted-foreground'
-                                    }`}
-                                  title={helpfulVotes.has(review.id) ? 'Remove rating' : 'Mark as helpful'}
-                                >
-                                  <span className="mr-1">{helpfulVotes.has(review.id) ? '👍' : '👍🏻'}</span>
-                                  <span className="text-xs font-metrics">{review.helpful_count}</span>
-                                </button>
                               </div>
                             </div>
                           )
@@ -1115,6 +1087,65 @@ export default function RouteViewerModal({
                     />
                   </div>
                 </div>
+
+                {/* Route Reviews - mobile only (desktop has this in left sidebar) */}
+                {route.is_published && (
+                  <div className="md:hidden mb-4">
+                    <div className="bg-card rounded-[var(--radius)] border-2 border-border p-3 shadow-sm">
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => setShowAllRouteReviews(true)}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold font-display text-foreground flex items-center gap-1 text-sm">
+                            <Star className="w-4 h-4" style={{ fill: '#facc15', color: '#facc15' }} />
+                            Route Reviews
+                          </h4>
+                          {(route.rating ?? 0) > 0 && (
+                            <div className="flex items-center gap-1">
+                              <span className="font-bold text-foreground text-sm">{Number(route.rating).toFixed(1)}</span>
+                              <span className="text-xs text-muted-foreground">({route.review_count || 0})</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {routeReviews.length > 0 ? (
+                          <div className="space-y-1.5">
+                            {routeReviews.slice(0, 2).map((review) => (
+                              <div key={review.id} className="text-xs border border-border rounded p-2 bg-background">
+                                <div className="flex items-center gap-0.5 mb-1">
+                                  {[1, 2, 3, 4, 5].map(s => (
+                                    <Star key={s} className="w-3 h-3" style={s <= review.rating ? { fill: '#facc15', color: '#facc15' } : { color: 'var(--muted)' }} />
+                                  ))}
+                                </div>
+                                {review.title && (
+                                  <p className="font-medium text-foreground mb-0.5">{review.title}</p>
+                                )}
+                                {review.content && (
+                                  <p className="text-muted-foreground line-clamp-1">{review.content}</p>
+                                )}
+                              </div>
+                            ))}
+                            {routeReviews.length > 2 && (
+                              <p className="text-primary text-xs text-center">+ {routeReviews.length - 2} more</p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">No reviews yet. Be the first!</p>
+                        )}
+                      </div>
+
+                      {user && (
+                        <button
+                          onClick={() => setShowAddRouteReviewModal(true)}
+                          className="w-full mt-2 py-2 px-3 bg-primary text-primary-foreground text-xs font-medium rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
+                        >
+                          Write Review
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="p-4 md:p-8 text-center text-muted-foreground">

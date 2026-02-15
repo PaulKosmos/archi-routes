@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com'
 
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  const supabase = createClient(supabaseUrl, serviceRoleKey || supabaseAnonKey)
 
   const { data: building } = await supabase
     .from('buildings')
@@ -88,14 +89,15 @@ export default async function BuildingDetailPage({ params, searchParams }: PageP
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Missing Supabase credentials')
     return notFound()
   }
 
-  // Create public client
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  // Use service role key to bypass RLS (so pending buildings are accessible for moderators)
+  const supabase = createClient(supabaseUrl, serviceRoleKey || supabaseAnonKey)
 
   // Load building data
   console.log('🏢 [DEBUG] Fetching building from server...')
@@ -121,9 +123,10 @@ export default async function BuildingDetailPage({ params, searchParams }: PageP
   
   console.log('🏢 [DEBUG] Building found, rendering client component')
 
-  // Load all buildings for Header
+  // Load all buildings for Header (use anon key for public-only listing)
   console.log('🏢 [DEBUG] Fetching all buildings for header...')
-  const { data: allBuildings } = await supabase
+  const publicSupabase = createClient(supabaseUrl, supabaseAnonKey)
+  const { data: allBuildings } = await publicSupabase
     .from('buildings')
     .select('*')
   console.log('🏢 [DEBUG] All buildings fetched:', allBuildings?.length || 0)

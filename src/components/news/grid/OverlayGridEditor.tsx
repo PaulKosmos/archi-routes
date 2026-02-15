@@ -194,7 +194,7 @@ export default function OverlayGridEditor({
 
   // Удалить блок
   const handleDeleteBlock = async (blockId: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этот блок?')) return;
+    if (!confirm('Are you sure you want to delete this block?')) return;
 
     try {
       await deleteBlock(blockId);
@@ -214,7 +214,7 @@ export default function OverlayGridEditor({
   // Отмена
   const handleCancel = () => {
     if (hasChanges) {
-      if (confirm('У вас есть несохраненные изменения. Вы уверены, что хотите выйти?')) {
+      if (confirm('You have unsaved changes. Are you sure you want to leave?')) {
         onCancel?.();
       }
     } else {

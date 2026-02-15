@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { X, ExternalLink, Heart, BookmarkPlus, MapPin, Calendar, User as UserIcon, Building2, Eye, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pencil, Trash2, Info, DollarSign, TrendingUp, Clock, Bus, Accessibility, Layers, BookOpen } from 'lucide-react'
+import { X, ExternalLink, Heart, BookmarkPlus, MapPin, Calendar, User as UserIcon, Building2, Eye, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pencil, Trash2, Info, DollarSign, TrendingUp, Clock, Bus, Accessibility, Layers, BookOpen, Star } from 'lucide-react'
 import type { Building, BuildingReviewWithProfile } from '@/types/building'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
@@ -78,6 +78,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
     if (!building) return 0
     let count = 0
     if (building.website_url) count++
+    if (building.opening_hours) count++
     if (building.entry_fee) count++
     if (building.visit_difficulty) count++
     if (building.best_visit_time) count++
@@ -109,11 +110,19 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
   const [routes, setRoutes] = useState<RouteInfo[]>([])
   const [news, setNews] = useState<NewsInfo[]>([])
   const [loading, setLoading] = useState(false)
+
+  // Language filter - now handled by BuildingReviewsList
   const [routeViewMode, setRouteViewMode] = useState<'personal' | 'public'>('personal')
 
   // Счётчики для вкладок (загружаются сразу при открытии)
   const [routesCount, setRoutesCount] = useState(0)
   const [newsCount, setNewsCount] = useState(0)
+
+  // Building rating
+  const [buildingRating, setBuildingRating] = useState(0)
+  const [buildingRatingCount, setBuildingRatingCount] = useState(0)
+  const [userBuildingRating, setUserBuildingRating] = useState(0)
+  const [hoveredBuildingRating, setHoveredBuildingRating] = useState(0)
 
   // Hero галерея
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0)
@@ -127,6 +136,101 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
       checkFavoriteStatus()
     }
   }, [building, isOpen, user])
+
+  // Load building rating data
+  useEffect(() => {
+    if (!building || !isOpen) {
+      if (!isOpen) {
+        setBuildingRating(0)
+        setBuildingRatingCount(0)
+        setUserBuildingRating(0)
+      }
+      return
+    }
+
+    // Load aggregate rating
+    const loadBuildingRating = async () => {
+      const { data } = await supabase
+        .from('building_ratings')
+        .select('rating')
+        .eq('building_id', building.id)
+
+      if (data && data.length > 0) {
+        const avg = data.reduce((sum, r) => sum + r.rating, 0) / data.length
+        setBuildingRating(avg)
+        setBuildingRatingCount(data.length)
+      } else {
+        setBuildingRating(0)
+        setBuildingRatingCount(0)
+      }
+    }
+
+    // Load user's own rating
+    const loadUserBuildingRating = async () => {
+      if (!user) return
+      const { data } = await supabase
+        .from('building_ratings')
+        .select('rating')
+        .eq('building_id', building.id)
+        .eq('user_id', user.id)
+        .single()
+
+      if (data) {
+        setUserBuildingRating(data.rating)
+      } else {
+        setUserBuildingRating(0)
+      }
+    }
+
+    loadBuildingRating()
+    loadUserBuildingRating()
+  }, [building?.id, isOpen, user])
+
+  const handleRateBuilding = async (rating: number) => {
+    if (!user) {
+      toast.error('Sign in to rate this building')
+      return
+    }
+    if (!building) return
+
+    try {
+      const { error } = await supabase
+        .from('building_ratings')
+        .upsert({
+          building_id: building.id,
+          user_id: user.id,
+          rating,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'building_id,user_id'
+        })
+
+      if (error) throw error
+
+      const oldRating = userBuildingRating
+      setUserBuildingRating(rating)
+
+      // Optimistic local update
+      if (oldRating > 0) {
+        // Updating existing
+        const newAvg = buildingRatingCount > 0
+          ? (buildingRating * buildingRatingCount - oldRating + rating) / buildingRatingCount
+          : rating
+        setBuildingRating(newAvg)
+      } else {
+        // New rating
+        const newCount = buildingRatingCount + 1
+        const newAvg = (buildingRating * buildingRatingCount + rating) / newCount
+        setBuildingRating(newAvg)
+        setBuildingRatingCount(newCount)
+      }
+
+      toast.success(`Rating ${rating}/5 saved!`)
+    } catch (error) {
+      console.error('Error rating building:', error)
+      toast.error('Error saving rating')
+    }
+  }
 
   useEffect(() => {
     if (!building || !isOpen) {
@@ -380,15 +484,14 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
   if (!isOpen || !building) return null
 
-  // Hero фото: первые фото из обзоров
-  const heroPhotos = reviews
+  // Hero photos: building's own cover first, then review photos as extras
+  const buildingCover = building.image_url ? [building.image_url] : []
+  const reviewPhotos = reviews
     .filter(r => r.photos && r.photos.length > 0)
-    .map(r => r.photos![0])
+    .flatMap(r => r.photos!)
 
-  // Если нет обзоров с фото, показываем фото здания
-  const displayHeroPhotos = heroPhotos.length > 0
-    ? heroPhotos
-    : (building.image_url ? [building.image_url] : [])
+  // Building's own photo always comes first
+  const displayHeroPhotos = [...buildingCover, ...reviewPhotos]
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -571,7 +674,49 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                 )}
               </div>
 
-              {/* Строка 3: Адрес (кликабельный) */}
+              {/* Строка 3: Building Rating */}
+              <div className="flex items-center gap-3 py-1">
+                <div className="flex items-center space-x-0.5">
+                  {[1, 2, 3, 4, 5].map(star => {
+                    const isActive = userBuildingRating >= star || (hoveredBuildingRating >= star && hoveredBuildingRating > 0)
+                    const isFilled = !hoveredBuildingRating && buildingRating >= star
+
+                    return (
+                      <button
+                        key={star}
+                        onClick={() => handleRateBuilding(star)}
+                        onMouseEnter={() => setHoveredBuildingRating(star)}
+                        onMouseLeave={() => setHoveredBuildingRating(0)}
+                        className="p-0.5 transition-transform hover:scale-110"
+                        title={`Rate ${star}/5`}
+                      >
+                        <Star
+                          className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${
+                            isActive
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : isFilled
+                                ? 'fill-yellow-400/60 text-yellow-400/60'
+                                : 'text-gray-300'
+                          }`}
+                        />
+                      </button>
+                    )
+                  })}
+                </div>
+                {buildingRatingCount > 0 && (
+                  <>
+                    <span className="text-sm font-semibold text-gray-900">{buildingRating.toFixed(1)}</span>
+                    <span className="text-xs text-gray-500">
+                      ({buildingRatingCount} {buildingRatingCount === 1 ? 'rating' : 'ratings'})
+                    </span>
+                  </>
+                )}
+                {userBuildingRating > 0 && (
+                  <span className="text-xs text-blue-600 font-medium">Your: {userBuildingRating}/5</span>
+                )}
+              </div>
+
+              {/* Строка 4: Адрес (кликабельный) */}
               {building.address && (
                 <button
                   onClick={handleAddressClick}
@@ -616,6 +761,18 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                       >
                         Official Website
                       </a>
+                    </div>
+                  )}
+
+                  {/* Часы работы */}
+                  {building.opening_hours && (
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                      <span className="text-gray-700">
+                        {typeof building.opening_hours === 'string'
+                          ? building.opening_hours
+                          : JSON.stringify(building.opening_hours)}
+                      </span>
                     </div>
                   )}
 
@@ -758,11 +915,13 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
               <>
                 {/* Таб Обзоры */}
                 {activeTab === 'reviews' && (
-                  <BuildingReviewsList
-                    reviews={reviews}
-                    buildingId={building.id}
-                    onOpenAddReview={() => setIsAddReviewModalOpen(true)}
-                  />
+                  <>
+                    <BuildingReviewsList
+                      reviews={reviews}
+                      buildingId={building.id}
+                      onOpenAddReview={() => setIsAddReviewModalOpen(true)}
+                    />
+                  </>
                 )}
 
                 {/* Таб Маршруты */}

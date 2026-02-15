@@ -8,14 +8,8 @@ import { createClient } from '@/lib/supabase'
 import {
   Settings,
   Bell,
-  Globe,
   Shield,
-  Download,
   Trash2,
-  Eye,
-  EyeOff,
-  Mail,
-  Languages,
   ArrowLeft,
   Save,
   Check,
@@ -64,7 +58,6 @@ export default function ProfileSettingsPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [exportLoading, setExportLoading] = useState(false)
 
   // Загрузка настроек при монтировании
   useEffect(() => {
@@ -131,45 +124,6 @@ export default function ProfileSettingsPage() {
       alert('Failed to save settings')
     } finally {
       setSaving(false)
-    }
-  }
-
-  const exportData = async () => {
-    if (!user) return
-
-    setExportLoading(true)
-    try {
-      // Получаем все данные пользователя
-      const [profileData, buildingsData, reviewsData, favoritesData] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
-        supabase.from('buildings').select('*').eq('created_by', user.id),
-        supabase.from('building_reviews').select('*').eq('user_id', user.id),
-        supabase.from('user_building_favorites').select('building:buildings(*)').eq('user_id', user.id)
-      ])
-
-      const exportData = {
-        profile: profileData.data,
-        buildings: buildingsData.data || [],
-        reviews: reviewsData.data || [],
-        favorites: favoritesData.data || [],
-        export_date: new Date().toISOString()
-      }
-
-      // Создаем и скачиваем файл
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `archi-routes-data-${new Date().toISOString().split('T')[0]}.json`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error('Error exporting data:', error)
-      alert('Failed to export data')
-    } finally {
-      setExportLoading(false)
     }
   }
 
@@ -472,80 +426,6 @@ export default function ProfileSettingsPage() {
                   </label>
                 </div>
               </div>
-            </div>
-
-            {/* Язык */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4 flex items-center">
-                <Languages className="h-5 w-5 mr-2 text-blue-600" />
-                Interface Language
-              </h2>
-
-              <div className="space-y-2">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="language"
-                    value="ru"
-                    checked={settings.language === 'ru'}
-                    onChange={(e) => setSettings(prev => ({ ...prev, language: e.target.value as 'ru' | 'en' | 'de' }))}
-                    className="mr-3"
-                  />
-                  <span>🇷🇺 Russian</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="language"
-                    value="en"
-                    checked={settings.language === 'en'}
-                    onChange={(e) => setSettings(prev => ({ ...prev, language: e.target.value as 'ru' | 'en' | 'de' }))}
-                    className="mr-3"
-                  />
-                  <span>🇺🇸 English</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="language"
-                    value="de"
-                    checked={settings.language === 'de'}
-                    onChange={(e) => setSettings(prev => ({ ...prev, language: e.target.value as 'ru' | 'en' | 'de' }))}
-                    className="mr-3"
-                  />
-                  <span>🇩🇪 Deutsch</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Экспорт данных */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4 flex items-center">
-                <Download className="h-5 w-5 mr-2 text-blue-600" />
-                Data Export
-              </h2>
-
-              <p className="text-gray-600 mb-4">
-                Download an archive of all your data: profile, created buildings, reviews and favorites
-              </p>
-
-              <button
-                onClick={exportData}
-                disabled={exportLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center"
-              >
-                {exportLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Preparing data...
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Data
-                  </>
-                )}
-              </button>
             </div>
 
             {/* Удаление аккаунта */}

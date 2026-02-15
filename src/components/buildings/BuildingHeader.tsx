@@ -2,13 +2,14 @@
 
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Building } from '@/types/building'
 import { createClient } from '@/lib/supabase'
-import { Heart, Share2, Camera, MapPin, Calendar, User, Award, ChevronLeft, ChevronRight, Edit } from 'lucide-react'
+import { Heart, Share2, Camera, MapPin, Award, ChevronLeft, ChevronRight, Edit, Star } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { getStorageUrl } from '@/lib/storage'
+import toast from 'react-hot-toast'
 
 interface BuildingHeaderProps {
   building: Building
@@ -21,6 +22,12 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
   const { user, profile } = useAuth()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [favoriteLoading, setFavoriteLoading] = useState(false)
+
+  // Building rating state
+  const [buildingRating, setBuildingRating] = useState(0)
+  const [buildingRatingCount, setBuildingRatingCount] = useState(0)
+  const [userBuildingRating, setUserBuildingRating] = useState(0)
+  const [hoveredBuildingRating, setHoveredBuildingRating] = useState(0)
 
   // Проверяем права на редактирование
   const canEdit = user && (
@@ -47,6 +54,77 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
     originalImageUrls: building.image_urls,
     processedImages: images
   })
+
+  // Load building rating data
+  useEffect(() => {
+    const loadBuildingRating = async () => {
+      const { data } = await supabase
+        .from('building_ratings')
+        .select('rating')
+        .eq('building_id', building.id)
+
+      if (data && data.length > 0) {
+        const avg = data.reduce((sum, r) => sum + r.rating, 0) / data.length
+        setBuildingRating(avg)
+        setBuildingRatingCount(data.length)
+      }
+    }
+
+    const loadUserBuildingRating = async () => {
+      if (!user) return
+      const { data } = await supabase
+        .from('building_ratings')
+        .select('rating')
+        .eq('building_id', building.id)
+        .eq('user_id', user.id)
+        .single()
+
+      if (data) setUserBuildingRating(data.rating)
+    }
+
+    loadBuildingRating()
+    loadUserBuildingRating()
+  }, [building.id, user])
+
+  const handleRateBuilding = async (rating: number) => {
+    if (!user) {
+      toast.error('Sign in to rate this building')
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('building_ratings')
+        .upsert({
+          building_id: building.id,
+          user_id: user.id,
+          rating,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'building_id,user_id' })
+
+      if (error) throw error
+
+      const oldRating = userBuildingRating
+      setUserBuildingRating(rating)
+
+      if (oldRating > 0) {
+        const newAvg = buildingRatingCount > 0
+          ? (buildingRating * buildingRatingCount - oldRating + rating) / buildingRatingCount
+          : rating
+        setBuildingRating(newAvg)
+      } else {
+        const newCount = buildingRatingCount + 1
+        const newAvg = (buildingRating * buildingRatingCount + rating) / newCount
+        setBuildingRating(newAvg)
+        setBuildingRatingCount(newCount)
+      }
+
+      toast.success(`Rating ${rating}/5 saved!`)
+    } catch (error) {
+      console.error('Error rating building:', error)
+      toast.error('Error saving rating')
+    }
+  }
 
   const handleFavoriteToggle = async () => {
     if (!user) {
@@ -236,67 +314,50 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
               <h1 className="text-3xl lg:text-4xl font-bold font-display text-foreground mb-4">
                 {building.name}
               </h1>
-
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
-                {building.architect && (
-                  <div className="flex items-center">
-                    <User className="h-4 w-4 mr-1" />
-                    <span>{building.architect}</span>
-                  </div>
-                )}
-                
-                {building.year_built && (
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>{building.year_built}</span>
-                  </div>
-                )}
-                
-                {building.architectural_style && (
-                  <div className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium">
-                    {building.architectural_style}
-                  </div>
-                )}
-              </div>
             </div>
 
-            {/* Рейтинг и действия */}
-            <div className="flex items-center justify-between">
-              
-              {/* Рейтинг */}
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-1">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className={`h-5 w-5 ${
-                          i < Math.floor(building.rating || 0) ? 'fill-current' : 'fill-gray-200'
-                        }`}
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <span className="ml-2 text-lg font-semibold font-metrics text-foreground">
-                    {(building.rating || 0).toFixed(1)}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground font-metrics">
-                  {building.review_count || 0} {building.review_count === 1 ? 'review' : 'reviews'}
-                </p>
-              </div>
+            {/* Рейтинг */}
+            <div>
+              <div className="flex items-center mb-1">
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map(star => {
+                    const isActive = userBuildingRating >= star || (hoveredBuildingRating >= star && hoveredBuildingRating > 0)
+                    const isFilled = !hoveredBuildingRating && buildingRating >= star
 
-              {/* Кнопка написать обзор */}
-              <div>
-                <Link
-                  href={`/buildings/${building.id}/review/new`}
-                  className="inline-block bg-primary text-primary-foreground px-6 py-2 rounded-[var(--radius)] font-medium hover:bg-primary/90 transition-colors"
-                >
-                  Write Review
-                </Link>
+                    return (
+                      <button
+                        key={star}
+                        onClick={() => handleRateBuilding(star)}
+                        onMouseEnter={() => setHoveredBuildingRating(star)}
+                        onMouseLeave={() => setHoveredBuildingRating(0)}
+                        className="p-0.5 transition-transform hover:scale-110"
+                        title={`Rate ${star}/5`}
+                      >
+                        <Star
+                          className={`h-5 w-5 transition-colors ${
+                            isActive
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : isFilled
+                                ? 'fill-yellow-400/60 text-yellow-400/60'
+                                : 'text-muted-foreground/30'
+                          }`}
+                        />
+                      </button>
+                    )
+                  })}
+                </div>
+                {buildingRatingCount > 0 && (
+                  <span className="ml-2 text-lg font-semibold font-metrics text-foreground">
+                    {buildingRating.toFixed(1)}
+                  </span>
+                )}
               </div>
+              {(buildingRatingCount > 0 || userBuildingRating > 0) && (
+                <p className="text-sm text-muted-foreground font-metrics">
+                  {buildingRatingCount > 0 && `${buildingRatingCount} ${buildingRatingCount === 1 ? 'rating' : 'ratings'}`}
+                  {userBuildingRating > 0 && <span className="text-primary ml-2">Your: {userBuildingRating}/5</span>}
+                </p>
+              )}
             </div>
           </div>
         </div>

@@ -67,7 +67,7 @@ export default function ProfileBuildingsPage() {
         ...building,
         view_count: building.view_count || 0,
         review_count: building.review_count || 0,
-        avg_rating: building.rating || 0
+        avg_rating: Number(building.rating) || 0
       }))
 
       setBuildings(processedBuildings)

@@ -87,13 +87,13 @@ export default function PersonalRouteCreationModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 p-0 md:p-4">
+      <div className="bg-white rounded-t-2xl md:rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-900 flex items-center space-x-2">
+        <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200">
+          <h2 className="text-lg md:text-2xl font-semibold text-gray-900 flex items-center space-x-2">
             <span>📍</span>
-            <span>Создание личного маршрута</span>
+            <span>Create personal route</span>
           </h2>
           <button
             onClick={onClose}
@@ -104,16 +104,16 @@ export default function PersonalRouteCreationModal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
           {/* Список выбранных зданий */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-gray-900">
-                Выбрано зданий: {localBuildings.length}
+                Buildings selected: {localBuildings.length}
               </h3>
               {localBuildings.length > 1 && (
                 <p className="text-xs text-gray-500">
-                  💡 Перетащите для изменения порядка
+                  💡 Drag to reorder
                 </p>
               )}
             </div>
@@ -173,7 +173,7 @@ export default function PersonalRouteCreationModal({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Название маршрута <span className="text-red-500">*</span>
+                Route name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -185,23 +185,20 @@ export default function PersonalRouteCreationModal({
               />
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-800 flex items-center">
-                <span className="mr-2">ℹ️</span>
-                <span>Это личный маршрут, только для вас. Вы сможете отредактировать его позже.</span>
-              </p>
-            </div>
+            <p className="text-[11px] text-muted-foreground/60 text-center">
+              This is a personal route, visible only to you. You can edit it later.
+            </p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between p-4 md:p-6 border-t border-gray-200 bg-gray-50">
           <button
             onClick={onClose}
             className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             disabled={isSaving}
           >
-            Отменить
+            Cancel
           </button>
           <button
             onClick={handleSave}
@@ -211,12 +208,12 @@ export default function PersonalRouteCreationModal({
             {isSaving ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>Создание...</span>
+                <span>Creating...</span>
               </>
             ) : (
               <>
                 <span>💾</span>
-                <span>Создать</span>
+                <span>Create</span>
               </>
             )}
           </button>

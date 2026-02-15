@@ -16,6 +16,7 @@ interface ReviewData {
   user_id: string
   title: string
   content: string
+  language: string
   tags: string[] | null
   photos: string[] | null
   audio_url: string | null
@@ -29,9 +30,26 @@ interface ReviewData {
   }
 }
 
+const LANGUAGE_OPTIONS = [
+  { value: 'en', label: '🇬🇧 English' },
+  { value: 'ru', label: '🇷🇺 Русский' },
+  { value: 'de', label: '🇩🇪 Deutsch' },
+  { value: 'fr', label: '🇫🇷 Français' },
+  { value: 'es', label: '🇪🇸 Español' },
+  { value: 'it', label: '🇮🇹 Italiano' },
+  { value: 'uz', label: '🇺🇿 Oʻzbek' },
+  { value: 'tr', label: '🇹🇷 Türkçe' },
+  { value: 'ja', label: '🇯🇵 日本語' },
+  { value: 'ko', label: '🇰🇷 한국어' },
+  { value: 'zh', label: '🇨🇳 中文' },
+  { value: 'pt', label: '🇵🇹 Português' },
+  { value: 'ar', label: '🇸🇦 العربية' },
+]
+
 interface ReviewForm {
   title: string
   content: string
+  language: string
   tags: string[]
   existingPhotos: string[]
   newPhotos: File[]
@@ -54,6 +72,7 @@ export default function EditReviewPage() {
   const [form, setForm] = useState<ReviewForm>({
     title: '',
     content: '',
+    language: 'en',
     tags: [],
     existingPhotos: [],
     newPhotos: [],
@@ -85,6 +104,7 @@ export default function EditReviewPage() {
       }
 
       try {
+        // Fetch review without user_id filter — moderators/admins can edit any review
         const { data, error } = await supabase
           .from('building_reviews')
           .select(`
@@ -95,13 +115,21 @@ export default function EditReviewPage() {
             )
           `)
           .eq('id', reviewId)
-          .eq('user_id', user.id) // Только автор может редактировать
           .single()
 
         if (error) throw error
 
         if (!data) {
           toast.error('Review not found')
+          setLoading(false)
+          return
+        }
+
+        // Check permissions: only the author or moderator/admin can edit
+        const isAuthor = data.user_id === user.id
+        const isModOrAdmin = profile?.role === 'admin' || profile?.role === 'moderator'
+        if (!isAuthor && !isModOrAdmin) {
+          toast.error('You do not have permission to edit this review')
           setLoading(false)
           return
         }
@@ -113,6 +141,7 @@ export default function EditReviewPage() {
         setForm({
           title: data.title || '',
           content: data.content || '',
+          language: data.language || 'en',
           tags: data.tags || [],
           existingPhotos: data.photos || [],
           newPhotos: [],
@@ -131,7 +160,7 @@ export default function EditReviewPage() {
     }
 
     loadReview()
-  }, [reviewId, user, supabase, router])
+  }, [reviewId, user, profile, supabase, router])
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -236,27 +265,44 @@ export default function EditReviewPage() {
       // 3. Обновление обзора
       toast.loading('💾 Saving changes...')
 
+      const isModOrAdmin = profile?.role === 'admin' || profile?.role === 'moderator'
+
+      const updatePayload: Record<string, any> = {
+        title: form.title,
+        content: form.content,
+        language: form.language,
+        photos: allPhotos.length > 0 ? allPhotos : null,
+        audio_url: audioUrl,
+        audio_duration_seconds: audioDuration,
+        tags: form.tags.length > 0 ? form.tags : null,
+        updated_at: new Date().toISOString()
+      }
+
+      // Moderators keep the current moderation status; authors reset to pending
+      if (!isModOrAdmin) {
+        updatePayload.moderation_status = 'pending'
+        updatePayload.rejection_reason = null
+      }
+
       const { error } = await supabase
         .from('building_reviews')
-        .update({
-          title: form.title,
-          content: form.content,
-          photos: allPhotos.length > 0 ? allPhotos : null,
-          audio_url: audioUrl,
-          audio_duration_seconds: audioDuration,
-          tags: form.tags.length > 0 ? form.tags : null,
-          moderation_status: 'pending', // Сброс на повторную модерацию
-          rejection_reason: null, // Очистка причины отклонения
-          updated_at: new Date().toISOString()
-        })
+        .update(updatePayload)
         .eq('id', reviewId)
 
       if (error) throw error
 
-      toast.success('🎉 Review successfully updated and sent for moderation!')
+      if (isModOrAdmin) {
+        toast.success('Review successfully updated!')
+      } else {
+        toast.success('Review successfully updated and sent for moderation!')
+      }
 
-      // Редирект на страницу профиля
-      router.push('/profile/reviews')
+      // Redirect: moderators go back to moderation queue, authors to profile
+      if (isModOrAdmin) {
+        router.push('/admin/moderation')
+      } else {
+        router.push('/profile/reviews')
+      }
 
     } catch (error: any) {
       console.error('Error updating review:', error)
@@ -390,6 +436,27 @@ export default function EditReviewPage() {
               />
               <p className="text-xs text-gray-500 mt-1">
                 Minimum 50 characters. Current length: {form.content.length}
+              </p>
+            </div>
+
+            {/* Язык обзора */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                🌐 Review Language
+              </label>
+              <select
+                value={form.language}
+                onChange={(e) => setForm(prev => ({ ...prev, language: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                {LANGUAGE_OPTIONS.map(lang => (
+                  <option key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Select the language this review is written in
               </p>
             </div>
 

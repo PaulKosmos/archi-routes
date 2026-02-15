@@ -91,10 +91,10 @@ export default function RelatedBuildings({ buildings }: RelatedBuildingsProps) {
                       </div>
                     )}
 
-                    {building.rating && (
+                    {Number(building.rating) > 0 && (
                       <div className="flex items-center">
                         <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
-                        <span>{building.rating.toFixed(1)}</span>
+                        <span>{Number(building.rating).toFixed(1)}</span>
                       </div>
                     )}
                   </div>
@@ -139,7 +139,7 @@ export default function RelatedBuildings({ buildings }: RelatedBuildingsProps) {
           <button
             onClick={() => {
               // TODO: Реализовать создание маршрута из зданий статьи
-              alert('Функция создания маршрута будет реализована в следующих этапах!')
+              alert('Route creation feature coming soon!')
             }}
             className="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
           >

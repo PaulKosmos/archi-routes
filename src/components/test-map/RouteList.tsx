@@ -52,9 +52,9 @@ export default function RouteList({
 
   if (routes.length === 0) {
     return (
-      <div className="p-4">
+      <div className="p-1 md:p-4">
         <h3 className="font-medium font-display text-foreground mb-3">{title}</h3>
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-4 md:py-8 text-muted-foreground">
           <RouteIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
           <p>No routes found</p>
           <p className="text-sm">Try changing filters</p>
@@ -64,9 +64,9 @@ export default function RouteList({
   }
 
   return (
-    <div className="p-4">
+    <div className="p-1 md:p-4">
       {title && <h3 className="font-medium font-display text-foreground mb-3">{title}</h3>}
-      <div className={`space-y-2 overflow-y-auto ${maxHeight}`}>
+      <div className={`space-y-1.5 md:space-y-2 overflow-y-auto ${maxHeight}`}>
         {routes.map(route => {
           const isSelected = selectedRoute?.id === route.id
 

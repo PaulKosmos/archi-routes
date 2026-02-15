@@ -8,10 +8,13 @@ import { createClient } from '@/lib/supabase'
 import { Building, BuildingReviewWithProfile, RouteWithPoints } from '@/types/building'
 import BuildingHeader from '@/components/buildings/BuildingHeader'
 import BuildingReviews from '@/components/buildings/BuildingReviews'
-import { Loader2, MapPin, Clock, Users, Star, Camera, Navigation, Calendar, User, Building as BuildingIcon } from 'lucide-react'
+import { Loader2, MapPin, Clock, Users, Star, Camera, Navigation, Calendar, User, Building as BuildingIcon, Globe, ExternalLink, AlertTriangle, ShieldAlert } from 'lucide-react'
+import ImageLightbox from '@/components/ui/ImageLightbox'
 import Link from 'next/link'
 import { getStorageUrl } from '@/lib/storage'
 import BuildingNews from '@/components/news/BuildingNews'
+import { useAuth } from '@/hooks/useAuth'
+import toast from 'react-hot-toast'
 
 // Dynamic import for MapLibre component (migrated from Leaflet)
 const MapLibreBuildingMap = dynamic(() => import('@/components/buildings/MapLibreBuildingMap'), {
@@ -34,12 +37,22 @@ interface BuildingPageData {
 
 export default function BuildingDetailClient({ building }: BuildingDetailClientProps) {
   const supabase = useMemo(() => createClient(), [])
+  const { user, profile } = useAuth()
+  const isModerator = profile?.role === 'moderator' || profile?.role === 'admin'
   console.log('🏢 [DEBUG] BuildingDetailClient component rendered')
   console.log('🏢 [DEBUG] Building prop:', building)
 
   const [data, setData] = useState<BuildingPageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeReviewIndex, setActiveReviewIndex] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+
+  // Building rating state
+  const [buildingRating, setBuildingRating] = useState(0)
+  const [buildingRatingCount, setBuildingRatingCount] = useState(0)
+  const [userBuildingRating, setUserBuildingRating] = useState(0)
+  const [hoveredBuildingRating, setHoveredBuildingRating] = useState(0)
 
   console.log('🏢 [DEBUG] Component state - loading:', loading, 'data:', data)
 
@@ -60,24 +73,37 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
       // Execute ALL queries in PARALLEL without timeouts
       console.log('📊 [DEBUG] Executing 4 parallel queries...')
+      // Build reviews query: moderators see all reviews, others see only approved (+ own)
+      let reviewsQuery = supabase
+        .from('building_reviews')
+        .select(`
+          *,
+          profiles:user_id (
+            id,
+            username,
+            full_name,
+            display_name,
+            avatar_url,
+            role
+          )
+        `)
+        .eq('building_id', building.id)
+        .order('created_at', { ascending: false })
+
+      // Only filter by approved status for non-moderators
+      if (!isModerator) {
+        if (user) {
+          // Logged in non-moderator: see approved + own reviews
+          reviewsQuery = reviewsQuery.or(`moderation_status.eq.approved,user_id.eq.${user.id}`)
+        } else {
+          // Not logged in: only approved
+          reviewsQuery = reviewsQuery.eq('moderation_status', 'approved')
+        }
+      }
+
       const [reviewsResult, blogResult, routesResult, favoriteResult] = await Promise.allSettled([
-        // 1. Reviews (only approved for public viewing)
-        supabase
-          .from('building_reviews')
-          .select(`
-            *,
-            profiles:user_id (
-              id,
-              username,
-              full_name,
-              display_name,
-              avatar_url,
-              role
-            )
-          `)
-          .eq('building_id', building.id)
-          .eq('moderation_status', 'approved')
-          .order('created_at', { ascending: false }),
+        // 1. Reviews
+        reviewsQuery,
 
         // 2. Blog posts
         supabase
@@ -214,6 +240,128 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
     fetchBuildingData()
   }, [building.id])
 
+  // Load building rating data
+  useEffect(() => {
+    const loadBuildingRating = async () => {
+      const { data } = await supabase
+        .from('building_ratings')
+        .select('rating')
+        .eq('building_id', building.id)
+
+      if (data && data.length > 0) {
+        const avg = data.reduce((sum, r) => sum + r.rating, 0) / data.length
+        setBuildingRating(avg)
+        setBuildingRatingCount(data.length)
+      }
+    }
+
+    const loadUserBuildingRating = async () => {
+      if (!user) return
+      const { data } = await supabase
+        .from('building_ratings')
+        .select('rating')
+        .eq('building_id', building.id)
+        .eq('user_id', user.id)
+        .single()
+
+      if (data) setUserBuildingRating(data.rating)
+    }
+
+    loadBuildingRating()
+    loadUserBuildingRating()
+  }, [building.id, user])
+
+  const handleRateBuilding = async (rating: number) => {
+    if (!user) {
+      toast.error('Sign in to rate this building')
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('building_ratings')
+        .upsert({
+          building_id: building.id,
+          user_id: user.id,
+          rating,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'building_id,user_id' })
+
+      if (error) throw error
+
+      const oldRating = userBuildingRating
+      setUserBuildingRating(rating)
+
+      if (oldRating > 0) {
+        const newAvg = buildingRatingCount > 0
+          ? (buildingRating * buildingRatingCount - oldRating + rating) / buildingRatingCount
+          : rating
+        setBuildingRating(newAvg)
+      } else {
+        const newCount = buildingRatingCount + 1
+        const newAvg = (buildingRating * buildingRatingCount + rating) / newCount
+        setBuildingRating(newAvg)
+        setBuildingRatingCount(newCount)
+      }
+
+      toast.success(`Rating ${rating}/5 saved!`)
+    } catch (error) {
+      console.error('Error rating building:', error)
+      toast.error('Error saving rating')
+    }
+  }
+
+  const reviews = data?.reviews || []
+
+  // Unified gallery: building images + review photos, deduplicated
+  // Must be before early returns to satisfy Rules of Hooks
+  const allGalleryImages = useMemo(() => {
+    const seen = new Set<string>()
+    const images: { url: string; source: string }[] = []
+
+    // Main building image
+    if (building.image_url) {
+      const url = getStorageUrl(building.image_url, 'photos')
+      if (!seen.has(url)) {
+        seen.add(url)
+        images.push({ url, source: building.name })
+      }
+    }
+
+    // Additional building gallery images
+    if (building.image_urls && building.image_urls.length > 0) {
+      for (const imgUrl of building.image_urls) {
+        if (imgUrl) {
+          const url = getStorageUrl(imgUrl, 'photos')
+          if (!seen.has(url)) {
+            seen.add(url)
+            images.push({ url, source: building.name })
+          }
+        }
+      }
+    }
+
+    // Review photos
+    for (const review of reviews) {
+      if (review.photos && review.photos.length > 0) {
+        const authorName = review.profiles?.display_name || review.profiles?.full_name || review.profiles?.username || 'User'
+        for (const photo of review.photos) {
+          if (photo) {
+            const url = getStorageUrl(photo, 'photos')
+            if (!seen.has(url)) {
+              seen.add(url)
+              images.push({ url, source: `Photo by ${authorName}` })
+            }
+          }
+        }
+      }
+    }
+
+    return images
+  }, [building, reviews])
+
+  const galleryLightboxImages = useMemo(() => allGalleryImages.map(img => img.url), [allGalleryImages])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -242,10 +390,44 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
     )
   }
 
-  const { reviews, relatedBlogPosts, relatedRoutes, userFavorite } = data
+  const { relatedBlogPosts, relatedRoutes, userFavorite } = data
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Moderation status banner */}
+      {building.moderation_status && building.moderation_status !== 'approved' && (
+        <div className={`px-4 py-3 ${
+          building.moderation_status === 'rejected'
+            ? 'bg-red-50 border-b border-red-200'
+            : 'bg-amber-50 border-b border-amber-200'
+        }`}>
+          <div className="container mx-auto flex items-center gap-2">
+            {building.moderation_status === 'rejected' ? (
+              <>
+                <ShieldAlert className="h-5 w-5 text-red-600 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-red-800">
+                    This building has been rejected by moderation
+                  </p>
+                  {(building as any).rejection_reason && (
+                    <p className="text-sm text-red-700 mt-0.5">
+                      Reason: {(building as any).rejection_reason}
+                    </p>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0" />
+                <p className="text-sm font-medium text-amber-800">
+                  This building is pending moderation review
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Hero section with main information */}
       <BuildingHeader
         building={building}
@@ -281,34 +463,37 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
               </div>
             )}
 
-            {/* Gallery */}
-            {building.image_urls && building.image_urls.length > 0 && (
+            {/* Unified Gallery - horizontal carousel */}
+            {allGalleryImages.length > 0 && (
               <div className="bg-card border border-border rounded-[var(--radius)] p-6">
-                <h2 className="text-xl font-display font-bold mb-4 text-foreground">Gallery</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {building.image_urls.map((imageUrl, index) => (
-                    <div key={index} className="aspect-square overflow-hidden rounded-[var(--radius)] group relative bg-muted">
+                <h2 className="text-xl font-display font-bold mb-4 text-foreground">
+                  Gallery ({allGalleryImages.length})
+                </h2>
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+                  {allGalleryImages.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setLightboxIndex(index)
+                        setLightboxOpen(true)
+                      }}
+                      className="flex-shrink-0 w-40 h-40 overflow-hidden rounded-[var(--radius)] group relative bg-muted cursor-pointer"
+                    >
                       <img
-                        src={getStorageUrl(imageUrl, 'photos')}
+                        src={image.url}
                         alt={`${building.name} - photo ${index + 1}`}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-200 opacity-0"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                         loading="lazy"
                         onError={(e) => {
-                          console.error('🖼️ Gallery image loading error:', imageUrl)
                           const target = e.target as HTMLImageElement
                           target.style.display = 'none'
                         }}
-                        onLoad={(e) => {
-                          console.log('✅ Gallery image loaded:', imageUrl)
-                          const target = e.target as HTMLImageElement
-                          target.classList.remove('opacity-0')
-                          target.classList.add('opacity-100')
-                        }}
                       />
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-8 h-8 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin"></div>
+                      {/* Source label overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-2 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-white text-xs truncate block">{image.source}</span>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -409,18 +594,48 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
             <div className="bg-card rounded-[var(--radius)] border border-border p-6">
               <h3 className="text-lg font-semibold font-display mb-4 text-foreground">About the Building</h3>
 
-              {/* Statistics */}
-              <div className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-border">
-                <div className="text-center">
-                  <div className="flex items-center justify-center mb-1">
-                    <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                    <span className="text-lg font-bold font-metrics text-foreground">{(building.rating || 0).toFixed(1)}</span>
+              {/* Rating + Views */}
+              <div className="mb-6 pb-6 border-b border-border space-y-3">
+                <div>
+                  <div className="flex items-center gap-1 mb-1">
+                    {[1, 2, 3, 4, 5].map(star => {
+                      const isActive = userBuildingRating >= star || (hoveredBuildingRating >= star && hoveredBuildingRating > 0)
+                      const isFilled = !hoveredBuildingRating && buildingRating >= star
+
+                      return (
+                        <button
+                          key={star}
+                          onClick={() => handleRateBuilding(star)}
+                          onMouseEnter={() => setHoveredBuildingRating(star)}
+                          onMouseLeave={() => setHoveredBuildingRating(0)}
+                          className="p-0.5 transition-transform hover:scale-110"
+                          title={`Rate ${star}/5`}
+                        >
+                          <Star
+                            className={`h-5 w-5 transition-colors ${
+                              isActive
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : isFilled
+                                  ? 'fill-yellow-400/60 text-yellow-400/60'
+                                  : 'text-muted-foreground/30'
+                            }`}
+                          />
+                        </button>
+                      )
+                    })}
+                    {buildingRatingCount > 0 && (
+                      <span className="ml-1 text-lg font-bold font-metrics text-foreground">{buildingRating.toFixed(1)}</span>
+                    )}
                   </div>
-                  <span className="text-sm text-muted-foreground font-metrics">{building.review_count || 0} reviews</span>
+                  {(buildingRatingCount > 0 || userBuildingRating > 0) && (
+                    <span className="text-sm text-muted-foreground font-metrics">
+                      {buildingRatingCount > 0 && `${buildingRatingCount} ${buildingRatingCount === 1 ? 'rating' : 'ratings'}`}
+                      {userBuildingRating > 0 && <span className="text-primary ml-2">Your: {userBuildingRating}/5</span>}
+                    </span>
+                  )}
                 </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold font-metrics text-foreground mb-1">{(building.view_count || 0) + 1}</div>
-                  <span className="text-sm text-muted-foreground">views</span>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <span className="font-bold font-metrics text-foreground mr-1">{(building.view_count || 0) + 1}</span> views
                 </div>
               </div>
 
@@ -488,6 +703,48 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
                 )}
 
               </div>
+
+              {/* Visitor Information (merged) */}
+              {(building.entry_fee || building.website_url || building.best_visit_time || building.accessibility_info) && (
+                <>
+                  <div className="border-t border-border my-4" />
+                  <h4 className="text-sm font-semibold font-display text-muted-foreground uppercase tracking-wide mb-3">Visitor Information</h4>
+                  <div className="space-y-3">
+                    {building.entry_fee && (
+                      <div>
+                        <span className="text-sm text-muted-foreground block">Entry Fee</span>
+                        <p className="font-medium text-foreground">{building.entry_fee}</p>
+                      </div>
+                    )}
+                    {building.website_url && (
+                      <div>
+                        <span className="text-sm text-muted-foreground block">Website</span>
+                        <a
+                          href={building.website_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1"
+                        >
+                          Open Website
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </div>
+                    )}
+                    {building.best_visit_time && (
+                      <div>
+                        <span className="text-sm text-muted-foreground block">Best Time to Visit</span>
+                        <p className="font-medium text-foreground">{building.best_visit_time}</p>
+                      </div>
+                    )}
+                    {building.accessibility_info && (
+                      <div>
+                        <span className="text-sm text-muted-foreground block">Accessibility</span>
+                        <p className="font-medium text-foreground">{building.accessibility_info}</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Map - MapLibre */}
@@ -500,51 +757,6 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
                 className="h-64"
               />
             </div>
-
-            {/* Useful information */}
-            {(building.entry_fee || building.opening_hours || building.website_url || building.best_visit_time) && (
-              <div className="bg-card rounded-[var(--radius)] border border-border p-6">
-                <h3 className="text-lg font-semibold font-display mb-4 text-foreground">Visitor Information</h3>
-                <div className="space-y-3">
-
-                  {building.entry_fee && (
-                    <div>
-                      <span className="text-sm text-muted-foreground block">Entry Fee</span>
-                      <p className="font-medium text-foreground">{building.entry_fee}</p>
-                    </div>
-                  )}
-
-                  {building.website_url && (
-                    <div>
-                      <span className="text-sm text-muted-foreground block">Website</span>
-                      <a
-                        href={building.website_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-medium text-primary hover:text-primary/80 transition-colors"
-                      >
-                        Open Website
-                      </a>
-                    </div>
-                  )}
-
-                  {building.best_visit_time && (
-                    <div>
-                      <span className="text-sm text-muted-foreground block">Best Time to Visit</span>
-                      <p className="font-medium text-foreground">{building.best_visit_time}</p>
-                    </div>
-                  )}
-
-                  {building.accessibility_info && (
-                    <div>
-                      <span className="text-sm text-muted-foreground block">Accessibility</span>
-                      <p className="font-medium text-foreground">{building.accessibility_info}</p>
-                    </div>
-                  )}
-
-                </div>
-              </div>
-            )}
 
             {/* News about this building */}
             <BuildingNews
@@ -574,6 +786,14 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
           </div>
         </div>
       </div>
+
+      {/* Image Lightbox */}
+      <ImageLightbox
+        images={galleryLightboxImages}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </div>
   )
 }

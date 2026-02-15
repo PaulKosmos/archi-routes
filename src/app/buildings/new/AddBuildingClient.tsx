@@ -184,7 +184,7 @@ export default function AddBuildingClient() {
         },
         (error) => {
           console.error('Ошибка получения геолокации:', error)
-          alert('Не удалось получить текущее местоположение. Проверьте разрешения браузера.')
+          alert('Could not get current location. Check browser permissions.')
         },
         {
           enableHighAccuracy: true,
@@ -193,7 +193,7 @@ export default function AddBuildingClient() {
         }
       )
     } else {
-      alert('Геолокация не поддерживается браузером')
+      alert('Geolocation is not supported by your browser')
     }
   }
 
@@ -240,7 +240,7 @@ export default function AddBuildingClient() {
       setIsRecording(true)
     } catch (error) {
       console.error('Ошибка начала записи:', error)
-      alert('Не удалось начать запись. Проверьте разрешения микрофона.')
+      alert('Could not start recording. Check microphone permissions.')
     }
   }
 
@@ -271,7 +271,7 @@ export default function AddBuildingClient() {
     const validFiles = filesToAdd.filter(file => file.size <= 5 * 1024 * 1024)
 
     if (validFiles.length !== filesToAdd.length) {
-      alert('Некоторые файлы превышают лимит в 5 МБ')
+      alert('Some files exceed the 5 MB limit')
     }
 
     setBuildingPhotoFiles(prev => [...prev, ...validFiles])
@@ -299,7 +299,7 @@ export default function AddBuildingClient() {
     const validFiles = filesToAdd.filter(file => file.size <= 5 * 1024 * 1024)
 
     if (validFiles.length !== filesToAdd.length) {
-      alert('Некоторые файлы превышают лимит в 5 МБ')
+      alert('Some files exceed the 5 MB limit')
     }
 
     setReviewPhotoFiles(prev => [...prev, ...validFiles])
@@ -347,19 +347,19 @@ export default function AddBuildingClient() {
   // Валидация шага 1 (здание)
   const validateBuildingData = () => {
     if (!buildingData.name.trim()) {
-      alert('Введите название здания')
+      alert('Enter building name')
       return false
     }
     if (!buildingData.address.trim()) {
-      alert('Введите адрес здания')
+      alert('Enter building address')
       return false
     }
     if (!buildingData.city.trim()) {
-      alert('Введите город')
+      alert('Enter city')
       return false
     }
     if (buildingData.latitude === 0 || buildingData.longitude === 0) {
-      alert('Укажите координаты здания на карте')
+      alert('Select building coordinates on the map')
       return false
     }
     return true
@@ -380,7 +380,7 @@ export default function AddBuildingClient() {
 
     if (!user) {
       console.error('❌ Пользователь не авторизован')
-      alert('Необходима авторизация')
+      alert('Authentication required')
       return
     }
 
@@ -390,7 +390,7 @@ export default function AddBuildingClient() {
     // Проверяем обзор только если пользователь выбрал его создавать
     if (createReview && (reviewData.rating === 0 || !reviewData.title.trim())) {
       console.error('❌ Валидация обзора не пройдена')
-      alert('Для создания обзора укажите рейтинг и заголовок')
+      alert('To create a review, provide a rating and title')
       return
     }
 
@@ -584,7 +584,7 @@ export default function AddBuildingClient() {
             code: reviewError.code
           })
           // Не прерываем выполнение, так как здание уже создано
-          alert('Здание создано, но произошла ошибка при создании обзора. Вы можете добавить обзор позже.')
+          alert('Building created, but there was an error creating the review. You can add a review later.')
         } else {
           console.log('✅ Обзор создан успешно! ID:', reviewResult?.id)
         }

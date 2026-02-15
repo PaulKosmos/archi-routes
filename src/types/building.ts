@@ -75,6 +75,9 @@ export interface BuildingReview {
   // Практическая информация
   opening_hours?: string
   entry_fee?: string
+  // Moderation
+  moderation_status?: 'pending' | 'approved' | 'rejected'
+  rejection_reason?: string
 }
 
 export interface BuildingReviewWithProfile extends BuildingReview {

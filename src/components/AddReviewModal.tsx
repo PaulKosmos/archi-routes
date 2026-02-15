@@ -18,10 +18,27 @@ interface AddReviewModalProps {
 interface ReviewForm {
   title: string
   content: string
+  language: string
   tags: string[]
   photos: File[]
   audio: File | null
 }
+
+const LANGUAGE_OPTIONS = [
+  { value: 'en', label: '🇬🇧 English' },
+  { value: 'ru', label: '🇷🇺 Русский' },
+  { value: 'de', label: '🇩🇪 Deutsch' },
+  { value: 'fr', label: '🇫🇷 Français' },
+  { value: 'es', label: '🇪🇸 Español' },
+  { value: 'it', label: '🇮🇹 Italiano' },
+  { value: 'uz', label: '🇺🇿 Oʻzbek' },
+  { value: 'tr', label: '🇹🇷 Türkçe' },
+  { value: 'ja', label: '🇯🇵 日本語' },
+  { value: 'ko', label: '🇰🇷 한국어' },
+  { value: 'zh', label: '🇨🇳 中文' },
+  { value: 'pt', label: '🇵🇹 Português' },
+  { value: 'ar', label: '🇸🇦 العربية' },
+]
 
 export default function AddReviewModal({
   isOpen,
@@ -35,6 +52,7 @@ export default function AddReviewModal({
   const [form, setForm] = useState<ReviewForm>({
     title: '',
     content: '',
+    language: 'en',
     tags: [],
     photos: [],
     audio: null
@@ -120,7 +138,7 @@ export default function AddReviewModal({
       if (form.photos.length > 0) {
         toast.loading('📷 Uploading photos...')
         const uploadPromises = form.photos.map(async photo => {
-          const result = await uploadImage(photo, 'buildings/gallery', user.id)
+          const result = await uploadImage(photo, 'reviews', user.id)
           return result.path // Return only path, not object
         })
         photoUrls = await Promise.all(uploadPromises)
@@ -157,7 +175,7 @@ export default function AddReviewModal({
         .insert({
           building_id: building.id,
           user_id: user.id,
-          rating: 5, // Значение по умолчанию (не используется, рейтинг от пользователей)
+          rating: null,
           title: form.title,
           content: form.content,
           review_type: reviewType,
@@ -167,25 +185,33 @@ export default function AddReviewModal({
           tags: form.tags.length > 0 ? form.tags : null,
           is_verified: false,
           is_featured: false,
-          language: 'ru'
+          language: form.language,
+          original_language: form.language
         })
 
       if (error) throw error
 
-      // 4. Обновление счетчика обзоров
+      // 4. Update review count
+      const { data: buildingData } = await supabase
+        .from('buildings')
+        .select('review_count')
+        .eq('id', building.id)
+        .single()
+
       await supabase
         .from('buildings')
         .update({
-          review_count: supabase.rpc('increment', { row_id: building.id, increment_by: 1 })
+          review_count: (buildingData?.review_count || 0) + 1
         })
         .eq('id', building.id)
 
-      toast.success('🎉 Review successfully created!')
+      toast.success('Review submitted! It will be visible after moderation review.')
 
       // Очистка формы
       setForm({
         title: '',
         content: '',
+        language: 'en',
         tags: [],
         photos: [],
         audio: null
@@ -280,225 +306,243 @@ export default function AddReviewModal({
 
             {/* Заголовок */}
             <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Review Title *
-                        </label>
-                        <input
-                          type="text"
-                          value={form.title}
-                          onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
-                          placeholder="Brief description of your impression"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          maxLength={100}
-                          required
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          {form.title.length}/100 characters
-                        </p>
-                      </div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Review Title *
+              </label>
+              <input
+                type="text"
+                value={form.title}
+                onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="Brief description of your impression"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                maxLength={100}
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {form.title.length}/100 characters
+              </p>
+            </div>
 
-                      {/* Текст обзора */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Review Text *
-                        </label>
-                        <textarea
-                          value={form.content}
-                          onChange={(e) => setForm(prev => ({ ...prev, content: e.target.value }))}
-                          placeholder="Share your impressions about the architecture, history, atmosphere of the place..."
-                          rows={6}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
-                          required
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Minimum 50 characters. Current length: {form.content.length}
-                        </p>
-                      </div>
+            {/* Текст обзора */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Review Text *
+              </label>
+              <textarea
+                value={form.content}
+                onChange={(e) => setForm(prev => ({ ...prev, content: e.target.value }))}
+                placeholder="Share your impressions about the architecture, history, atmosphere of the place..."
+                rows={6}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Minimum 50 characters. Current length: {form.content.length}
+              </p>
+            </div>
 
-                      {/* Фотографии */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Photos (2-3 recommended for full review)
-                        </label>
+            {/* Язык обзора */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                🌐 Review Language
+              </label>
+              <select
+                value={form.language}
+                onChange={(e) => setForm(prev => ({ ...prev, language: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                {LANGUAGE_OPTIONS.map(lang => (
+                  <option key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                        {form.photos.length < 5 && (
-                          <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 cursor-pointer transition-all">
-                            <div className="text-center">
-                              <Camera className="h-6 w-6 text-gray-400 mx-auto mb-1" />
-                              <span className="text-sm text-gray-600">
-                                Upload photo (max. 5)
-                              </span>
-                            </div>
-                            <input
-                              type="file"
-                              multiple
-                              accept="image/*"
-                              onChange={handlePhotoChange}
-                              className="hidden"
-                            />
-                          </label>
-                        )}
+            {/* Фотографии */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Photos (2-3 recommended for full review)
+              </label>
 
-                        {form.photos.length > 0 && (
-                          <div className="grid grid-cols-3 gap-3 mt-3">
-                            {form.photos.map((photo, index) => (
-                              <div key={index} className="relative group">
-                                <img
-                                  src={URL.createObjectURL(photo)}
-                                  alt={`Photo ${index + 1}`}
-                                  className="w-full h-24 object-cover rounded-lg"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => removePhoto(index)}
-                                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <X className="h-3 w-3" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Аудио */}
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <label className="block text-sm font-medium text-gray-700">
-                            Audio Commentary (optional)
-                          </label>
-                          <span className="text-xs text-purple-600 font-medium">
-                            🎧 Increases priority
-                          </span>
-                        </div>
-
-                        {!form.audio ? (
-                          <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 cursor-pointer transition-all">
-                            <FileAudio className="h-6 w-6 text-purple-500 mb-1" />
-                            <span className="text-sm font-medium text-gray-700">Upload audio file</span>
-                            <span className="text-xs text-gray-500">MP3, WAV, M4A (max. 50 MB)</span>
-                            <input
-                              type="file"
-                              accept="audio/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) {
-                                  if (file.size > 50 * 1024 * 1024) {
-                                    toast.error('Maximum file size: 50 MB')
-                                    return
-                                  }
-                                  setForm(prev => ({ ...prev, audio: file }))
-                                }
-                              }}
-                              className="hidden"
-                            />
-                          </label>
-                        ) : (
-                          <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center">
-                                <FileAudio className="h-5 w-5 text-green-600 mr-3" />
-                                <div>
-                                  <span className="text-sm font-medium text-green-700 block">
-                                    {form.audio.name}
-                                  </span>
-                                  <span className="text-xs text-gray-500">
-                                    {(form.audio.size / 1024 / 1024).toFixed(2)} MB
-                                  </span>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => setForm(prev => ({ ...prev, audio: null }))}
-                                className="flex items-center bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
-                              >
-                                <X className="h-4 w-4 mr-1" />
-                                Remove
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Теги */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Tags (optional)
-                        </label>
-                        <div className="flex space-x-2 mb-3">
-                          <input
-                            type="text"
-                            value={currentTag}
-                            onChange={(e) => setCurrentTag(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                            placeholder="modernism, restoration, accessibility..."
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                          <button
-                            type="button"
-                            onClick={addTag}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                          >
-                            <Tag className="h-4 w-4" />
-                          </button>
-                        </div>
-
-                        {form.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {form.tags.map((tag, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
-                              >
-                                #{tag}
-                                <button
-                                  type="button"
-                                  onClick={() => removeTag(tag)}
-                                  className="ml-1 text-blue-600 hover:text-blue-800"
-                                >
-                                  <X className="h-3 w-3" />
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </form>
+              {form.photos.length < 5 && (
+                <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 cursor-pointer transition-all">
+                  <div className="text-center">
+                    <Camera className="h-6 w-6 text-gray-400 mx-auto mb-1" />
+                    <span className="text-sm text-gray-600">
+                      Upload photo (max. 5)
+                    </span>
                   </div>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
 
-                  {/* Footer */}
-                  <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
-                    <button
-                      onClick={onClose}
-                      className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                      disabled={isSubmitting}
-                    >
-                      Cancel
-                    </button>
+              {form.photos.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 mt-3">
+                  {form.photos.map((photo, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(photo)}
+                        alt={`Photo ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
+            {/* Аудио */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Audio Commentary (optional)
+                </label>
+                <span className="text-xs text-purple-600 font-medium">
+                  🎧 Increases priority
+                </span>
+              </div>
+
+              {!form.audio ? (
+                <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 cursor-pointer transition-all">
+                  <FileAudio className="h-6 w-6 text-purple-500 mb-1" />
+                  <span className="text-sm font-medium text-gray-700">Upload audio file</span>
+                  <span className="text-xs text-gray-500">MP3, WAV, M4A (max. 50 MB)</span>
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        if (file.size > 50 * 1024 * 1024) {
+                          toast.error('Maximum file size: 50 MB')
+                          return
+                        }
+                        setForm(prev => ({ ...prev, audio: file }))
+                      }
+                    }}
+                    className="hidden"
+                  />
+                </label>
+              ) : (
+                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <FileAudio className="h-5 w-5 text-green-600 mr-3" />
+                      <div>
+                        <span className="text-sm font-medium text-green-700 block">
+                          {form.audio.name}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {(form.audio.size / 1024 / 1024).toFixed(2)} MB
+                        </span>
+                      </div>
+                    </div>
                     <button
-                      onClick={handleSubmit}
-                      disabled={isSubmitting || !form.title.trim() || form.content.length < 50}
-                      className={`px-6 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 ${isFullReview()
-                        ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg hover:shadow-xl'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                        }`}
+                      type="button"
+                      onClick={() => setForm(prev => ({ ...prev, audio: null }))}
+                      className="flex items-center bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Creating...</span>
-                        </>
-                      ) : (
-                        <>
-                          {isFullReview() && <span className="text-xl">⭐</span>}
-                          <span>{isFullReview() ? 'Publish Full Review' : 'Publish Review'}</span>
-                        </>
-                      )}
+                      <X className="h-4 w-4 mr-1" />
+                      Remove
                     </button>
                   </div>
                 </div>
+              )}
+            </div>
+
+            {/* Теги */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tags (optional)
+              </label>
+              <div className="flex space-x-2 mb-3">
+                <input
+                  type="text"
+                  value={currentTag}
+                  onChange={(e) => setCurrentTag(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  placeholder="modernism, restoration, accessibility..."
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  type="button"
+                  onClick={addTag}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Tag className="h-4 w-4" />
+                </button>
               </div>
-            )
+
+              {form.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {form.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
+                    >
+                      #{tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(tag)}
+                        className="ml-1 text-blue-600 hover:text-blue-800"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            disabled={isSubmitting}
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting || !form.title.trim() || form.content.length < 50}
+            className={`px-6 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 ${isFullReview()
+              ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg hover:shadow-xl'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
+          >
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Creating...</span>
+              </>
+            ) : (
+              <>
+                {isFullReview() && <span className="text-xl">⭐</span>}
+                <span>{isFullReview() ? 'Publish Full Review' : 'Publish Review'}</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 

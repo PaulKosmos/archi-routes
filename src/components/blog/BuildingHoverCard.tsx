@@ -174,10 +174,10 @@ export default function BuildingHoverCard({
                 )}
               </div>
 
-              {building.rating && (
+              {Number(building.rating) > 0 && (
                 <div className="flex items-center">
                   <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
-                  <span>{building.rating.toFixed(1)}</span>
+                  <span>{Number(building.rating).toFixed(1)}</span>
                   <span className="text-gray-400 ml-1">из 5</span>
                 </div>
               )}

@@ -257,7 +257,7 @@ export default function RouteEditClient({
 
   // Удаление маршрута
   const deleteRoute = async () => {
-    if (!confirm('Вы уверены, что хотите удалить этот маршрут? Это действие необратимо.')) {
+    if (!confirm('Are you sure you want to delete this route? This action cannot be undone.')) {
       return
     }
 
@@ -270,7 +270,7 @@ export default function RouteEditClient({
         .eq('route_id', route.id)
 
       if (pointsError) {
-        throw new Error(`Ошибка удаления точек: ${pointsError.message}`)
+        throw new Error(`Error deleting route points: ${pointsError.message}`)
       }
 
       // Затем удаляем сам маршрут
@@ -280,11 +280,11 @@ export default function RouteEditClient({
         .eq('id', route.id)
 
       if (routeError) {
-        throw new Error(`Ошибка удаления маршрута: ${routeError.message}`)
+        throw new Error(`Error deleting route: ${routeError.message}`)
       }
 
       // Успешное удаление - перенаправляем на главную
-      alert('✅ Маршрут успешно удален')
+      alert('Route deleted successfully')
       router.push('/test-map')
 
     } catch (error: any) {

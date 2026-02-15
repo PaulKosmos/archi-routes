@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { BuildingReviewWithProfile } from '@/types/building'
-import { Star, Headphones, CheckCircle, Award, Calendar, ChevronDown, ChevronUp, ThumbsUp } from 'lucide-react'
+import { Star, Headphones, CheckCircle, Award, Calendar, ChevronDown, ChevronUp, Pencil, Globe } from 'lucide-react'
 import { getStorageUrl } from '@/lib/storage'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
@@ -17,26 +17,62 @@ interface BuildingReviewsListProps {
   onOpenAddReview?: () => void
 }
 
+const LANGUAGE_LABELS: Record<string, string> = {
+  en: '🇬🇧 English',
+  ru: '🇷🇺 Русский',
+  de: '🇩🇪 Deutsch',
+  fr: '🇫🇷 Français',
+  es: '🇪🇸 Español',
+  it: '🇮🇹 Italiano',
+  uz: '🇺🇿 Oʻzbek',
+  tr: '🇹🇷 Türkçe',
+  ja: '🇯🇵 日本語',
+  ko: '🇰🇷 한국어',
+  zh: '🇨🇳 中文',
+  pt: '🇵🇹 Português',
+  ar: '🇸🇦 العربية',
+}
+
 export default function BuildingReviewsList({
   reviews,
   buildingId,
   onOpenAddReview
 }: BuildingReviewsListProps) {
   const supabase = useMemo(() => createClient(), [])
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [expandedReviews, setExpandedReviews] = useState<Set<string>>(new Set())
   const [userRatings, setUserRatings] = useState<Map<string, number>>(new Map())
-  const [helpfulVotes, setHelpfulVotes] = useState<Set<string>>(new Set())
   const [hoveredRating, setHoveredRating] = useState<{ reviewId: string, rating: number } | null>(null)
+  const [localReviews, setLocalReviews] = useState<BuildingReviewWithProfile[]>(reviews)
   const [lightboxImages, setLightboxImages] = useState<string[]>([])
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('all')
+
+  // Compute available languages from reviews
+  const availableLanguages = useMemo(() => {
+    const langs = new Set<string>()
+    reviews.forEach(r => {
+      if (r.language) langs.add(r.language)
+    })
+    return Array.from(langs).sort()
+  }, [reviews])
+
+  // Filter reviews by selected language
+  const filteredReviews = useMemo(() => {
+    if (selectedLanguage === 'all') return localReviews
+    return localReviews.filter(r => r.language === selectedLanguage)
+  }, [localReviews, selectedLanguage])
+
+  // Sync localReviews when reviews prop changes
+  useEffect(() => {
+    setLocalReviews(reviews)
+  }, [reviews])
 
   // Загрузка оценок пользователя
   useEffect(() => {
     if (user && reviews.length > 0) {
       loadUserRatings()
-      loadHelpfulVotes()
     }
   }, [user, reviews])
 
@@ -59,24 +95,6 @@ export default function BuildingReviewsList({
     }
   }
 
-  const loadHelpfulVotes = async () => {
-    if (!user) return
-
-    try {
-      const { data } = await supabase
-        .from('review_helpful_votes')
-        .select('review_id')
-        .eq('user_id', user.id)
-        .in('review_id', reviews.map(r => r.id))
-
-      if (data) {
-        setHelpfulVotes(new Set(data.map(v => v.review_id)))
-      }
-    } catch (error) {
-      console.error('Error loading helpful votes:', error)
-    }
-  }
-
   const handleRateReview = async (reviewId: string, rating: number) => {
     if (!user) {
       toast.error('Sign in to rate this review')
@@ -84,21 +102,64 @@ export default function BuildingReviewsList({
     }
 
     try {
-      // Upsert рейтинга
-      await supabase
-        .from('building_review_ratings')
-        .upsert({
-          review_id: reviewId,
-          user_id: user.id,
-          rating: rating
-        }, {
-          onConflict: 'review_id,user_id'
-        })
+      // Check if user already has a rating for this review
+      const existingRating = userRatings.get(reviewId)
 
+      if (existingRating) {
+        // Update existing rating
+        const { error } = await supabase
+          .from('building_review_ratings')
+          .update({ rating, updated_at: new Date().toISOString() })
+          .eq('review_id', reviewId)
+          .eq('user_id', user.id)
+
+        if (error) {
+          console.error('Error updating review rating:', error.message, error.code, error.details)
+          toast.error(`Error saving rating: ${error.message}`)
+          return
+        }
+      } else {
+        // Insert new rating
+        const { error } = await supabase
+          .from('building_review_ratings')
+          .insert({
+            review_id: reviewId,
+            user_id: user.id,
+            rating
+          })
+
+        if (error) {
+          console.error('Error inserting review rating:', error.message, error.code, error.details)
+          toast.error(`Error saving rating: ${error.message}`)
+          return
+        }
+      }
+
+      const oldRating = userRatings.get(reviewId)
       setUserRatings(prev => new Map(prev).set(reviewId, rating))
-      toast.success(`⭐ Rating ${rating}/5 saved!`)
-    } catch (error) {
-      console.error('Error rating review:', error)
+
+      // Update local review's avg/count to reflect immediately in UI
+      setLocalReviews(prev => prev.map(r => {
+        if (r.id !== reviewId) return r
+        const oldAvg = r.user_rating_avg || 0
+        const oldCount = r.user_rating_count || 0
+        let newCount: number
+        let newAvg: number
+        if (oldRating) {
+          // Updating existing rating
+          newCount = oldCount
+          newAvg = oldCount > 0 ? (oldAvg * oldCount - oldRating + rating) / oldCount : rating
+        } else {
+          // New rating
+          newCount = oldCount + 1
+          newAvg = (oldAvg * oldCount + rating) / newCount
+        }
+        return { ...r, user_rating_avg: newAvg, user_rating_count: newCount }
+      }))
+
+      toast.success(`Rating ${rating}/5 saved!`)
+    } catch (error: any) {
+      console.error('Error rating review:', error?.message || JSON.stringify(error))
       toast.error('Error saving rating')
     }
   }
@@ -107,44 +168,6 @@ export default function BuildingReviewsList({
     setLightboxImages(photos.map(p => getStorageUrl(p, 'photos')))
     setLightboxIndex(index)
     setIsLightboxOpen(true)
-  }
-
-  const handleToggleHelpful = async (reviewId: string) => {
-    if (!user) {
-      toast.error('Sign in to rate')
-      return
-    }
-
-    try {
-      const isHelpful = helpfulVotes.has(reviewId)
-
-      if (isHelpful) {
-        await supabase
-          .from('review_helpful_votes')
-          .delete()
-          .eq('review_id', reviewId)
-          .eq('user_id', user.id)
-
-        setHelpfulVotes(prev => {
-          const newSet = new Set(prev)
-          newSet.delete(reviewId)
-          return newSet
-        })
-      } else {
-        await supabase
-          .from('review_helpful_votes')
-          .insert({
-            review_id: reviewId,
-            user_id: user.id
-          })
-
-        setHelpfulVotes(prev => new Set(prev).add(reviewId))
-        toast.success('👍 Marked as helpful!')
-      }
-    } catch (error) {
-      console.error('Error toggling helpful:', error)
-      toast.error('Error')
-    }
   }
 
   const toggleExpanded = (reviewId: string) => {
@@ -196,8 +219,31 @@ export default function BuildingReviewsList({
 
   return (
     <div className="space-y-3 md:space-y-4">
-      {/* Список обзоров */}
-      {reviews.map(review => {
+      {/* Language filter dropdown */}
+      {availableLanguages.length > 1 && (
+        <div className="flex items-center justify-end gap-2 pb-1">
+          <Globe className="w-4 h-4 text-gray-400" />
+          <select
+            value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(e.target.value)}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer appearance-none pr-8"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em' }}
+          >
+            <option value="all">All languages ({reviews.length})</option>
+            {availableLanguages.map(lang => {
+              const count = reviews.filter(r => r.language === lang).length
+              return (
+                <option key={lang} value={lang}>
+                  {LANGUAGE_LABELS[lang] || lang.toUpperCase()} ({count})
+                </option>
+              )
+            })}
+          </select>
+        </div>
+      )}
+
+      {/* Reviews list */}
+      {filteredReviews.map(review => {
         const isExpanded = expandedReviews.has(review.id)
         const userRating = userRatings.get(review.id) || 0
         const avgRating = review.user_rating_avg || 0
@@ -278,6 +324,17 @@ export default function BuildingReviewsList({
                   <span className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs font-medium">
                     👨‍🎓 Expert
                   </span>
+                )}
+
+                {/* Edit button for author/admin */}
+                {user && (user.id === review.user_id || profile?.role === 'admin' || profile?.role === 'moderator') && (
+                  <Link
+                    href={`/buildings/${buildingId}/review/${review.id}/edit`}
+                    className="flex items-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 p-1.5 rounded transition-colors"
+                    title="Edit review"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Link>
                 )}
               </div>
             </div>
@@ -399,19 +456,6 @@ export default function BuildingReviewsList({
                   </div>
                 </div>
 
-                {/* Кнопка "Полезно" */}
-                <button
-                  onClick={() => handleToggleHelpful(review.id)}
-                  className={`flex items-center px-2 py-1.5 md:px-3 md:py-2 rounded-lg transition-all text-xs md:text-sm ${helpfulVotes.has(review.id)
-                    ? 'bg-blue-100 text-blue-700 font-medium'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                >
-                  <ThumbsUp className={`w-3 h-3 md:w-4 md:h-4 mr-1 ${helpfulVotes.has(review.id) ? 'fill-current' : ''}`} />
-                  <span>
-                    {helpfulVotes.has(review.id) ? 'Helpful' : 'Helpful?'} ({review.helpful_count})
-                  </span>
-                </button>
               </div>
             </div>
           </div>

@@ -7,6 +7,7 @@ import OptimizedImage from '@/components/OptimizedImage'
 import { Building, Star, MapPin, Calendar, User, Eye, MessageSquare, MoreHorizontal, Grid, List } from 'lucide-react'
 import { Building as BuildingType } from '@/hooks/useSearch'
 import { highlightMatches } from '@/utils/searchUtils'
+import { getStorageUrl } from '@/lib/storage'
 
 interface SearchResultsProps {
   results: BuildingType[]
@@ -33,14 +34,9 @@ export function SearchResults({
 
   // Компонент карточки здания
   const BuildingCard = ({ building }: { building: BuildingType }) => {
-    const primaryImage = building.image_url || building.image_urls?.[0]
-    // Валидация URL изображения
-    const isValidImageUrl = primaryImage && (
-      primaryImage.startsWith('http://') ||
-      primaryImage.startsWith('https://') ||
-      primaryImage.startsWith('/')
-    )
-    const hasImages = Boolean(isValidImageUrl)
+    const rawImage = building.image_url || building.image_urls?.[0]
+    const primaryImage = rawImage ? getStorageUrl(rawImage, 'photos') : ''
+    const hasImages = Boolean(primaryImage)
 
     const highlightedName = query ? highlightMatches(building.name, query) : building.name
     const highlightedArchitect = query && building.architect
@@ -141,14 +137,17 @@ export function SearchResults({
               </div>
 
 
-              {hasImages && (
-                <div className="text-xs text-muted-foreground/60">
-                  {Array.isArray(building.image_urls)
-                    ? `${building.image_urls.length} photos`
-                    : '1 photo'
-                  }
-                </div>
-              )}
+              {hasImages && (() => {
+                let count = building.image_url ? 1 : 0
+                if (Array.isArray(building.image_urls)) {
+                  count += building.image_urls.length
+                }
+                return (
+                  <div className="text-xs text-muted-foreground/60">
+                    {count} {count === 1 ? 'photo' : 'photos'}
+                  </div>
+                )
+              })()}
             </div>
           </div>
         </div>

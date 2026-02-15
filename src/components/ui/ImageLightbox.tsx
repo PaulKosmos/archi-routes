@@ -41,7 +41,7 @@ export default function ImageLightbox({ images, initialIndex, isOpen, onClose }:
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center" onClick={onClose}>
       {/* Кнопка закрытия */}
       <button
         onClick={onClose}
@@ -56,7 +56,7 @@ export default function ImageLightbox({ images, initialIndex, isOpen, onClose }:
       </div>
 
       {/* Изображение */}
-      <div className="relative w-full h-full flex items-center justify-center p-8">
+      <div className="relative w-full h-full flex items-center justify-center p-8" onClick={(e) => e.stopPropagation()}>
         <img
           src={images[currentIndex]}
           alt={`Photo ${currentIndex + 1}`}

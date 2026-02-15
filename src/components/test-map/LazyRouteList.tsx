@@ -19,7 +19,7 @@ interface LazyRouteListProps {
 }
 
 // Компонент загрузки для маршрутов
-function LoadingSkeleton({ title = "🛤️ Маршруты" }: { title?: string }) {
+function LoadingSkeleton({ title = "🛤️ Routes" }: { title?: string }) {
   return (
     <div className="p-4">
       <h3 className="font-medium text-gray-900 mb-3">{title}</h3>

@@ -93,11 +93,11 @@ export default function VirtualizedBuildingList({
 
               {/* Статистика */}
               <div className="flex items-center space-x-4 text-xs text-gray-500">
-                {building.rating && (
+                {Number(building.rating) > 0 && (
                   <div className="flex items-center">
                     <Star className="w-3 h-3 mr-1 fill-yellow-400 text-yellow-400" />
-                    <span>{building.rating.toFixed(1)}</span>
-                    {building.review_count && (
+                    <span>{Number(building.rating).toFixed(1)}</span>
+                    {(building.review_count ?? 0) > 0 && (
                       <span className="ml-1">({building.review_count})</span>
                     )}
                   </div>

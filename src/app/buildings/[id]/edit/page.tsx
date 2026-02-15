@@ -17,14 +17,15 @@ export default async function EditBuildingPage({ params }: PageProps) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Missing Supabase credentials')
     return notFound()
   }
 
-  // Create public client to fetch data
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  // Use service role key to bypass RLS (so pending buildings are accessible for moderators)
+  const supabase = createClient(supabaseUrl, serviceRoleKey || supabaseAnonKey)
 
   // Load building with creator information
   const { data: building, error } = await supabase

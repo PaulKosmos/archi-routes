@@ -77,7 +77,7 @@ export default function AdminPodcastsPage() {
   }
 
   const handleDelete = async (episodeId: string) => {
-    if (!window.confirm('Вы уверены? Это действие нельзя отменить.')) {
+    if (!window.confirm('Are you sure? This action cannot be undone.')) {
       return
     }
 
@@ -106,7 +106,7 @@ export default function AdminPodcastsPage() {
       setEpisodes(prev => prev.filter(ep => ep.id !== episodeId))
     } catch (err) {
       console.error('Error deleting episode:', err)
-      alert('Ошибка при удалении эпизода')
+      alert('Error deleting episode')
     } finally {
       setDeleting(null)
     }

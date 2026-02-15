@@ -14,7 +14,15 @@ import {
   Filter,
   Search,
   Loader2,
-  ExternalLink
+  ExternalLink,
+  Pencil,
+  ChevronDown,
+  ChevronUp,
+  MapPin,
+  Star,
+  Globe,
+  Camera,
+  Headphones
 } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
@@ -56,6 +64,7 @@ export default function ModerationQueue() {
   const [rejectModalOpen, setRejectModalOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [itemToReject, setItemToReject] = useState<ModerationQueueItem | null>(null)
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
 
   // Проверка прав доступа
   const isModerator = profile?.role === 'moderator' || profile?.role === 'admin'
@@ -239,6 +248,32 @@ export default function ModerationQueue() {
       default:
         return '#'
     }
+  }
+
+  const getEditLink = (item: ModerationQueueItem): string | null => {
+    switch (item.content_type) {
+      case 'building':
+        return `/buildings/${item.content_id}/edit`
+      case 'review':
+        if (item.preview_data?.building_id) {
+          return `/buildings/${item.preview_data.building_id}/review/${item.content_id}/edit`
+        }
+        return null
+      default:
+        return null
+    }
+  }
+
+  const toggleExpand = (itemId: string) => {
+    setExpandedItems(prev => {
+      const next = new Set(prev)
+      if (next.has(itemId)) {
+        next.delete(itemId)
+      } else {
+        next.add(itemId)
+      }
+      return next
+    })
   }
 
   const filteredQueue = useMemo(() => {
@@ -449,16 +484,28 @@ export default function ModerationQueue() {
                     <Link
                       href={getContentLink(item)}
                       target="_blank"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                      className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1.5"
                       title="Open in new tab"
                     >
                       <ExternalLink className="w-4 h-4" />
                       <span>View</span>
                     </Link>
 
+                    {getEditLink(item) && (
+                      <Link
+                        href={getEditLink(item)!}
+                        target="_blank"
+                        className="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center space-x-1.5"
+                        title="Edit content"
+                      >
+                        <Pencil className="w-4 h-4" />
+                        <span>Edit</span>
+                      </Link>
+                    )}
+
                     <button
                       onClick={() => handleApprove(item)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                      className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-1.5"
                     >
                       <CheckCircle className="w-4 h-4" />
                       <span>Approve</span>
@@ -466,13 +513,102 @@ export default function ModerationQueue() {
 
                     <button
                       onClick={() => handleReject(item)}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+                      className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-1.5"
                     >
                       <XCircle className="w-4 h-4" />
                       <span>Reject</span>
                     </button>
                   </div>
                 </div>
+
+                {/* Expand/collapse preview toggle */}
+                <button
+                  onClick={() => toggleExpand(item.id)}
+                  className="flex items-center space-x-1 text-sm text-gray-500 hover:text-gray-700 transition-colors mb-2"
+                >
+                  {expandedItems.has(item.id) ? (
+                    <>
+                      <ChevronUp className="w-4 h-4" />
+                      <span>Hide preview</span>
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4" />
+                      <span>Show preview</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Expandable content preview */}
+                {expandedItems.has(item.id) && item.preview_data && (
+                  <div className="mt-2 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm space-y-2">
+                    {item.content_type === 'building' && (
+                      <>
+                        {item.preview_data.city && (
+                          <div className="flex items-center text-gray-700">
+                            <MapPin className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+                            <span>{[item.preview_data.address, item.preview_data.city, item.preview_data.country].filter(Boolean).join(', ')}</span>
+                          </div>
+                        )}
+                        {item.preview_data.architect && (
+                          <div className="text-gray-700">
+                            <span className="text-gray-500">Architect:</span> {item.preview_data.architect}
+                          </div>
+                        )}
+                        {item.preview_data.architectural_style && (
+                          <div className="text-gray-700">
+                            <span className="text-gray-500">Style:</span> {item.preview_data.architectural_style}
+                          </div>
+                        )}
+                        {item.preview_data.year_built && (
+                          <div className="text-gray-700">
+                            <span className="text-gray-500">Year:</span> {item.preview_data.year_built}
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {item.content_type === 'review' && (
+                      <>
+                        {item.preview_data.building_name && (
+                          <div className="flex items-center text-gray-700">
+                            <Building className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+                            <span>{item.preview_data.building_name}</span>
+                          </div>
+                        )}
+                        {item.preview_data.rating && (
+                          <div className="flex items-center text-gray-700">
+                            <Star className="w-4 h-4 mr-2 text-yellow-400 flex-shrink-0" />
+                            <span>{item.preview_data.rating}/5</span>
+                          </div>
+                        )}
+                        {item.preview_data.language && (
+                          <div className="flex items-center text-gray-700">
+                            <Globe className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+                            <span>Language: {item.preview_data.language}</span>
+                          </div>
+                        )}
+                        {item.preview_data.content && (
+                          <div className="text-gray-700 mt-2 border-t border-gray-200 pt-2">
+                            <p className="line-clamp-4 whitespace-pre-line">{item.preview_data.content}</p>
+                          </div>
+                        )}
+                        {item.preview_data.photos && item.preview_data.photos.length > 0 && (
+                          <div className="flex items-center text-gray-500 mt-1">
+                            <Camera className="w-4 h-4 mr-1" />
+                            <span>{item.preview_data.photos.length} photo(s)</span>
+                          </div>
+                        )}
+                        {item.preview_data.audio_url && (
+                          <div className="flex items-center text-gray-500">
+                            <Headphones className="w-4 h-4 mr-1" />
+                            <span>Has audio commentary</span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
 
                 {/* Предупреждение о дубликатах */}
                 {item.is_duplicate_check_needed && item.potential_duplicates && (

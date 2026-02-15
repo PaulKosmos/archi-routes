@@ -117,13 +117,13 @@ export default function BuildingNews({
       <div className={`bg-muted border border-border rounded-[var(--radius)] p-6 text-center ${className}`}>
         <Building2 className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-muted-foreground text-sm">
-          Пока нет новостей об этом здании
+          No news about this building yet
         </p>
         <Link
           href="/news"
           className="inline-block mt-2 text-primary hover:text-primary/80 text-sm transition-colors"
         >
-          Смотреть все новости
+          View all news
         </Link>
       </div>
     );
@@ -139,7 +139,7 @@ export default function BuildingNews({
             <div className="flex items-center gap-2">
               <Building2 className="w-5 h-5 text-primary" />
               <h3 className="text-lg font-semibold font-display text-foreground">
-                Новости об этом здании
+                Building News
               </h3>
               <span className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium font-metrics">
                 {totalCount}
@@ -151,7 +151,7 @@ export default function BuildingNews({
                 href={`/news?building=${buildingId}`}
                 className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium transition-colors"
               >
-                Все новости
+                All news
                 <ChevronRight className="w-4 h-4" />
               </Link>
             )}
@@ -213,12 +213,12 @@ export default function BuildingNews({
 
                   {article.category && (
                     <span className="bg-muted px-2 py-0.5 rounded text-xs">
-                      {article.category === 'projects' && 'Проекты'}
-                      {article.category === 'events' && 'События'}
-                      {article.category === 'personalities' && 'Персоналии'}
-                      {article.category === 'trends' && 'Тренды'}
-                      {article.category === 'planning' && 'Планирование'}
-                      {article.category === 'heritage' && 'Наследие'}
+                      {article.category === 'projects' && 'Projects'}
+                      {article.category === 'events' && 'Events'}
+                      {article.category === 'personalities' && 'Personalities'}
+                      {article.category === 'trends' && 'Trends'}
+                      {article.category === 'planning' && 'Planning'}
+                      {article.category === 'heritage' && 'Heritage'}
                     </span>
                   )}
                 </div>
@@ -239,7 +239,7 @@ export default function BuildingNews({
               href={`/news?building=${buildingId}`}
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
             >
-              Посмотреть все {totalCount} новостей
+              View all {totalCount} news
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>

@@ -72,7 +72,7 @@ export default function GalleryBlockEditor({
       if (!files || files.length === 0) return;
 
       if (images.length + files.length > 12) {
-        alert('Максимум 12 изображений');
+        alert('Maximum 12 images');
         return;
       }
 
