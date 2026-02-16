@@ -395,7 +395,7 @@ export function useSearch(options: UseSearchOptions = {}) {
             const uniqueBuildingImages = new Set<string>()
             if (building.image_url) uniqueBuildingImages.add(building.image_url)
             if (Array.isArray(building.image_urls)) {
-              building.image_urls.forEach(url => { if (url) uniqueBuildingImages.add(url) })
+              building.image_urls.forEach((url: string) => { if (url) uniqueBuildingImages.add(url) })
             }
             const buildingPhotoCount = uniqueBuildingImages.size
             const reviewPhotoCount = reviewPhotoCountMap[building.id] || 0
