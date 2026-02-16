@@ -168,7 +168,7 @@ function ScrollToTopButton() {
       className="fixed z-[9999] p-3 bg-[hsl(var(--news-primary))] text-white rounded-full shadow-lg hover:bg-[hsl(var(--news-primary))]/90 hover:scale-110"
       style={{
         bottom: `${buttonBottom}px`,
-        right: `calc(50% - 640px + 2rem + ${buttonRight}px)`,
+        right: `max(1.5rem, calc(50% - 640px + 2rem + ${buttonRight}px))`,
         transition: isRunningAway
           ? 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)' // плавное убегание с пружинящим эффектом
           : 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)', // плавный возврат

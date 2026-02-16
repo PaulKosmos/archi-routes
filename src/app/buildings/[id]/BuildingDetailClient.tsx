@@ -2,13 +2,13 @@
 
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase'
 import { Building, BuildingReviewWithProfile, RouteWithPoints } from '@/types/building'
 import BuildingHeader from '@/components/buildings/BuildingHeader'
 import BuildingReviews from '@/components/buildings/BuildingReviews'
-import { Loader2, MapPin, Clock, Users, Star, Camera, Navigation, Calendar, User, Building as BuildingIcon, Globe, ExternalLink, AlertTriangle, ShieldAlert } from 'lucide-react'
+import { Loader2, MapPin, Clock, Users, Star, Camera, Navigation, Calendar, User, Building as BuildingIcon, Globe, ExternalLink, AlertTriangle, ShieldAlert, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react'
 import ImageLightbox from '@/components/ui/ImageLightbox'
 import Link from 'next/link'
 import { getStorageUrl } from '@/lib/storage'
@@ -47,6 +47,12 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
   const [activeReviewIndex, setActiveReviewIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
+
+  // Mobile map toggle
+  const [mapOpen, setMapOpen] = useState(false)
+
+  // Gallery scroll ref
+  const galleryRef = useRef<HTMLDivElement>(null)
 
   // Building rating state
   const [buildingRating, setBuildingRating] = useState(0)
@@ -362,6 +368,15 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
   const galleryLightboxImages = useMemo(() => allGalleryImages.map(img => img.url), [allGalleryImages])
 
+  const scrollGallery = (direction: 'left' | 'right') => {
+    if (!galleryRef.current) return
+    const scrollAmount = 200
+    galleryRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    })
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -435,41 +450,148 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
         onFavoriteUpdate={fetchBuildingData}
       />
 
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+
+          {/* Mobile-only: Building info + Map at top */}
+          <div className="lg:hidden space-y-4">
+            {/* About the Building - mobile */}
+            <div className="bg-card rounded-[var(--radius)] border border-border p-4">
+              <h3 className="text-base font-semibold font-display mb-3 text-foreground">About the Building</h3>
+
+              <div className="space-y-3">
+                {building.architect && (
+                  <div className="flex items-start">
+                    <User className="h-4 w-4 text-muted-foreground mr-3 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs text-muted-foreground block">Architect</span>
+                      <p className="font-medium text-sm text-foreground">{building.architect}</p>
+                    </div>
+                  </div>
+                )}
+                {building.year_built && (
+                  <div className="flex items-start">
+                    <Calendar className="h-4 w-4 text-muted-foreground mr-3 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs text-muted-foreground block">Year Built</span>
+                      <p className="font-medium text-sm font-metrics text-foreground">{building.year_built}</p>
+                    </div>
+                  </div>
+                )}
+                {building.architectural_style && (
+                  <div className="flex items-start">
+                    <Camera className="h-4 w-4 text-muted-foreground mr-3 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs text-muted-foreground block">Architectural Style</span>
+                      <p className="font-medium text-sm text-foreground">{building.architectural_style}</p>
+                    </div>
+                  </div>
+                )}
+                {building.address && (
+                  <div className="flex items-start">
+                    <MapPin className="h-4 w-4 text-muted-foreground mr-3 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs text-muted-foreground block">Address</span>
+                      <p className="font-medium text-sm text-foreground">{building.address}</p>
+                    </div>
+                  </div>
+                )}
+                {building.building_type && (
+                  <div className="flex items-start">
+                    <BuildingIcon className="h-4 w-4 text-muted-foreground mr-3 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs text-muted-foreground block">Building Type</span>
+                      <p className="font-medium text-sm text-foreground">{building.building_type}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Map - collapsible drawer on mobile */}
+            <div className="bg-card rounded-[var(--radius)] border border-border overflow-hidden">
+              <button
+                onClick={() => setMapOpen(!mapOpen)}
+                className="w-full flex items-center justify-between p-4"
+              >
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold font-display text-foreground text-sm">Location</h3>
+                </div>
+                {mapOpen ? (
+                  <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                )}
+              </button>
+              <div
+                className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                  mapOpen ? 'max-h-80' : 'max-h-0'
+                }`}
+              >
+                <MapLibreBuildingMap
+                  building={building}
+                  className="h-64"
+                />
+              </div>
+            </div>
+          </div>
 
           {/* Main content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-8">
 
             {/* Description and historical significance */}
             {(building.description || building.historical_significance) && (
-              <div className="bg-card border border-border rounded-[var(--radius)] p-6 space-y-6">
+              <div className="bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 space-y-4 sm:space-y-6">
                 {building.description && (
                   <div>
-                    <h2 className="text-xl font-display font-bold mb-4 text-foreground">Description</h2>
-                    <p className="text-foreground leading-relaxed">{building.description}</p>
+                    <h2 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-4 text-foreground">Description</h2>
+                    <p className="text-foreground leading-relaxed text-sm sm:text-base">{building.description}</p>
                   </div>
                 )}
 
                 {building.historical_significance && (
-                  <div className={building.description ? "pt-6 border-t border-border" : ""}>
-                    <h2 className="text-xl font-display font-bold mb-4 flex items-center text-foreground">
+                  <div className={building.description ? "pt-4 sm:pt-6 border-t border-border" : ""}>
+                    <h2 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-4 flex items-center text-foreground">
                       <BuildingIcon className="h-5 w-5 mr-2 text-primary" />
                       Historical Significance
                     </h2>
-                    <p className="text-foreground leading-relaxed">{building.historical_significance}</p>
+                    <p className="text-foreground leading-relaxed text-sm sm:text-base">{building.historical_significance}</p>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Unified Gallery - horizontal carousel */}
+            {/* Unified Gallery - horizontal carousel with arrows */}
             {allGalleryImages.length > 0 && (
-              <div className="bg-card border border-border rounded-[var(--radius)] p-6">
-                <h2 className="text-xl font-display font-bold mb-4 text-foreground">
-                  Gallery ({allGalleryImages.length})
-                </h2>
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+              <div className="bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <h2 className="text-lg sm:text-xl font-display font-bold text-foreground">
+                    Gallery ({allGalleryImages.length})
+                  </h2>
+                  {allGalleryImages.length > 2 && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => scrollGallery('left')}
+                        className="p-1.5 rounded-full border border-border hover:bg-muted transition-colors"
+                        aria-label="Scroll left"
+                      >
+                        <ChevronLeft className="h-4 w-4 text-foreground" />
+                      </button>
+                      <button
+                        onClick={() => scrollGallery('right')}
+                        className="p-1.5 rounded-full border border-border hover:bg-muted transition-colors"
+                        aria-label="Scroll right"
+                      >
+                        <ChevronRight className="h-4 w-4 text-foreground" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div
+                  ref={galleryRef}
+                  className="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                >
                   {allGalleryImages.map((image, index) => (
                     <button
                       key={index}
@@ -510,10 +632,10 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
             {/* Related routes */}
             {relatedRoutes.length > 0 && (
-              <div className="bg-card border border-border rounded-[var(--radius)] p-6">
-                <div className="flex items-center mb-4">
+              <div className="bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6">
+                <div className="flex items-center mb-3 sm:mb-4">
                   <Navigation className="h-5 w-5 text-primary mr-2" />
-                  <h3 className="text-lg font-display font-bold text-foreground">Routes with this building</h3>
+                  <h3 className="text-base sm:text-lg font-display font-bold text-foreground">Routes with this building</h3>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -587,15 +709,15 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
+          {/* Sidebar - info/map hidden on mobile (shown above) */}
+          <div className="space-y-4 sm:space-y-6">
 
-            {/* Information and statistics (combined block) */}
-            <div className="bg-card rounded-[var(--radius)] border border-border p-6">
-              <h3 className="text-lg font-semibold font-display mb-4 text-foreground">About the Building</h3>
+            {/* Information and statistics (combined block) - desktop only */}
+            <div className="hidden lg:block bg-card rounded-[var(--radius)] border border-border p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold font-display mb-3 sm:mb-4 text-foreground">About the Building</h3>
 
               {/* Rating + Views */}
-              <div className="mb-6 pb-6 border-b border-border space-y-3">
+              <div className="mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-border space-y-3">
                 <div>
                   <div className="flex items-center gap-1 mb-1">
                     {[1, 2, 3, 4, 5].map(star => {
@@ -747,8 +869,8 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
               )}
             </div>
 
-            {/* Map - MapLibre */}
-            <div className="bg-card rounded-[var(--radius)] border border-border overflow-hidden">
+            {/* Map - MapLibre - desktop only (mobile shown above as collapsible) */}
+            <div className="hidden lg:block bg-card rounded-[var(--radius)] border border-border overflow-hidden">
               <div className="p-4 border-b border-border">
                 <h3 className="font-semibold font-display text-foreground">Location</h3>
               </div>
@@ -768,8 +890,8 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
             {/* Additional information */}
             {(building.construction_materials && building.construction_materials.length > 0) && (
-              <div className="bg-card rounded-[var(--radius)] border border-border p-6">
-                <h3 className="text-lg font-semibold font-display mb-4 text-foreground">Construction Materials</h3>
+              <div className="bg-card rounded-[var(--radius)] border border-border p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold font-display mb-3 sm:mb-4 text-foreground">Construction Materials</h3>
                 <div className="flex flex-wrap gap-2">
                   {building.construction_materials.map((material, index) => (
                     <span

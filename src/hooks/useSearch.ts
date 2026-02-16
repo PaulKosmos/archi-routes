@@ -38,6 +38,7 @@ export interface Building {
   description?: string
   accessibility?: string[]
   distance?: number
+  total_photo_count?: number
 }
 
 interface UseSearchOptions {
@@ -365,6 +366,44 @@ export function useSearch(options: UseSearchOptions = {}) {
 
         if (searchFilters.sortBy === 'distance') {
           processedResults.sort((a, b) => (a.distance || 0) - (b.distance || 0))
+        }
+      }
+
+      // Fetch review photo counts for all results in a single batch query
+      if (processedResults.length > 0) {
+        const buildingIds = processedResults.map(b => b.id)
+        const { data: reviewPhotos } = await supabase
+          .from('building_reviews')
+          .select('building_id, photos')
+          .in('building_id', buildingIds)
+          .not('photos', 'is', null)
+
+        if (reviewPhotos && reviewPhotos.length > 0) {
+          // Count review photos per building
+          const reviewPhotoCountMap: Record<string, number> = {}
+          for (const review of reviewPhotos) {
+            if (review.photos && Array.isArray(review.photos)) {
+              const validPhotos = review.photos.filter((p: string) => p)
+              if (validPhotos.length > 0) {
+                reviewPhotoCountMap[review.building_id] = (reviewPhotoCountMap[review.building_id] || 0) + validPhotos.length
+              }
+            }
+          }
+
+          // Merge photo counts into results
+          processedResults = processedResults.map(building => {
+            const uniqueBuildingImages = new Set<string>()
+            if (building.image_url) uniqueBuildingImages.add(building.image_url)
+            if (Array.isArray(building.image_urls)) {
+              building.image_urls.forEach(url => { if (url) uniqueBuildingImages.add(url) })
+            }
+            const buildingPhotoCount = uniqueBuildingImages.size
+            const reviewPhotoCount = reviewPhotoCountMap[building.id] || 0
+            return {
+              ...building,
+              total_photo_count: buildingPhotoCount + reviewPhotoCount
+            }
+          })
         }
       }
 

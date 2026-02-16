@@ -183,7 +183,7 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
   }
 
   return (
-    <div className="bg-muted rounded-[var(--radius)] p-4 mt-4">
+    <div className="bg-muted rounded-[var(--radius)] p-3 sm:p-4 mt-3 sm:mt-4">
       <audio
         ref={audioRef}
         src={fullAudioUrl}
@@ -193,105 +193,81 @@ function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
       />
 
       {/* Заголовок с информацией о длительности */}
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-foreground">Audio Commentary</span>
-        <span className="text-sm text-muted-foreground font-metrics">
+      <div className="flex items-center justify-between mb-2 sm:mb-3">
+        <span className="text-xs sm:text-sm font-medium text-foreground">Audio Commentary</span>
+        <span className="text-xs sm:text-sm text-muted-foreground font-metrics">
           {isLoading ? 'Loading...' : formatTime(totalDuration)}
         </span>
       </div>
 
-      <div className="flex items-center space-x-4">
-        {/* Play/Pause кнопка */}
-        <button
-          onClick={togglePlayPause}
-          disabled={isLoading || hasError}
-          className="flex-shrink-0 w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : isPlaying ? (
-            <Pause className="h-5 w-5" />
-          ) : (
-            <Play className="h-5 w-5 ml-0.5" />
-          )}
-        </button>
-
-        {/* Прогресс и время */}
-        <div className="flex-1">
-          {/* Время и прогресс-бар */}
-          <div className="flex items-center space-x-2 mb-1">
-            <span className="text-sm text-muted-foreground min-w-[3rem] font-metrics">
-              {formatTime(currentTime)}
-            </span>
-            <div className="flex-1 relative">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={progressPercentage}
-                onChange={handleSeek}
-                disabled={isLoading || totalDuration === 0}
-                className="w-full h-2 bg-muted-foreground/20 rounded-[var(--radius)] appearance-none cursor-pointer disabled:cursor-not-allowed slider"
-                style={{
-                  background: totalDuration > 0 ?
-                    `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${progressPercentage}%, hsl(var(--muted-foreground) / 0.2) ${progressPercentage}%, hsl(var(--muted-foreground) / 0.2) 100%)` :
-                    'hsl(var(--muted-foreground) / 0.2)'
-                }}
-              />
-            </div>
-            <span className="text-sm text-muted-foreground min-w-[3rem] font-metrics">
-              {formatTime(totalDuration)}
-            </span>
-          </div>
-
-        </div>
-
-        {/* Громкость */}
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={toggleMute}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {isMuted || volume === 0 ? (
-              <VolumeX className="h-5 w-5" />
-            ) : (
-              <Volume2 className="h-5 w-5" />
-            )}
-          </button>
+      {/* Progress bar */}
+      <div className="mb-2 sm:mb-3">
+        <div className="relative w-full h-1.5 sm:h-2 bg-muted-foreground/20 rounded-full">
+          <div
+            className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
+            style={{ width: `${progressPercentage}%` }}
+          />
           <input
             type="range"
             min="0"
             max="100"
-            value={isMuted ? 0 : volume * 100}
-            onChange={handleVolumeChange}
-            className="w-20 h-2 bg-muted-foreground/20 rounded-[var(--radius)] appearance-none cursor-pointer"
+            value={progressPercentage}
+            onChange={handleSeek}
+            disabled={isLoading || totalDuration === 0}
+            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
           />
+        </div>
+        <div className="flex justify-between text-[10px] sm:text-xs text-muted-foreground mt-1 font-metrics">
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(totalDuration)}</span>
         </div>
       </div>
 
-      {/* CSS для стилизации слайдера */}
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #3B82F6;
-          cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-        
-        .slider::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #3B82F6;
-          cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-      `}</style>
+      {/* Controls */}
+      <div className="flex items-center justify-between">
+        {/* Play/Pause */}
+        <button
+          onClick={togglePlayPause}
+          disabled={isLoading || hasError}
+          className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? (
+            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : isPlaying ? (
+            <Pause className="h-4 w-4 sm:h-5 sm:w-5" />
+          ) : (
+            <Play className="h-4 w-4 sm:h-5 sm:w-5 ml-0.5" />
+          )}
+        </button>
+
+        {/* Volume - mute button always, slider only on desktop */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleMute}
+            className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {isMuted || volume === 0 ? (
+              <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" />
+            ) : (
+              <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
+            )}
+          </button>
+          <div className="hidden sm:block relative w-20 h-1 bg-muted-foreground/20 rounded-full">
+            <div
+              className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
+              style={{ width: `${(isMuted ? 0 : volume) * 100}%` }}
+            />
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={isMuted ? 0 : volume * 100}
+              onChange={handleVolumeChange}
+              className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -330,10 +306,10 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
 
   return (
     <div className={`transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
-      <div className="bg-card border border-border rounded-[var(--radius)] p-6">
+      <div className="bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6">
 
         {/* Заголовок обзора */}
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-2">
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getReviewTypeColor(review.review_type)}`}>
@@ -356,14 +332,14 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
             </div>
 
             {review.title && (
-              <h3 className="text-lg font-semibold font-display text-foreground mb-2">
+              <h3 className="text-base sm:text-lg font-semibold font-display text-foreground mb-1 sm:mb-2">
                 {review.title}
               </h3>
             )}
           </div>
 
           {/* Рейтинг + Edit */}
-          <div className="flex items-center ml-4 gap-2">
+          <div className="flex items-center ml-2 sm:ml-4 gap-1 sm:gap-2 flex-shrink-0">
             {user && (user.id === review.user_id || profile?.role === 'admin' || profile?.role === 'moderator') && (
               <Link
                 href={`/buildings/${buildingId}/review/${review.id}/edit`}
@@ -389,7 +365,7 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
         </div>
 
         {/* Автор */}
-        <div className="flex items-center mb-4">
+        <div className="flex items-center mb-3 sm:mb-4">
           <div className="flex items-center">
             {review.profiles?.avatar_url ? (
               <img

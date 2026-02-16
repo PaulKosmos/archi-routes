@@ -139,7 +139,6 @@ export function SearchPage({
                 activeFiltersCount={activeFiltersCount}
                 onFiltersToggle={() => { }}
                 size="lg"
-                autoFocus
                 showFiltersButton={false}
                 className="w-full"
               />

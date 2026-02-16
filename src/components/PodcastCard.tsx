@@ -60,86 +60,125 @@ export default function PodcastCard({
 
   if (variant === 'list') {
     return (
-      <div className="group bg-card overflow-hidden hover:shadow-lg transition-all duration-300 border border-border hover:border-[hsl(var(--podcast-primary))] p-4 flex gap-4 cursor-pointer">
-        {/* Cover Image/Gradient */}
-        <div className={`relative w-24 h-24 flex-shrink-0 overflow-hidden bg-gradient-to-br ${getGradientFromSeries()} flex items-center justify-center`}>
-          {coverImageUrl ? (
-            <OptimizedImage
-              src={coverImageUrl}
-              alt={episode.title}
-              fill
-              className="group-hover:scale-110 transition-transform duration-300"
-              objectFit="cover"
-              sizes="96px"
-            />
-          ) : (
-            <Headphones className="text-white/60" size={32} />
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+      <Link
+        href={`/podcasts/${episode.id}`}
+        className="group block bg-card overflow-hidden hover:shadow-lg transition-all duration-300 border border-border hover:border-[hsl(var(--podcast-primary))] cursor-pointer"
+      >
+        {/* Mobile: stacked layout / Desktop: horizontal */}
+        <div className="flex flex-col sm:flex-row">
+          {/* Cover Image/Gradient */}
+          <div className={`relative w-full sm:w-32 md:w-40 aspect-[2/1] sm:aspect-square flex-shrink-0 overflow-hidden bg-gradient-to-br ${getGradientFromSeries()} flex items-center justify-center`}>
+            {coverImageUrl ? (
+              <OptimizedImage
+                src={coverImageUrl}
+                alt={episode.title}
+                fill
+                className="group-hover:scale-110 transition-transform duration-300"
+                objectFit="cover"
+                sizes="(max-width: 640px) 100vw, 160px"
+              />
+            ) : (
+              <Headphones className="text-white/60" size={40} />
+            )}
+            {/* Mobile play button overlay on image */}
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onPlayClick?.(episode)
+              }}
+              className="sm:hidden absolute bottom-3 right-3 flex items-center justify-center w-11 h-11 rounded-full bg-[hsl(var(--podcast-primary))] hover:bg-[hsl(var(--podcast-primary))]/90 text-white shadow-lg"
+              title={isCurrentlyPlaying ? 'Pause episode' : 'Play episode'}
+            >
+              {isCurrentlyPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+            </button>
+            {/* Episode number badge on mobile */}
             {episode.episode_number && (
-              <span className="text-xs font-bold text-[hsl(var(--podcast-primary))] bg-[hsl(var(--podcast-primary))]/10 px-2 py-1 rounded">
+              <div className="sm:hidden absolute top-3 left-3 text-xs font-bold text-white bg-[hsl(var(--podcast-primary))] px-2.5 py-1 rounded-full shadow">
                 EP. {episode.episode_number}
-              </span>
-            )}
-            {showSeries && episode.series && (
-              <span className="text-xs text-muted-foreground">
-                {episode.series.title}
-              </span>
+              </div>
             )}
           </div>
 
-          <h3 className="font-semibold text-foreground group-hover:text-[hsl(var(--podcast-primary))] transition-colors line-clamp-2 mb-2">
-            {episode.title}
-          </h3>
+          {/* Content */}
+          <div className="flex-1 min-w-0 p-4 flex flex-col justify-between">
+            <div>
+              {/* Meta row */}
+              <div className="hidden sm:flex items-center gap-2 mb-1.5">
+                {episode.episode_number && (
+                  <span className="text-xs font-bold text-[hsl(var(--podcast-primary))] bg-[hsl(var(--podcast-primary))]/10 px-2 py-0.5 rounded">
+                    EP. {episode.episode_number}
+                  </span>
+                )}
+                {showSeries && episode.series && (
+                  <span className="text-xs text-muted-foreground">
+                    {episode.series.title}
+                  </span>
+                )}
+              </div>
 
-          <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
-            {episode.description}
-          </p>
+              {/* Mobile: series label */}
+              {showSeries && episode.series && (
+                <p className="sm:hidden text-xs text-[hsl(var(--podcast-primary))] font-semibold mb-1 uppercase tracking-wide">
+                  {episode.series.title}
+                </p>
+              )}
 
-          {/* Platform Links in list view */}
-          <div className="mb-2">
-            <PodcastPlatformLinks episode={episode} size={18} />
+              <h3 className="font-semibold text-foreground group-hover:text-[hsl(var(--podcast-primary))] transition-colors line-clamp-2 mb-1.5 text-[15px] sm:text-base">
+                {episode.title}
+              </h3>
+
+              <p className="text-sm text-muted-foreground line-clamp-2 sm:line-clamp-1 mb-2">
+                {episode.description}
+              </p>
+
+              {/* Platform Links */}
+              <div className="mb-2">
+                <PodcastPlatformLinks episode={episode} size={18} />
+              </div>
+            </div>
+
+            {/* Bottom row: metadata */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground font-metrics">
+                {episode.published_at && (
+                  <div className="flex items-center gap-1">
+                    <Calendar size={14} />
+                    <span>{formatDate(episode.published_at)}</span>
+                  </div>
+                )}
+                {episode.duration_seconds && episode.duration_seconds > 0 ? (
+                  <div className="flex items-center gap-1">
+                    <Clock size={14} />
+                    <span>
+                      {Math.floor(episode.duration_seconds / 60)}:{(episode.duration_seconds % 60).toString().padStart(2, '0')}
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-muted-foreground font-metrics">
-            {episode.published_at && (
-              <div className="flex items-center gap-1">
-                <Calendar size={14} />
-                <span>{formatDate(episode.published_at)}</span>
-              </div>
-            )}
-            {episode.duration_seconds && episode.duration_seconds > 0 ? (
-              <div className="flex items-center gap-1">
-                <Clock size={14} />
-                <span>
-                  {Math.floor(episode.duration_seconds / 60)}:{(episode.duration_seconds % 60).toString().padStart(2, '0')}
-                </span>
-              </div>
-            ) : null}
+          {/* Desktop Play/Pause Button */}
+          <div className="hidden sm:flex items-center pr-4">
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onPlayClick?.(episode)
+              }}
+              className="flex items-center justify-center w-12 h-12 rounded-full bg-[hsl(var(--podcast-primary))] hover:bg-[hsl(var(--podcast-primary))]/90 text-white transition-all flex-shrink-0 shadow-md hover:shadow-lg"
+              title={isCurrentlyPlaying ? 'Pause episode' : 'Play episode'}
+            >
+              {isCurrentlyPlaying ? (
+                <Pause size={20} />
+              ) : (
+                <Play size={20} className="ml-0.5" />
+              )}
+            </button>
           </div>
         </div>
-
-        {/* Play/Pause Button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            onPlayClick?.(episode)
-          }}
-          className="flex items-center justify-center w-12 h-12 rounded-full bg-[hsl(var(--podcast-primary))] hover:bg-[hsl(var(--podcast-primary))]/90 text-white transition-all flex-shrink-0 shadow-md hover:shadow-lg"
-          title={isCurrentlyPlaying ? 'Pause episode' : 'Play episode'}
-        >
-          {isCurrentlyPlaying ? (
-            <Pause size={20} />
-          ) : (
-            <Play size={20} className="ml-0.5" />
-          )}
-        </button>
-      </div>
+      </Link>
     )
   }
 

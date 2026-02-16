@@ -177,21 +177,21 @@ export default function PodcastEpisodePage() {
     <div className="min-h-screen bg-background">
       <Header buildings={buildings} />
 
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {/* Back button */}
         <Link
           href="/podcasts"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4 sm:mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Podcasts</span>
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Main content */}
           <article className="lg:col-span-2">
             {/* Cover image */}
-            <div className="mb-8">
+            <div className="mb-4 sm:mb-8">
               <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-purple-200 to-blue-200">
                 {episode.cover_image_url ? (
                   <Image
@@ -211,7 +211,7 @@ export default function PodcastEpisodePage() {
 
                 {/* Episode number badge */}
                 {episode.episode_number && (
-                  <div className="absolute top-4 right-4 bg-[hsl(var(--podcast-primary))] text-white px-4 py-2 rounded-[var(--radius)] font-bold shadow-lg">
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-[hsl(var(--podcast-primary))] text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-[var(--radius)] font-bold shadow-lg text-sm sm:text-base">
                     Episode #{episode.episode_number}
                   </div>
                 )}
@@ -219,21 +219,21 @@ export default function PodcastEpisodePage() {
             </div>
 
             {/* Header section */}
-            <header className="mb-8">
+            <header className="mb-4 sm:mb-8">
               {episode.series && (
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-2 sm:mb-4">
                   <Link href="/podcasts" className="text-xs font-medium uppercase tracking-wider text-[hsl(var(--podcast-primary))] bg-[hsl(var(--podcast-primary))]/10 px-3 py-1 rounded-[var(--radius)] hover:bg-[hsl(var(--podcast-primary))]/20 transition-colors">
                     {episode.series.title}
                   </Link>
                 </div>
               )}
 
-              <h1 className="text-3xl md:text-4xl font-bold font-display mb-6 leading-tight text-foreground">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold font-display mb-3 sm:mb-6 leading-tight text-foreground">
                 {episode.title}
               </h1>
 
               {/* Metadata row */}
-              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground font-metrics">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-muted-foreground font-metrics">
                 {episode.published_at && (
                   <div className="flex items-center gap-1.5">
                     <Calendar className="h-3.5 w-3.5" />
@@ -260,7 +260,7 @@ export default function PodcastEpisodePage() {
             </header>
 
             {/* Audio player */}
-            <div className="mb-8">
+            <div className="mb-3 sm:mb-8">
               <PodcastPlayer
                 audioUrl={getStorageUrl(episode.audio_url, 'podcasts')}
                 title={episode.title}
@@ -269,16 +269,16 @@ export default function PodcastEpisodePage() {
             </div>
 
             {/* Platform Links */}
-            <div className="mb-8">
+            <div className="mb-3 sm:mb-8">
               <PodcastPlatformLinks episode={episode} size={28} />
             </div>
 
             {/* Description */}
             {episode.description && (
-              <div className="mb-8 bg-card border border-border p-8">
-                <h2 className="text-2xl font-bold text-foreground mb-4">Description</h2>
+              <div className="mb-4 sm:mb-8 bg-card border border-border p-4 sm:p-8">
+                <h2 className="text-lg sm:text-2xl font-bold text-foreground mb-2 sm:mb-4">Description</h2>
                 <div className="prose prose-lg max-w-none">
-                  <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                  <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed text-sm sm:text-base">
                     {episode.description}
                   </p>
                 </div>
@@ -287,16 +287,16 @@ export default function PodcastEpisodePage() {
 
             {/* Tags */}
             {episode.tags && episode.tags.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-foreground mb-4">Tags</h2>
-                <div className="flex flex-wrap gap-3">
+              <div className="mb-4 sm:mb-8">
+                <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2 sm:mb-4">Tags</h2>
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   {episode.tags.map(tag => (
                     <Link
                       key={tag.id}
                       href={`/podcasts?tags=${tag.slug}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-[hsl(var(--podcast-primary))]/10 text-[hsl(var(--podcast-primary))] rounded-[var(--radius)] font-medium hover:bg-[hsl(var(--podcast-primary))]/20 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-[hsl(var(--podcast-primary))]/10 text-[hsl(var(--podcast-primary))] rounded-[var(--radius)] font-medium hover:bg-[hsl(var(--podcast-primary))]/20 transition-colors text-sm"
                     >
-                      <Tag size={16} />
+                      <Tag size={14} />
                       {tag.name}
                     </Link>
                   ))}

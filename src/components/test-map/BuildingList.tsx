@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import Image from 'next/image'
-import { Building2, Star, Eye, MapPin, Plus, Play, ChevronRight } from 'lucide-react'
+import { Building2, Star, Eye, MapPin, Plus, Play, ChevronRight, ExternalLink } from 'lucide-react'
 import type { Building } from '@/types/building'
 import { getStorageUrl } from '@/lib/storage'
 
@@ -140,16 +140,33 @@ export default function BuildingList({
                   </div>
                 </div>
 
-                {/* Кнопка удаления из маршрута справа (только если в маршруте) */}
-                {isInRoute && (
-                  <button
-                    onClick={(e) => handleRemoveFromRoute(e, building.id)}
-                    className="flex items-center justify-center w-7 h-7 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-full transition-colors flex-shrink-0"
-                    title="Remove from Route"
-                  >
-                    <span className="text-sm font-bold">×</span>
-                  </button>
-                )}
+                {/* Кнопки справа */}
+                <div className="flex flex-col items-end gap-1 flex-shrink-0 self-stretch justify-end">
+                  {/* Кнопка удаления из маршрута (только если в маршруте) */}
+                  {isInRoute && (
+                    <button
+                      onClick={(e) => handleRemoveFromRoute(e, building.id)}
+                      className="flex items-center justify-center w-7 h-7 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-full transition-colors"
+                      title="Remove from Route"
+                    >
+                      <span className="text-sm font-bold">×</span>
+                    </button>
+                  )}
+
+                  {/* Кнопка открытия детальной страницы (мобильная) */}
+                  {onBuildingDetails && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onBuildingDetails(building)
+                      }}
+                      className="md:hidden flex items-center justify-center w-7 h-7 bg-primary/10 hover:bg-primary/20 text-primary rounded-full transition-colors mt-auto"
+                      title="Open details"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           )

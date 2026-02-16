@@ -195,12 +195,12 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
 
   return (
     <div className="bg-card">
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-8">
 
           {/* Изображение - теперь в колонке, не на весь экран */}
           <div className="lg:w-1/2">
-            <div className="relative h-80 lg:h-96 overflow-hidden rounded-[var(--radius)]">
+            <div className="relative h-56 sm:h-80 lg:h-96 overflow-hidden rounded-[var(--radius)]">
               {images.length > 0 ? (
                 <>
                   <img
@@ -311,7 +311,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                 <span>{building.city}, {building.country}</span>
               </div>
 
-              <h1 className="text-3xl lg:text-4xl font-bold font-display text-foreground mb-4">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-display text-foreground mb-2 sm:mb-4">
                 {building.name}
               </h1>
             </div>

@@ -175,7 +175,7 @@ export function MobileFilterPanel({
     return (
         <div className="max-h-[60vh] overflow-y-auto">
             {/* Заголовок */}
-            <div className="flex items-center justify-between p-3 border-b border-border bg-muted/30 sticky top-0 z-10">
+            <div className="flex items-center justify-between p-3 border-b border-border bg-card sticky top-0 z-10">
                 <div className="flex items-center gap-2">
                     <span className="font-semibold text-foreground">Filters</span>
                     {activeFiltersCount > 0 && (

@@ -137,11 +137,16 @@ export function SearchResults({
               </div>
 
 
-              {hasImages && (() => {
-                let count = building.image_url ? 1 : 0
-                if (Array.isArray(building.image_urls)) {
-                  count += building.image_urls.length
-                }
+              {(() => {
+                const count = building.total_photo_count ?? (() => {
+                  const uniqueImages = new Set<string>()
+                  if (building.image_url) uniqueImages.add(building.image_url)
+                  if (Array.isArray(building.image_urls)) {
+                    building.image_urls.forEach(url => { if (url) uniqueImages.add(url) })
+                  }
+                  return uniqueImages.size
+                })()
+                if (count === 0) return null
                 return (
                   <div className="text-xs text-muted-foreground/60">
                     {count} {count === 1 ? 'photo' : 'photos'}

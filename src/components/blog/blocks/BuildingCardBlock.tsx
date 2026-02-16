@@ -38,7 +38,7 @@ export default function BuildingCardBlock({ block }: BuildingCardBlockProps) {
   if (!building_id || !building) {
     return (
       <div className="building-card-block my-8 p-6 bg-muted border border-border">
-        <p className="text-muted-foreground text-center">Объект не найден</p>
+        <p className="text-muted-foreground text-center">Building not found</p>
       </div>
     );
   }
@@ -136,7 +136,7 @@ export default function BuildingCardBlock({ block }: BuildingCardBlockProps) {
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium">
-                {isMapExpanded ? 'Скрыть карту' : 'Показать на карте'}
+                {isMapExpanded ? 'Hide map' : 'Show on map'}
               </span>
             </div>
             {isMapExpanded ? (

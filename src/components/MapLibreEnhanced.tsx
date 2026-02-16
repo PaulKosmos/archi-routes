@@ -899,40 +899,42 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
           </div>
         )}
 
-        {/* Style selector - positioned below Buildings/Routes buttons on desktop, top-left on mobile */}
-        <div className="absolute top-4 left-4 md:top-[5.5rem] md:right-14 md:left-auto z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
-          {/* Desktop: horizontal with text */}
-          <div className="hidden md:flex space-x-1">
-            {Object.entries(MAP_STYLES).map(([key, style]) => (
-              <button
-                key={key}
-                onClick={() => setCurrentStyle(key as keyof typeof MAP_STYLES)}
-                className={`px-3 py-1 text-xs rounded transition-colors ${currentStyle === key
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-              >
-                {key === 'light' ? '☀️ Light' : key === 'dark' ? '🌙 Dark' : '🌿 Bright'}
-              </button>
-            ))}
-          </div>
+        {/* Style selector - hidden in compact mode (e.g. blog maps) */}
+        {!compactControls && (
+          <div className="absolute top-4 left-4 md:top-[5.5rem] md:right-14 md:left-auto z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+            {/* Desktop: horizontal with text */}
+            <div className="hidden md:flex space-x-1">
+              {Object.entries(MAP_STYLES).map(([key, style]) => (
+                <button
+                  key={key}
+                  onClick={() => setCurrentStyle(key as keyof typeof MAP_STYLES)}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${currentStyle === key
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                >
+                  {key === 'light' ? '☀️ Light' : key === 'dark' ? '🌙 Dark' : '🌿 Bright'}
+                </button>
+              ))}
+            </div>
 
-          {/* Mobile: vertical icons only */}
-          <div className="flex md:hidden flex-col space-y-1">
-            {Object.entries(MAP_STYLES).map(([key]) => (
-              <button
-                key={key}
-                onClick={() => setCurrentStyle(key as keyof typeof MAP_STYLES)}
-                className={`p-2 text-base rounded transition-colors ${currentStyle === key
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-              >
-                {key === 'light' ? '☀️' : key === 'dark' ? '🌙' : '🌿'}
-              </button>
-            ))}
+            {/* Mobile: vertical icons only */}
+            <div className="flex md:hidden flex-col space-y-1">
+              {Object.entries(MAP_STYLES).map(([key]) => (
+                <button
+                  key={key}
+                  onClick={() => setCurrentStyle(key as keyof typeof MAP_STYLES)}
+                  className={`p-2 text-base rounded transition-colors ${currentStyle === key
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                >
+                  {key === 'light' ? '☀️' : key === 'dark' ? '🌙' : '🌿'}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Legend - desktop only, raised above attribution */}
         {!hideLegend && (
@@ -994,14 +996,18 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
           reuseMaps
           onClick={handleMapClick}
         >
-          {/* Attribution - MapLibre & OpenStreetMap */}
+          {/* Attribution - MapLibre GL JS + OpenFreeMap + OpenStreetMap */}
           <div className="absolute bottom-0 right-0 z-10 bg-white/80 backdrop-blur-sm px-2 py-0.5 text-[10px] text-gray-600 rounded-tl flex items-center gap-1.5">
             <a href="https://maplibre.org" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 flex items-center gap-0.5">
               <svg width="12" height="12" viewBox="0 0 1024 1024" className="opacity-70">
                 <path fill="currentColor" d="M512 0C229.2 0 0 229.2 0 512s229.2 512 512 512 512-229.2 512-512S794.8 0 512 0zm0 960C264.6 960 64 759.4 64 512S264.6 64 512 64s448 200.6 448 448-200.6 448-448 448z" />
                 <path fill="currentColor" d="M512 192c-176.7 0-320 143.3-320 320s143.3 320 320 320 320-143.3 320-320-143.3-320-320-320zm0 576c-141.4 0-256-114.6-256-256s114.6-256 256-256 256 114.6 256 256-114.6 256-256 256z" />
               </svg>
-              MapLibre
+              MapLibre GL JS
+            </a>
+            <span className="text-gray-400">|</span>
+            <a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">
+              OpenFreeMap
             </a>
             <span className="text-gray-400">|</span>
             <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">

@@ -127,7 +127,7 @@ export function FilterPanel({
       })
     } catch (error: any) {
       setLocationError(error.message)
-      console.error('Ошибка геолокации:', error)
+      console.error('Geolocation error:', error)
     } finally {
       setGettingLocation(false)
     }
@@ -195,7 +195,7 @@ export function FilterPanel({
       <div className="space-y-2">
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <label className="block text-xs text-muted-foreground mb-1 font-metrics">От</label>
+            <label className="block text-xs text-muted-foreground mb-1 font-metrics">From</label>
             <input
               type="number"
               min={minYear}
@@ -208,7 +208,7 @@ export function FilterPanel({
           </div>
           <span className="text-muted-foreground mt-5">—</span>
           <div className="flex-1">
-            <label className="block text-xs text-muted-foreground mb-1 font-metrics">До</label>
+            <label className="block text-xs text-muted-foreground mb-1 font-metrics">To</label>
             <input
               type="number"
               min={currentMin === 0 ? minYear : currentMin}
@@ -303,7 +303,7 @@ export function FilterPanel({
                   className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  Очистить
+                  Clear
                 </button>
               )}
 
@@ -341,7 +341,7 @@ export function FilterPanel({
                     />
                     <span className="flex-1 text-sm text-gray-700">{option.label}</span>
                     {option.value === 'distance' && !filters.nearMe && (
-                      <span className="text-xs text-gray-400">(включите геолокацию)</span>
+                      <span className="text-xs text-gray-400">(enable geolocation)</span>
                     )}
                   </label>
                 ))}
@@ -369,17 +369,17 @@ export function FilterPanel({
                     {gettingLocation ? (
                       <>
                         <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
-                        Определяем...
+                        Determining...
                       </>
                     ) : filters.nearMe ? (
                       <>
                         <Navigation className="w-4 h-4" />
-                        Поиск рядом включен
+                        Search nearby enabled
                       </>
                     ) : (
                       <>
                         <MapPin className="w-4 h-4" />
-                        Найти рядом со мной
+                        Find near me
                       </>
                     )}
                   </button>
@@ -395,7 +395,7 @@ export function FilterPanel({
                   <div className="space-y-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Максимальное расстояние: {filters.maxDistance} км
+                        Max distance: {filters.maxDistance} km
                       </label>
                       <input
                         type="range"
@@ -406,15 +406,15 @@ export function FilterPanel({
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                       />
                       <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>1 км</span>
-                        <span>25 км</span>
-                        <span>50 км</span>
+                        <span>1 km</span>
+                        <span>25 km</span>
+                        <span>50 km</span>
                       </div>
                     </div>
 
                     {filters.userLocation && (
                       <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-                        📍 Ваше местоположение: {filters.userLocation.latitude.toFixed(4)}, {filters.userLocation.longitude.toFixed(4)}
+                        Your location: {filters.userLocation.latitude.toFixed(4)}, {filters.userLocation.longitude.toFixed(4)}
                       </div>
                     )}
                   </div>
@@ -428,7 +428,7 @@ export function FilterPanel({
               title="Search in Reviews"
               icon={MessageSquare}
               count={filters.searchInReviews ? 1 : 0}
-              badge={filters.searchInReviews ? `${metadata.totalReviews || 0} обзоров` : undefined}
+              badge={filters.searchInReviews ? `${metadata.totalReviews || 0} reviews` : undefined}
             >
               <div className="space-y-3">
                 <label className="flex items-center gap-3 cursor-pointer">
@@ -441,14 +441,14 @@ export function FilterPanel({
                   <div>
                     <span className="text-sm text-gray-700">Search in review content</span>
                     <p className="text-xs text-gray-500">
-                      Включает поиск по заголовкам и тексту пользовательских обзоров
+                      Includes search in titles and text of user reviews
                     </p>
                   </div>
                 </label>
 
                 {metadata.totalReviews && metadata.totalReviews > 0 && (
                   <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
-                    💬 Доступно {metadata.totalReviews} обзоров для поиска
+                    {metadata.totalReviews} reviews available for search
                   </div>
                 )}
               </div>
@@ -460,7 +460,7 @@ export function FilterPanel({
               title="Audio Guides"
               icon={Volume2}
               count={filters.hasAudio !== null && filters.hasAudio !== undefined ? 1 : 0}
-              badge={metadata.audioGuidesCount && metadata.audioGuidesCount > 0 ? `${metadata.audioGuidesCount} доступно` : undefined}
+              badge={metadata.audioGuidesCount && metadata.audioGuidesCount > 0 ? `${metadata.audioGuidesCount} available` : undefined}
             >
               <div className="space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -471,7 +471,7 @@ export function FilterPanel({
                     onChange={() => handleAudioFilter(null)}
                     className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                   />
-                  <span className="text-sm text-gray-700">Не важно</span>
+                  <span className="text-sm text-gray-700">Any</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -482,7 +482,7 @@ export function FilterPanel({
                     className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                   />
                   <Volume2 className="w-4 h-4 text-green-600" />
-                  <span className="text-sm text-gray-700">Есть аудио-гид</span>
+                  <span className="text-sm text-gray-700">Has audio guide</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -493,7 +493,7 @@ export function FilterPanel({
                     className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                   />
                   <VolumeX className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm text-gray-700">Без аудио-гида</span>
+                  <span className="text-sm text-gray-700">No audio guide</span>
                 </label>
               </div>
             </FilterSection>
@@ -548,7 +548,7 @@ export function FilterPanel({
                 ))}
                 {metadata.styles.length === 0 && (
                   <div className="text-sm text-gray-500 p-2">
-                    Стили будут появляться по мере добавления зданий
+                    Styles will appear as buildings are added
                   </div>
                 )}
               </div>
@@ -652,7 +652,7 @@ export function FilterPanel({
                         onChange={() => handlePhotoFilter(null)}
                         className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700">Не важно</span>
+                      <span className="text-sm text-gray-700">Any</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -673,7 +673,7 @@ export function FilterPanel({
                         onChange={() => handlePhotoFilter(false)}
                         className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700">Без фотографий</span>
+                      <span className="text-sm text-gray-700">No photos</span>
                     </label>
                   </div>
                 </div>
@@ -689,13 +689,13 @@ export function FilterPanel({
                 disabled={activeFiltersCount === 0}
                 className="flex-1 px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Сбросить всё
+                Reset all
               </button>
               <button
                 onClick={onClose}
                 className="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors lg:hidden"
               >
-                Применить
+                Apply
               </button>
             </div>
           </div>

@@ -1,14 +1,165 @@
 // src/app/routes/[id]/RouteDetailPageClient.tsx - Client Component with authentication
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { notFound } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import Header from '../../../components/Header'
 import EnhancedFooter from '../../../components/EnhancedFooter'
+import { ArrowLeft } from 'lucide-react'
 import RouteDetailClient from './RouteDetailClient'
+
+// Компонент ScrollToTop с "убеганием" от курсора
+function ScrollToTopButton() {
+  const [isVisible, setIsVisible] = useState(false)
+  const [buttonBottom, setButtonBottom] = useState(32)
+  const [buttonRight, setButtonRight] = useState(0)
+  const [isRunningAway, setIsRunningAway] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const escapeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsVisible(window.scrollY > 300)
+
+      const footer = document.querySelector('footer')
+      if (footer) {
+        const footerRect = footer.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+        const spacing = 32
+
+        if (footerRect.top < windowHeight) {
+          const overlap = windowHeight - footerRect.top
+          setButtonBottom(spacing + overlap)
+        } else {
+          setButtonBottom(spacing)
+        }
+      }
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!buttonRef.current) return
+
+      const button = buttonRef.current
+      const buttonRect = button.getBoundingClientRect()
+      const buttonCenterX = buttonRect.left + buttonRect.width / 2
+      const buttonCenterY = buttonRect.top + buttonRect.height / 2
+
+      const distanceX = e.clientX - buttonCenterX
+      const distanceY = e.clientY - buttonCenterY
+      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+
+      const triggerDistance = 100
+
+      if (distance < triggerDistance) {
+        if (escapeTimeoutRef.current) {
+          clearTimeout(escapeTimeoutRef.current)
+        }
+
+        escapeTimeoutRef.current = setTimeout(() => {
+          setIsRunningAway(true)
+
+          const angle = Math.atan2(distanceY, distanceX)
+          const escapeDistance = 80
+
+          const newRight = -Math.cos(angle) * escapeDistance
+          const newBottomOffset = -Math.sin(angle) * escapeDistance
+
+          const footer = document.querySelector('footer')
+          const windowHeight = window.innerHeight
+          const buttonHeight = 48
+
+          let maxBottom = buttonBottom + 150
+
+          if (footer) {
+            const footerRect = footer.getBoundingClientRect()
+            const footerTop = footerRect.top
+            const maxAllowedBottom = windowHeight - footerTop - buttonHeight - 32
+
+            if (maxAllowedBottom > 32) {
+              maxBottom = Math.min(maxBottom, maxAllowedBottom + buttonBottom)
+            }
+          }
+
+          const maxRight = 200
+          const newBottomValue = buttonBottom + newBottomOffset
+
+          setButtonRight(Math.max(-maxRight, Math.min(maxRight, newRight)))
+          setButtonBottom(Math.max(32, Math.min(maxBottom, newBottomValue)))
+        }, 200)
+      } else if (distance > triggerDistance + 100) {
+        if (escapeTimeoutRef.current) {
+          clearTimeout(escapeTimeoutRef.current)
+          escapeTimeoutRef.current = null
+        }
+
+        setIsRunningAway(false)
+        setButtonRight(0)
+
+        const footer = document.querySelector('footer')
+        if (footer) {
+          const footerRect = footer.getBoundingClientRect()
+          const windowHeight = window.innerHeight
+          const spacing = 32
+
+          if (footerRect.top < windowHeight) {
+            const overlap = windowHeight - footerRect.top
+            setButtonBottom(spacing + overlap)
+          } else {
+            setButtonBottom(spacing)
+          }
+        }
+      }
+    }
+
+    if (isVisible) {
+      window.addEventListener('mousemove', handleMouseMove)
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove)
+        if (escapeTimeoutRef.current) {
+          clearTimeout(escapeTimeoutRef.current)
+        }
+      }
+    }
+  }, [isVisible, buttonBottom])
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
+
+  if (!isVisible) return null
+
+  return (
+    <button
+      ref={buttonRef}
+      type="button"
+      onClick={scrollToTop}
+      className="fixed z-[9999] p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 hover:scale-110"
+      style={{
+        bottom: `${buttonBottom}px`,
+        right: `max(1.5rem, calc(50% - 640px + 2rem + ${buttonRight}px))`,
+        transition: isRunningAway
+          ? 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)'
+          : 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+        willChange: 'bottom, right'
+      }}
+      aria-label="Scroll to top"
+    >
+      <ArrowLeft className="h-6 w-6 rotate-90" />
+    </button>
+  )
+}
 
 export default function RouteDetailPageClient() {
   const supabase = useMemo(() => createClient(), [])
@@ -187,14 +338,14 @@ export default function RouteDetailPageClient() {
   // Show loading
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header buildings={[]} />
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="container mx-auto px-6 py-8">
           <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
+            <div className="h-8 bg-muted rounded-[var(--radius)] w-1/2"></div>
+            <div className="h-4 bg-muted rounded-[var(--radius)] w-3/4"></div>
+            <div className="h-4 bg-muted rounded-[var(--radius)] w-1/2"></div>
+            <div className="h-64 bg-muted rounded-[var(--radius)]"></div>
           </div>
         </div>
       </div>
@@ -204,20 +355,20 @@ export default function RouteDetailPageClient() {
   // Show error
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header buildings={buildings} />
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-            <div className="text-red-600 text-6xl mb-4">404</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <div className="container mx-auto px-6 py-8">
+          <div className="bg-card rounded-[var(--radius)] border border-border p-8 text-center">
+            <div className="text-destructive text-6xl mb-4 font-metrics">404</div>
+            <h1 className="text-2xl font-bold font-display text-foreground mb-2">
               Route Not Found
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               {error}
             </p>
             <a
               href="/routes"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
             >
               Back to Routes
             </a>
@@ -230,19 +381,19 @@ export default function RouteDetailPageClient() {
   // Route not loaded
   if (!route) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header buildings={buildings} />
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <div className="container mx-auto px-6 py-8">
+          <div className="bg-card rounded-[var(--radius)] border border-border p-8 text-center">
+            <h1 className="text-2xl font-bold font-display text-foreground mb-2">
               Route Not Found
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               The route may have been deleted or you do not have access to it
             </p>
             <a
               href="/routes"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
             >
               Back to Routes
             </a>
@@ -257,10 +408,11 @@ export default function RouteDetailPageClient() {
   console.log('🛤️ [DEBUG] Should hide header:', shouldHideHeader)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {!shouldHideHeader && <Header buildings={buildings} />}
       <RouteDetailClient route={route} />
       {!shouldHideHeader && <EnhancedFooter />}
+      {!shouldHideHeader && <ScrollToTopButton />}
     </div>
   )
 }
