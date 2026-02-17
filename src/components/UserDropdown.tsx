@@ -14,7 +14,8 @@ import {
   MessageSquare,
   BookOpen,
   Shield,
-  Folder
+  Folder,
+  Users
 } from 'lucide-react'
 
 interface UserStats {
@@ -377,6 +378,15 @@ export default function UserDropdown() {
                   {stats.collections_count}
                 </span>
               )}
+            </a>
+
+            <a
+              href="/profile/following"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
+              onClick={() => setIsOpen(false)}
+            >
+              <Users className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="flex-1">Subscriptions</span>
             </a>
 
             {/* Разделитель */}

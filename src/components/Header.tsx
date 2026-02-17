@@ -255,6 +255,13 @@ export default function Header({ buildings = [], onRouteCreated }: HeaderProps) 
                       >
                         Collections
                       </a>
+                      <a
+                        href="/profile/following"
+                        className="block text-foreground hover:text-primary font-medium transition-colors"
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Subscriptions
+                      </a>
                     </div>
                   </div>
                 )}

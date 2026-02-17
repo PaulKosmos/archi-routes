@@ -11,18 +11,16 @@ import {
   Trash2,
   Star,
   Eye,
-  Calendar,
   MapPin,
   Filter,
   Search,
-  Grid3X3,
-  List,
   MoreVertical
 } from 'lucide-react'
 import Link from 'next/link'
 import { Building } from '@/types/building'
 import Header from '@/components/Header'
 import EnhancedFooter from '@/components/EnhancedFooter'
+import { getStorageUrl } from '@/lib/storage'
 
 interface BuildingWithStats extends Building {
   view_count: number
@@ -35,7 +33,6 @@ export default function ProfileBuildingsPage() {
   const { user, loading: authLoading } = useAuth()
   const [buildings, setBuildings] = useState<BuildingWithStats[]>([])
   const [loading, setLoading] = useState(true)
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStyle, setFilterStyle] = useState<string>('')
   const [filterStatus, setFilterStatus] = useState<string>('') // Фильтр по статусу модерации
@@ -180,45 +177,45 @@ export default function ProfileBuildingsPage() {
     <div className="min-h-screen bg-background flex flex-col">
       <Header buildings={[]} />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 pt-10">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pt-6 sm:pt-10">
           {/* Заголовок */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 sm:mb-8">
+            <div className="flex items-center gap-3 sm:gap-4 mb-4">
               <Link
                 href="/profile"
                 className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 text-muted-foreground" />
               </Link>
-              <div className="flex-1">
-                <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
-                  <Building2 className="w-6 h-6" />
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl sm:text-3xl font-heading font-bold flex items-center gap-2">
+                  <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
                   Buildings
                 </h1>
-                <div className="flex items-center gap-4 text-sm mt-1">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm mt-1">
                   <span className="text-muted-foreground">
                     {buildings.length} {buildings.length === 1 ? 'building' : 'buildings'}
                   </span>
                   {buildings.filter(b => b.moderation_status === 'pending').length > 0 && (
                     <span className="text-amber-600 font-medium">
-                      🟡 {buildings.filter(b => b.moderation_status === 'pending').length} pending
+                      {buildings.filter(b => b.moderation_status === 'pending').length} pending
                     </span>
                   )}
                   {buildings.filter(b => b.moderation_status === 'approved').length > 0 && (
                     <span className="text-green-600 font-medium">
-                      ✅ {buildings.filter(b => b.moderation_status === 'approved').length} approved
+                      {buildings.filter(b => b.moderation_status === 'approved').length} approved
                     </span>
                   )}
                   {buildings.filter(b => b.moderation_status === 'rejected').length > 0 && (
                     <span className="text-red-600 font-medium">
-                      ❌ {buildings.filter(b => b.moderation_status === 'rejected').length} rejected
+                      {buildings.filter(b => b.moderation_status === 'rejected').length} rejected
                     </span>
                   )}
                 </div>
               </div>
               <Link
                 href="/buildings/new"
-                className="bg-primary text-primary-foreground px-4 py-2 rounded-[var(--radius)] hover:bg-primary/90 transition-colors flex items-center gap-2 font-medium"
+                className="hidden sm:flex bg-primary text-primary-foreground px-4 py-2 rounded-[var(--radius)] hover:bg-primary/90 transition-colors items-center gap-2 font-medium"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Building</span>
@@ -227,30 +224,30 @@ export default function ProfileBuildingsPage() {
           </div>
 
           {/* Поиск и фильтры */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-            <div className="flex flex-col lg:flex-row gap-4">
+          <div className="bg-white rounded-lg shadow-sm border p-3 sm:p-6 mb-3 sm:mb-6">
+            <div className="flex flex-col gap-3 sm:gap-4">
               {/* Поиск */}
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 top-2.5 sm:top-3 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   <input
                     type="text"
                     placeholder="Search by name, architect or city..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
               {/* Фильтры */}
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                 <div className="flex items-center space-x-2">
-                  <Filter className="w-4 h-4 text-gray-500" />
+                  <Filter className="w-4 h-4 text-gray-500 hidden sm:block" />
                   <select
                     value={filterStyle}
                     onChange={(e) => setFilterStyle(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="border border-gray-300 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">All Styles</option>
                     {uniqueStyles.map(style => (
@@ -263,53 +260,38 @@ export default function ProfileBuildingsPage() {
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="border border-gray-300 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">All Statuses</option>
-                  <option value="approved">✅ Approved</option>
-                  <option value="pending">🟡 Pending</option>
-                  <option value="rejected">❌ Rejected</option>
+                  <option value="approved">Approved</option>
+                  <option value="pending">Pending</option>
+                  <option value="rejected">Rejected</option>
                 </select>
 
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="border border-gray-300 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="created_at">By Date Added</option>
+                  <option value="created_at">By Date</option>
                   <option value="rating">By Rating</option>
                   <option value="view_count">By Views</option>
                 </select>
 
-                {/* Переключатель вида */}
-                <div className="flex items-center border border-gray-300 rounded-lg">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-500'} rounded-l-lg transition-colors`}
-                  >
-                    <Grid3X3 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-500'} rounded-r-lg transition-colors`}
-                  >
-                    <List className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
             </div>
           </div>
 
           {/* Контент */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                  <div className="h-48 bg-gray-200 animate-pulse" />
-                  <div className="p-4 space-y-3">
-                    <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3" />
-                    <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2" />
+                  <div className="h-32 sm:h-48 bg-gray-200 animate-pulse" />
+                  <div className="p-2.5 sm:p-4 space-y-2 sm:space-y-3">
+                    <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-2.5 sm:h-3 bg-gray-200 rounded animate-pulse w-2/3" />
+                    <div className="h-2.5 sm:h-3 bg-gray-200 rounded animate-pulse w-1/2" />
                   </div>
                 </div>
               ))}
@@ -346,22 +328,21 @@ export default function ProfileBuildingsPage() {
                 </>
               )}
             </div>
-          ) : viewMode === 'grid' ? (
-            /* Сетка зданий */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
               {filteredBuildings.map((building) => (
                 <div key={building.id} className="bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-md transition-shadow">
                   {/* Изображение */}
-                  <div className="relative h-48 bg-muted">
-                    {building.image_url ? (
+                  <div className="relative h-32 sm:h-48 bg-muted">
+                    {(building.image_url || (building.image_urls && building.image_urls.length > 0)) ? (
                       <img
-                        src={building.image_url}
+                        src={getStorageUrl(building.image_url || building.image_urls![0], 'photos')}
                         alt={building.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Building2 className="w-12 h-12 text-gray-400" />
+                        <Building2 className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
                       </div>
                     )}
 
@@ -407,60 +388,60 @@ export default function ProfileBuildingsPage() {
                   </div>
 
                   {/* Информация */}
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1">
+                  <div className="p-2.5 sm:p-4">
+                    <div className="flex items-start justify-between mb-1 sm:mb-2">
+                      <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm sm:text-base">
                         {building.name}
                       </h3>
                       {building.moderation_status && building.moderation_status !== 'approved' && (
-                        <span className={`ml-2 px-2 py-0.5 text-xs rounded-full whitespace-nowrap ${building.moderation_status === 'pending'
+                        <span className={`ml-1 sm:ml-2 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs rounded-full whitespace-nowrap ${building.moderation_status === 'pending'
                             ? 'bg-amber-100 text-amber-800'
                             : 'bg-red-100 text-red-800'
                           }`}>
-                          {building.moderation_status === 'pending' ? '🟡 Pending' : '❌ Rejected'}
+                          {building.moderation_status === 'pending' ? 'Pending' : 'Rejected'}
                         </span>
                       )}
                     </div>
 
-                    <div className="space-y-2 text-sm text-gray-600">
+                    <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
                       {building.architect && (
-                        <p>Architect: {building.architect}</p>
+                        <p className="truncate">{building.architect}</p>
                       )}
 
                       <div className="flex items-center space-x-1">
-                        <MapPin className="w-4 h-4" />
-                        <span>{building.city}</span>
-                        {building.year_built && <span>• {building.year_built}</span>}
+                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <span className="truncate">{building.city}</span>
+                        {building.year_built && <span className="flex-shrink-0">• {building.year_built}</span>}
                       </div>
 
                       {building.architectural_style && (
-                        <span className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                        <span className="inline-block bg-blue-100 text-blue-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs truncate max-w-full">
                           {building.architectural_style}
                         </span>
                       )}
                     </div>
 
                     {/* Статистика */}
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center space-x-4">
+                    <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-gray-100">
+                      <div className="flex items-center justify-between text-xs sm:text-sm">
+                        <div className="flex items-center space-x-2 sm:space-x-4">
                           <div className="flex items-center space-x-1">
-                            <Eye className="w-4 h-4 text-gray-400" />
+                            <Eye className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                             <span className="text-gray-600">{building.view_count}</span>
                           </div>
                           <div className="flex items-center space-x-1">
-                            <Star className="w-4 h-4 text-yellow-400" />
+                            <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" />
                             <span className="text-gray-600">{building.review_count}</span>
                           </div>
                         </div>
 
-                        <div className="text-xs text-gray-500">
+                        <div className="text-[10px] sm:text-xs text-gray-500 hidden sm:block">
                           {formatDate(building.created_at)}
                         </div>
                       </div>
 
                       {building.avg_rating > 0 && (
-                        <div className="mt-2">
+                        <div className="mt-1 sm:mt-2 hidden sm:block">
                           {renderStars(building.avg_rating)}
                         </div>
                       )}
@@ -468,116 +449,6 @@ export default function ProfileBuildingsPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          ) : (
-            /* Список зданий */
-            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-              <div className="divide-y divide-gray-200">
-                {filteredBuildings.map((building) => (
-                  <div key={building.id} className="p-6 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center space-x-4">
-                      {/* Изображение */}
-                      <div className="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                        {building.image_url ? (
-                          <img
-                            src={building.image_url}
-                            alt={building.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Building2 className="w-8 h-8 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Информация */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h3 className="text-lg font-semibold text-gray-900">
-                                {building.name}
-                              </h3>
-                              {building.moderation_status && building.moderation_status !== 'approved' && (
-                                <span className={`px-2 py-0.5 text-xs rounded-full whitespace-nowrap ${building.moderation_status === 'pending'
-                                    ? 'bg-amber-100 text-amber-800'
-                                    : 'bg-red-100 text-red-800'
-                                  }`}>
-                                  {building.moderation_status === 'pending' ? '🟡 Pending' : '❌ Rejected'}
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
-                              {building.architect && (
-                                <span>Architect: {building.architect}</span>
-                              )}
-                              <div className="flex items-center space-x-1">
-                                <MapPin className="w-4 h-4" />
-                                <span>{building.city}</span>
-                                {building.year_built && <span>• {building.year_built}</span>}
-                              </div>
-                            </div>
-
-                            {building.architectural_style && (
-                              <span className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs mb-2">
-                                {building.architectural_style}
-                              </span>
-                            )}
-
-                            <div className="flex items-center space-x-6 text-sm text-gray-500">
-                              <div className="flex items-center space-x-1">
-                                <Eye className="w-4 h-4" />
-                                <span>{building.view_count} views</span>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                <Star className="w-4 h-4" />
-                                <span>{building.review_count} reviews</span>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                <Calendar className="w-4 h-4" />
-                                <span>{formatDate(building.created_at)}</span>
-                              </div>
-                            </div>
-
-                            {building.avg_rating > 0 && (
-                              <div className="mt-2">
-                                {renderStars(building.avg_rating)}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Действия */}
-                          <div className="flex items-center space-x-2 ml-4">
-                            <Link
-                              href={`/buildings/${building.id}`}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                              title="View"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Link>
-                            <Link
-                              href={`/buildings/${building.id}/edit`}
-                              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                              title="Edit"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                            </Link>
-                            <button
-                              onClick={() => handleDeleteBuilding(building.id)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
         </div>

@@ -282,24 +282,24 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-8">
         {/* Навигация */}
-        <div className="mb-6">
+        <div className="mb-2 sm:mb-6">
           <Link
             href="/"
-            className="inline-flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors"
+            className="inline-flex items-center space-x-1 text-gray-600 hover:text-blue-600 transition-colors text-sm"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>To Home</span>
           </Link>
         </div>
 
         {/* Шапка профиля */}
-        <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-6">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 sm:gap-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full sm:w-auto">
+        <div className="bg-white rounded-lg shadow-sm border p-2.5 sm:p-6 mb-2 sm:mb-6">
+          <div className="flex sm:flex-row items-start justify-between gap-2 sm:gap-6">
+            <div className="flex items-start gap-2.5 sm:gap-6 flex-1 min-w-0">
               {/* Аватар */}
-              <div className="w-20 h-20 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center flex-shrink-0">
                 {avatar ? (
                   <img
                     src={avatar}
@@ -307,33 +307,33 @@ export default function ProfilePage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-white font-bold text-2xl">
+                  <span className="text-white font-bold text-lg sm:text-2xl">
                     {displayName.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
 
               {/* Основная информация */}
-              <div className="text-center sm:text-left w-full sm:w-auto">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base sm:text-2xl font-bold text-gray-900 leading-tight">
                   {displayName}
                 </h1>
-                <p className="text-gray-600 mb-2 text-sm sm:text-base break-all">{user.email}</p>
+                <p className="text-gray-600 text-xs sm:text-base break-all">{user.email}</p>
 
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
-                  <span className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getRoleColor(profile?.role || 'explorer')}`}>
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 mt-1 sm:mt-2">
+                  <span className={`px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-sm font-medium ${getRoleColor(profile?.role || 'explorer')}`}>
                     {getRoleDisplayName(profile?.role || 'explorer')}
                   </span>
 
                   {profile?.city && (
-                    <div className="flex items-center text-xs sm:text-sm text-gray-500">
-                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    <div className="flex items-center text-[10px] sm:text-sm text-gray-500">
+                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5" />
                       {profile.city}
                     </div>
                   )}
 
-                  <div className="flex items-center text-xs sm:text-sm text-gray-500">
-                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                  <div className="flex items-center text-[10px] sm:text-sm text-gray-500">
+                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5" />
                     <span className="hidden sm:inline">On platform since </span>
                     <span className="sm:hidden">Since </span>
                     {formatDate(profile?.created_at || user.created_at)}
@@ -341,7 +341,7 @@ export default function ProfilePage() {
                 </div>
 
                 {profile?.bio && (
-                  <p className="text-gray-700 mt-3 max-w-2xl text-sm sm:text-base">
+                  <p className="text-gray-700 mt-1.5 sm:mt-3 max-w-2xl text-xs sm:text-base line-clamp-2 sm:line-clamp-none">
                     {profile.bio}
                   </p>
                 )}
@@ -351,101 +351,101 @@ export default function ProfilePage() {
             {/* Кнопка редактирования */}
             <Link
               href="/profile/edit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 flex-shrink-0 w-full sm:w-auto justify-center"
+              className="bg-blue-600 text-white px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1 sm:space-x-2 flex-shrink-0 text-xs sm:text-sm"
             >
-              <Edit3 className="w-4 h-4" />
+              <Edit3 className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>Edit</span>
             </Link>
           </div>
         </div>
 
         {/* Статистика */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-sm border p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-green-600" />
+        <div className="grid grid-cols-5 gap-1.5 sm:gap-4 mb-2 sm:mb-6">
+          <div className="bg-white rounded-lg shadow-sm border p-1.5 sm:p-4">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-3 text-center sm:text-left">
+              <div className="w-7 h-7 sm:w-10 sm:h-10 bg-green-100 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0 mb-0.5 sm:mb-0">
+                <Building2 className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-green-600" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="min-w-0">
+                <p className="text-sm sm:text-2xl font-bold text-gray-900 leading-tight">
                   {loading ? '...' : stats.buildings_count}
                 </p>
-                <p className="text-sm text-gray-600">Buildings</p>
+                <p className="text-[9px] sm:text-sm text-gray-600 truncate leading-tight">Buildings</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-blue-600" />
+          <div className="bg-white rounded-lg shadow-sm border p-1.5 sm:p-4">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-3 text-center sm:text-left">
+              <div className="w-7 h-7 sm:w-10 sm:h-10 bg-blue-100 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0 mb-0.5 sm:mb-0">
+                <MapPin className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="min-w-0">
+                <p className="text-sm sm:text-2xl font-bold text-gray-900 leading-tight">
                   {loading ? '...' : stats.routes_count}
                 </p>
-                <p className="text-sm text-gray-600">Routes</p>
+                <p className="text-[9px] sm:text-sm text-gray-600 truncate leading-tight">Routes</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-purple-600" />
+          <div className="bg-white rounded-lg shadow-sm border p-1.5 sm:p-4">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-3 text-center sm:text-left">
+              <div className="w-7 h-7 sm:w-10 sm:h-10 bg-purple-100 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0 mb-0.5 sm:mb-0">
+                <MessageSquare className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-purple-600" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="min-w-0">
+                <p className="text-sm sm:text-2xl font-bold text-gray-900 leading-tight">
                   {loading ? '...' : stats.reviews_count}
                 </p>
-                <p className="text-sm text-gray-600">Reviews</p>
+                <p className="text-[9px] sm:text-sm text-gray-600 truncate leading-tight">Reviews</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                <Heart className="w-5 h-5 text-red-600" />
+          <div className="bg-white rounded-lg shadow-sm border p-1.5 sm:p-4">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-3 text-center sm:text-left">
+              <div className="w-7 h-7 sm:w-10 sm:h-10 bg-red-100 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0 mb-0.5 sm:mb-0">
+                <Heart className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-red-600" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="min-w-0">
+                <p className="text-sm sm:text-2xl font-bold text-gray-900 leading-tight">
                   {loading ? '...' : stats.favorites_count}
                 </p>
-                <p className="text-sm text-gray-600">Favorites</p>
+                <p className="text-[9px] sm:text-sm text-gray-600 truncate leading-tight">Favorites</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <Folder className="w-5 h-5 text-indigo-600" />
+          <div className="bg-white rounded-lg shadow-sm border p-1.5 sm:p-4">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-3 text-center sm:text-left">
+              <div className="w-7 h-7 sm:w-10 sm:h-10 bg-indigo-100 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0 mb-0.5 sm:mb-0">
+                <Folder className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-indigo-600" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="min-w-0">
+                <p className="text-sm sm:text-2xl font-bold text-gray-900 leading-tight">
                   {loading ? '...' : stats.collections_count}
                 </p>
-                <p className="text-sm text-gray-600">Collections</p>
+                <p className="text-[9px] sm:text-sm text-gray-600 truncate leading-tight">Collections</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-2 sm:gap-6">
           {/* Последняя активность */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm border">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Clock className="w-5 h-5 mr-2" />
+              <div className="px-2.5 py-2 sm:p-6 border-b border-gray-200">
+                <h2 className="text-sm sm:text-lg font-semibold text-gray-900 flex items-center">
+                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                   Recent Activity
                 </h2>
               </div>
 
-              <div className="p-6">
+              <div className="p-2 sm:p-6">
                 {loading ? (
-                  <div className="space-y-4">
+                  <div className="space-y-2 sm:space-y-4">
                     {[...Array(5)].map((_, i) => (
                       <div key={i} className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
@@ -457,10 +457,10 @@ export default function ProfilePage() {
                     ))}
                   </div>
                 ) : recentActivity.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-0.5 sm:space-y-4">
                     {recentActivity.map((activity) => (
-                      <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div key={activity.id} className="flex items-start space-x-2 sm:space-x-3 p-1.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-100 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0">
                           {getActivityIcon(activity.type)}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -501,17 +501,17 @@ export default function ProfilePage() {
           </div>
 
           {/* Дополнительная статистика и навигация */}
-          <div className="space-y-6">
+          <div className="space-y-2 sm:space-y-6">
             {/* Дополнительные метрики */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2" />
+            <div className="bg-white rounded-lg shadow-sm border p-2.5 sm:p-6">
+              <h3 className="text-sm sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-4 flex items-center">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                 Statistics
               </h3>
 
-              <div className="space-y-4">
+              <div className="space-y-2 sm:space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Total Views</span>
+                  <span className="text-xs sm:text-sm text-gray-600">Total Views</span>
                   <span className="font-semibold text-gray-900">
                     {loading ? '...' : stats.total_views.toLocaleString()}
                   </span>
@@ -532,63 +532,63 @@ export default function ProfilePage() {
             </div>
 
             {/* Быстрая навигация */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">My Sections</h3>
+            <div className="bg-white rounded-lg shadow-sm border p-2.5 sm:p-6">
+              <h3 className="text-sm sm:text-lg font-semibold text-gray-900 mb-1.5 sm:mb-4">My Sections</h3>
 
-              <div className="space-y-3">
+              <div className="space-y-0 sm:space-y-3">
                 <Link
                   href="/profile/buildings"
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-1.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex items-center space-x-3">
-                    <Building2 className="w-5 h-5 text-green-600" />
-                    <span className="font-medium text-gray-900">Buildings</span>
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                    <span className="font-medium text-gray-900 text-sm sm:text-base">Buildings</span>
                   </div>
                   <span className="text-sm text-gray-500">{stats.buildings_count}</span>
                 </Link>
 
                 <Link
                   href="/profile/routes"
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-1.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="w-5 h-5 text-blue-600" />
-                    <span className="font-medium text-gray-900">My Routes</span>
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                    <span className="font-medium text-gray-900 text-sm sm:text-base">My Routes</span>
                   </div>
-                  <span className="text-sm text-gray-500">{stats.routes_count}</span>
+                  <span className="text-xs sm:text-sm text-gray-500">{stats.routes_count}</span>
                 </Link>
 
                 <Link
                   href="/profile/reviews"
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-1.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex items-center space-x-3">
-                    <MessageSquare className="w-5 h-5 text-purple-600" />
-                    <span className="font-medium text-gray-900">My Reviews</span>
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+                    <span className="font-medium text-gray-900 text-sm sm:text-base">My Reviews</span>
                   </div>
-                  <span className="text-sm text-gray-500">{stats.reviews_count}</span>
+                  <span className="text-xs sm:text-sm text-gray-500">{stats.reviews_count}</span>
                 </Link>
 
                 <Link
                   href="/profile/favorites"
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-1.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex items-center space-x-3">
-                    <Heart className="w-5 h-5 text-red-600" />
-                    <span className="font-medium text-gray-900">Favorites</span>
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
+                    <span className="font-medium text-gray-900 text-sm sm:text-base">Favorites</span>
                   </div>
-                  <span className="text-sm text-gray-500">{stats.favorites_count}</span>
+                  <span className="text-xs sm:text-sm text-gray-500">{stats.favorites_count}</span>
                 </Link>
 
                 <Link
                   href="/profile/collections"
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-1.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex items-center space-x-3">
-                    <Folder className="w-5 h-5 text-indigo-600" />
-                    <span className="font-medium text-gray-900">Collections</span>
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <Folder className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+                    <span className="font-medium text-gray-900 text-sm sm:text-base">Collections</span>
                   </div>
-                  <span className="text-sm text-gray-500">{stats.collections_count}</span>
+                  <span className="text-xs sm:text-sm text-gray-500">{stats.collections_count}</span>
                 </Link>
               </div>
             </div>

@@ -174,7 +174,7 @@ export default function FollowButton({
             ) : isFollowing ? (
                 <>
                     <UserCheck className="w-4 h-4" />
-                    Following
+                    Unfollow
                 </>
             ) : (
                 <>

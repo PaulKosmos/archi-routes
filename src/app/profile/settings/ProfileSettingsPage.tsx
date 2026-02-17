@@ -196,41 +196,41 @@ export default function ProfileSettingsPage() {
     <div className="min-h-screen bg-background flex flex-col">
       <Header buildings={[]} />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 pt-10 max-w-4xl">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pt-6 sm:pt-10 max-w-4xl">
           {/* Заголовок */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 sm:mb-8">
+            <div className="flex items-center gap-3 sm:gap-4">
               <Link
                 href="/profile"
                 className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
               >
                 <ArrowLeft className="h-5 w-5 text-muted-foreground" />
               </Link>
-              <div className="flex-1">
-                <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
-                  <Settings className="h-6 w-6" />
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl sm:text-3xl font-heading font-bold flex items-center gap-2">
+                  <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
                   Settings
                 </h1>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-muted-foreground text-xs sm:text-base mt-0.5">
                   Manage your account and personal settings
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-3 sm:space-y-6">
             {/* Уведомления */}
-            <div className="bg-card border border-border rounded-[var(--radius)] p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Bell className="h-5 w-5" />
+            <div className="bg-card border border-border rounded-[var(--radius)] p-3 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
                 Notifications
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium">Email Notifications</h3>
-                    <p className="text-sm text-muted-foreground">Receive important notifications via email</p>
+                    <h3 className="font-medium text-sm sm:text-base">Email Notifications</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Receive important notifications via email</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -245,8 +245,8 @@ export default function ProfileSettingsPage() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">New Reviews</h3>
-                    <p className="text-sm text-gray-500">Notifications about new reviews of your buildings</p>
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base">New Reviews</h3>
+                    <p className="text-xs sm:text-sm text-gray-500">Notifications about new reviews of your buildings</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -261,8 +261,8 @@ export default function ProfileSettingsPage() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">Mentions</h3>
-                    <p className="text-sm text-gray-500">When you are mentioned in reviews or comments</p>
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base">Mentions</h3>
+                    <p className="text-xs sm:text-sm text-gray-500">When you are mentioned in reviews or comments</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -276,15 +276,15 @@ export default function ProfileSettingsPage() {
                 </div>
 
                 {/* Social Notifications Separator */}
-                <div className="border-t border-gray-200 pt-4 mt-4">
-                  <p className="text-sm font-medium text-gray-500 mb-4">Social Activity</p>
+                <div className="border-t border-gray-200 pt-3 sm:pt-4 mt-3 sm:mt-4">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 mb-3 sm:mb-4">Social Activity</p>
                 </div>
 
                 {/* New Followers */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">New Followers</h3>
-                    <p className="text-sm text-gray-500">When someone starts following you</p>
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base">New Followers</h3>
+                    <p className="text-xs sm:text-sm text-gray-500">When someone starts following you</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -300,8 +300,8 @@ export default function ProfileSettingsPage() {
                 {/* Collection Likes */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">Collection Likes</h3>
-                    <p className="text-sm text-gray-500">When someone likes your collection</p>
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base">Collection Likes</h3>
+                    <p className="text-xs sm:text-sm text-gray-500">When someone likes your collection</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -317,8 +317,8 @@ export default function ProfileSettingsPage() {
                 {/* Blog Comments */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">Blog Comments</h3>
-                    <p className="text-sm text-gray-500">When someone comments on your blog posts</p>
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base">Blog Comments</h3>
+                    <p className="text-xs sm:text-sm text-gray-500">When someone comments on your blog posts</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -332,11 +332,11 @@ export default function ProfileSettingsPage() {
                 </div>
 
                 {/* Push Notifications (master toggle) */}
-                <div className="border-t border-gray-200 pt-4 mt-4">
+                <div className="border-t border-gray-200 pt-3 sm:pt-4 mt-3 sm:mt-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-medium text-gray-900">Push Notifications</h3>
-                      <p className="text-sm text-gray-500">Enable browser push notifications</p>
+                      <h3 className="font-medium text-gray-900 text-sm sm:text-base">Push Notifications</h3>
+                      <p className="text-xs sm:text-sm text-gray-500">Enable browser push notifications</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -353,15 +353,15 @@ export default function ProfileSettingsPage() {
             </div>
 
             {/* Приватность */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-lg font-semibold mb-4 flex items-center">
-                <Shield className="h-5 w-5 mr-2 text-blue-600" />
+            <div className="bg-white rounded-lg p-3 sm:p-6 shadow-sm border">
+              <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center">
+                <Shield className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600" />
                 Privacy
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Profile Visibility</h3>
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base mb-2">Profile Visibility</h3>
                   <div className="space-y-2">
                     <label className="flex items-center">
                       <input
@@ -374,7 +374,7 @@ export default function ProfileSettingsPage() {
                       />
                       <div>
                         <span className="font-medium">Public</span>
-                        <p className="text-sm text-gray-500">Everyone can see your profile and activity</p>
+                        <p className="text-xs sm:text-sm text-gray-500">Everyone can see your profile and activity</p>
                       </div>
                     </label>
                     <label className="flex items-center">
@@ -388,7 +388,7 @@ export default function ProfileSettingsPage() {
                       />
                       <div>
                         <span className="font-medium">Private</span>
-                        <p className="text-sm text-gray-500">Only basic information visible to others</p>
+                        <p className="text-xs sm:text-sm text-gray-500">Only basic information visible to others</p>
                       </div>
                     </label>
                   </div>
@@ -396,8 +396,8 @@ export default function ProfileSettingsPage() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">Show Email</h3>
-                    <p className="text-sm text-gray-500">Allow other users to see your email</p>
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base">Show Email</h3>
+                    <p className="text-xs sm:text-sm text-gray-500">Allow other users to see your email</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -412,8 +412,8 @@ export default function ProfileSettingsPage() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">Show My Buildings</h3>
-                    <p className="text-sm text-gray-500">Allow others to see the list of buildings you created</p>
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base">Show My Buildings</h3>
+                    <p className="text-xs sm:text-sm text-gray-500">Allow others to see the list of buildings you created</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -429,9 +429,9 @@ export default function ProfileSettingsPage() {
             </div>
 
             {/* Удаление аккаунта */}
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center text-red-800">
-                <Trash2 className="h-5 w-5 mr-2" />
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center text-red-800">
+                <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 Account Deletion
               </h2>
 
@@ -485,7 +485,7 @@ export default function ProfileSettingsPage() {
             </div>
 
             {/* Кнопка сохранения */}
-            <div className="flex items-center justify-between pt-6 border-t">
+            <div className="flex items-center justify-between pt-4 sm:pt-6 border-t">
               <Link
                 href="/profile"
                 className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"

@@ -478,10 +478,10 @@ export default function ProfileFavoritesPage() {
     <div className="min-h-screen bg-background flex flex-col">
       <Header buildings={[]} />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 pt-10">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pt-5 sm:pt-10">
           {/* Шапка */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
+          <div className="mb-3 sm:mb-8">
+            <div className="flex items-center gap-3 sm:gap-4">
               <Link
                 href="/profile"
                 className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
@@ -489,11 +489,11 @@ export default function ProfileFavoritesPage() {
                 <ArrowLeft className="w-5 h-5 text-muted-foreground" />
               </Link>
               <div className="flex-1">
-                <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
-                  <Heart className="w-6 h-6" />
+                <h1 className="text-xl sm:text-3xl font-heading font-bold flex items-center gap-2">
+                  <Heart className="w-5 h-5 sm:w-6 sm:h-6" />
                   Favorites
                 </h1>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-muted-foreground text-xs sm:text-base mt-0.5">
                   {totalFavorites} {totalFavorites === 1 ? 'item' : 'items'}
                 </p>
               </div>
@@ -501,20 +501,20 @@ export default function ProfileFavoritesPage() {
           </div>
 
           {/* Фильтры */}
-          <div className="mb-8 bg-card border border-border rounded-[var(--radius)] p-2">
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-3 sm:mb-8 bg-card border border-border rounded-[var(--radius)] p-1.5 sm:p-2">
+            <div className="flex gap-1 sm:gap-2">
               {filters.map((filter) => (
                 <button
                   key={filter.type}
                   onClick={() => setActiveFilter(filter.type)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-[var(--radius)] font-medium transition-all ${activeFilter === filter.type
+                  className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2.5 rounded-[var(--radius)] font-medium transition-all text-xs sm:text-sm flex-1 sm:flex-none justify-center sm:justify-start ${activeFilter === filter.type
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'bg-background hover:bg-accent'
                     }`}
                 >
-                  <filter.icon className="w-4 h-4" />
+                  <filter.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                   <span>{filter.label}</span>
-                  <span className={`text-sm ${activeFilter === filter.type ? 'opacity-90' : 'text-muted-foreground'
+                  <span className={`hidden sm:inline text-sm ${activeFilter === filter.type ? 'opacity-90' : 'text-muted-foreground'
                     }`}>
                     ({filter.count})
                   </span>
@@ -525,11 +525,11 @@ export default function ProfileFavoritesPage() {
 
           {/* Контент */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="bg-card border border-border rounded-[var(--radius)] overflow-hidden">
-                  <div className="h-48 bg-muted animate-pulse" />
-                  <div className="p-4 space-y-3">
+                  <div className="h-28 sm:h-48 bg-muted animate-pulse" />
+                  <div className="p-2.5 sm:p-4 space-y-2 sm:space-y-3">
                     <div className="h-4 bg-muted rounded animate-pulse" />
                     <div className="h-3 bg-muted rounded animate-pulse w-2/3" />
                   </div>
@@ -552,14 +552,14 @@ export default function ProfileFavoritesPage() {
             <>
               {/* Блоги */}
               {(activeFilter === 'all' || activeFilter === 'blog') && favoritedBlogs.length > 0 && (
-                <div className="mb-12">
+                <div className="mb-6 sm:mb-12">
                   {activeFilter === 'all' && (
-                    <h2 className="text-2xl font-heading font-bold mb-6 flex items-center gap-2">
+                    <h2 className="text-lg sm:text-2xl font-heading font-bold mb-3 sm:mb-6 flex items-center gap-2">
                       <BookOpen className="w-6 h-6 text-[hsl(var(--blog-primary))]" />
                       Blogs ({favoritedBlogs.length})
                     </h2>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
                     {favoritedBlogs.map((blog) => {
                       const collections = itemCollections.get(blog.id) || []
                       return (
@@ -593,14 +593,14 @@ export default function ProfileFavoritesPage() {
 
               {/* Новости */}
               {(activeFilter === 'all' || activeFilter === 'news') && favoritedNews.length > 0 && (
-                <div className="mb-12">
+                <div className="mb-6 sm:mb-12">
                   {activeFilter === 'all' && (
-                    <h2 className="text-2xl font-heading font-bold mb-6 flex items-center gap-2">
+                    <h2 className="text-lg sm:text-2xl font-heading font-bold mb-3 sm:mb-6 flex items-center gap-2">
                       <Newspaper className="w-6 h-6 text-[hsl(var(--news-primary))]" />
                       News ({favoritedNews.length})
                     </h2>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
                     {favoritedNews.map((news) => {
                       const collections = itemCollections.get(news.id) || []
                       return (
@@ -634,14 +634,14 @@ export default function ProfileFavoritesPage() {
 
               {/* Маршруты */}
               {(activeFilter === 'all' || activeFilter === 'route') && favoritedRoutes.length > 0 && (
-                <div className="mb-12">
+                <div className="mb-6 sm:mb-12">
                   {activeFilter === 'all' && (
-                    <h2 className="text-2xl font-heading font-bold mb-6 flex items-center gap-2">
+                    <h2 className="text-lg sm:text-2xl font-heading font-bold mb-3 sm:mb-6 flex items-center gap-2">
                       <Route className="w-6 h-6 text-[hsl(var(--route-primary))]" />
                       Routes ({favoritedRoutes.length})
                     </h2>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
                     {favoritedRoutes.map((item) => {
                       const collections = itemCollections.get(item.route.id) || []
                       return (
@@ -650,7 +650,7 @@ export default function ProfileFavoritesPage() {
                             href={`/routes/${item.route.id}`}
                             className="group bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-lg transition-shadow block"
                           >
-                            <div className="relative h-48 bg-muted">
+                            <div className="relative h-28 sm:h-48 bg-muted">
                               {item.route.thumbnail_url ? (
                                 <img
                                   src={item.route.thumbnail_url}
@@ -663,16 +663,16 @@ export default function ProfileFavoritesPage() {
                                 </div>
                               )}
                             </div>
-                            <div className="p-4">
-                              <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-[hsl(var(--route-primary))] transition-colors">
+                            <div className="p-2.5 sm:p-4">
+                              <h3 className="font-semibold text-sm sm:text-lg mb-1 sm:mb-2 line-clamp-2 group-hover:text-[hsl(var(--route-primary))] transition-colors">
                                 {item.route.title}
                               </h3>
                               {item.route.description && (
-                                <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                                <p className="text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2 hidden sm:block">
                                   {item.route.description}
                                 </p>
                               )}
-                              <div className="flex items-center gap-4 text-xs text-muted-foreground border-t border-border pt-3">
+                              <div className="flex items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground border-t border-border pt-2 sm:pt-3">
                                 {item.route.city && (
                                   <div className="flex items-center gap-1">
                                     <MapPin className="w-3.5 h-3.5" />
@@ -713,14 +713,14 @@ export default function ProfileFavoritesPage() {
 
               {/* Здания */}
               {(activeFilter === 'all' || activeFilter === 'building') && favoritedBuildings.length > 0 && (
-                <div className="mb-12">
+                <div className="mb-6 sm:mb-12">
                   {activeFilter === 'all' && (
-                    <h2 className="text-2xl font-heading font-bold mb-6 flex items-center gap-2">
+                    <h2 className="text-lg sm:text-2xl font-heading font-bold mb-3 sm:mb-6 flex items-center gap-2">
                       <Building2 className="w-6 h-6 text-primary" />
                       Buildings ({favoritedBuildings.length})
                     </h2>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
                     {favoritedBuildings.map((item) => {
                       const collections = itemCollections.get(item.building.id) || []
                       return (
@@ -729,7 +729,7 @@ export default function ProfileFavoritesPage() {
                             href={`/buildings/${item.building.id}`}
                             className="group bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-lg transition-shadow block"
                           >
-                            <div className="relative h-48 bg-muted">
+                            <div className="relative h-28 sm:h-48 bg-muted">
                               {item.building.image_url ? (
                                 <img
                                   src={item.building.image_url}
@@ -742,18 +742,18 @@ export default function ProfileFavoritesPage() {
                                 </div>
                               )}
                             </div>
-                            <div className="p-4">
-                              <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                            <div className="p-2.5 sm:p-4">
+                              <h3 className="font-semibold text-sm sm:text-lg mb-1 sm:mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                                 {item.building.name}
                               </h3>
-                              <div className="space-y-1 text-sm text-muted-foreground">
+                              <div className="space-y-0.5 sm:space-y-1 text-xs sm:text-sm text-muted-foreground">
                                 {item.building.architect && (
-                                  <p>Architect: {item.building.architect}</p>
+                                  <p className="truncate hidden sm:block">Architect: {item.building.architect}</p>
                                 )}
                                 <div className="flex items-center gap-1">
-                                  <MapPin className="w-3.5 h-3.5" />
-                                  <span>{item.building.city}</span>
-                                  {item.building.year_built && <span>• {item.building.year_built}</span>}
+                                  <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+                                  <span className="truncate">{item.building.city}</span>
+                                  {item.building.year_built && <span className="flex-shrink-0">• {item.building.year_built}</span>}
                                 </div>
                               </div>
                             </div>

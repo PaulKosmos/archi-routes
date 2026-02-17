@@ -265,51 +265,53 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
       return (
         <Link
           href={`/blog/${item.item_id}`}
-          className="group bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-lg transition-all"
+          className="bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-md transition-shadow block"
         >
-          <div className="relative h-48 bg-muted">
+          <div className="relative h-32 sm:h-48 bg-muted">
             {item_data.featured_image_url ? (
               <Image
                 src={item_data.featured_image_url}
                 alt={item_data.title}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                className="object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <BookOpen className="w-12 h-12 text-muted-foreground opacity-30" />
+                <BookOpen className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
               </div>
             )}
-            <div className="absolute top-3 left-3">
-              <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
-                Blog
-              </span>
-            </div>
             {isOwner && (
-              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2">
                 <button
                   onClick={(e) => {
                     e.preventDefault()
                     removeItem(item.id)
                   }}
-                  className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  className="bg-white bg-opacity-90 backdrop-blur-sm p-2 rounded-lg hover:bg-opacity-100 transition-all"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 text-red-500" />
                 </button>
               </div>
             )}
           </div>
-          <div className="p-4">
-            <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+          <div className="p-2.5 sm:p-4">
+            <h3 className="font-semibold text-gray-900 line-clamp-2 text-sm sm:text-base mb-1 sm:mb-2">
               {item_data.title}
             </h3>
             {item_data.excerpt && (
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+              <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 hidden sm:block">
                 {item_data.excerpt}
               </p>
             )}
-            <div className="flex items-center justify-end text-xs text-muted-foreground">
-              <span>Added {new Date(item.added_at).toLocaleDateString('en-US')}</span>
+            <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between text-xs sm:text-sm">
+                <span className="inline-block bg-blue-100 text-blue-800 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs">
+                  Blog
+                </span>
+                <span className="text-[10px] sm:text-xs text-gray-500 hidden sm:block">
+                  {new Date(item.added_at).toLocaleDateString('ru-RU')}
+                </span>
+              </div>
             </div>
           </div>
         </Link>
@@ -320,52 +322,53 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
       return (
         <Link
           href={`/news/${item.item_id}`}
-          className="group bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-lg transition-all"
+          className="bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-md transition-shadow block"
         >
-          <div className="relative h-48 bg-muted">
+          <div className="relative h-32 sm:h-48 bg-muted">
             {item_data.featured_image_url ? (
               <Image
                 src={item_data.featured_image_url}
                 alt={item_data.title}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                className="object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <Newspaper className="w-12 h-12 text-muted-foreground opacity-30" />
+                <Newspaper className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
               </div>
             )}
-            <div className="absolute top-3 left-3">
-              <span className="px-2 py-1 bg-green-500 text-white text-xs rounded-full">
-                News
-              </span>
-            </div>
             {isOwner && (
-              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2">
                 <button
                   onClick={(e) => {
                     e.preventDefault()
                     removeItem(item.id)
                   }}
-                  className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  className="bg-white bg-opacity-90 backdrop-blur-sm p-2 rounded-lg hover:bg-opacity-100 transition-all"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 text-red-500" />
                 </button>
               </div>
             )}
           </div>
-          <div className="p-4">
-            <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+          <div className="p-2.5 sm:p-4">
+            <h3 className="font-semibold text-gray-900 line-clamp-2 text-sm sm:text-base mb-1 sm:mb-2">
               {item_data.title}
             </h3>
             {item_data.summary && (
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+              <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 hidden sm:block">
                 {item_data.summary}
               </p>
             )}
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{new Date(item_data.published_at).toLocaleDateString('ru-RU')}</span>
-              <span>{new Date(item.added_at).toLocaleDateString('ru-RU')}</span>
+            <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between text-xs sm:text-sm">
+                <span className="inline-block bg-green-100 text-green-800 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs">
+                  News
+                </span>
+                <span className="text-[10px] sm:text-xs text-gray-500 hidden sm:block">
+                  {new Date(item_data.published_at).toLocaleDateString('ru-RU')}
+                </span>
+              </div>
             </div>
           </div>
         </Link>
@@ -376,52 +379,59 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
       return (
         <Link
           href={`/routes/${item.item_id}`}
-          className="group bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-lg transition-all"
+          className="bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-md transition-shadow block"
         >
-          <div className="relative h-48 bg-muted">
+          <div className="relative h-32 sm:h-48 bg-muted">
             {item_data.thumbnail_url ? (
               <Image
                 src={item_data.thumbnail_url}
                 alt={item_data.title}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                className="object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <RouteIcon className="w-12 h-12 text-muted-foreground opacity-30" />
+                <RouteIcon className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
               </div>
             )}
-            <div className="absolute top-3 left-3">
-              <span className="px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
-                Route
-              </span>
-            </div>
             {isOwner && (
-              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2">
                 <button
                   onClick={(e) => {
                     e.preventDefault()
                     removeItem(item.id)
                   }}
-                  className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  className="bg-white bg-opacity-90 backdrop-blur-sm p-2 rounded-lg hover:bg-opacity-100 transition-all"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 text-red-500" />
                 </button>
               </div>
             )}
           </div>
-          <div className="p-4">
-            <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+          <div className="p-2.5 sm:p-4">
+            <h3 className="font-semibold text-gray-900 line-clamp-2 text-sm sm:text-base mb-1 sm:mb-2">
               {item_data.title}
             </h3>
-            {item_data.description && (
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                {item_data.description}
-              </p>
-            )}
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              {item_data.distance_km && <span>{item_data.distance_km} км</span>}
-              <span>{new Date(item.added_at).toLocaleDateString('en-US')}</span>
+            <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
+              {item_data.description && (
+                <p className="line-clamp-2 hidden sm:block">{item_data.description}</p>
+              )}
+              {item_data.distance_km && (
+                <div className="flex items-center space-x-1">
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span>{item_data.distance_km} km</span>
+                </div>
+              )}
+            </div>
+            <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between text-xs sm:text-sm">
+                <span className="inline-block bg-purple-100 text-purple-800 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs">
+                  Route
+                </span>
+                <span className="text-[10px] sm:text-xs text-gray-500 hidden sm:block">
+                  {new Date(item.added_at).toLocaleDateString('ru-RU')}
+                </span>
+              </div>
             </div>
           </div>
         </Link>
@@ -432,61 +442,58 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
       return (
         <Link
           href={`/buildings/${item.item_id}`}
-          className="group bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-lg transition-all"
+          className="bg-card border border-border rounded-[var(--radius)] overflow-hidden hover:shadow-md transition-shadow block"
         >
-          <div className="relative h-48 bg-muted">
+          <div className="relative h-32 sm:h-48 bg-muted">
             {item_data.image_url ? (
               <Image
                 src={item_data.image_url}
                 alt={item_data.name}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                className="object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <Building2 className="w-12 h-12 text-muted-foreground opacity-30" />
+                <Building2 className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
               </div>
             )}
-            <div className="absolute top-3 left-3">
-              <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded-full">
-                Building
-              </span>
-            </div>
             {isOwner && (
-              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2">
                 <button
                   onClick={(e) => {
                     e.preventDefault()
                     removeItem(item.id)
                   }}
-                  className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  className="bg-white bg-opacity-90 backdrop-blur-sm p-2 rounded-lg hover:bg-opacity-100 transition-all"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 text-red-500" />
                 </button>
               </div>
             )}
           </div>
-          <div className="p-4">
-            <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+          <div className="p-2.5 sm:p-4">
+            <h3 className="font-semibold text-gray-900 line-clamp-2 text-sm sm:text-base mb-1 sm:mb-2">
               {item_data.name}
             </h3>
-            <div className="space-y-1 text-sm text-muted-foreground mb-3">
+            <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
               {item_data.architect && (
-                <p className="line-clamp-1">{item_data.architect}</p>
+                <p className="truncate">{item_data.architect}</p>
               )}
-              <div className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                <span className="truncate">{item_data.city}, {item_data.country}</span>
+              <div className="flex items-center space-x-1">
+                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="truncate">{item_data.city}</span>
+                {item_data.year_built && <span className="flex-shrink-0">• {item_data.year_built}</span>}
               </div>
-              {item_data.year_built && (
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  <span>{item_data.year_built}</span>
-                </div>
-              )}
             </div>
-            <div className="text-xs text-muted-foreground">
-              Added {new Date(item.added_at).toLocaleDateString('en-US')}
+            <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between text-xs sm:text-sm">
+                <span className="inline-block bg-orange-100 text-orange-800 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs">
+                  Building
+                </span>
+                <span className="text-[10px] sm:text-xs text-gray-500 hidden sm:block">
+                  {new Date(item.added_at).toLocaleDateString('ru-RU')}
+                </span>
+              </div>
             </div>
           </div>
         </Link>
@@ -532,96 +539,97 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      <main className="flex-1 container mx-auto px-4 pt-10 pb-8 max-w-7xl">
+      <main className="flex-1">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pt-6 sm:pt-10 max-w-7xl">
         {/* Навигация */}
-        <div className="mb-6">
-          <Link
-            href="/profile/collections"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Collections
-          </Link>
-        </div>
-
-        {/* Заголовок коллекции */}
-        <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm mb-8">
-          <div className="p-6">
-            {/* Название и кнопки управления */}
-            <div className="flex items-start justify-between gap-4 mb-4">
-              <div className="flex-1">
-                {editingName ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-border rounded-[var(--radius)] bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                      autoFocus
-                    />
-                    <button
-                      onClick={handleUpdateName}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => {
-                        setEditingName(false)
-                        setNewName(collection.name)
-                      }}
-                      className="px-4 py-2 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                    <Folder className="w-8 h-8 text-primary" />
-                    {collection.name}
-                    {isOwner && (
-                      <button
-                        onClick={() => setEditingName(true)}
-                        className="p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4 text-muted-foreground" />
-                      </button>
-                    )}
-                  </h1>
+        <div className="mb-4 sm:mb-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Link
+              href="/profile/collections"
+              className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+            </Link>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
+                <Folder className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                <span className="truncate">{collection.name}</span>
+                {isOwner && (
+                  <button
+                    onClick={() => setEditingName(true)}
+                    className="p-1.5 hover:bg-muted rounded-[var(--radius)] transition-colors flex-shrink-0"
+                  >
+                    <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
+                  </button>
                 )}
-              </div>
-
-              <div className="flex items-center gap-2">
+              </h1>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-muted-foreground text-xs sm:text-sm">
+                  {items.length} {items.length === 1 ? 'item' : 'items'}
+                </span>
                 {collection.is_public ? (
-                  <div className="flex items-center gap-1 px-3 py-1 bg-primary text-primary-foreground text-sm rounded-full">
-                    <Globe className="w-4 h-4" />
-                    <span>Public</span>
-                  </div>
+                  <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary text-primary-foreground text-[10px] sm:text-xs rounded-full">
+                    <Globe className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                    Public
+                  </span>
                 ) : (
-                  <div className="flex items-center gap-1 px-3 py-1 bg-background border border-border text-sm rounded-full">
-                    <Lock className="w-4 h-4" />
-                    <span>Private</span>
-                  </div>
+                  <span className="flex items-center gap-1 px-1.5 py-0.5 bg-background border border-border text-[10px] sm:text-xs rounded-full">
+                    <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                    Private
+                  </span>
                 )}
               </div>
             </div>
+          </div>
+        </div>
 
+        {/* Editing name inline */}
+        {editingName && (
+          <div className="flex items-center gap-2 mb-4 bg-card border border-border rounded-[var(--radius)] p-3 sm:p-4">
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className="flex-1 px-3 py-2 border border-border rounded-[var(--radius)] bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+              autoFocus
+            />
+            <button
+              onClick={handleUpdateName}
+              className="px-3 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors text-sm"
+            >
+              Save
+            </button>
+            <button
+              onClick={() => {
+                setEditingName(false)
+                setNewName(collection.name)
+              }}
+              className="px-3 py-2 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {/* Описание и действия - компактный блок */}
+        <div className="bg-white rounded-lg shadow-sm border mb-3 sm:mb-6">
+          <div className="p-3 sm:p-6">
             {/* Описание */}
-            <div className="mb-6">
+            <div className="mb-3 sm:mb-4">
               {editingDescription ? (
                 <div className="space-y-2">
                   <textarea
                     value={newDescription}
                     onChange={(e) => setNewDescription(e.target.value)}
                     placeholder="Add collection description..."
-                    className="w-full px-3 py-2 border border-border rounded-[var(--radius)] bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    className="w-full px-3 py-2 border border-border rounded-[var(--radius)] bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none text-sm"
                     rows={3}
                     autoFocus
                   />
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleUpdateDescription}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
+                      className="px-3 py-1.5 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors text-sm"
                     >
                       Save
                     </button>
@@ -630,7 +638,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                         setEditingDescription(false)
                         setNewDescription(collection.description || '')
                       }}
-                      className="px-4 py-2 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors"
+                      className="px-3 py-1.5 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors text-sm"
                     >
                       Cancel
                     </button>
@@ -638,20 +646,20 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
                 </div>
               ) : collection.description ? (
                 <div className="flex items-start gap-2">
-                  <p className="text-muted-foreground flex-1">{collection.description}</p>
+                  <p className="text-muted-foreground text-sm flex-1">{collection.description}</p>
                   {isOwner && (
                     <button
                       onClick={() => setEditingDescription(true)}
-                      className="p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
+                      className="p-1.5 hover:bg-muted rounded-[var(--radius)] transition-colors flex-shrink-0"
                     >
-                      <Edit2 className="w-4 h-4 text-muted-foreground" />
+                      <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
                     </button>
                   )}
                 </div>
               ) : isOwner ? (
                 <button
                   onClick={() => setEditingDescription(true)}
-                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-xs sm:text-sm"
                 >
                   + Add description
                 </button>
@@ -659,80 +667,73 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
             </div>
 
             {/* Действия */}
-            <div className="flex items-center justify-between border-t border-border pt-6">
-              <div className="text-sm text-muted-foreground space-y-1">
-                <div>
-                  Items: <span className="font-semibold text-foreground">{items.length}</span>
-                </div>
-                <div>
-                  Created: {new Date(collection.created_at).toLocaleDateString('en-US')}
-                </div>
-              </div>
+            <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3 sm:pt-4">
+              <span className="text-xs sm:text-sm text-muted-foreground mr-auto">
+                Created {new Date(collection.created_at).toLocaleDateString('en-US')}
+              </span>
 
-              <div className="flex items-center gap-2">
-                {isOwner && (
-                  <>
-                    <button
-                      onClick={togglePublic}
-                      className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors text-sm"
-                    >
-                      {collection.is_public ? (
-                        <>
-                          <Lock className="w-4 h-4" />
-                          Make Private
-                        </>
-                      ) : (
-                        <>
-                          <Globe className="w-4 h-4" />
-                          Make Public
-                        </>
-                      )}
-                    </button>
-                  </>
-                )}
-
+              {isOwner && (
                 <button
-                  onClick={handleOpenShareModal}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors text-sm"
+                  onClick={togglePublic}
+                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 border border-border rounded-[var(--radius)] hover:bg-muted transition-colors text-xs sm:text-sm"
                 >
-                  <Share2 className="w-4 h-4" />
-                  Share
+                  {collection.is_public ? (
+                    <>
+                      <Lock className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Make Private</span>
+                      <span className="sm:hidden">Private</span>
+                    </>
+                  ) : (
+                    <>
+                      <Globe className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Make Public</span>
+                      <span className="sm:hidden">Public</span>
+                    </>
+                  )}
                 </button>
+              )}
 
-                {isOwner && (
-                  <button
-                    onClick={deleteCollection}
-                    className="inline-flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-[var(--radius)] hover:bg-red-50 transition-colors text-sm"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete Collection
-                  </button>
-                )}
-              </div>
+              <button
+                onClick={handleOpenShareModal}
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors text-xs sm:text-sm"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                Share
+              </button>
+
+              {isOwner && (
+                <button
+                  onClick={deleteCollection}
+                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 border border-red-300 text-red-600 rounded-[var(--radius)] hover:bg-red-50 transition-colors text-xs sm:text-sm"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Delete</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
 
         {/* Элементы коллекции */}
         {items.length === 0 ? (
-          <div className="text-center py-16 bg-card border border-border rounded-[var(--radius)] p-8">
-            <Folder className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-xl font-semibold mb-2 text-foreground">
+          <div className="text-center py-12 sm:py-16 bg-card border border-border rounded-[var(--radius)] p-6 sm:p-8">
+            <Folder className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
+            <h3 className="text-lg sm:text-xl font-semibold mb-2 text-foreground">
               Collection is empty
             </h3>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">
               Add items from favorites using the "Add to collection" button
             </p>
             <Link
               href="/profile/favorites"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
+              className="inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium text-sm sm:text-base"
             >
-              <ExternalLink className="w-5 h-5" />
+              <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5" />
               Go to Favorites
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
             {items.map(item => (
               <div key={item.id}>
                 {renderItem(item)}
@@ -740,6 +741,7 @@ export default function CollectionDetailPage({ collectionId }: { collectionId: s
             ))}
           </div>
         )}
+        </div>
       </main>
       <EnhancedFooter />
 

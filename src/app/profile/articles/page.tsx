@@ -274,28 +274,36 @@ export default function ProfileArticlesPage() {
       </Suspense>
 
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 pt-10">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pt-6 sm:pt-10">
           {/* Заголовок и кнопка создания */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 sm:mb-8">
+            <div className="flex items-center gap-3 sm:gap-4">
               <Link
                 href="/profile"
                 className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 text-muted-foreground" />
               </Link>
-              <div className="flex-1">
-                <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
-                  <FileText className="w-6 h-6" />
-                  My Blogs
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl sm:text-3xl font-heading font-bold flex items-center gap-2">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
+                  Blogs
                 </h1>
-                <p className="text-muted-foreground mt-1">
-                  Manage your blog posts
-                </p>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm mt-1">
+                  <span className="text-muted-foreground">
+                    {articles.length} {articles.length === 1 ? 'article' : 'articles'}
+                  </span>
+                  {counts.draft > 0 && (
+                    <span className="text-amber-600 font-medium">{counts.draft} drafts</span>
+                  )}
+                  {counts.published > 0 && (
+                    <span className="text-green-600 font-medium">{counts.published} published</span>
+                  )}
+                </div>
               </div>
               <Link
                 href="/blog/create"
-                className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
+                className="hidden sm:inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create Article
@@ -304,63 +312,66 @@ export default function ProfileArticlesPage() {
           </div>
 
           {/* Поиск и сортировка */}
-          <div className="bg-card border border-border rounded-[var(--radius)] p-4 mb-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+          <div className="bg-white rounded-lg shadow-sm border p-3 sm:p-6 mb-3 sm:mb-6">
+            <div className="flex flex-col gap-3 sm:gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-2.5 sm:top-3 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search by title or description..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-sm border border-border rounded-[var(--radius)] bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="text-sm border border-border rounded-[var(--radius)] px-4 py-2 bg-background focus:ring-2 focus:ring-primary focus:border-transparent"
-              >
-                <option value="created_at">By creation date</option>
-                <option value="published_at">By publication date</option>
-                <option value="view_count">By views</option>
-              </select>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  className="border border-gray-300 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="created_at">By Date</option>
+                  <option value="published_at">By Publication</option>
+                  <option value="view_count">By Views</option>
+                </select>
+              </div>
             </div>
           </div>
 
           {/* Табы */}
-          <div className="bg-card border border-border rounded-[var(--radius)] mb-6">
-            <div className="border-b border-border">
-              <nav className="flex gap-8 px-6">
-                {[
-                  { key: 'all', label: 'All Articles', count: counts.all },
-                  { key: 'draft', label: 'Drafts', count: counts.draft },
-                  { key: 'published', label: 'Published', count: counts.published },
-                  { key: 'archived', label: 'Archived', count: counts.archived }
-                ].map(tab => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setActiveTab(tab.key as TabType)}
-                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.key
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                      }`}
-                  >
-                    {tab.label} ({tab.count})
-                  </button>
-                ))}
-              </nav>
+          <div className="mb-3 sm:mb-6 bg-card border border-border rounded-[var(--radius)] p-1.5 sm:p-2">
+            <div className="flex gap-1 sm:gap-2">
+              {[
+                { key: 'all', label: 'All', count: counts.all },
+                { key: 'draft', label: 'Drafts', count: counts.draft },
+                { key: 'published', label: 'Published', count: counts.published },
+                { key: 'archived', label: 'Archive', count: counts.archived }
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key as TabType)}
+                  className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2.5 rounded-[var(--radius)] font-medium transition-all text-xs sm:text-sm flex-1 sm:flex-none justify-center sm:justify-start ${activeTab === tab.key
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'bg-background hover:bg-accent'
+                    }`}
+                >
+                  <span>{tab.label}</span>
+                  <span className={`hidden sm:inline text-sm ${activeTab === tab.key ? 'opacity-90' : 'text-muted-foreground'}`}>
+                    ({tab.count})
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Список статей */}
           {filteredArticles.length === 0 ? (
             <div className="text-center py-12">
-              <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">
+              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
                 {articles.length === 0 ? 'No articles created' : 'No articles in this category'}
               </h3>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-gray-500 mb-6">
                 {articles.length === 0
                   ? 'Create your first article to share knowledge'
                   : searchQuery
@@ -379,7 +390,7 @@ export default function ProfileArticlesPage() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
               {filteredArticles.map((article) => (
                 <ArticleCard
                   key={article.id}
@@ -443,81 +454,85 @@ function ArticleCard({
   return (
     <div className="bg-card border border-border rounded-[var(--radius)] hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col">
       {/* Превью изображение */}
-      {article.featured_image_url && (
-        <div className="relative h-32 overflow-hidden bg-muted">
+      <div className="relative h-28 sm:h-36 overflow-hidden bg-muted">
+        {article.featured_image_url ? (
           <img
             src={article.featured_image_url}
             alt={article.title}
             className="w-full h-full object-cover"
           />
-        </div>
-      )}
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <FileText className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
+          </div>
+        )}
+      </div>
 
-      <div className="p-4 flex flex-col flex-1">
-        <div className="flex items-start justify-between gap-2 mb-2">
+      <div className="p-2.5 sm:p-4 flex flex-col flex-1">
+        <div className="flex items-start justify-between gap-1.5 mb-1 sm:mb-2">
           <Link
             href={article.status === 'published' ? `/blog/${article.slug}` : `/blog/${article.slug}/edit`}
-            className="text-base font-semibold hover:text-primary transition-colors line-clamp-1 flex-1"
+            className="text-sm sm:text-base font-semibold text-gray-900 hover:text-primary transition-colors line-clamp-2 flex-1"
           >
             {article.title}
           </Link>
 
-          <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${getStatusColor(article.status)}`}>
+          <div className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium flex-shrink-0 ${getStatusColor(article.status)}`}>
             {getStatusText(article.status)}
           </div>
         </div>
 
         {article.excerpt && (
-          <p className="text-muted-foreground text-xs mb-3 line-clamp-2 h-8">
+          <p className="text-gray-600 text-xs mb-2 line-clamp-2 hidden sm:block">
             {article.excerpt}
           </p>
         )}
 
-        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3 h-4">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-gray-500 mb-2 sm:mb-3">
+          <div className="flex items-center gap-0.5 sm:gap-1">
             <Calendar className="w-3 h-3" />
             <span className="truncate">{formatDate(article.created_at)}</span>
           </div>
 
           {article.reading_time_minutes && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5 sm:gap-1 hidden sm:flex">
               <Clock className="w-3 h-3" />
               <span>{article.reading_time_minutes} min</span>
             </div>
           )}
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1">
             <Eye className="w-3 h-3" />
             <span>{article.view_count || 0}</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2 pt-3 border-t border-border mt-auto">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-1 sm:gap-2 pt-2 sm:pt-3 border-t border-gray-100 mt-auto">
+          <div className="flex items-center gap-1 sm:gap-2">
             {article.status === 'published' ? (
               <Link
                 href={`/blog/${article.slug}`}
-                className="inline-flex items-center px-3 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
+                className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
               >
-                <Eye className="w-3 h-3 mr-1" />
+                <Eye className="w-3 h-3 mr-0.5 sm:mr-1" />
                 View
               </Link>
             ) : (
               <Link
                 href={`/blog/${article.slug}/edit`}
-                className="inline-flex items-center px-3 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
+                className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
               >
-                <Edit className="w-3 h-3 mr-1" />
+                <Edit className="w-3 h-3 mr-0.5 sm:mr-1" />
                 Edit
               </Link>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {article.status === 'draft' && (
               <button
                 onClick={onPublish}
-                className="inline-flex items-center p-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
+                className="inline-flex items-center p-1 sm:p-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
                 title="Publish"
               >
                 <Send className="w-3 h-3" />
@@ -527,7 +542,7 @@ function ArticleCard({
             {article.status === 'published' && isAdmin && (
               <button
                 onClick={onArchive}
-                className="inline-flex items-center p-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
+                className="inline-flex items-center p-1 sm:p-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
                 title="Archive (admins only)"
               >
                 <Archive className="w-3 h-3" />
@@ -537,7 +552,7 @@ function ArticleCard({
             {article.status === 'archived' && (
               <button
                 onClick={onUnarchive}
-                className="inline-flex items-center p-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
+                className="inline-flex items-center p-1 sm:p-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
                 title="Unarchive"
               >
                 <Archive className="w-3 h-3" />
@@ -546,7 +561,7 @@ function ArticleCard({
 
             <button
               onClick={onDelete}
-              className="inline-flex items-center p-1.5 text-xs border border-destructive/50 text-destructive rounded-[var(--radius)] hover:bg-destructive/10 transition-colors"
+              className="inline-flex items-center p-1 sm:p-1.5 text-xs border border-destructive/50 text-destructive rounded-[var(--radius)] hover:bg-destructive/10 transition-colors"
               title="Delete"
             >
               <Trash2 className="w-3 h-3" />

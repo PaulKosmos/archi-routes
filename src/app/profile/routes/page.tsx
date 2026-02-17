@@ -175,7 +175,7 @@ export default function ProfileRoutesPage() {
           <div className="container mx-auto px-4 py-8 pt-10">
             <div className="animate-pulse space-y-6">
               <div className="h-8 bg-muted rounded-[var(--radius)] w-1/3"></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                 {[1, 2, 3, 4, 5, 6].map(i => (
                   <div key={i} className="bg-card border border-border rounded-[var(--radius)] p-6 space-y-3">
                     <div className="h-4 bg-muted rounded w-3/4"></div>
@@ -227,29 +227,29 @@ export default function ProfileRoutesPage() {
       </Suspense>
 
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 pt-10">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pt-5 sm:pt-10">
           {/* Заголовок и кнопка создания */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 sm:mb-8">
+            <div className="flex items-center gap-3 sm:gap-4 mb-4">
               <Link
                 href="/profile"
                 className="p-2 rounded-[var(--radius)] hover:bg-accent transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 text-muted-foreground" />
               </Link>
-              <div className="flex-1">
-                <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
-                  <RouteIcon className="w-6 h-6" />
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl sm:text-3xl font-heading font-bold flex items-center gap-2">
+                  <RouteIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                   My Routes
                 </h1>
-                <p className="text-muted-foreground mt-1">
-                  Manage your routes and publication requests
+                <p className="text-muted-foreground text-xs sm:text-base mt-0.5 sm:mt-1">
+                  Manage your routes
                 </p>
               </div>
 
               <Link
                 href="/routes/create"
-                className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
+                className="hidden sm:inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create Route
@@ -258,24 +258,26 @@ export default function ProfileRoutesPage() {
           </div>
 
           {/* Табы */}
-          <div className="bg-card border border-border rounded-[var(--radius)] mb-6">
+          <div className="bg-card border border-border rounded-[var(--radius)] mb-3 sm:mb-6">
             <div className="border-b border-border">
-              <nav className="flex gap-8 px-6">
+              <nav className="flex gap-0 sm:gap-8 px-2 sm:px-6">
                 {[
-                  { key: 'all', label: 'All Routes', count: counts.all },
-                  { key: 'private', label: 'Private', count: counts.private },
-                  { key: 'pending', label: 'Pending', count: counts.pending },
-                  { key: 'published', label: 'Published', count: counts.published }
+                  { key: 'all', label: 'All', labelFull: 'All Routes', count: counts.all },
+                  { key: 'private', label: 'Private', labelFull: 'Private', count: counts.private },
+                  { key: 'pending', label: 'Pending', labelFull: 'Pending', count: counts.pending },
+                  { key: 'published', label: 'Published', labelFull: 'Published', count: counts.published }
                 ].map(tab => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key as TabType)}
-                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.key
+                    className={`py-2.5 sm:py-4 px-2 sm:px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap flex-1 sm:flex-none ${activeTab === tab.key
                       ? 'border-primary text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground'
                       }`}
                   >
-                    {tab.label} ({tab.count})
+                    <span className="sm:hidden">{tab.label}</span>
+                    <span className="hidden sm:inline">{tab.labelFull}</span>
+                    {' '}({tab.count})
                   </button>
                 ))}
               </nav>
@@ -308,7 +310,7 @@ export default function ProfileRoutesPage() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {filteredRoutes.map((route) => (
                 <RouteCard
                   key={route.id}
@@ -398,16 +400,16 @@ function RouteCard({
 
   return (
     <div className="bg-card border border-border rounded-[var(--radius)] hover:shadow-md transition-shadow h-full flex flex-col">
-      <div className="p-4 flex flex-col h-full">
-        <div className="flex items-start justify-between gap-2 mb-2">
+      <div className="p-3 flex flex-col h-full">
+        <div className="flex items-start justify-between gap-2 mb-1">
           <Link
             href={`/routes/${route.id}`}
-            className="text-base font-semibold hover:text-primary transition-colors line-clamp-1 flex-1"
+            className="text-sm sm:text-base font-semibold hover:text-primary transition-colors line-clamp-1 flex-1"
           >
             {route.title}
           </Link>
 
-          <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${publicationRequest?.status === 'approved' || route.publication_status === 'published'
+          <div className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium flex-shrink-0 ${publicationRequest?.status === 'approved' || route.publication_status === 'published'
             ? 'bg-green-100 text-green-800'
             : publicationRequest?.status === 'rejected'
               ? 'bg-red-100 text-red-800'
@@ -420,11 +422,11 @@ function RouteCard({
           </div>
         </div>
 
-        <p className="text-muted-foreground text-xs mb-2 line-clamp-2 h-8">
+        <p className="text-muted-foreground text-xs mb-1.5 line-clamp-2">
           {route.description || 'No description'}
         </p>
 
-        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2 h-4">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-1.5">
           <div className="flex items-center gap-1">
             <MapPin className="w-3 h-3 flex-shrink-0" />
             <span className="truncate">{route.city}</span>
@@ -441,26 +443,11 @@ function RouteCard({
           </div>
         </div>
 
-        <div className="mb-2 h-8">
-          {publicationRequest && (
-            <div className="p-2 bg-blue-50 border border-blue-200 rounded-[var(--radius)]">
-              <div className="flex items-center gap-1 text-xs">
-                <FileText className="w-3 h-3 text-blue-600 flex-shrink-0" />
-                <span className="font-medium text-blue-900 truncate">
-                  {publicationRequest.status === 'pending' ? 'Under Review' :
-                    publicationRequest.status === 'approved' ? 'Approved' :
-                      publicationRequest.status === 'rejected' ? 'Rejected' : publicationRequest.status}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-auto pt-3 border-t border-border flex items-center justify-between gap-2">
+        <div className="mt-auto pt-2 border-t border-border flex items-center justify-between gap-2">
           <div className="flex items-center gap-1">
             <Link
               href={`/routes/${route.id}`}
-              className="inline-flex items-center px-2 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
+              className="inline-flex items-center px-2 py-1 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
             >
               <Eye className="w-3 h-3 mr-1" />
               View
@@ -468,32 +455,20 @@ function RouteCard({
 
             <button
               onClick={onEdit}
-              className="inline-flex items-center px-2 py-1.5 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
+              className="inline-flex items-center px-2 py-1 text-xs border border-border rounded-[var(--radius)] hover:bg-accent transition-colors"
             >
               <Edit className="w-3 h-3 mr-1" />
               Edit
             </button>
           </div>
 
-          <div className="flex items-center gap-1">
-            {canRequestPublication(route, publicationRequest) ? (
-              <button
-                onClick={onRequestPublication}
-                className="inline-flex items-center px-2 py-1.5 text-xs bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors"
-              >
-                <Send className="w-3 h-3 mr-1" />
-                Publish
-              </button>
-            ) : (
-              <button
-                onClick={onDelete}
-                className="inline-flex items-center px-2 py-1.5 text-xs border border-red-300 text-red-600 rounded-[var(--radius)] hover:bg-red-50 transition-colors"
-              >
-                <Trash2 className="w-3 h-3 mr-1" />
-                Delete
-              </button>
-            )}
-          </div>
+          <button
+            onClick={onDelete}
+            className="inline-flex items-center px-2 py-1 text-xs border border-red-300 text-red-600 rounded-[var(--radius)] hover:bg-red-50 transition-colors"
+          >
+            <Trash2 className="w-3 h-3 mr-1" />
+            Delete
+          </button>
         </div>
       </div>
     </div>

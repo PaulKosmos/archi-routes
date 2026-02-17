@@ -52,7 +52,7 @@ export default function CollectionsBadgeDropdown({ collections, className = '' }
       {isOpen && (
         <div className="absolute top-full left-0 mt-1 w-64 bg-card border border-border rounded-[var(--radius)] shadow-lg z-50 overflow-hidden">
           <div className="p-2 border-b border-border bg-muted/50">
-            <p className="text-xs font-medium text-muted-foreground">Добавлено в коллекции:</p>
+            <p className="text-xs font-medium text-muted-foreground">In collections:</p>
           </div>
           <div className="max-h-60 overflow-y-auto">
             {collections.map((collection) => (

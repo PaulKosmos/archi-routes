@@ -12,7 +12,7 @@ import { useAuth } from '@/hooks/useAuth'
 import Header from '@/components/Header'
 import EnhancedFooter from '@/components/EnhancedFooter'
 import Link from 'next/link'
-import { User, Heart, MapPin, Building2, Settings, Edit3, FileText, Folder } from 'lucide-react'
+import { User, Heart, MapPin, Building2, Settings, Edit3, FileText, Folder, Users } from 'lucide-react'
 
 export default function ProfilePage() {
   const { user, profile, loading } = useAuth()
@@ -81,11 +81,11 @@ export default function ProfilePage() {
       </Suspense>
 
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 pt-10">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pt-5 sm:pt-10">
           {/* Заголовок профиля */}
-          <div className="bg-card border border-border rounded-[var(--radius)] p-6 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full overflow-hidden bg-primary flex items-center justify-center">
+          <div className="bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 mb-4 sm:mb-8">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-primary flex items-center justify-center flex-shrink-0">
                 {avatar ? (
                   <img
                     src={avatar}
@@ -93,15 +93,15 @@ export default function ProfilePage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-primary-foreground font-medium text-2xl">
+                  <span className="text-primary-foreground font-medium text-xl sm:text-2xl">
                     {displayName.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
-              <div>
-                <h1 className="text-3xl font-heading font-bold mb-1">{displayName}</h1>
-                <p className="text-muted-foreground mb-1">{user.email}</p>
-                <p className="text-sm text-primary font-medium capitalize">
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-3xl font-heading font-bold leading-tight">{displayName}</h1>
+                <p className="text-muted-foreground text-sm sm:text-base break-all">{user.email}</p>
+                <p className="text-xs sm:text-sm text-primary font-medium capitalize">
                   {profile?.role || 'explorer'}
                 </p>
               </div>
@@ -109,123 +109,138 @@ export default function ProfilePage() {
           </div>
 
           {/* Навигация по разделам профиля */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             <Link
               href="/profile/edit"
-              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+              className="group bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 hover:border-primary transition-all"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <Edit3 className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+              <div className="flex items-center gap-3 mb-1 sm:mb-3">
+                <Edit3 className="h-5 w-5 text-primary flex-shrink-0" />
+                <h3 className="text-base sm:text-lg font-semibold group-hover:text-primary transition-colors">
                   Edit Profile
                 </h3>
               </div>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 Update your information, photo, and settings
               </p>
             </Link>
 
             <Link
               href="/profile/buildings"
-              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+              className="group bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 hover:border-primary transition-all"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <Building2 className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+              <div className="flex items-center gap-3 mb-1 sm:mb-3">
+                <Building2 className="h-5 w-5 text-primary flex-shrink-0" />
+                <h3 className="text-base sm:text-lg font-semibold group-hover:text-primary transition-colors">
                   Buildings
                 </h3>
               </div>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 Architectural buildings you added to the platform
               </p>
             </Link>
 
             <Link
               href="/profile/routes"
-              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+              className="group bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 hover:border-primary transition-all"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <MapPin className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+              <div className="flex items-center gap-3 mb-1 sm:mb-3">
+                <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
+                <h3 className="text-base sm:text-lg font-semibold group-hover:text-primary transition-colors">
                   My Routes
                 </h3>
               </div>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 Routes you created
               </p>
             </Link>
 
             <Link
               href="/profile/favorites"
-              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+              className="group bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 hover:border-primary transition-all"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <Heart className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+              <div className="flex items-center gap-3 mb-1 sm:mb-3">
+                <Heart className="h-5 w-5 text-primary flex-shrink-0" />
+                <h3 className="text-base sm:text-lg font-semibold group-hover:text-primary transition-colors">
                   Favorites
                 </h3>
               </div>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 Blogs, news, routes, and buildings you favorited
               </p>
             </Link>
 
             <Link
               href="/profile/collections"
-              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+              className="group bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 hover:border-primary transition-all"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <Folder className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+              <div className="flex items-center gap-3 mb-1 sm:mb-3">
+                <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                <h3 className="text-base sm:text-lg font-semibold group-hover:text-primary transition-colors">
                   Collections
                 </h3>
               </div>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 Organize your favorites into themed collections
               </p>
             </Link>
 
             <Link
               href="/profile/reviews"
-              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+              className="group bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 hover:border-primary transition-all"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <User className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+              <div className="flex items-center gap-3 mb-1 sm:mb-3">
+                <User className="h-5 w-5 text-primary flex-shrink-0" />
+                <h3 className="text-base sm:text-lg font-semibold group-hover:text-primary transition-colors">
                   My Reviews
                 </h3>
               </div>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 Building reviews you wrote
               </p>
             </Link>
 
             <Link
-              href="/profile/articles"
-              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+              href="/profile/following"
+              className="group bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 hover:border-primary transition-all"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <FileText className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+              <div className="flex items-center gap-3 mb-1 sm:mb-3">
+                <Users className="h-5 w-5 text-primary flex-shrink-0" />
+                <h3 className="text-base sm:text-lg font-semibold group-hover:text-primary transition-colors">
+                  Subscriptions
+                </h3>
+              </div>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                People you follow and your followers
+              </p>
+            </Link>
+
+            <Link
+              href="/profile/articles"
+              className="group bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-3 mb-1 sm:mb-3">
+                <FileText className="h-5 w-5 text-primary flex-shrink-0" />
+                <h3 className="text-base sm:text-lg font-semibold group-hover:text-primary transition-colors">
                   My Blogs
                 </h3>
               </div>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 Blogs you created
               </p>
             </Link>
 
             <Link
               href="/profile/settings"
-              className="group bg-card border border-border rounded-[var(--radius)] p-6 hover:border-primary transition-all"
+              className="group bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 hover:border-primary transition-all"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <Settings className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+              <div className="flex items-center gap-3 mb-1 sm:mb-3">
+                <Settings className="h-5 w-5 text-primary flex-shrink-0" />
+                <h3 className="text-base sm:text-lg font-semibold group-hover:text-primary transition-colors">
                   Settings
                 </h3>
               </div>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 Privacy, notifications, and other settings
               </p>
             </Link>
