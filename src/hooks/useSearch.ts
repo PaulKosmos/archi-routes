@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { devLog } from '@/lib/logger'
 import {
   SearchFilters,
   SearchMetadata,
@@ -214,7 +215,7 @@ export function useSearch(options: UseSearchOptions = {}) {
     setError(null)
 
     try {
-      console.log('🔍 Executing search:', { searchQuery, searchFilters, page })
+      devLog('🔍 Executing search:', { searchQuery, searchFilters, page })
 
       // Строим базовый запрос
       let baseQuery = supabase.from('buildings').select('*', { count: 'exact' })
@@ -346,7 +347,7 @@ export function useSearch(options: UseSearchOptions = {}) {
         throw new Error(`Search error: ${searchError.message}`)
       }
 
-      console.log('✅ Search completed:', { resultsCount: data?.length, totalCount: count })
+      devLog('✅ Search completed:', { resultsCount: data?.length, totalCount: count })
 
       let processedResults = data || []
 

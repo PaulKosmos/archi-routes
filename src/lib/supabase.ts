@@ -11,23 +11,6 @@ export function createClient() {
   return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
 
-// ⚠️ DEPRECATED: Для обратной совместимости, но лучше использовать createClient()
-// Этот глобальный клиент будет удален в будущем
-let _globalClient: ReturnType<typeof createBrowserClient> | null = null
-
-export const supabase = (() => {
-  if (typeof window === 'undefined') {
-    // На сервере создаем новый клиент каждый раз
-    return createClient()
-  }
-
-  // В браузере используем singleton для обратной совместимости
-  if (!_globalClient) {
-    _globalClient = createClient()
-  }
-  return _globalClient
-})()
-
 // Экспорт типов
 export type { Profile } from '../types/building'
 
@@ -99,4 +82,3 @@ export const uploadImage = async (file: File, bucket: string, folder: string) =>
   })
 }
 
-export default supabase

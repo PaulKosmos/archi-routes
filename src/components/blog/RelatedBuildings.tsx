@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Building2, MapPin, Calendar, Star, ExternalLink, Route } from 'lucide-react'
+import { Building2, MapPin, Calendar, Star, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
 interface RelatedBuildingsProps {
@@ -133,24 +133,6 @@ export default function RelatedBuildings({ buildings }: RelatedBuildingsProps) {
         </button>
       )}
 
-      {/* Кнопка создания маршрута */}
-      {buildings.length >= 2 && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <button
-            onClick={() => {
-              // TODO: Реализовать создание маршрута из зданий статьи
-              alert('Route creation feature coming soon!')
-            }}
-            className="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-          >
-            <Route className="w-4 h-4" />
-            <span>Создать маршрут из зданий</span>
-          </button>
-          <p className="text-xs text-gray-500 text-center mt-2">
-            Посетите все здания из статьи по оптимальному маршруту
-          </p>
-        </div>
-      )}
     </div>
   )
 }

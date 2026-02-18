@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { BlogPost } from '@/types/blog'
 import { createClient } from '@/lib/supabase'
+import { devLog } from '@/lib/logger'
 import { useAuth } from '@/hooks/useAuth'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogFilters from '@/components/blog/BlogFilters'
@@ -39,7 +40,7 @@ export default function BlogPage() {
 
   const loadPosts = async () => {
     try {
-      console.log('📚 Blog: Loading posts...')
+      devLog('📚 Blog: Loading posts...')
 
       // Загружаем посты
       const { data: postsData, error } = await supabase
@@ -84,7 +85,7 @@ export default function BlogPage() {
       }))
 
       setPosts(postsWithCounts)
-      console.log('✅ Blog: Successfully loaded', postsWithCounts.length, 'posts')
+      devLog('✅ Blog: Successfully loaded', postsWithCounts.length, 'posts')
 
     } catch (error) {
       console.error('Error loading posts:', error)

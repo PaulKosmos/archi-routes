@@ -4,6 +4,7 @@
 import { useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase';
+import { devLog } from '@/lib/logger';
 import {
   CreateNewsArticle,
   UpdateNewsArticle,
@@ -207,7 +208,7 @@ export function useNewsAPI() {
     if (query.length < 2) return [];
 
     try {
-      console.log('🔍 Searching buildings for query:', query);
+      devLog('🔍 Searching buildings for query:', query);
       
       const { data: buildings, error } = await supabase
         .from('buildings')
@@ -221,7 +222,7 @@ export function useNewsAPI() {
         throw new Error(`Building search failed: ${error.message}`);
       }
 
-      console.log('✅ Buildings found:', buildings?.length || 0);
+      devLog('✅ Buildings found:', buildings?.length || 0);
       return buildings || [];
       
     } catch (err) {

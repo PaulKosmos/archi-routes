@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '../lib/supabase'
+import { devLog } from '../lib/logger'
 
 export interface EditPermissions {
   canEdit: boolean
@@ -40,7 +41,7 @@ export function useEditPermissions(
     let isMounted = true // Защита от race condition
 
     const checkFullPermissions = async () => {
-      console.log('🔍 Starting full permission check for:', { contentType, contentId })
+      devLog('🔍 Starting full permission check for:', { contentType, contentId })
       
       try {
         // 1. Проверяем авторизацию
@@ -60,7 +61,7 @@ export function useEditPermissions(
         }
 
         if (!session?.user) {
-          console.log('❌ No user session')
+          devLog('❌ No user session')
           if (isMounted) {
             setPermissions({
               canEdit: false,
@@ -73,7 +74,7 @@ export function useEditPermissions(
         }
 
         const userIdToUse = session.user.id
-        console.log('✅ User authenticated:', userIdToUse)
+        devLog('✅ User authenticated:', userIdToUse)
 
         // 2. Получаем профиль пользователя
         const { data: profile, error: profileError } = await supabase
@@ -95,11 +96,11 @@ export function useEditPermissions(
           return
         }
 
-        console.log('✅ User profile loaded:', { role: profile.role, email: profile.email })
+        devLog('✅ User profile loaded:', { role: profile.role, email: profile.email })
 
         // 3. Проверяем роли модератора/админа (они могут редактировать всё)
         if (profile.role === 'moderator' || profile.role === 'admin') {
-          console.log('✅ User is moderator/admin - full access granted')
+          devLog('✅ User is moderator/admin - full access granted')
           if (isMounted) {
             setPermissions({
               canEdit: true,
@@ -135,14 +136,14 @@ export function useEditPermissions(
 
         // 5. Проверяем является ли пользователь автором
         const isAuthor = content.created_by === userIdToUse
-        console.log('🔍 Author check:', {
+        devLog('🔍 Author check:', {
           contentCreatedBy: content.created_by,
           currentUserId: userIdToUse,
           isAuthor
         })
 
         if (isAuthor) {
-          console.log('✅ User is author - access granted')
+          devLog('✅ User is author - access granted')
           if (isMounted) {
             setPermissions({
               canEdit: true,
@@ -155,7 +156,7 @@ export function useEditPermissions(
         }
 
         // 6. Нет прав на редактирование
-        console.log('❌ No edit permissions')
+        devLog('❌ No edit permissions')
         if (isMounted) {
           setPermissions({
             canEdit: false,

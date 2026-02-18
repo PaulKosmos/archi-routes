@@ -1,6 +1,8 @@
 // src/lib/storage.ts - Утилиты для работы с Storage
 
-import { supabase } from './supabase'
+import { createClient } from './supabase'
+
+const supabase = createClient()
 
 // Типы для структуры папок
 export type StorageFolder = 

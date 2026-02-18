@@ -1,9 +1,9 @@
 // src/app/buildings/[id]/edit/BuildingEditClient.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../../../lib/supabase'
+import { createClient } from '../../../../lib/supabase'
 import { useEditPermissions } from '../../../../hooks/useEditPermissions'
 import type { Building } from '../../../../types/building'
 import { Save, X, Upload, MapPin, ArrowLeft } from 'lucide-react'
@@ -22,6 +22,7 @@ export default function BuildingEditClient({
   building
 }: BuildingEditClientProps) {
   const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
 
   // Получаем права доступа для отображения роли (новый API без userId)
   const permissions = useEditPermissions('building', building.id)

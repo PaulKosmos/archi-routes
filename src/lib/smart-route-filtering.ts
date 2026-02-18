@@ -1,7 +1,10 @@
 // src/lib/smart-route-filtering.ts
 // Умная система фильтрации маршрутов для карты
 
-import { supabase } from './supabase'
+import { createClient } from './supabase'
+import { devLog } from './logger'
+
+const supabase = createClient()
 import type {
   Route,
   RouteWithUserData,
@@ -30,7 +33,7 @@ export class SmartRouteFilter {
       mapBounds
     } = options
 
-    console.log('🔍 Getting smart filtered routes for map:', { city, maxRoutes })
+    devLog('🔍 Getting smart filtered routes for map:', { city, maxRoutes })
 
     try {
       // Используем нашу SQL функцию для получения приоритизированных маршрутов
@@ -47,7 +50,7 @@ export class SmartRouteFilter {
       }
 
       if (!data || data.length === 0) {
-        console.log('No routes found, trying fallback')
+        devLog('No routes found, trying fallback')
         return this.getFallbackRoutes(city, maxRoutes)
       }
 
@@ -62,7 +65,7 @@ export class SmartRouteFilter {
       routes = this.applyGeographicFilter(routes, mapBounds)
       routes = this.calculateRelevanceScores(routes, userLocation, userPreferences)
 
-      console.log(`✅ Found ${routes.length} filtered routes`)
+      devLog(`✅ Found ${routes.length} filtered routes`)
       return routes.slice(0, maxRoutes)
 
     } catch (error) {
@@ -75,7 +78,7 @@ export class SmartRouteFilter {
    * Fallback метод для получения маршрутов если основная функция не работает
    */
   private static async getFallbackRoutes(city: string, maxRoutes: number): Promise<RouteWithUserData[]> {
-    console.log('🔄 Using fallback route fetching')
+    devLog('🔄 Using fallback route fetching')
 
     const { data, error } = await supabase
       .from('routes')

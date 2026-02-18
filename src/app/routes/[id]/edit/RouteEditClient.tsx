@@ -1,9 +1,9 @@
 // src/app/routes/[id]/edit/RouteEditClient.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../../../lib/supabase'
+import { createClient } from '../../../../lib/supabase'
 import { useEditPermissions } from '../../../../hooks/useEditPermissions'
 import type { Building, RoutePoint } from '../../../../types/building'
 import { Save, X, Plus, MapPin, Clock, ArrowLeft, Trash2 } from 'lucide-react'
@@ -27,6 +27,7 @@ export default function RouteEditClient({
   buildings
 }: RouteEditClientProps) {
   const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
 
   // Получаем права доступа для отображения роли (новый API без userId)
   const permissions = useEditPermissions('route', route.id)

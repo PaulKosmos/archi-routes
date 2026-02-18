@@ -1,5 +1,7 @@
 // src/lib/debug-permissions.ts
-import { supabase } from './supabase'
+import { createClient } from './supabase'
+
+const supabase = createClient()
 
 /**
  * Отладочная версия проверки прав с детальным логированием

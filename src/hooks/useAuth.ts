@@ -5,6 +5,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase'
+import { devLog } from '@/lib/logger'
 import { Profile } from '@/types/building'
 
 interface AuthState {
@@ -82,12 +83,12 @@ export function useAuth() {
     // Получаем текущего пользователя
     const getCurrentUser = async () => {
       try {
-        console.log('🔐 Auth: Starting session check...')
+        devLog('🔐 Auth: Starting session check...')
 
         // Используем getSession() - читает из localStorage без сетевых запросов
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
-        console.log('🔐 Auth: Session check completed', {
+        devLog('🔐 Auth: Session check completed', {
           hasSession: !!session,
           error: sessionError?.message
         })
@@ -106,7 +107,7 @@ export function useAuth() {
         }
 
         if (session?.user) {
-          console.log('🔐 Auth: Fetching profile for user:', session.user.id)
+          devLog('🔐 Auth: Fetching profile for user:', session.user.id)
 
           // Получаем профиль пользователя
           const { data: profile, error: profileError } = await supabase
@@ -133,7 +134,7 @@ export function useAuth() {
               if (createError) {
                 console.error('Error creating profile:', createError)
               } else {
-                console.log('✅ Auth: Created new profile')
+                devLog('✅ Auth: Created new profile')
                 setAuthState({
                   user: session.user,
                   profile: newProfile,
@@ -147,11 +148,11 @@ export function useAuth() {
             }
           }
 
-          console.log('✅ Auth: Successfully loaded user and profile')
+          devLog('✅ Auth: Successfully loaded user and profile')
           const { isBanned, banInfo } = checkBanStatus(profile)
 
           if (isBanned) {
-            console.log('🚫 Auth: User is banned, signing out')
+            devLog('🚫 Auth: User is banned, signing out')
             // Sign out banned user
             supabase.auth.signOut()
             setAuthState({
@@ -174,7 +175,7 @@ export function useAuth() {
             banInfo
           })
         } else {
-          console.log('🔐 Auth: No user logged in')
+          devLog('🔐 Auth: No user logged in')
           setAuthState({
             user: null,
             profile: null,
@@ -203,7 +204,7 @@ export function useAuth() {
     // async внутри callback вызывает deadlock (Issue #35754)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {  // ✅ Убрали async!
-        console.log('🔐 Auth state changed:', event)
+        devLog('🔐 Auth state changed:', event)
 
         if (event === 'SIGNED_IN' && session?.user) {
           // Пользователь вошел - загружаем профиль БЕЗ await
@@ -227,7 +228,7 @@ export function useAuth() {
                 const { isBanned, banInfo } = checkBanStatus(profile)
 
                 if (isBanned) {
-                  console.log('🚫 Auth: User is banned, signing out')
+                  devLog('🚫 Auth: User is banned, signing out')
                   supabase.auth.signOut()
                   setAuthState({
                     user: null,

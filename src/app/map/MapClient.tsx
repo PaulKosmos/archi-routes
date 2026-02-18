@@ -116,8 +116,9 @@ export default function TestMapPage() {
   const [showMobileBuildings, setShowMobileBuildings] = useState(false)
   const [showMobileRoutes, setShowMobileRoutes] = useState(false)
 
-  // Map viewport center for proximity sorting
+  // Map viewport center and zoom for proximity sorting
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 52.52, lng: 13.405 })
+  const [mapZoom, setMapZoom] = useState<number>(12)
 
   // Состояние фильтров
   const [filters, setFilters] = useState<Filters>({
@@ -502,8 +503,13 @@ export default function TestMapPage() {
         // Если панель Buildings закрыта - ничего не делаем,
         // EnhancedMap сам обработает клик и покажет детальный popup
       } else {
-        // Для десктопа - только открываем popup без центрирования
-        mapRef.current.openBuildingPopup(buildingId)
+        // Для десктопа - центрируем карту и открываем popup после анимации
+        mapRef.current.centerOnBuilding(buildingId)
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.openBuildingPopup(buildingId)
+          }
+        }, 1100)
       }
     }
   }, [filteredBuildings, showMobileBuildings])
@@ -798,14 +804,27 @@ export default function TestMapPage() {
   }, [filteredRoutes])
 
   // Buildings sorted by distance from map center (for mobile list)
+  const PROXIMITY_SORT_MAX_ZOOM = 11
+  const sortCacheRef = useRef<{ source: typeof filteredBuildings; result: typeof filteredBuildings } | null>(null)
+
   const buildingsSortedByProximity = useMemo(() => {
-    if (!mapCenter || filteredBuildings.length === 0) return filteredBuildings
-    return [...filteredBuildings].sort((a, b) => {
+    if (filteredBuildings.length === 0) return filteredBuildings
+
+    // При детальном зуме (крупнее города) — сохраняем последний порядок
+    if (mapZoom > PROXIMITY_SORT_MAX_ZOOM && sortCacheRef.current?.source === filteredBuildings) {
+      return sortCacheRef.current.result
+    }
+
+    if (!mapCenter) return filteredBuildings
+
+    const sorted = [...filteredBuildings].sort((a, b) => {
       const distA = calculateDistance(mapCenter.lat, mapCenter.lng, a.latitude, a.longitude)
       const distB = calculateDistance(mapCenter.lat, mapCenter.lng, b.latitude, b.longitude)
       return distA - distB
     })
-  }, [filteredBuildings, mapCenter])
+    sortCacheRef.current = { source: filteredBuildings, result: sorted }
+    return sorted
+  }, [filteredBuildings, mapCenter, mapZoom])
 
   // Вычисляем статистику (мемоизировано)
   const stats = useMemo(() => ({
@@ -1123,10 +1142,10 @@ export default function TestMapPage() {
               <div className="flex-1 overflow-y-auto p-4 max-h-[calc(100vh-8rem)]">
                 {mapView === 'buildings' && (
                   <LazyBuildingList
-                    buildings={filteredBuildings}
+                    buildings={buildingsSortedByProximity}
                     selectedBuilding={selectedBuilding}
                     currentRouteBuildings={selectedBuildingsForRoute}
-                    onBuildingSelect={(b) => { setSelectedBuilding(b); setHoveredBuilding(b.id) }}
+                    onBuildingSelect={(b) => handleBuildingClick(b.id)}
                     onBuildingDetails={handleBuildingDetails}
                     onAddToRoute={handleAddBuildingToRoute}
                     onStartRouteFrom={handleStartRouteFromBuilding}
@@ -1206,7 +1225,7 @@ export default function TestMapPage() {
                 addBuildingMode={addBuildingMode}
                 routeCreationMode={routeCreationMode}
                 selectedBuildingsForRoute={selectedBuildingsForRoute}
-                onViewStateChange={(center) => setMapCenter(center)}
+                onViewStateChange={(center, zoom) => { setMapCenter(center); setMapZoom(zoom) }}
                 className="h-full w-full"
               />
 

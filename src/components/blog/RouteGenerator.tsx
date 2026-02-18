@@ -11,8 +11,6 @@ import {
   Star,
   Building2,
   ArrowRight,
-  Download,
-  Share2,
   Eye
 } from 'lucide-react'
 import RoutePreview from './RoutePreview'
@@ -281,15 +279,6 @@ export default function RouteGenerator({
     setPreviewRoute(null)
   }
 
-  const handleExportRoute = (route: GeneratedRoute) => {
-    // TODO: Реализовать экспорт маршрута
-    alert(`Экспорт маршрута "${route.title}" будет реализован позже`)
-  }
-
-  const handleShareRoute = (route: GeneratedRoute) => {
-    // TODO: Реализовать шаринг маршрута
-    alert(`Поделиться маршрутом "${route.title}" - функция в разработке`)
-  }
 
   if (validBuildings.length < 2) {
     return (
@@ -403,20 +392,6 @@ export default function RouteGenerator({
                       title="Preview"
                     >
                       <Eye className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleShareRoute(route)}
-                      className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                      title="Share"
-                    >
-                      <Share2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleExportRoute(route)}
-                      className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                      title="Export"
-                    >
-                      <Download className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
