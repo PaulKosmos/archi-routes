@@ -1,14 +1,11 @@
 'use client'
 
-import { useState, useCallback, SetStateAction } from 'react'
-import { 
-  Filter, 
-  X, 
-  Search, 
-  MapPin, 
-  Navigation
+import { useState, useCallback } from 'react'
+import {
+  X, Search, Navigation, MapPin, Headphones, Star,
+  Building2, ChevronDown, ChevronUp, RotateCcw, SlidersHorizontal,
+  Car, Bike, Footprints, Bus, Layers
 } from 'lucide-react'
-import type { Building, Route } from '@/types/building'
 
 interface Filters {
   search: string
@@ -57,325 +54,422 @@ export default function FilterPanel({
   onRadiusModeChange,
   isMobile = false
 }: FilterPanelProps) {
-  // Убрали isExpanded - все фильтры всегда видимы
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(['search', 'location', 'rating', 'styles', 'types'])
+  )
+  const [gettingLocation, setGettingLocation] = useState(false)
 
-  const handleQuickFilter = useCallback((filter: string, value: string) => {
-    switch (filter) {
-      case 'rating':
-        const newRating = parseFloat(value)
-        onFilterChange({
-          ...filters,
-          minRating: filters.minRating >= newRating ? 0 : newRating
-        })
-        break
-      case 'distance':
-        const newDistance = parseFloat(value)
-        onFilterChange({
-          ...filters,
-          maxDistance: filters.maxDistance <= newDistance ? 50 : newDistance
-        })
-        break
-      case 'featured':
-        onFilterChange({
-          ...filters,
-          showOnlyFeatured: !filters.showOnlyFeatured
-        })
-        break
-      case 'published':
-        onFilterChange({
-          ...filters,
-          showOnlyPublished: !filters.showOnlyPublished
-        })
-        break
-    }
-  }, [filters, onFilterChange])
+  const toggleSection = (section: string) => {
+    const next = new Set(expandedSections)
+    next.has(section) ? next.delete(section) : next.add(section)
+    setExpandedSections(next)
+  }
+
+  const isExpanded = (section: string) => expandedSections.has(section)
+
+  // Подсчёт активных фильтров
+  const activeCount = [
+    filters.search !== '',
+    filters.architecturalStyles.length > 0,
+    filters.buildingTypes.length > 0,
+    filters.cities.length > 0,
+    filters.minRating > 0,
+    filters.showOnlyFeatured,
+    filters.hasAudio,
+    filters.currentLocation !== null,
+    filters.difficultyLevels.length > 0,
+    filters.transportModes.length > 0,
+  ].filter(Boolean).length
 
   const handleGeolocation = useCallback(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          onFilterChange({
-            ...filters,
-            currentLocation: {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            }
-          })
-        },
-        (error) => {
-          console.error('Ошибка получения геолокации:', error)
-        }
-      )
-    }
+    if (!navigator.geolocation) return
+    setGettingLocation(true)
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        onFilterChange({
+          ...filters,
+          currentLocation: {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          }
+        })
+        setGettingLocation(false)
+      },
+      () => setGettingLocation(false)
+    )
   }, [filters, onFilterChange])
 
+  const toggleArrayFilter = useCallback(<K extends keyof Filters>(
+    key: K,
+    value: string
+  ) => {
+    const current = (filters[key] as string[])
+    const next = current.includes(value)
+      ? current.filter(v => v !== value)
+      : [...current, value]
+    onFilterChange({ ...filters, [key]: next })
+  }, [filters, onFilterChange])
+
+  // ── Компонент секции ────────────────────────────────────────────
+  const FilterSection = ({
+    id, title, icon: Icon, children, count
+  }: {
+    id: string
+    title: string
+    icon: React.ElementType
+    children: React.ReactNode
+    count?: number
+  }) => (
+    <div className="border-b border-border last:border-b-0">
+      <button
+        onClick={() => toggleSection(id)}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted transition-colors text-left"
+      >
+        <div className="flex items-center gap-2.5">
+          <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
+          <span className="text-sm font-medium text-foreground">{title}</span>
+          {count !== undefined && count > 0 && (
+            <span className="bg-[hsl(var(--map-primary))]/10 text-[hsl(var(--map-primary))] text-[10px] px-1.5 py-0.5 rounded-full font-metrics">
+              {count}
+            </span>
+          )}
+        </div>
+        {isExpanded(id)
+          ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
+          : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+        }
+      </button>
+      {isExpanded(id) && (
+        <div className="px-4 pb-4">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+
+  // ── Звёздный рейтинг ────────────────────────────────────────────
+  const StarRating = () => (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map(star => (
+        <button
+          key={star}
+          onClick={() => onFilterChange({
+            ...filters,
+            minRating: filters.minRating === star ? 0 : star
+          })}
+          className={`transition-colors ${
+            star <= filters.minRating
+              ? 'text-yellow-400 hover:text-yellow-500'
+              : 'text-muted-foreground/25 hover:text-muted-foreground/50'
+          }`}
+        >
+          <Star className="w-5 h-5 fill-current" />
+        </button>
+      ))}
+      <span className="ml-2 text-xs text-muted-foreground font-metrics">
+        {filters.minRating > 0 ? `from ${filters.minRating}★` : 'Any'}
+      </span>
+    </div>
+  )
+
+  // ── Чекбокс-строка ──────────────────────────────────────────────
+  const CheckItem = ({
+    checked, onChange, label, count
+  }: {
+    checked: boolean
+    onChange: () => void
+    label: string
+    count?: number
+  }) => (
+    <label className="flex items-center gap-3 cursor-pointer hover:bg-muted rounded-[var(--radius)] px-2 py-1.5 transition-colors">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="w-4 h-4 rounded border-border accent-[hsl(var(--map-primary))] shrink-0"
+      />
+      <span className="flex-1 text-sm text-foreground">{label}</span>
+      {count !== undefined && (
+        <span className="text-xs text-muted-foreground/60">({count})</span>
+      )}
+    </label>
+  )
+
+  if (!showFilters && !isMobile) return null
+
   return (
-    <div className={`${isMobile ? 'bg-background' : 'bg-card border-b border-border'}`}>
-      {/* Панель фильтров */}
-      {(showFilters || isMobile) && (
-        <div className={`${isMobile ? 'px-0 pb-4' : 'px-4 pb-4'}`}>
-          {/* Поиск */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Search
-            </label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <input
-                type="text"
-                value={filters.search}
-                onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
-                placeholder="Search by name, architect, style..."
-                className={`w-full pl-10 pr-4 ${isMobile ? 'py-3 text-base' : 'py-2 text-sm'} border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--map-primary))] transition-colors`}
-              />
-            </div>
+    <div className={isMobile ? 'bg-background' : 'bg-card'}>
+
+      {/* ── Заголовок ─────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-foreground">Filters</span>
+          {activeCount > 0 && (
+            <span className="bg-[hsl(var(--map-primary))] text-white text-[10px] px-1.5 py-0.5 rounded-full font-metrics leading-none">
+              {activeCount}
+            </span>
+          )}
+        </div>
+        {activeCount > 0 && (
+          <button
+            onClick={onReset}
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Reset
+          </button>
+        )}
+      </div>
+
+      {/* ── Секции ───────────────────────────────────────────────── */}
+      <div>
+
+        {/* Поиск */}
+        <FilterSection
+          id="search"
+          title="Search"
+          icon={Search}
+          count={filters.search !== '' ? 1 : 0}
+        >
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <input
+              type="text"
+              value={filters.search}
+              onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
+              placeholder="Name, architect, style..."
+              className="w-full pl-9 pr-4 py-2 text-sm border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--map-primary))] transition-colors"
+            />
           </div>
+        </FilterSection>
 
-          {/* Геолокация и радиус */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Location
-            </label>
-
-            {/* Кнопки выбора режима - 2 кубика в ряд, отключить снизу */}
-            <div className="space-y-2 mb-3">
-              {/* Два кубика в ряд */}
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => {
-                    onRadiusModeChange?.('location')
-                    handleGeolocation()
-                  }}
-                  className={`flex flex-col items-center justify-center px-3 py-3 border rounded-[var(--radius)] transition-colors ${
-                    radiusMode === 'location'
-                      ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
-                      : 'bg-card border-border text-foreground hover:bg-muted'
-                  }`}
-                >
-                  <Navigation className="w-5 h-5 mb-1" />
-                  <span className="text-xs text-center">My Location</span>
-                </button>
-
-                <button
-                  onClick={() => onRadiusModeChange?.('map')}
-                  className={`flex flex-col items-center justify-center px-3 py-3 border rounded-[var(--radius)] transition-colors ${
-                    radiusMode === 'map'
-                      ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
-                      : 'bg-card border-border text-foreground hover:bg-muted'
-                  }`}
-                >
-                  <MapPin className="w-5 h-5 mb-1" />
-                  <span className="text-xs text-center">Choose on Map</span>
-                </button>
-              </div>
-
-              {/* Отключить снизу на всю ширину */}
+        {/* Геолокация */}
+        <FilterSection
+          id="location"
+          title="Location"
+          icon={Navigation}
+          count={filters.currentLocation ? 1 : 0}
+        >
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => {
-                  onRadiusModeChange?.('none')
-                  onFilterChange({
-                    ...filters,
-                    currentLocation: null
-                  })
+                  onRadiusModeChange?.('location')
+                  handleGeolocation()
                 }}
-                className="w-full flex items-center justify-center px-3 py-2 bg-muted border border-border rounded-[var(--radius)] hover:bg-muted/80 transition-colors"
+                disabled={gettingLocation}
+                className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 border rounded-[var(--radius)] transition-colors text-xs ${
+                  radiusMode === 'location'
+                    ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+                    : 'bg-card border-border text-foreground hover:bg-muted'
+                }`}
               >
-                <X className="w-4 h-4 mr-2 text-muted-foreground" />
-                <span className="text-sm text-foreground">Disable</span>
+                <Navigation className="w-4 h-4" />
+                {gettingLocation ? 'Detecting…' : 'My Location'}
+              </button>
+              <button
+                onClick={() => onRadiusModeChange?.('map')}
+                className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 border rounded-[var(--radius)] transition-colors text-xs ${
+                  radiusMode === 'map'
+                    ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
+                    : 'bg-card border-border text-foreground hover:bg-muted'
+                }`}
+              >
+                <MapPin className="w-4 h-4" />
+                Choose on Map
               </button>
             </div>
-            
-            {/* Настройки радиуса */}
+
             {radiusMode !== 'none' && (
-              <div className="space-y-3">
-                {/* Ввод радиуса цифрами */}
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">
-                    Search Radius (km)
-                  </label>
-                  <input
-                    type="number"
-                    min="0.5"
-                    max="50"
-                    step="0.5"
-                    value={filters.radiusKm}
-                    onChange={(e) => onFilterChange({
-                      ...filters,
-                      radiusKm: parseFloat(e.target.value) || 0.5
-                    })}
-                    className="w-full px-3 py-2 border border-border bg-background text-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--map-primary))] transition-colors"
-                  />
+              <div className="pt-1 space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Radius</span>
+                  <span className="font-metrics font-medium text-foreground">{filters.radiusKm} km</span>
                 </div>
-
-                {/* Ползунок радиуса */}
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">
-                    Radius: {filters.radiusKm} km
-                  </label>
-                  <input
-                    type="range"
-                    min="0.5"
-                    max="50"
-                    step="0.5"
-                    value={filters.radiusKm}
-                    onChange={(e) => onFilterChange({
-                      ...filters,
-                      radiusKm: parseFloat(e.target.value)
-                    })}
-                    className="w-full h-2 bg-muted rounded-[var(--radius)] appearance-none cursor-pointer accent-[hsl(var(--map-primary))]"
-                  />
+                <input
+                  type="range"
+                  min="0.5"
+                  max="50"
+                  step="0.5"
+                  value={filters.radiusKm}
+                  onChange={(e) => onFilterChange({ ...filters, radiusKm: parseFloat(e.target.value) })}
+                  className="w-full h-1.5 bg-muted rounded-full appearance-none cursor-pointer accent-[hsl(var(--map-primary))]"
+                />
+                <div className="flex justify-between text-[10px] text-muted-foreground/60">
+                  <span>0.5 km</span>
+                  <span>25 km</span>
+                  <span>50 km</span>
                 </div>
-
-                {/* Подсказка */}
                 {radiusMode === 'map' && (
-                  <p className="text-xs text-muted-foreground">
-                    💡 Click on the map to choose search center
-                  </p>
+                  <p className="text-[11px] text-muted-foreground">Click on the map to set the search center</p>
                 )}
                 {radiusMode === 'location' && filters.currentLocation && (
-                  <p className="text-xs text-[hsl(var(--map-primary))]">
-                    ✅ Center set at your location
-                  </p>
+                  <p className="text-[11px] text-[hsl(var(--map-primary))]">Center set at your location</p>
                 )}
               </div>
             )}
-          </div>
 
-          {/* Быстрые фильтры */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Quick Filters
-            </label>
-            <div className="flex flex-wrap gap-2">
+            {radiusMode !== 'none' && (
               <button
-                onClick={() => handleQuickFilter('rating', '4')}
-                className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                  filters.minRating >= 4
-                    ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
-                    : 'bg-muted border-border text-foreground hover:bg-muted/80'
-                }`}
+                onClick={() => {
+                  onRadiusModeChange?.('none')
+                  onFilterChange({ ...filters, currentLocation: null })
+                }}
+                className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-[var(--radius)] hover:bg-muted transition-colors"
               >
-                4+ Rating
+                <X className="w-3 h-3" />
+                Disable
               </button>
-              <button
-                onClick={() => handleQuickFilter('featured', 'true')}
-                className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                  filters.showOnlyFeatured
-                    ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
-                    : 'bg-muted border-border text-foreground hover:bg-muted/80'
-                }`}
-              >
-                Featured
-              </button>
-              <button
-                onClick={() => handleQuickFilter('distance', '5')}
-                className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                  filters.maxDistance <= 5
-                    ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
-                    : 'bg-muted border-border text-foreground hover:bg-muted/80'
-                }`}
-              >
-                Within 5 km
-              </button>
+            )}
+          </div>
+        </FilterSection>
+
+        {/* Рейтинг */}
+        <FilterSection
+          id="rating"
+          title="Rating"
+          icon={Star}
+          count={filters.minRating > 0 ? 1 : 0}
+        >
+          <StarRating />
+        </FilterSection>
+
+        {/* Архитектурные стили */}
+        {uniqueValues.architecturalStyles.length > 0 && (
+          <FilterSection
+            id="styles"
+            title="Architectural Style"
+            icon={Building2}
+            count={filters.architecturalStyles.length}
+          >
+            <div className="space-y-0.5 max-h-48 overflow-y-auto">
+              {uniqueValues.architecturalStyles.map(style => (
+                <CheckItem
+                  key={style}
+                  checked={filters.architecturalStyles.includes(style)}
+                  onChange={() => toggleArrayFilter('architecturalStyles', style)}
+                  label={style}
+                />
+              ))}
             </div>
-          </div>
+          </FilterSection>
+        )}
 
-          {/* Расширенные фильтры */}
-          <div className="space-y-4">
-              {/* Архитектурные стили */}
-              {uniqueValues.architecturalStyles.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Architectural Styles
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {uniqueValues.architecturalStyles.map(style => (
-                      <button
-                        key={style}
-                        onClick={() => {
-                          if (filters.architecturalStyles.includes(style)) {
-                            onFilterChange({
-                              ...filters,
-                              architecturalStyles: filters.architecturalStyles.filter(s => s !== style)
-                            })
-                          } else {
-                            onFilterChange({
-                              ...filters,
-                              architecturalStyles: [...filters.architecturalStyles, style]
-                            })
-                          }
-                        }}
-                        className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                          filters.architecturalStyles.includes(style)
-                            ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
-                            : 'bg-muted border-border text-foreground hover:bg-muted/80'
-                        }`}
-                      >
-                        {style}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+        {/* Типы зданий */}
+        {uniqueValues.buildingTypes.length > 0 && (
+          <FilterSection
+            id="types"
+            title="Building Type"
+            icon={Layers}
+            count={filters.buildingTypes.length}
+          >
+            <div className="space-y-0.5 max-h-48 overflow-y-auto">
+              {uniqueValues.buildingTypes.map(type => (
+                <CheckItem
+                  key={type}
+                  checked={filters.buildingTypes.includes(type)}
+                  onChange={() => toggleArrayFilter('buildingTypes', type)}
+                  label={type}
+                />
+              ))}
+            </div>
+          </FilterSection>
+        )}
 
-              {/* Типы зданий */}
-              {uniqueValues.buildingTypes.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Building Types
-                  </label>
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
-                    {uniqueValues.buildingTypes.map(type => (
-                      <label key={type} className="flex items-center cursor-pointer hover:bg-muted/50 rounded-[var(--radius)] px-2 py-1 transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={filters.buildingTypes.includes(type)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              onFilterChange({
-                                ...filters,
-                                buildingTypes: [...filters.buildingTypes, type]
-                              })
-                            } else {
-                              onFilterChange({
-                                ...filters,
-                                buildingTypes: filters.buildingTypes.filter(t => t !== type)
-                              })
-                            }
-                          }}
-                          className="mr-2 rounded border-border accent-[hsl(var(--map-primary))]"
-                        />
-                        <span className="text-sm text-foreground">{type}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Фильтр аудио */}
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Audio
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => onFilterChange({
-                      ...filters,
-                      hasAudio: !filters.hasAudio
-                    })}
-                    className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                      filters.hasAudio
-                        ? 'bg-[hsl(var(--map-primary))]/10 border-[hsl(var(--map-primary))] text-[hsl(var(--map-primary))]'
-                        : 'bg-muted border-border text-foreground hover:bg-muted/80'
-                    }`}
+        {/* Транспорт (для маршрутов) */}
+        {uniqueValues.transportModes.length > 0 && (
+          <FilterSection
+            id="transport"
+            title="Transport Mode"
+            icon={Footprints}
+            count={filters.transportModes.length}
+          >
+            <div className="space-y-0.5">
+              {uniqueValues.transportModes.map(mode => {
+                const icons: Record<string, React.ReactNode> = {
+                  walking: <Footprints className="w-3.5 h-3.5 text-muted-foreground" />,
+                  cycling: <Bike className="w-3.5 h-3.5 text-muted-foreground" />,
+                  driving: <Car className="w-3.5 h-3.5 text-muted-foreground" />,
+                  public_transport: <Bus className="w-3.5 h-3.5 text-muted-foreground" />,
+                }
+                const labels: Record<string, string> = {
+                  walking: 'Walking', cycling: 'Cycling',
+                  driving: 'Driving', public_transport: 'Public Transport',
+                }
+                return (
+                  <label
+                    key={mode}
+                    className="flex items-center gap-3 cursor-pointer hover:bg-muted rounded-[var(--radius)] px-2 py-1.5 transition-colors"
                   >
-                    🎧 With Audio
-                  </button>
-                </div>
-              </div>
+                    <input
+                      type="checkbox"
+                      checked={filters.transportModes.includes(mode)}
+                      onChange={() => toggleArrayFilter('transportModes', mode)}
+                      className="w-4 h-4 rounded border-border accent-[hsl(var(--map-primary))] shrink-0"
+                    />
+                    {icons[mode]}
+                    <span className="text-sm text-foreground">{labels[mode] ?? mode}</span>
+                  </label>
+                )
+              })}
             </div>
-        </div>
-      )}
+          </FilterSection>
+        )}
+
+        {/* Города */}
+        {uniqueValues.cities.length > 1 && (
+          <FilterSection
+            id="cities"
+            title="Cities"
+            icon={MapPin}
+            count={filters.cities.length}
+          >
+            <div className="space-y-0.5 max-h-48 overflow-y-auto">
+              {uniqueValues.cities.map(city => (
+                <CheckItem
+                  key={city}
+                  checked={filters.cities.includes(city)}
+                  onChange={() => toggleArrayFilter('cities', city)}
+                  label={city}
+                />
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Аудио + Featured */}
+        <FilterSection
+          id="extra"
+          title="Additional"
+          icon={Headphones}
+          count={[filters.hasAudio, filters.showOnlyFeatured].filter(Boolean).length}
+        >
+          <div className="space-y-0.5">
+            <label className="flex items-center gap-3 cursor-pointer hover:bg-muted rounded-[var(--radius)] px-2 py-1.5 transition-colors">
+              <input
+                type="checkbox"
+                checked={filters.hasAudio}
+                onChange={() => onFilterChange({ ...filters, hasAudio: !filters.hasAudio })}
+                className="w-4 h-4 rounded border-border accent-[hsl(var(--map-primary))] shrink-0"
+              />
+              <Headphones className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="text-sm text-foreground">Has audio guide</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer hover:bg-muted rounded-[var(--radius)] px-2 py-1.5 transition-colors">
+              <input
+                type="checkbox"
+                checked={filters.showOnlyFeatured}
+                onChange={() => onFilterChange({ ...filters, showOnlyFeatured: !filters.showOnlyFeatured })}
+                className="w-4 h-4 rounded border-border accent-[hsl(var(--map-primary))] shrink-0"
+              />
+              <Star className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="text-sm text-foreground">Featured only</span>
+            </label>
+          </div>
+        </FilterSection>
+
+      </div>
     </div>
   )
 }

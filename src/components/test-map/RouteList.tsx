@@ -1,8 +1,10 @@
 'use client'
 
 import { useCallback } from 'react'
-import { RouteIcon, Clock, Star, Eye, Car, Bike, Footprints, Bus, MapPin, ChevronRight } from 'lucide-react'
+import Image from 'next/image'
+import { Route as RouteIcon, Clock, Eye, Car, Bike, Footprints, Bus } from 'lucide-react'
 import type { Route } from '@/types/route'
+import { getStorageUrl } from '@/lib/storage'
 
 interface RouteListProps {
   routes: Route[]
@@ -13,26 +15,46 @@ interface RouteListProps {
   maxHeight?: string
 }
 
+function GradientStar({ size = 11 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+      <defs>
+        <linearGradient id="star-grad-r" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#fbbf24" />
+          <stop offset="100%" stopColor="#f59e0b" />
+        </linearGradient>
+      </defs>
+      <polygon
+        points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+        fill="url(#star-grad-r)"
+        stroke="#f59e0b"
+        strokeWidth="0.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export default function RouteList({
   routes,
   selectedRoute,
   onRouteSelect,
   onRouteDetails,
-  title = "🛤️ Routes",
-  maxHeight = "max-h-64"
+  title = "Routes",
 }: RouteListProps) {
 
   const getTransportIcon = useCallback((mode?: string) => {
     switch (mode) {
-      case 'walking': return <Footprints className="w-4 h-4" />
-      case 'cycling': return <Bike className="w-4 h-4" />
-      case 'driving': return <Car className="w-4 h-4" />
-      case 'public_transport': return <Bus className="w-4 h-4" />
-      default: return <Footprints className="w-4 h-4" />
+      case 'walking': return <Footprints className="w-3.5 h-3.5" />
+      case 'cycling': return <Bike className="w-3.5 h-3.5" />
+      case 'driving': return <Car className="w-3.5 h-3.5" />
+      case 'public_transport': return <Bus className="w-3.5 h-3.5" />
+      default: return <Footprints className="w-3.5 h-3.5" />
     }
   }, [])
 
-  const getDifficultyColor = useCallback((level?: string) => {
+  const getDifficultyStyle = useCallback((level?: string) => {
     switch (level) {
       case 'easy': return 'text-green-600 bg-green-100'
       case 'medium': return 'text-yellow-600 bg-yellow-100'
@@ -46,152 +68,131 @@ export default function RouteList({
       case 'easy': return 'Easy'
       case 'medium': return 'Medium'
       case 'hard': return 'Hard'
-      default: return 'Not specified'
+      default: return level ?? ''
     }
   }, [])
 
   if (routes.length === 0) {
     return (
-      <div className="p-1 md:p-4">
-        <h3 className="font-medium font-display text-foreground mb-3">{title}</h3>
-        <div className="text-center py-4 md:py-8 text-muted-foreground">
-          <RouteIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
-          <p>No routes found</p>
-          <p className="text-sm">Try changing filters</p>
+      <div className="p-4">
+        {title && <h3 className="font-medium font-display text-foreground mb-3">{title}</h3>}
+        <div className="text-center py-6 text-muted-foreground">
+          <RouteIcon className="w-10 h-10 mx-auto mb-2 text-muted-foreground/40" />
+          <p className="text-sm">No routes found</p>
+          <p className="text-xs mt-0.5">Try changing filters</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="p-1 md:p-4">
-      {title && <h3 className="font-medium font-display text-foreground mb-3">{title}</h3>}
-      <div className={`space-y-1.5 md:space-y-2 overflow-y-auto ${maxHeight}`}>
+    <div className="p-2">
+      {title && <h3 className="font-medium font-display text-foreground mb-2 px-1">{title}</h3>}
+      <div className="space-y-2">
         {routes.map(route => {
           const isSelected = selectedRoute?.id === route.id
+          const rating = Number(route.rating ?? 0)
 
           return (
             <div
               key={route.id}
-              className={`p-2 md:p-3 rounded-[var(--radius)] border transition-all duration-200 bg-card relative ${isSelected
-                ? 'border-[hsl(var(--map-primary))] bg-[hsl(var(--map-primary))]/5 shadow-md'
-                : 'border-border hover:bg-muted hover:-translate-y-0.5 hover:shadow-md'
-                }`}
+              onClick={() => onRouteSelect(route)}
+              className={`relative flex gap-3 p-2.5 rounded-[var(--radius)] border cursor-pointer transition-all duration-150 ${
+                isSelected
+                  ? 'border-[hsl(var(--map-primary))] bg-[hsl(var(--map-primary))]/5 shadow-sm'
+                  : 'border-border bg-card hover:bg-muted hover:shadow-sm'
+              }`}
             >
-              <div className="flex items-start justify-between" onClick={() => onRouteSelect(route)}>
-                <div className="flex-1 min-w-0 cursor-pointer pr-2">
-                  <h4 className="font-medium font-display text-foreground text-sm md:text-base mb-1 truncate">
-                    {route.title}
-                  </h4>
+              {/* Thumbnail — от края до края по высоте */}
+              <div className="relative w-24 self-stretch flex-shrink-0 overflow-hidden rounded-l-[var(--radius)] bg-muted -my-2.5 -ml-2.5">
+                {route.thumbnail_url ? (
+                  <Image
+                    src={getStorageUrl(route.thumbnail_url, 'routes')}
+                    alt={route.title}
+                    fill
+                    className="object-cover"
+                    sizes="96px"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-[hsl(var(--map-primary))]/5">
+                    <RouteIcon className="w-7 h-7 text-[hsl(var(--map-primary))]/30" />
+                  </div>
+                )}
+              </div>
 
-                  {route.description && (
-                    <p className="text-xs text-muted-foreground mb-1 md:mb-2 line-clamp-1 md:line-clamp-2">
-                      {route.description}
-                    </p>
+              {/* Информация */}
+              <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                {/* Название */}
+                <h4 className="font-medium text-foreground text-sm leading-tight truncate">
+                  {route.title}
+                </h4>
+
+                {/* Транспорт + сложность + город */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {route.transport_mode && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-[hsl(var(--map-primary))]/10 text-[hsl(var(--map-primary))]">
+                      {getTransportIcon(route.transport_mode)}
+                      <span className="capitalize">
+                        {route.transport_mode === 'public_transport' ? 'Transit' : route.transport_mode}
+                      </span>
+                    </span>
                   )}
-
-                  {/* Метаданные маршрута */}
-                  <div className="text-xs text-muted-foreground mb-1 md:mb-2 space-y-0.5 md:space-y-1">
-                    {route.city && (
-                      <div className="flex items-center">
-                        <MapPin className="w-3 h-3 mr-1" />
-                        <span>{route.city}{route.country && `, ${route.country}`}</span>
-                      </div>
-                    )}
-
-                    <div className="flex items-center space-x-4">
-                      {route.transport_mode && (
-                        <div className="flex items-center text-[hsl(var(--map-primary))]">
-                          {getTransportIcon(route.transport_mode)}
-                          <span className="ml-1 capitalize">
-                            {route.transport_mode === 'public_transport' ? 'Transit' : route.transport_mode}
-                          </span>
-                        </div>
-                      )}
-
-                      {route.difficulty_level && (
-                        <div className="flex items-center">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(route.difficulty_level)}`}>
-                            {getDifficultyText(route.difficulty_level)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Статистика маршрута */}
-                  <div className="flex items-center space-x-4 text-xs text-muted-foreground font-metrics">
-                    {route.estimated_duration_minutes && route.estimated_duration_minutes > 0 && (
-                      <div className="flex items-center">
-                        <Clock className="w-3 h-3 mr-1" />
-                        <span>
-                          {Math.round(route.estimated_duration_minutes / 60) > 0 && `${Math.round(route.estimated_duration_minutes / 60)}h `}
-                          {route.estimated_duration_minutes % 60 > 0 && `${route.estimated_duration_minutes % 60}m`}
-                        </span>
-                      </div>
-                    )}
-
-                    {route.distance_km && (
-                      <div className="flex items-center">
-                        <RouteIcon className="w-3 h-3 mr-1" />
-                        <span>{route.distance_km.toFixed(1)} km</span>
-                      </div>
-                    )}
-
-                    {route.points_count && route.points_count > 0 && (
-                      <div className="flex items-center">
-                        <span className="font-medium">{route.points_count} points</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Рейтинг и просмотры */}
-                  {(((route.rating ?? 0) > 0) || ((route.completion_count ?? 0) > 0)) && (
-                    <div className="flex items-center space-x-4 text-xs text-muted-foreground font-metrics mt-1">
-                      {route.rating && route.rating > 0 && (
-                        <div className="flex items-center">
-                          <Star className="w-3 h-3 mr-1" style={{ fill: '#facc15', color: '#facc15' }} />
-                          <span>{route.rating.toFixed(1)}</span>
-                          {route.review_count && route.review_count > 0 && (
-                            <span className="ml-1">({route.review_count})</span>
-                          )}
-                        </div>
-                      )}
-
-                      {route.completion_count && route.completion_count > 0 && (
-                        <div className="flex items-center">
-                          <Eye className="w-3 h-3 mr-1" />
-                          <span>{route.completion_count} completions</span>
-                        </div>
-                      )}
-                    </div>
+                  {route.difficulty_level && (
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${getDifficultyStyle(route.difficulty_level)}`}>
+                      {getDifficultyText(route.difficulty_level)}
+                    </span>
+                  )}
+                  {route.city && (
+                    <span className="text-[10px] text-muted-foreground/60 truncate">{route.city}</span>
                   )}
                 </div>
 
-                {/* Индикатор статуса и кнопка "Подробнее" */}
-                <div className="flex flex-col justify-between items-end ml-2 self-stretch">
-                  <div className="flex flex-col items-end space-y-1">
-                    {route.is_premium && (
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
-                        Premium
-                      </span>
+                {/* Статистика + кнопка Details — одна строка внизу */}
+                <div className="flex items-center justify-between gap-2 mt-auto pt-1">
+                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-metrics min-w-0">
+                    {route.estimated_duration_minutes && route.estimated_duration_minutes > 0 && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Clock className="w-3 h-3" />
+                        <span>
+                          {Math.floor(route.estimated_duration_minutes / 60) > 0
+                            ? `${Math.floor(route.estimated_duration_minutes / 60)}h `
+                            : ''}
+                          {route.estimated_duration_minutes % 60 > 0
+                            ? `${route.estimated_duration_minutes % 60}m`
+                            : ''}
+                        </span>
+                      </div>
                     )}
-
-                    {!route.is_published && (
-                      <span className="px-2 py-1 bg-muted text-muted-foreground text-xs font-medium rounded-full">
-                        Draft
-                      </span>
+                    {route.distance_km && (
+                      <div className="flex items-center gap-1 shrink-0 opacity-70">
+                        <RouteIcon className="w-3 h-3" />
+                        <span>{route.distance_km.toFixed(1)} km</span>
+                      </div>
+                    )}
+                    {route.points_count && route.points_count > 0 && (
+                      <span className="shrink-0 opacity-50">{route.points_count} pts</span>
+                    )}
+                    {rating > 0 && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        <GradientStar size={10} />
+                        <span className="font-medium text-foreground/80">{rating.toFixed(1)}</span>
+                      </div>
+                    )}
+                    {(route.completion_count ?? 0) > 0 && (
+                      <div className="flex items-center gap-1 shrink-0 opacity-50">
+                        <Eye className="w-3 h-3" />
+                        <span>{route.completion_count}</span>
+                      </div>
                     )}
                   </div>
 
-                  {/* Кнопка "Подробнее" */}
                   {onRouteDetails && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
                         onRouteDetails(route)
                       }}
-                      className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex-shrink-0"
+                      className="shrink-0 px-2.5 py-0.5 text-xs font-medium bg-[hsl(var(--map-primary))] text-white rounded hover:opacity-90 transition-opacity"
                     >
                       Details
                     </button>

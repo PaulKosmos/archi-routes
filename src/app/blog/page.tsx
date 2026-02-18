@@ -117,7 +117,7 @@ export default function BlogPage() {
       <main className="container mx-auto px-6 py-8 flex-1">
 
         {/* Поиск и фильтры */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="flex flex-row gap-4 mb-8">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <input
