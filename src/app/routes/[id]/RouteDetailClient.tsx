@@ -9,12 +9,12 @@ import {
   Edit, MapPin, Clock, Star, Trash2,
   Route as RouteIcon, Navigation, Download, Share2, Map as MapIcon,
   ExternalLink, CheckCircle, Check, Footprints, Bike, Car, Bus,
-  Gauge, Trophy, Calendar, User, ChevronLeft, ChevronRight,
+  Gauge, Calendar, User, ChevronLeft, ChevronRight,
   Headphones, Award, X
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import DeleteContentModal from '../../../components/DeleteContentModal'
-import RouteFavoriteButton, { RouteCompletedButton } from '../../../components/RouteFavoriteButton'
+import RouteFavoriteButton from '../../../components/RouteFavoriteButton'
 import { TransportModeHelper, formatDistance, formatDuration } from '../../../types/route'
 import RouteReviewsList from '../../../components/routes/RouteReviewsList'
 import AddRouteReviewModal from '../../../components/routes/AddRouteReviewModal'
@@ -243,6 +243,14 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
     [buildingReviews, selectedReviewId]
   )
 
+  // Hero image: thumbnail or first building image
+  const heroImageUrl = useMemo(() => {
+    if (route.thumbnail_url) return getStorageUrl(route.thumbnail_url, 'routes')
+    const firstWithImage = route.route_points?.find((p: any) => p.buildings?.image_url)
+    if (firstWithImage?.buildings?.image_url) return getStorageUrl(firstWithImage.buildings.image_url, 'photos')
+    return null
+  }, [route.thumbnail_url, route.route_points])
+
   // Current point photos (from selected review or building)
   const currentPointPhotos = useMemo(() => {
     if (!currentPoint?.buildings) return []
@@ -447,86 +455,66 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
     <>
       <div className="min-h-screen bg-background">
         {/* Hero Section */}
-        <div className="bg-card border-b border-border">
-          <div className="container mx-auto px-6 py-6">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-              {/* Left: Title and meta */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center text-sm text-muted-foreground mb-2">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  <span>{route.city}, {route.country}</span>
-                </div>
-                <h1 className="text-3xl lg:text-4xl font-bold font-display text-foreground mb-3">
-                  {route.title}
-                </h1>
-                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-3">
-                  <div className="flex items-center gap-1.5">
-                    {getTransportIcon(transportMode)}
-                    <span>{transportLabel}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-4 w-4" />
-                    <span className="font-metrics">
-                      {route.route_summary ? formatDuration(route.route_summary.duration) : `${route.estimated_duration_minutes || 'N/A'} min`}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <RouteIcon className="h-4 w-4" />
-                    <span className="font-metrics">
-                      {route.route_summary ? formatDistance(route.route_summary.distance) : `${route.distance_km || 'N/A'} km`}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="h-4 w-4" />
-                    <span className="font-metrics">{route.route_points?.length || 0} points</span>
-                  </div>
-                  {route.difficulty_level && (
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      route.difficulty_level === 'easy' ? 'bg-green-100 text-green-800'
-                        : route.difficulty_level === 'medium' ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {route.difficulty_level.charAt(0).toUpperCase() + route.difficulty_level.slice(1)}
-                    </span>
-                  )}
-                  {Number(route.rating) > 0 && (
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-semibold font-metrics text-foreground">{Number(route.rating).toFixed(1)}</span>
-                    </div>
-                  )}
-                </div>
-                {route.tags?.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {route.tags.map((tag: string) => (
-                      <span key={tag} className="px-2.5 py-0.5 bg-muted text-muted-foreground text-xs rounded-full border border-border">{tag}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
+        <div className="relative w-full h-[340px] sm:h-[420px] md:h-[520px] overflow-hidden">
+          {/* Background image or gradient fallback */}
+          {heroImageUrl ? (
+            <img
+              src={heroImageUrl}
+              alt={route.title}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-stone-800 to-zinc-900">
+              <div
+                className="absolute inset-0 opacity-[0.07]"
+                style={{
+                  backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.5) 39px, rgba(255,255,255,0.5) 40px),
+                    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.5) 39px, rgba(255,255,255,0.5) 40px)`
+                }}
+              />
+            </div>
+          )}
 
-              {/* Right: Action icons */}
-              <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/15" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+
+          {/* Content */}
+          <div className="relative h-full flex flex-col justify-between container mx-auto px-4 md:px-6 py-4 md:py-6 max-w-screen-xl">
+
+            {/* Top bar: back link + action buttons */}
+            <div className="flex items-center justify-between">
+              <Link
+                href="/routes"
+                className="inline-flex items-center gap-1.5 text-white/80 hover:text-white transition-colors bg-black/25 hover:bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-medium"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Routes</span>
+              </Link>
+
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={isTrackingLocation ? stopLocationTracking : startLocationTracking}
-                  className={`p-2.5 rounded-full transition-colors ${
-                    isTrackingLocation ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground hover:bg-muted/80'
+                  className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
+                    isTrackingLocation
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
+                      : 'bg-black/30 text-white hover:bg-black/50'
                   }`}
                   title={isTrackingLocation ? 'Stop GPS' : 'Start GPS'}
                 >
-                  <Navigation className="h-5 w-5" />
+                  <Navigation className="h-4 w-4 md:h-5 md:w-5" />
                 </button>
 
                 <div className="relative">
                   <button
                     onClick={() => setShowExportMenu(!showExportMenu)}
-                    className="p-2.5 bg-muted text-foreground rounded-full hover:bg-muted/80 transition-colors"
-                    title="Export"
+                    className="p-2 bg-black/30 text-white rounded-full hover:bg-black/50 transition-colors backdrop-blur-sm"
+                    title="Export / Share"
                   >
-                    <Download className="h-5 w-5" />
+                    <Download className="h-4 w-4 md:h-5 md:w-5" />
                   </button>
                   {showExportMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-[var(--radius)] shadow-lg z-10">
+                    <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-[var(--radius)] shadow-xl z-10">
                       <button onClick={() => { exportToGoogleMaps(); setShowExportMenu(false) }}
                         className="w-full px-4 py-2.5 text-left hover:bg-muted transition-colors rounded-t-[var(--radius)] flex items-center gap-2 text-sm">
                         <MapIcon size={16} /><span>Google Maps</span><ExternalLink size={12} className="ml-auto text-muted-foreground" />
@@ -538,37 +526,112 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                       <div className="border-t border-border" />
                       <button onClick={() => { shareRoute(); setShowExportMenu(false) }}
                         className="w-full px-4 py-2.5 text-left hover:bg-muted transition-colors rounded-b-[var(--radius)] flex items-center gap-2 text-sm">
-                        {copySuccess ? <><CheckCircle size={16} className="text-primary" /><span className="text-primary">Copied!</span></> : <><Share2 size={16} /><span>Share</span></>}
+                        {copySuccess
+                          ? <><CheckCircle size={16} className="text-primary" /><span className="text-primary">Copied!</span></>
+                          : <><Share2 size={16} /><span>Share</span></>}
                       </button>
                     </div>
                   )}
                 </div>
 
                 {!checkingPermissions && canEdit && (
-                  <Link href={`/routes/${route.id}/edit`}
-                    className="p-2.5 bg-muted text-foreground rounded-full hover:bg-muted/80 transition-colors" title="Edit">
-                    <Edit className="h-5 w-5" />
+                  <Link
+                    href={`/routes/${route.id}/edit`}
+                    className="p-2 bg-black/30 text-white rounded-full hover:bg-black/50 transition-colors backdrop-blur-sm"
+                    title="Edit"
+                  >
+                    <Edit className="h-4 w-4 md:h-5 md:w-5" />
                   </Link>
                 )}
                 {!checkingPermissions && canDelete && (
-                  <button onClick={() => setShowDeleteModal(true)}
-                    className="p-2.5 bg-muted text-destructive rounded-full hover:bg-muted/80 transition-colors" title="Delete">
-                    <Trash2 className="h-5 w-5" />
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="p-2 bg-black/30 text-red-400 rounded-full hover:bg-black/50 transition-colors backdrop-blur-sm"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-4 w-4 md:h-5 md:w-5" />
                   </button>
                 )}
 
-                <div className="w-px h-8 bg-border mx-1" />
+                <div className="w-px h-5 bg-white/20 mx-0.5" />
 
-                <RouteFavoriteButton routeId={route.id} routeTitle={route.title} size="md" />
-                <RouteCompletedButton routeId={route.id} routeTitle={route.title} size="md" />
+                <div className="[&_button]:bg-black/30 [&_button]:text-white [&_button:hover]:bg-black/50 [&_button]:backdrop-blur-sm [&_button]:border-0 [&_svg]:text-white">
+                  <RouteFavoriteButton routeId={route.id} routeTitle={route.title} size="md" />
+                </div>
               </div>
+            </div>
+
+            {/* Bottom: location, title, stats, tags */}
+            <div>
+              {/* Location */}
+              <div className="flex items-center gap-1.5 text-white/60 text-sm mb-2">
+                <MapPin className="h-3.5 w-3.5" />
+                <span className="tracking-wide uppercase text-xs font-medium">{route.city}{route.country ? `, ${route.country}` : ''}</span>
+              </div>
+
+              {/* Title */}
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-display text-white mb-3 md:mb-4 leading-tight max-w-4xl" style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
+                {route.title}
+              </h1>
+
+              {/* Stats pills */}
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm border border-white/10">
+                  {getTransportIcon(transportMode)}
+                  <span>{transportLabel}</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm border border-white/10">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span className="font-metrics">
+                    {route.route_summary ? formatDuration(route.route_summary.duration) : `${route.estimated_duration_minutes || 'N/A'} min`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm border border-white/10">
+                  <RouteIcon className="h-3.5 w-3.5" />
+                  <span className="font-metrics">
+                    {route.route_summary ? formatDistance(route.route_summary.distance) : `${route.distance_km || 'N/A'} km`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm border border-white/10">
+                  <MapPin className="h-3.5 w-3.5" />
+                  <span className="font-metrics">{route.route_points?.length || 0} points</span>
+                </div>
+                {route.difficulty_level && (
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm border border-white/10 ${
+                    route.difficulty_level === 'easy'
+                      ? 'bg-emerald-500/70 text-white'
+                      : route.difficulty_level === 'medium'
+                        ? 'bg-amber-500/70 text-white'
+                        : 'bg-red-500/70 text-white'
+                  }`}>
+                    {route.difficulty_level.charAt(0).toUpperCase() + route.difficulty_level.slice(1)}
+                  </span>
+                )}
+                {Number(route.rating) > 0 && (
+                  <div className="flex items-center gap-1 bg-yellow-500/80 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm border border-yellow-400/30">
+                    <Star className="h-3.5 w-3.5 fill-white" />
+                    <span className="font-semibold font-metrics">{Number(route.rating).toFixed(1)}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Tags */}
+              {route.tags?.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {route.tags.map((tag: string) => (
+                    <span key={tag} className="px-2.5 py-0.5 bg-white/10 backdrop-blur-sm text-white/70 text-xs rounded-full border border-white/15">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* GPS Panel */}
         {showNavigationPanel && (
-          <div className="container mx-auto px-6 mt-4">
+          <div className="container mx-auto px-4 md:px-6 mt-4">
             <div className="bg-primary/5 border border-primary rounded-[var(--radius)] p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center">
@@ -606,7 +669,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
 
         {/* Export status */}
         {exportStatus && (
-          <div className="container mx-auto px-6 mt-4">
+          <div className="container mx-auto px-4 md:px-6 mt-4">
             <div className="bg-primary/10 border border-primary rounded-[var(--radius)] p-3 flex items-center text-primary text-sm">
               <CheckCircle size={16} className="mr-2" />{exportStatus}
             </div>
@@ -614,11 +677,11 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
         )}
 
         {/* Main Content: Map + Two-column layout */}
-        <div className="container mx-auto px-6 py-6">
+        <div className="container mx-auto px-4 md:px-6 py-4 md:py-6">
 
           {/* Full-width Map */}
-          <div className="bg-card rounded-[var(--radius)] border border-border overflow-hidden mb-6">
-            <div className="h-[400px] md:h-[500px]">
+          <div className="bg-card rounded-[var(--radius)] border border-border overflow-hidden mb-4 md:mb-6">
+            <div className="h-[260px] sm:h-[360px] md:h-[500px]">
               <MapLibreRouteMap
                 route={route}
                 userLocation={userLocation}
@@ -630,19 +693,20 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
 
           {/* Navigation bar between points */}
           {route.route_points?.length > 0 && (
-            <div className="bg-card rounded-[var(--radius)] border border-border p-4 mb-6">
+            <div className="bg-card rounded-[var(--radius)] border border-border p-3 md:p-4 mb-4 md:mb-6">
               <div className="flex items-center justify-between">
                 <button
                   onClick={goToPrevious}
                   disabled={currentPointIndex === 0}
-                  className="px-4 py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium"
+                  className="px-3 md:px-4 py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1.5 text-sm font-medium"
                 >
-                  <ChevronLeft className="w-4 h-4" /> Previous
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Previous</span>
                 </button>
 
-                <div className="flex-1 mx-4">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <span className="text-lg font-bold font-display text-foreground">
+                <div className="flex-1 mx-3 md:mx-4">
+                  <div className="flex items-center justify-center mb-1.5">
+                    <span className="text-base md:text-lg font-bold font-display text-foreground">
                       {currentPointIndex + 1} / {route.route_points.length}
                     </span>
                   </div>
@@ -654,9 +718,10 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                 <button
                   onClick={goToNext}
                   disabled={currentPointIndex >= route.route_points.length - 1}
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium"
+                  className="px-3 md:px-4 py-2 bg-primary text-primary-foreground rounded-[var(--radius)] hover:bg-primary/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1.5 text-sm font-medium"
                 >
-                  Next <ChevronRight className="w-4 h-4" />
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
 
@@ -687,10 +752,10 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
           )}
 
           {/* Two-column: Current Point Content + Sidebar */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
 
             {/* Main: Current Point Details with Building Reviews */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 md:space-y-6">
 
               {currentPoint ? (
                 <>
