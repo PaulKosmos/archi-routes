@@ -37,18 +37,18 @@ export default function EnhancedFooter() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-[hsl(222,47%,11%)] text-[hsl(210,40%,96%)] mt-16">
-      <div className="container mx-auto px-6 py-12">
+    <footer className="bg-[hsl(222,47%,11%)] text-[hsl(210,40%,96%)] mt-8">
+      <div className="container mx-auto px-4 md:px-6 py-4 md:py-7">
         {/* Main footer content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
 
           {/* Column 1: About Project */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="space-y-1 md:space-y-2">
+            <div className="flex items-center gap-3 mb-1 md:mb-2">
               <img
                 src="/ar-logo.svg"
                 alt="ArchiRoutes Logo"
-                className="h-10 w-auto"
+                className="h-8 w-auto"
               />
             </div>
             <p className="text-sm leading-relaxed text-[hsl(215,20%,65%)]">
@@ -61,8 +61,8 @@ export default function EnhancedFooter() {
 
           {/* Column 2: Navigation */}
           <div>
-            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider">Navigation</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-1.5 md:mb-3 text-sm uppercase tracking-wider">Navigation</h3>
+            <ul className="space-y-1 md:space-y-1.5">
               {[
                 { label: "Home", href: "/" },
                 { label: "Map", href: "/map" },
@@ -84,8 +84,8 @@ export default function EnhancedFooter() {
 
           {/* Column 3: Information */}
           <div>
-            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider">Information</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-1.5 md:mb-3 text-sm uppercase tracking-wider">Information</h3>
+            <ul className="space-y-1 md:space-y-1.5">
               {[
                 { label: "About Us", href: "/about" },
                 { label: "Contact", href: "/contact" },
@@ -106,8 +106,8 @@ export default function EnhancedFooter() {
 
           {/* Column 4: Social & Newsletter */}
           <div>
-            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider">Subscribe</h3>
-            <p className="text-sm text-[hsl(215,20%,65%)] mb-4">
+            <h3 className="font-semibold mb-1.5 md:mb-3 text-sm uppercase tracking-wider">Subscribe</h3>
+            <p className="text-sm text-[hsl(215,20%,65%)] mb-2 md:mb-3">
               Get updates on architecture and new routes
             </p>
             <div className="flex gap-2">
@@ -129,8 +129,8 @@ export default function EnhancedFooter() {
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
-            <p className="text-xs text-[hsl(215,20%,55%)] mt-4">Follow us</p>
-            <div className="flex gap-3 mt-2">
+            <p className="text-xs text-[hsl(215,20%,55%)] mt-2 md:mt-3">Follow us</p>
+            <div className="flex gap-2 mt-1">
               {[Twitter, Facebook, Instagram, Linkedin].map((Icon, index) => (
                 <a
                   key={index}
@@ -148,8 +148,8 @@ export default function EnhancedFooter() {
 
       {/* Bottom Bar */}
       <div className="border-t border-[hsl(222,47%,18%)]">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="container mx-auto px-4 md:px-6 py-2.5 md:py-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-1.5 md:gap-4">
             <p className="text-sm text-[hsl(215,20%,55%)]">
               © {currentYear} ArchiRoutes. All rights reserved.
             </p>
@@ -170,7 +170,7 @@ export default function EnhancedFooter() {
 
       {/* Made with Love */}
       <div className="border-t border-[hsl(222,47%,18%)]">
-        <div className="container mx-auto px-6 py-3 text-center">
+        <div className="container mx-auto px-4 md:px-6 py-2 text-center">
           <p className="text-sm text-[hsl(215,20%,55%)]">
             Made with love for architecture ❤️
           </p>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -15,22 +15,13 @@ interface HeroWithVideoProps {
 }
 
 export default function HeroWithVideo({
-  videoUrl = '/videos/hero-background.mp4',
-  posterUrl = '/images/hero-poster.jpg',
+  videoUrl,
+  posterUrl,
   stats = { buildings: 2500, routes: 500, reviews: 10000 }
 }: HeroWithVideoProps) {
   const router = useRouter()
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
-
-  // Preload video
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.load()
-    }
-  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,21 +34,30 @@ export default function HeroWithVideo({
     <section className="relative h-screen min-h-[600px] overflow-hidden bg-gray-900">
       {/* Video Background */}
       <div className="absolute inset-0">
+        {/* Мобильное видео (до md) */}
         <video
-          ref={videoRef}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-            isVideoLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
+          className="absolute inset-0 w-full h-full object-cover md:hidden"
           autoPlay
           muted
           loop
           playsInline
-          preload="metadata"
-          poster={posterUrl}
-          onLoadedData={() => setIsVideoLoaded(true)}
+          preload="auto"
         >
-          <source src={videoUrl} type="video/mp4" />
-          <source src={videoUrl.replace('.mp4', '.webm')} type="video/webm" />
+          <source src="/videos/Mob_N.webm" type="video/webm" />
+          <source src="/videos/Mob_N.mp4" type="video/mp4" />
+        </video>
+
+        {/* Десктопное видео (md+) */}
+        <video
+          className="absolute inset-0 w-full h-full object-cover hidden md:block"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+        >
+          <source src="/videos/Web_Conv.webm" type="video/webm" />
+          <source src="/videos/Web_Conv.mp4" type="video/mp4" />
         </video>
 
         {/* Gradient overlay - asymmetric for visual interest */}

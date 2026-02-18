@@ -48,12 +48,12 @@ export function SearchResults({
         <div className={`
           bg-card border border-border overflow-hidden flex
           hover:shadow-lg hover:-translate-y-1 transition-all duration-300
-          ${viewMode === 'list' ? 'flex-row h-[200px]' : 'flex-col h-full'}
+          ${viewMode === 'list' ? 'flex-row h-[130px]' : 'flex-col h-full'}
         `}>
           {/* Изображение */}
           <div className={`
             relative bg-muted
-            ${viewMode === 'grid' ? 'h-48' : 'w-48 h-full flex-shrink-0'}
+            ${viewMode === 'grid' ? 'h-48' : 'w-28 sm:w-48 h-full flex-shrink-0'}
           `}>
             {hasImages ? (
               <OptimizedImage
@@ -72,8 +72,8 @@ export function SearchResults({
 
             {/* Архитектурный стиль в правом верхнем углу */}
             {building.architectural_style && (
-              <div className="absolute top-2 right-2 bg-primary/90 backdrop-blur-sm px-2 py-1">
-                <span className="text-xs font-medium text-primary-foreground">{building.architectural_style}</span>
+              <div className={`absolute right-1.5 bg-primary/90 backdrop-blur-sm max-w-[90%] ${viewMode === 'list' ? 'top-1.5 px-1.5 py-0.5' : 'top-2 px-2 py-1'}`}>
+                <span className={`font-medium text-primary-foreground truncate block ${viewMode === 'list' ? 'text-[10px]' : 'text-xs'}`}>{building.architectural_style}</span>
               </div>
             )}
 
@@ -87,18 +87,18 @@ export function SearchResults({
           </div>
 
           {/* Информация */}
-          <div className={`p-4 ${viewMode === 'list' ? 'flex-1 flex flex-col justify-between' : ''}`}>
-            <div className="space-y-2">
+          <div className={`${viewMode === 'list' ? 'p-2.5 sm:p-3 flex-1 min-w-0 flex flex-col justify-between overflow-hidden' : 'p-4'}`}>
+            <div className={viewMode === 'list' ? 'space-y-1' : 'space-y-2'}>
               {/* Название */}
               <h3
-                className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors line-clamp-2"
+                className={`font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 ${viewMode === 'list' ? 'text-sm sm:text-base' : 'text-lg'}`}
                 dangerouslySetInnerHTML={{ __html: highlightedName }}
               />
 
               {/* Архитектор */}
               {building.architect && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <User className="w-4 h-4 flex-shrink-0" />
+                <div className={`flex items-center gap-1.5 text-muted-foreground ${viewMode === 'list' ? 'text-xs' : 'text-sm gap-2'}`}>
+                  <User className={viewMode === 'list' ? 'w-3 h-3 flex-shrink-0' : 'w-4 h-4 flex-shrink-0'} />
                   <span
                     className="truncate"
                     dangerouslySetInnerHTML={{ __html: highlightedArchitect || '' }}
@@ -108,24 +108,24 @@ export function SearchResults({
 
               {/* Год постройки */}
               {building.year_built && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground font-metrics">
-                  <Calendar className="w-4 h-4" />
+                <div className={`flex items-center gap-1 text-muted-foreground font-metrics ${viewMode === 'list' ? 'text-xs' : 'text-sm'}`}>
+                  <Calendar className={viewMode === 'list' ? 'w-3 h-3' : 'w-4 h-4'} />
                   <span>{building.year_built}</span>
                 </div>
               )}
 
               {/* Адрес */}
               {building.address && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="w-4 h-4 flex-shrink-0" />
+                <div className={`flex items-center gap-1.5 text-muted-foreground ${viewMode === 'list' ? 'text-xs' : 'text-sm gap-2'}`}>
+                  <MapPin className={viewMode === 'list' ? 'w-3 h-3 flex-shrink-0' : 'w-4 h-4 flex-shrink-0'} />
                   <span className="truncate">{building.address}</span>
                 </div>
               )}
             </div>
 
             {/* Статистика */}
-            <div className="flex items-center justify-between pt-2 border-t border-border mt-2">
-              <div className="flex items-center gap-4 text-xs text-muted-foreground font-metrics">
+            <div className={`flex items-center justify-between border-t border-border min-w-0 ${viewMode === 'list' ? 'pt-1.5 mt-1.5' : 'pt-2 mt-2'}`}>
+              <div className="flex items-center gap-2 sm:gap-4 text-xs text-muted-foreground font-metrics">
                 <div className="flex items-center gap-1">
                   <Eye className="w-3 h-3" />
                   <span>{building.view_count || 0}</span>

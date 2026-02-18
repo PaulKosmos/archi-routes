@@ -156,15 +156,17 @@ export default function BlogPage() {
           <span className="text-sm font-medium">
             Articles found: <span className="font-bold text-[hsl(var(--blog-primary))]">{filteredPosts.length}</span>
           </span>
-          <Link
-            href="/blog/create"
-            className="inline-flex items-center gap-2 bg-[hsl(var(--blog-primary))] text-[hsl(var(--blog-primary-foreground))] px-6 py-3 rounded-[var(--radius)] hover:opacity-90 transition-opacity font-medium"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Create Article
-          </Link>
+          {user && (
+            <Link
+              href="/blog/create"
+              className="inline-flex items-center gap-2 bg-[hsl(var(--blog-primary))] text-[hsl(var(--blog-primary-foreground))] px-6 py-3 rounded-[var(--radius)] hover:opacity-90 transition-opacity font-medium"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create Article
+            </Link>
+          )}
         </div>
 
         {/* Список статей */}

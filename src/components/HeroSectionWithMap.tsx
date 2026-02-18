@@ -168,37 +168,44 @@ export default function HeroSectionWithMap() {
       className={`relative w-full h-[80vh] min-h-[500px] overflow-hidden transition-all duration-800 ${isAnimating ? 'hero-slide-down' : ''
         }`}
     >
-      {/* Фон с имитацией карты (градиент + паттерн) */}
-      <div
-        className="absolute inset-0 z-0 transition-all duration-500"
-        style={{
-          filter: isAnimating ? 'blur(0px)' : 'blur(4px)',
-          opacity: isAnimating ? 1 : 0.6,
-          background: `
-            linear-gradient(135deg,
-              rgba(147, 197, 253, 0.8) 0%,
-              rgba(196, 181, 253, 0.8) 25%,
-              rgba(252, 211, 77, 0.7) 50%,
-              rgba(167, 243, 208, 0.8) 75%,
-              rgba(147, 197, 253, 0.8) 100%
-            ),
-            repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,0,0,.05) 35px, rgba(0,0,0,.05) 70px),
-            repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(0,0,0,.03) 35px, rgba(0,0,0,.03) 70px)
-          `,
-          backgroundSize: '400% 400%, 100% 100%, 100% 100%',
-          animation: 'gradient-shift 15s ease infinite'
-        }}
-      />
+      {/* Видео-фон: мобильное (до md) и десктопное (md+) */}
+      <video
+        key="hero-mobile"
+        className="absolute inset-0 w-full h-full object-cover z-0 md:hidden"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+      >
+        <source src="/videos/Mob_N.webm" type="video/webm" />
+        <source src="/videos/Mob_N.mp4" type="video/mp4" />
+      </video>
+      <video
+        key="hero-desktop"
+        className="absolute inset-0 w-full h-full object-cover z-0 hidden md:block"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+      >
+        <source src="/videos/Web_Conv.webm" type="video/webm" />
+        <source src="/videos/Web_Conv.mp4" type="video/mp4" />
+      </video>
 
-      {/* Градиентный оверлей для лучшей читаемости - исчезает при анимации */}
+      {/* Тёмный оверлей для читаемости текста — исчезает при анимации */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50 z-0 transition-opacity duration-500"
-        style={{ opacity: isAnimating ? 0 : 1 }}
+        className="absolute inset-0 z-[1] transition-opacity duration-500"
+        style={{
+          opacity: isAnimating ? 0 : 1,
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.60) 100%)'
+        }}
       />
 
       {/* Контент - скрывается при анимации */}
       <div
-        className="relative z-10 flex flex-col items-center justify-center h-full px-4 sm:px-6 lg:px-8 transition-opacity duration-300"
+        className="relative z-[2] flex flex-col items-center justify-center h-full px-4 sm:px-6 lg:px-8 transition-opacity duration-300"
         style={{ opacity: isAnimating ? 0 : 1, pointerEvents: isAnimating ? 'none' : 'auto' }}
       >
         {/* Заголовок */}
@@ -319,18 +326,6 @@ export default function HeroSectionWithMap() {
           }
           100% {
             transform: translateY(0);
-          }
-        }
-
-        @keyframes gradient-shift {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
           }
         }
 
