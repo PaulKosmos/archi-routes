@@ -6,7 +6,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
-import { MapPin, Plus, ArrowLeft, Search, X, Clock, Navigation2 } from 'lucide-react'
+import { MapPin, Plus, ArrowLeft, Search, X, Clock, Navigation2, SlidersHorizontal } from 'lucide-react'
 import { PageLoader } from '@/components/ui/PageLoader'
 import RouteCreator from '@/components/RouteCreator'
 import { SmartRouteFilter } from '@/lib/smart-route-filtering'
@@ -259,48 +259,55 @@ export default function RoutesPage() {
     )
   }
 
+  const filterProps = {
+    filters: { cities: selectedCities, transport: selectedTransport, durationRange },
+    availableCities: uniqueCities,
+    onFiltersChange: handleFiltersChange,
+    onClearFilters: clearFilters,
+    activeFiltersCount,
+  }
+
   return (
     <>
       <Header buildings={buildings} />
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-4 md:px-6 py-6 md:py-8">
+
           {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
-              <Link
-                href="/"
-                className="p-2 rounded-lg hover:bg-muted transition-colors"
-              >
+          <div className="mb-6 md:mb-8">
+            <div className="flex items-start gap-3 md:gap-4">
+              <Link href="/" className="p-2 rounded-lg hover:bg-muted transition-colors shrink-0 mt-0.5">
                 <ArrowLeft className="w-5 h-5 text-muted-foreground" />
               </Link>
-              <div className="flex-1">
-                <h1 className="text-3xl font-display font-bold text-foreground mb-2">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-1">
                   Architectural Routes
                 </h1>
-                <p className="text-muted-foreground">
+                <p className="text-sm md:text-base text-muted-foreground">
                   Explore cities through the lens of architecture. Public routes from local experts and enthusiasts.
                 </p>
               </div>
-
               {user && (
                 <button
                   onClick={handleOpenRouteCreator}
-                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                  className="shrink-0 inline-flex items-center gap-1.5 bg-primary text-primary-foreground px-3 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-primary/90 transition-colors font-medium text-sm"
                 >
-                  <Plus className="w-5 h-5" />
-                  <span>Create Route</span>
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden sm:inline">Create Route</span>
                 </button>
               )}
             </div>
           </div>
 
-          {/* Main content area with sidebar layout */}
+          {/* Main layout */}
           <div className="lg:flex lg:gap-8">
-            {/* Left column: search and results */}
-            <div className="lg:flex-1">
-              {/* Search Bar */}
-              <div className="mb-6">
-                <div className="relative">
+
+            {/* Left column */}
+            <div className="lg:flex-1 min-w-0">
+
+              {/* Search + mobile filters button */}
+              <div className="flex gap-2 mb-4 md:mb-6">
+                <div className="flex-1 relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
                   <input
                     type="text"
@@ -318,31 +325,38 @@ export default function RoutesPage() {
                     </button>
                   )}
                 </div>
+
+                {/* Filters button — mobile only */}
+                <button
+                  onClick={() => setIsFiltersOpen(true)}
+                  className="lg:hidden relative h-12 px-3 sm:px-4 border border-border bg-background text-foreground rounded-lg flex items-center gap-2 text-sm hover:bg-muted transition-colors shrink-0"
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                  <span className="hidden sm:inline">Filters</span>
+                  {activeFiltersCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center font-metrics leading-none">
+                      {activeFiltersCount}
+                    </span>
+                  )}
+                </button>
               </div>
 
               {/* Results count */}
-              {searchQuery || activeFiltersCount > 0 ? (
+              {(searchQuery || activeFiltersCount > 0) && (
                 <div className="mb-4 text-sm text-muted-foreground font-metrics">
                   Showing <span className="font-semibold text-foreground">{filteredRoutes.length}</span> of{' '}
                   <span className="font-semibold text-foreground">{routes.length}</span> routes
                 </div>
-              ) : null}
+              )}
 
               {/* Results */}
               {filteredRoutes.length === 0 && routes.length > 0 ? (
                 <div className="text-center py-12">
                   <MapPin className="w-16 h-16 text-muted mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">
-                    No routes match your filters
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    Try adjusting your search or filters
-                  </p>
+                  <h3 className="text-lg font-medium text-foreground mb-2">No routes match your filters</h3>
+                  <p className="text-muted-foreground mb-6">Try adjusting your search or filters</p>
                   <button
-                    onClick={() => {
-                      setSearchQuery('')
-                      clearFilters()
-                    }}
+                    onClick={() => { setSearchQuery(''); clearFilters() }}
                     className="inline-flex items-center gap-2 bg-muted text-foreground px-6 py-3 rounded-lg hover:bg-muted/80 transition-colors"
                   >
                     Clear all filters
@@ -351,12 +365,8 @@ export default function RoutesPage() {
               ) : routes.length === 0 ? (
                 <div className="text-center py-12">
                   <MapPin className="w-16 h-16 text-muted mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">
-                    No routes yet
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    Be the first to create an architectural route!
-                  </p>
+                  <h3 className="text-lg font-medium text-foreground mb-2">No routes yet</h3>
+                  <p className="text-muted-foreground mb-6">Be the first to create an architectural route!</p>
                   {user ? (
                     <button
                       onClick={handleOpenRouteCreator}
@@ -366,51 +376,46 @@ export default function RoutesPage() {
                       <span>Create First Route</span>
                     </button>
                   ) : (
-                    <Link
-                      href="/auth"
-                      className="inline-flex items-center gap-2 bg-muted text-foreground px-6 py-3 rounded-lg hover:bg-muted/80 transition-colors"
-                    >
-                      <span>Sign In to Create Routes</span>
+                    <Link href="/auth" className="inline-flex items-center gap-2 bg-muted text-foreground px-6 py-3 rounded-lg hover:bg-muted/80 transition-colors">
+                      Sign In to Create Routes
                     </Link>
                   )}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 auto-rows-fr">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
                   {filteredRoutes.map((route) => (
                     <Link
                       key={route.id}
                       href={`/routes/${route.id}`}
-                      className="bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all flex flex-col group min-h-[240px]"
+                      className="bg-card border border-border rounded-lg p-4 md:p-6 hover:border-primary/50 transition-all flex flex-col group"
                     >
-                      {/* Content */}
-                      <div className="flex-1 mb-4">
-                        <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                      <div className="flex-1 mb-3 md:mb-4">
+                        <h3 className="text-base md:text-lg font-semibold text-foreground mb-1.5 md:mb-2 group-hover:text-primary transition-colors line-clamp-2">
                           {route.title}
                         </h3>
                         {route.description && (
-                          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                          <p className="text-muted-foreground text-sm mb-2 md:mb-3 line-clamp-2">
                             {route.description}
                           </p>
                         )}
                         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                          <MapPin className="w-4 h-4" />
-                          <span>{route.city}, {route.country}</span>
+                          <MapPin className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{route.city}, {route.country}</span>
                         </div>
                       </div>
 
-                      {/* Metrics at bottom - single line */}
-                      <div className="pt-3 border-t border-border mt-auto">
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground font-metrics">
-                          <span className="flex items-center gap-1">
+                      <div className="pt-3 border-t border-border">
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground font-metrics">
+                          <span className="flex items-center gap-1 shrink-0">
                             <Clock className="w-3.5 h-3.5" />
                             {route.estimated_duration_minutes || 60}min
                           </span>
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1 shrink-0">
                             <Navigation2 className="w-3.5 h-3.5" />
                             {route.points_count || 0} stops
                           </span>
                           {route.transport_mode && (
-                            <span className="flex items-center gap-1 ml-auto text-primary">
+                            <span className="ml-auto text-primary shrink-0">
                               {route.transport_mode === 'walking' && 'Walking'}
                               {route.transport_mode === 'cycling' && 'Cycling'}
                               {route.transport_mode === 'driving' && 'Driving'}
@@ -425,27 +430,26 @@ export default function RoutesPage() {
               )}
             </div>
 
-            {/* Right column: filters (always visible on desktop) */}
-            <div className="lg:w-80 lg:flex-shrink-0 mt-8 lg:mt-0">
+            {/* Right column: filters — desktop only */}
+            <div className="hidden lg:block lg:w-80 lg:flex-shrink-0">
               <div className="sticky top-6">
                 <RouteFilterPanel
-                  filters={{
-                    cities: selectedCities,
-                    transport: selectedTransport,
-                    durationRange: durationRange
-                  }}
-                  availableCities={uniqueCities}
-                  onFiltersChange={handleFiltersChange}
-                  onClearFilters={clearFilters}
+                  {...filterProps}
                   isOpen={true}
-                  onClose={() => { }}
-                  activeFiltersCount={activeFiltersCount}
+                  onClose={() => {}}
                 />
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Mobile filter drawer */}
+      <RouteFilterPanel
+        {...filterProps}
+        isOpen={isFiltersOpen}
+        onClose={() => setIsFiltersOpen(false)}
+      />
 
       {/* Route creation modal */}
       {isRouteCreatorOpen && user && (
