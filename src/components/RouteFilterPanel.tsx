@@ -121,14 +121,14 @@ export function RouteFilterPanel({
 
   return (
     <>
-      {/* Overlay для мобильных */}
+      {/* Overlay — только на sm+ где панель не полноэкранная */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+        className="fixed inset-0 bg-black bg-opacity-50 z-40 hidden sm:block lg:hidden"
         onClick={onClose}
       />
 
       {/* Панель фильтров */}
-      <div className="fixed right-0 top-0 h-full w-80 bg-card shadow-xl z-50 overflow-y-auto lg:relative lg:w-full lg:h-auto lg:shadow-none">
+      <div className="fixed right-0 top-0 h-full w-full sm:w-80 bg-card shadow-xl z-50 overflow-y-auto lg:relative lg:w-full lg:h-auto lg:shadow-none">
         <div className="lg:bg-card lg:border lg:border-border lg:rounded-lg">
           {/* Заголовок */}
           <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 lg:bg-card lg:rounded-t-lg">
