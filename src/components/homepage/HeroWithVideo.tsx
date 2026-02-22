@@ -114,7 +114,7 @@ export default function HeroWithVideo({
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => setIsSearchFocused(true)}
                     onBlur={() => setIsSearchFocused(false)}
-                    placeholder="Find city, building or architect..."
+                    placeholder="Find city, object or architect..."
                     className="flex-1 bg-transparent text-white placeholder-white/50 py-4 pr-5 outline-none text-base"
                   />
                 </div>
@@ -158,7 +158,7 @@ export default function HeroWithVideo({
                   {stats.buildings.toLocaleString()}+
                 </div>
                 <div className="text-sm text-white/60 uppercase tracking-wider mt-1">
-                  Buildings
+                  Objects
                 </div>
               </div>
 

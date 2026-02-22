@@ -701,7 +701,7 @@ export default function UsersManagementPage() {
                         <div className="space-y-1">
                           <div className="flex items-center gap-1">
                             <Building2 className="w-3 h-3" />
-                            <span>Buildings: {user.buildings_count}</span>
+                            <span>Objects: {user.buildings_count}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <MessageSquare className="w-3 h-3" />

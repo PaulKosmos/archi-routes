@@ -101,7 +101,7 @@ export function BreadcrumbsStructuredData({ article }: { article?: NewsArticleWi
     'heritage': 'Наследие'
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archiroutes.com';
   const categoryName = categoryNames[article.category as keyof typeof categoryNames] || article.category;
 
   const jsonLd = {

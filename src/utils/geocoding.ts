@@ -1,5 +1,5 @@
 // Утилита для reverse geocoding (координаты → адрес)
-// Использует Nominatim (OpenStreetMap) - бесплатный сервис
+// Запросы проксируются через /api/geocode (server-side) во избежание CORS и расширений браузера
 
 export interface GeocodingResult {
   address: string
@@ -24,13 +24,7 @@ export async function reverseGeocode(
     console.log('🗺️ [GEOCODING] Starting reverse geocoding for:', { lat, lng })
 
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?` +
-      `format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en`,
-      {
-        headers: {
-          'User-Agent': 'ArchiRoutes/1.0' // Nominatim требует User-Agent
-        }
-      }
+      `/api/geocode?lat=${lat}&lng=${lng}`
     )
 
     if (!response.ok) {

@@ -223,7 +223,7 @@ export function SearchPage({
               <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-8">
                 <div className="font-metrics">
                   Showing <span className="font-semibold text-foreground">{results.length}</span> of{' '}
-                  <span className="font-semibold text-foreground">{totalCount}</span> buildings
+                  <span className="font-semibold text-foreground">{totalCount}</span> objects
                 </div>
                 {metadata.styles.length > 0 && (
                   <div className="font-metrics hidden sm:block">

@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { CreateBlogContentBlock, BlogTag, generateSlug } from '@/types/blog'
+import { noCyrillic } from '@/lib/utils'
 import ContentBlockEditor from '@/components/blog/ContentBlockEditor'
 import BlogPreviewModal from '@/components/blog/BlogPreviewModal'
 import TagsAutocompleteInput from '@/components/blog/TagsAutocompleteInput'
@@ -27,7 +28,7 @@ import Link from 'next/link'
 
 export default function CreateBlogPage() {
   const supabase = useMemo(() => createClient(), [])
-  const { user, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
@@ -204,6 +205,8 @@ export default function CreateBlogPage() {
   }
 
 
+  const isAdminOrMod = ['admin', 'moderator'].includes(profile?.role || '')
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -218,6 +221,35 @@ export default function CreateBlogPage() {
             Log in
           </Link>
         </div>
+      </div>
+    )
+  }
+
+  if (!authLoading && !isAdminOrMod) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header buildings={[]} />
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+          <div className="text-center max-w-md mx-auto px-6">
+            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-4xl">✍️</span>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-3">
+              Blog is in testing
+            </h1>
+            <p className="text-gray-500 mb-8 leading-relaxed">
+              The feature for creating articles is currently under development and will be available soon. Stay tuned!
+            </p>
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors text-sm font-medium"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Blog
+            </Link>
+          </div>
+        </div>
+        <EnhancedFooter />
       </div>
     )
   }
@@ -273,7 +305,7 @@ export default function CreateBlogPage() {
                 type="text"
                 placeholder="Article title..."
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => setTitle(noCyrillic(e.target.value))}
                 className="w-full text-3xl font-bold border-0 focus:ring-0 focus:outline-none placeholder-gray-400"
               />
               {errors.title && (
@@ -286,7 +318,7 @@ export default function CreateBlogPage() {
               <textarea
                 placeholder="Brief article summary (shown in cards and for SEO)..."
                 value={excerpt}
-                onChange={(e) => setExcerpt(e.target.value)}
+                onChange={(e) => setExcerpt(noCyrillic(e.target.value))}
                 rows={3}
                 className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />

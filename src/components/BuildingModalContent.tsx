@@ -236,7 +236,7 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading building data...</p>
+          <p className="text-gray-600">Loading object data...</p>
         </div>
       </div>
     )
@@ -247,7 +247,7 @@ export default function BuildingModalContent({ building, onOpenAddReview }: Buil
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Loading Error</h1>
-          <p className="text-gray-600">Failed to load building data</p>
+          <p className="text-gray-600">Failed to load object data</p>
         </div>
       </div>
     )

@@ -360,7 +360,7 @@ export default function FilterPanel({
         {uniqueValues.buildingTypes.length > 0 && (
           <FilterSection
             id="types"
-            title="Building Type"
+            title="Object Type"
             icon={Layers}
             count={filters.buildingTypes.length}
           >

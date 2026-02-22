@@ -57,7 +57,7 @@ export default function RouteCreationModal({
           <div className="mb-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
               <MapPin className="w-5 h-5 mr-2 text-green-600" />
-              Selected Buildings ({selectedBuildings.length})
+              Selected Objects ({selectedBuildings.length})
             </h3>
 
             {selectedBuildings.length > 0 ? (
@@ -89,8 +89,8 @@ export default function RouteCreationModal({
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <MapPin className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>No buildings selected</p>
-                <p className="text-sm">Select buildings on the map to create a route</p>
+                <p>No objects selected</p>
+                <p className="text-sm">Select objects on the map to create a route</p>
               </div>
             )}
           </div>
@@ -134,7 +134,7 @@ export default function RouteCreationModal({
               <h4 className="font-medium text-blue-900 mb-2">Route Information</h4>
               <div className="grid grid-cols-2 gap-4 text-sm text-blue-800">
                 <div>
-                  <strong>Number of buildings:</strong> {selectedBuildings.length}
+                  <strong>Number of objects:</strong> {selectedBuildings.length}
                 </div>
                 <div>
                   <strong>Estimated time:</strong> {Math.max(selectedBuildings.length * 30, 60)} min

@@ -16,7 +16,7 @@ const geologica = Geologica({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://archiroutes.com'),
   title: {
     default: 'Archiroutes - Discover cities and their stories',
     template: '%s | Archiroutes'

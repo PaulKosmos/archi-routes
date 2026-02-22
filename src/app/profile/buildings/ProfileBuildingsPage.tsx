@@ -94,7 +94,7 @@ export default function ProfileBuildingsPage() {
       setSelectedBuilding(null)
     } catch (error) {
       console.error('Error deleting building:', error)
-      alert('Error deleting building')
+      alert('Error deleting object')
     }
   }
 
@@ -159,7 +159,7 @@ export default function ProfileBuildingsPage() {
           <div className="text-center">
             <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="text-2xl font-heading font-bold mb-2">Sign In Required</h1>
-            <p className="text-muted-foreground mb-6">You must sign in to view your buildings</p>
+            <p className="text-muted-foreground mb-6">You must sign in to view your objects</p>
             <Link
               href="/auth"
               className="bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
@@ -218,7 +218,7 @@ export default function ProfileBuildingsPage() {
                 className="hidden sm:flex bg-primary text-primary-foreground px-4 py-2 rounded-[var(--radius)] hover:bg-primary/90 transition-colors items-center gap-2 font-medium"
               >
                 <Plus className="w-4 h-4" />
-                <span>Add Building</span>
+                <span>Add Object</span>
               </Link>
             </div>
           </div>
@@ -301,14 +301,14 @@ export default function ProfileBuildingsPage() {
               <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               {buildings.length === 0 ? (
                 <>
-                  <h3 className="text-xl font-medium text-gray-900 mb-2">No Buildings Yet</h3>
-                  <p className="text-gray-500 mb-6">Start adding interesting architectural buildings!</p>
+                  <h3 className="text-xl font-medium text-gray-900 mb-2">No Objects Yet</h3>
+                  <p className="text-gray-500 mb-6">Start adding interesting architectural objects!</p>
                   <Link
                     href="/buildings/new"
                     className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors inline-flex items-center space-x-2"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Add First Building</span>
+                    <span>Add First Object</span>
                   </Link>
                 </>
               ) : (

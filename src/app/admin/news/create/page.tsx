@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { noCyrillic } from '@/lib/utils';
 import { useNewsAPI } from '@/hooks/useNewsAPI';
 import Header from '@/components/Header';
 import NewsEditor from '@/components/news/NewsEditor';
@@ -103,7 +104,8 @@ export default function CreateNewsPage() {
   };
 
   // Handle title change and auto-generate slug
-  const handleTitleChange = (title: string) => {
+  const handleTitleChange = (rawTitle: string) => {
+    const title = noCyrillic(rawTitle)
     setFormData(prev => ({
       ...prev,
       title,
@@ -358,7 +360,7 @@ export default function CreateNewsPage() {
                     <input
                       type="text"
                       value={formData.slug}
-                      onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, slug: noCyrillic(e.target.value) }))}
                       placeholder="url-novosti"
                       className="flex-1 ml-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
@@ -375,7 +377,7 @@ export default function CreateNewsPage() {
                   </label>
                   <textarea
                     value={formData.summary || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, summary: noCyrillic(e.target.value) }))}
                     placeholder="Brief news summary for preview..."
                     rows={3}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -409,7 +411,7 @@ export default function CreateNewsPage() {
                     <input
                       type="text"
                       value={formData.city || ''}
-                      onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, city: noCyrillic(e.target.value) }))}
                       placeholder="Moscow"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
@@ -422,7 +424,7 @@ export default function CreateNewsPage() {
                     <input
                       type="text"
                       value={formData.country || ''}
-                      onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, country: noCyrillic(e.target.value) }))}
                       placeholder="Russia"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
@@ -589,7 +591,7 @@ export default function CreateNewsPage() {
 
             {/* Related Buildings */}
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Related Buildings</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Related Objects</h2>
 
               <div className="space-y-4">
                 <div className="relative">
@@ -599,7 +601,7 @@ export default function CreateNewsPage() {
                       value={buildingSearch}
                       onChange={(e) => setBuildingSearch(e.target.value)}
                       onFocus={() => setShowBuildingSearch(true)}
-                      placeholder="Find building..."
+                      placeholder="Find object..."
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                     <button
@@ -645,7 +647,7 @@ export default function CreateNewsPage() {
                 {/* Selected Buildings */}
                 {selectedBuildings.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-gray-700">Selected Buildings:</p>
+                    <p className="text-sm font-medium text-gray-700">Selected Objects:</p>
                     <div className="space-y-2">
                       {selectedBuildings.map((building) => (
                         <div

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { X, ChevronLeft, ChevronRight, MapPin, Clock, Navigation, Star, Check, Headphones, CheckCircle, Award, Pencil, Share2 } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, MapPin, Clock, Navigation, Star, Check, Headphones, CheckCircle, Award, Pencil, Share2, MessageSquare, GraduationCap, Scroll, Map as MapIcon, Inbox, Trophy } from 'lucide-react'
 import { Route, RoutePoint, Building, BuildingReview } from '@/types/building'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
@@ -815,10 +815,10 @@ export default function RouteViewerModal({
                           {currentPoint.estimated_time_minutes} min
                         </div>
                       )}
-                      {currentPoint.buildings.rating && (
+                      {Number(currentPoint.buildings.rating) > 0 && (
                         <div className="flex items-center font-metrics">
                           <Star className="w-3 h-3 md:w-4 md:h-4 mr-1 text-yellow-400" />
-                          {currentPoint.buildings.rating.toFixed(1)}
+                          {Number(currentPoint.buildings.rating).toFixed(1)}
                         </div>
                       )}
                     </div>
@@ -849,11 +849,40 @@ export default function RouteViewerModal({
                   )}
                 </div>
 
+                {/* Audio player (if review with audio is selected) */}
+                {selectedReview && selectedReview.audio_url && (
+                  <div className="mb-4 md:mb-6">
+                    <h4 className="text-lg md:text-xl font-semibold font-display text-foreground mb-3 md:mb-4 flex items-center gap-2">
+                      <Headphones className="w-5 h-5" />
+                      Audio Review
+                    </h4>
+                    <AudioPlayer
+                      audioUrl={getStorageUrl(selectedReview.audio_url, 'audio')}
+                      title={selectedReview.title || currentPoint.title}
+                      onPositionChange={async (position) => {
+                        if (user && currentPoint) {
+                          await supabase
+                            .from('route_point_review_selections')
+                            .update({
+                              audio_position_seconds: Math.floor(position),
+                              last_listened_at: new Date().toISOString()
+                            })
+                            .eq('user_id', user.id)
+                            .eq('route_id', route!.id)
+                            .eq('route_point_id', currentPoint.id)
+                        }
+                      }}
+                      initialPosition={0}
+                    />
+                  </div>
+                )}
+
                 {/* Reviews section */}
                 <div className="mb-4 md:mb-6">
                   <div className="flex items-center justify-between mb-3 md:mb-4">
-                    <h4 className="text-lg md:text-xl font-semibold font-display text-foreground">
-                      📝 Reviews {reviews.length > 0 && `(${reviews.length})`}
+                    <h4 className="text-lg md:text-xl font-semibold font-display text-foreground flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5 flex-shrink-0" />
+                      Reviews {reviews.length > 0 && `(${reviews.length})`}
                     </h4>
                     {reviews.length > 0 && (
                       <div className="text-xs md:text-sm text-muted-foreground font-metrics">
@@ -870,8 +899,9 @@ export default function RouteViewerModal({
                     </div>
                   ) : reviews.length === 0 ? (
                     <div className="bg-muted border-2 border-border rounded-[var(--radius)] p-4 md:p-6 text-center">
+                      <Inbox className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
                       <p className="text-sm md:text-base text-muted-foreground">
-                        📭 No reviews yet for this object
+                        No reviews yet for this object
                       </p>
                     </div>
                   ) : (
@@ -915,7 +945,8 @@ export default function RouteViewerModal({
                                   {/* Полный обзор - ГЛАВНЫЙ бейдж */}
                                   {isFullReview && (
                                     <span className="flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-bold border border-yellow-300">
-                                      ⭐ COMPLETE
+                                      <Trophy className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+                                      <span className="hidden md:inline">COMPLETE</span>
                                     </span>
                                   )}
 
@@ -939,13 +970,15 @@ export default function RouteViewerModal({
                                     </span>
                                   )}
                                   {review.review_type === 'expert' && (
-                                    <span className="bg-indigo-50 text-indigo-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
-                                      👨‍🎓 <span className="hidden md:inline">Expert</span>
+                                    <span className="flex items-center bg-indigo-50 text-indigo-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                      <GraduationCap className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+                                      <span className="hidden md:inline">Expert</span>
                                     </span>
                                   )}
                                   {review.review_type === 'historical' && (
-                                    <span className="bg-amber-50 text-amber-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
-                                      📜 <span className="hidden md:inline">Historical</span>
+                                    <span className="flex items-center bg-amber-50 text-amber-700 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium">
+                                      <Scroll className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+                                      <span className="hidden md:inline">Historical</span>
                                     </span>
                                   )}
                                 </div>
@@ -1034,9 +1067,9 @@ export default function RouteViewerModal({
                             className="px-3 md:px-4 py-1.5 md:py-2 bg-muted text-foreground rounded-[var(--radius)] hover:bg-muted/80 transition-colors font-medium text-xs md:text-sm"
                           >
                             {showAllReviews ? (
-                              <>↑ Collapse reviews</>
+                              <span className="flex items-center gap-1"><ChevronUp className="w-4 h-4" /> Collapse reviews</span>
                             ) : (
-                              <>↓ Show {reviews.length - 3} more reviews</>
+                              <span className="flex items-center gap-1"><ChevronDown className="w-4 h-4" /> Show {reviews.length - 3} more reviews</span>
                             )}
                           </button>
                         </div>
@@ -1045,38 +1078,11 @@ export default function RouteViewerModal({
                   )}
                 </div>
 
-                {/* Audio player (if review with audio is selected) */}
-                {selectedReview && selectedReview.audio_url && (
-                  <div className="mb-4 md:mb-6">
-                    <h4 className="text-lg md:text-xl font-semibold font-display text-foreground mb-3 md:mb-4">
-                      🎧 Audio Review
-                    </h4>
-                    <AudioPlayer
-                      audioUrl={getStorageUrl(selectedReview.audio_url, 'audio')}
-                      title={selectedReview.title || currentPoint.title}
-                      onPositionChange={async (position) => {
-                        // Save position to DB
-                        if (user && currentPoint) {
-                          await supabase
-                            .from('route_point_review_selections')
-                            .update({
-                              audio_position_seconds: Math.floor(position),
-                              last_listened_at: new Date().toISOString()
-                            })
-                            .eq('user_id', user.id)
-                            .eq('route_id', route!.id)
-                            .eq('route_point_id', currentPoint.id)
-                        }
-                      }}
-                      initialPosition={0}
-                    />
-                  </div>
-                )}
-
                 {/* Mini-map */}
                 <div className="mb-4 md:mb-6">
-                  <h4 className="text-lg md:text-xl font-semibold font-display text-foreground mb-3 md:mb-4">
-                    🗺️ Map
+                  <h4 className="text-lg md:text-xl font-semibold font-display text-foreground mb-3 md:mb-4 flex items-center gap-2">
+                    <MapIcon className="w-5 h-5 flex-shrink-0" />
+                    Map
                   </h4>
                   <div className="h-48 md:h-64 rounded-[var(--radius)] overflow-hidden border-2 border-border">
                     <DynamicMiniMap

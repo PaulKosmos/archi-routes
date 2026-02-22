@@ -76,7 +76,7 @@ export default function BuildingSelector({
   // Добавление здания
   const handleAddBuilding = (building: Building) => {
     if (selectedBuildings.length >= maxSelections) {
-      alert(`Maximum ${maxSelections} buildings can be selected`);
+      alert(`Maximum ${maxSelections} objects can be selected`);
       return;
     }
 
@@ -117,7 +117,7 @@ export default function BuildingSelector({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search buildings by name, city, architect..."
+            placeholder="Search objects by name, city, architect..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => searchResults.length > 0 && setShowDropdown(true)}

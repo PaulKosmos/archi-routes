@@ -17,14 +17,15 @@ export default async function RouteEditPage({ params }: PageProps) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Missing Supabase credentials')
     return notFound()
   }
 
-  // Create public client for data fetching
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  // Use service role to bypass RLS (private routes are blocked by anon key)
+  const supabase = createClient(supabaseUrl, serviceRoleKey || supabaseAnonKey)
 
   // Load basic route data
   const { data: route, error } = await supabase

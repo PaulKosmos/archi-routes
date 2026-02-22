@@ -188,7 +188,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
   const handleRateBuilding = async (rating: number) => {
     if (!user) {
-      toast.error('Sign in to rate this building')
+      toast.error('Sign in to rate this object')
       return
     }
     if (!building) return
@@ -242,9 +242,13 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
         setRoutesCount(0)
         setNewsCount(0)
         setActiveTab('reviews')
+        setHeroPhotoIndex(0)
       }
       return
     }
+
+    // Reset photo index when building changes
+    setHeroPhotoIndex(0)
 
     console.log('🏢 BuildingModalNew: Загрузка данных для', building.id, building.name)
     loadTabData()
@@ -486,12 +490,20 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
   // Hero photos: building's own cover first, then review photos as extras
   const buildingCover = building.image_url ? [building.image_url] : []
-  const reviewPhotos = reviews
-    .filter(r => r.photos && r.photos.length > 0)
-    .flatMap(r => r.photos!)
+  const reviewsWithPhotos = reviews.filter(r => r.photos && r.photos.length > 0)
+  const reviewPhotos = reviewsWithPhotos.flatMap(r => r.photos!)
+
+  // Parallel source attribution array
+  const buildingCoverSources = building.image_url ? [building.image_source || null] : []
+  const reviewPhotoSources = reviewsWithPhotos.flatMap(r =>
+    (r.photos || []).map((_, i) =>
+      r.photo_sources ? (r.photo_sources[i] || null) : null
+    )
+  )
 
   // Building's own photo always comes first
   const displayHeroPhotos = [...buildingCover, ...reviewPhotos]
+  const displayHeroSources = [...buildingCoverSources, ...reviewPhotoSources]
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -535,7 +547,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                   window.open(`/buildings/${building.id}/edit`, '_blank')
                 }}
                 className="p-1.5 md:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Edit building"
+                title="Edit object"
               >
                 <Pencil className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
               </button>
@@ -629,10 +641,10 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
             </div>
           )}
 
-          {/* Photo Source Attribution */}
-          {building.image_source && (
+          {/* Photo Source Attribution - dynamic, changes with hero photo */}
+          {displayHeroSources[heroPhotoIndex] && (
             <div className="bg-gray-50 border-b border-gray-200 px-3 md:px-6 py-1.5 md:py-2 text-xs text-gray-500 italic">
-              📷 Photo: {building.image_source}
+              📷 {displayHeroSources[heroPhotoIndex]}
             </div>
           )}
 
@@ -952,8 +964,8 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                     {routes.length === 0 ? (
                       <div className="text-center py-8 md:py-12 text-gray-500 text-sm md:text-base">
                         📭 {routeViewMode === 'personal'
-                          ? 'You don\'t have any personal routes with this building yet'
-                          : 'This building is not yet included in public routes'}
+                          ? 'You don\'t have any personal routes with this object yet'
+                          : 'This object is not yet included in public routes'}
                       </div>
                     ) : (
                       routes.map(route => (
@@ -992,7 +1004,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                   <div className="space-y-3 md:space-y-4">
                     {news.length === 0 ? (
                       <div className="text-center py-8 md:py-12 text-gray-500 text-sm md:text-base">
-                        📭 No news about this building yet
+                        📭 No news about this object yet
                       </div>
                     ) : (
                       news.map(item => (

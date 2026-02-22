@@ -246,7 +246,7 @@ export default function ProfileSettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium text-gray-900 text-sm sm:text-base">New Reviews</h3>
-                    <p className="text-xs sm:text-sm text-gray-500">Notifications about new reviews of your buildings</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Notifications about new reviews of your objects</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -412,8 +412,8 @@ export default function ProfileSettingsPage() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900 text-sm sm:text-base">Show My Buildings</h3>
-                    <p className="text-xs sm:text-sm text-gray-500">Allow others to see the list of buildings you created</p>
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base">Show My Objects</h3>
+                    <p className="text-xs sm:text-sm text-gray-500">Allow others to see the list of objects you created</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input

@@ -279,7 +279,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
   const handleRateBuilding = async (rating: number) => {
     if (!user) {
-      toast.error('Sign in to rate this building')
+      toast.error('Sign in to rate this object')
       return
     }
 
@@ -382,7 +382,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading building data...</p>
+          <p className="text-muted-foreground">Loading object data...</p>
         </div>
       </div>
     )
@@ -393,7 +393,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-display font-bold text-foreground mb-2">Loading Error</h1>
-          <p className="text-muted-foreground">Failed to load building data</p>
+          <p className="text-muted-foreground">Failed to load object data</p>
           <button
             onClick={fetchBuildingData}
             className="mt-4 bg-primary text-primary-foreground px-4 py-2 rounded-[var(--radius)] hover:bg-primary/90 transition-colors font-medium"
@@ -457,7 +457,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
           <div className="lg:hidden space-y-4">
             {/* About the Building - mobile */}
             <div className="bg-card rounded-[var(--radius)] border border-border p-4">
-              <h3 className="text-base font-semibold font-display mb-3 text-foreground">About the Building</h3>
+              <h3 className="text-base font-semibold font-display mb-3 text-foreground">About the Object</h3>
 
               <div className="space-y-3">
                 {building.architect && (
@@ -500,7 +500,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
                   <div className="flex items-start">
                     <BuildingIcon className="h-4 w-4 text-muted-foreground mr-3 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <span className="text-xs text-muted-foreground block">Building Type</span>
+                      <span className="text-xs text-muted-foreground block">Object Type</span>
                       <p className="font-medium text-sm text-foreground">{building.building_type}</p>
                     </div>
                   </div>
@@ -635,7 +635,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
               <div className="bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6">
                 <div className="flex items-center mb-3 sm:mb-4">
                   <Navigation className="h-5 w-5 text-primary mr-2" />
-                  <h3 className="text-base sm:text-lg font-display font-bold text-foreground">Routes with this building</h3>
+                  <h3 className="text-base sm:text-lg font-display font-bold text-foreground">Routes with this object</h3>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -714,7 +714,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
             {/* Information and statistics (combined block) - desktop only */}
             <div className="hidden lg:block bg-card rounded-[var(--radius)] border border-border p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold font-display mb-3 sm:mb-4 text-foreground">About the Building</h3>
+              <h3 className="text-base sm:text-lg font-semibold font-display mb-3 sm:mb-4 text-foreground">About the Object</h3>
 
               {/* Rating + Views */}
               <div className="mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-border space-y-3">
@@ -808,7 +808,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
                   <div className="flex items-start">
                     <BuildingIcon className="h-4 w-4 text-muted-foreground mr-3 mt-1 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <span className="text-sm text-muted-foreground block">Building Type</span>
+                      <span className="text-sm text-muted-foreground block">Object Type</span>
                       <p className="font-medium text-foreground">{building.building_type}</p>
                     </div>
                   </div>

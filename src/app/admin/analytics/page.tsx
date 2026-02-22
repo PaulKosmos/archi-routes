@@ -325,7 +325,7 @@ export default function AnalyticsPage() {
               <GrowthIndicator value={analytics?.buildingsGrowth || 0} />
             </div>
             <p className="text-3xl font-metrics font-bold text-foreground">{analytics?.totalBuildings || 0}</p>
-            <p className="text-sm text-muted-foreground mt-1">Total Buildings</p>
+            <p className="text-sm text-muted-foreground mt-1">Total Objects</p>
             <div className="mt-3 pt-3 border-t border-border flex items-center text-sm text-muted-foreground">
               <Activity className="w-4 h-4 mr-2" />
               +{analytics?.newBuildingsThisWeek || 0} this week

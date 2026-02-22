@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archiroutes.com'
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return {

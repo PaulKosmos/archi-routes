@@ -331,7 +331,7 @@ export default function PublicProfilePage() {
                                     <div className="flex items-center gap-2">
                                         <Building2 className="w-4 h-4 text-muted-foreground" />
                                         <span className="font-semibold">{stats.buildings_count}</span>
-                                        <span className="text-muted-foreground">Buildings</span>
+                                        <span className="text-muted-foreground">Objects</span>
                                     </div>
                                 </div>
                             </div>
@@ -413,7 +413,7 @@ export default function PublicProfilePage() {
                                 ) : (
                                     <div className="text-center py-12 text-muted-foreground">
                                         <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                                        <p>No buildings added yet</p>
+                                        <p>No objects added yet</p>
                                     </div>
                                 )
                             )}

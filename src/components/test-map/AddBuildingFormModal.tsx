@@ -6,6 +6,7 @@ import { reverseGeocode, type GeocodingResult } from '@/utils/geocoding'
 import { useDuplicateCheck } from '@/hooks/useDuplicateCheck'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { noCyrillic } from '@/lib/utils'
 
 interface AddBuildingFormModalProps {
   isOpen: boolean
@@ -46,20 +47,24 @@ export interface BuildingFormData {
   photoSource?: string
   // Review media
   reviewPhotoFiles?: File[]
+  reviewPhotoSources?: Array<{ isOwnPhoto: boolean; source: string }>
   audioFile?: File | null
 }
 
 // Список архитектурных стилей
 const ARCHITECTURAL_STYLES = [
   'Classicism',
-  'Modernism',
-  'Postmodernism',
   'Baroque',
   'Gothic',
+  'Romanesque',
   'Renaissance',
   'Neo-Renaissance',
   'Constructivism',
   'Art Deco',
+  'Modernism',
+  'Postmodernism',
+  'National Style',
+  'Stalinist Empire Style',
   'Brutalism',
   'Minimalism',
   'High-tech',
@@ -180,6 +185,11 @@ export default function AddBuildingFormModal({
   // Review photos (up to 5)
   const [reviewPhotoFiles, setReviewPhotoFiles] = useState<File[]>([])
   const [reviewPhotoPreviews, setReviewPhotoPreviews] = useState<string[]>([])
+  const [reviewPhotoSources, setReviewPhotoSources] = useState<Array<{ isOwnPhoto: boolean; source: string }>>([])
+
+  const updateReviewPhotoSource = (index: number, field: 'isOwnPhoto' | 'source', value: boolean | string) => {
+    setReviewPhotoSources(prev => prev.map((ps, i) => i === index ? { ...ps, [field]: value } : ps))
+  }
 
   // Аудио
   const [audioFile, setAudioFile] = useState<File | null>(null)
@@ -235,7 +245,7 @@ export default function AddBuildingFormModal({
   }, [hasDuplicates, userConfirmedDuplicate])
 
   const handleInputChange = (field: keyof BuildingFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData(prev => ({ ...prev, [field]: typeof value === 'string' ? noCyrillic(value) : value }))
 
     if (field === 'name') {
       setUserConfirmedDuplicate(false)
@@ -321,6 +331,7 @@ export default function AddBuildingFormModal({
       // Review photos
       if (reviewPhotoFiles.length > 0) {
         dataToSave.reviewPhotoFiles = reviewPhotoFiles
+        dataToSave.reviewPhotoSources = reviewPhotoSources
       }
 
       if (audioFile) {
@@ -328,11 +339,11 @@ export default function AddBuildingFormModal({
       }
 
       await onSave(dataToSave)
-      toast.success(showReview && dataToSave.review ? 'Building and review successfully added!' : 'Building successfully added!')
+      toast.success(showReview && dataToSave.review ? 'Object and review successfully added!' : 'Object successfully added!')
       handleClose()
     } catch (error: any) {
       console.error('🏛️ [FORM] Save error:', error)
-      toast.error(error.message || 'Error saving building')
+      toast.error(error.message || 'Error saving object')
     } finally {
       setSaving(false)
     }
@@ -398,6 +409,7 @@ export default function AddBuildingFormModal({
     })
 
     setReviewPhotoFiles(prev => [...prev, ...validFiles])
+    setReviewPhotoSources(prev => [...prev, ...validFiles.map(() => ({ isOwnPhoto: true, source: '' }))])
 
     validFiles.forEach(file => {
       const reader = new FileReader()
@@ -411,6 +423,7 @@ export default function AddBuildingFormModal({
   const handleRemoveReviewPhoto = (index: number) => {
     setReviewPhotoFiles(prev => prev.filter((_, i) => i !== index))
     setReviewPhotoPreviews(prev => prev.filter((_, i) => i !== index))
+    setReviewPhotoSources(prev => prev.filter((_, i) => i !== index))
   }
 
   // Аудио
@@ -483,6 +496,7 @@ export default function AddBuildingFormModal({
     setPhotoSource('')
     setReviewPhotoFiles([])
     setReviewPhotoPreviews([])
+    setReviewPhotoSources([])
     setAudioFile(null)
     setAudioPreview(null)
     setErrors({})
@@ -511,7 +525,7 @@ export default function AddBuildingFormModal({
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <BuildingIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
             </div>
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Add Building</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Add Object</h2>
           </div>
           <button
             onClick={handleClose}
@@ -558,7 +572,7 @@ export default function AddBuildingFormModal({
               <div>
                 <label className="flex items-center text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   <BuildingIcon className="w-3.5 h-3.5 mr-1.5 text-green-600" />
-                  Building Name *
+                  Object Name *
                 </label>
                 <div className="relative">
                   <input
@@ -587,13 +601,13 @@ export default function AddBuildingFormModal({
                   <div className="flex-1">
                     <h3 className="font-semibold text-yellow-900 mb-2">
                       {hasHighConfidenceDuplicates
-                        ? 'This building may already be added!'
-                        : 'Similar buildings found'}
+                        ? 'This object may already be added!'
+                        : 'Similar objects found'}
                     </h3>
                     <p className="text-sm text-yellow-800 mb-3">
                       {hasHighConfidenceDuplicates
-                        ? 'We found buildings with very similar characteristics. Please check before adding.'
-                        : 'Found buildings with similar names in this city.'}
+                        ? 'We found objects with very similar characteristics. Please check before adding.'
+                        : 'Found objects with similar names in this city.'}
                     </p>
 
                     <div className="space-y-2 mb-3">
@@ -641,7 +655,7 @@ export default function AddBuildingFormModal({
                       <div className="flex items-center justify-between pt-2 border-t border-yellow-300">
                         <p className="text-sm text-yellow-800">
                           {hasHighConfidenceDuplicates
-                            ? 'Make sure this is a different building'
+                            ? 'Make sure this is a different object'
                             : 'Check the list above'}
                         </p>
                         <button
@@ -649,13 +663,13 @@ export default function AddBuildingFormModal({
                           onClick={() => setUserConfirmedDuplicate(true)}
                           className="px-3 py-1.5 bg-yellow-600 text-white text-sm font-medium rounded hover:bg-yellow-700 transition-colors"
                         >
-                          This is a different building, continue
+                          This is a different object, continue
                         </button>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between pt-2 border-t border-yellow-300">
                         <p className="text-sm text-green-700 font-medium">
-                          ✓ Confirmed: this is a new building
+                          ✓ Confirmed: this is a new object
                         </p>
                         <button
                           type="button"
@@ -793,7 +807,7 @@ export default function AddBuildingFormModal({
             <div>
               <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1 block">
                 <Camera className="w-3.5 h-3.5 mr-1.5 text-blue-600 inline" />
-                Building Photo <span className="text-gray-400 font-normal">(optional, max 5MB)</span>
+                Object Photo <span className="text-gray-400 font-normal">(optional, max 5MB)</span>
               </label>
               {!buildingPhotoFile ? (
                 <label className="cursor-pointer">
@@ -817,7 +831,7 @@ export default function AddBuildingFormModal({
                   {buildingPhotoPreview && (
                     <img
                       src={buildingPhotoPreview}
-                      alt="Building"
+                      alt="Object"
                       className="w-full h-32 sm:h-40 object-cover rounded-lg border-2 border-gray-200"
                     />
                   )}
@@ -944,9 +958,9 @@ export default function AddBuildingFormModal({
                       >
                         <option value="">Select...</option>
                         <option value="easy">Easy</option>
-                        <option value="moderate">Moderate</option>
-                        <option value="difficult">Difficult</option>
-                        <option value="exterior_only">Exterior only</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                        <option value="restricted">Restricted</option>
                       </select>
                     </div>
 
@@ -1038,13 +1052,13 @@ export default function AddBuildingFormModal({
                     <textarea
                       value={reviewData.content}
                       onChange={(e) => setReviewData(prev => ({ ...prev, content: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                      rows={4}
-                      placeholder="Tell about the building, its history, architectural features..."
-                      maxLength={4000}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y min-h-[120px]"
+                      rows={6}
+                      placeholder="Tell about the object, its history, architectural features..."
+                      maxLength={5000}
                     />
                     <div className="text-xs text-gray-400 mt-0.5 text-right">
-                      {reviewData.content.length} / 4000
+                      {reviewData.content.length} / 5000
                     </div>
                   </div>
                 </div>
@@ -1080,22 +1094,48 @@ export default function AddBuildingFormModal({
 
                     {reviewPhotoPreviews.length > 0 && (
                       <div className="grid grid-cols-3 gap-2 mt-2">
-                        {reviewPhotoPreviews.map((preview, index) => (
-                          <div key={index} className="relative group">
-                            <img
-                              src={preview}
-                              alt={`Review photo ${index + 1}`}
-                              className="w-full h-20 sm:h-28 object-cover rounded-lg border border-gray-200"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveReviewPhoto(index)}
-                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
+                        {reviewPhotoPreviews.map((preview, index) => {
+                          const ps = reviewPhotoSources[index] ?? { isOwnPhoto: true, source: '' }
+                          return (
+                            <div key={index} className="group">
+                              <div className="relative">
+                                <img
+                                  src={preview}
+                                  alt={`Review photo ${index + 1}`}
+                                  className="w-full h-20 sm:h-28 object-cover rounded-lg border border-gray-200"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveReviewPhoto(index)}
+                                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                              {/* Per-photo source attribution */}
+                              <div className="mt-1 space-y-0.5">
+                                <label className="flex items-center gap-1.5 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={ps.isOwnPhoto}
+                                    onChange={(e) => updateReviewPhotoSource(index, 'isOwnPhoto', e.target.checked)}
+                                    className="w-3 h-3 accent-blue-600"
+                                  />
+                                  <span className="text-xs text-gray-600">My photo</span>
+                                </label>
+                                {!ps.isOwnPhoto && (
+                                  <input
+                                    type="text"
+                                    value={ps.source}
+                                    onChange={(e) => updateReviewPhotoSource(index, 'source', e.target.value)}
+                                    placeholder="Source / credit..."
+                                    className="w-full px-1.5 py-0.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     )}
                   </div>

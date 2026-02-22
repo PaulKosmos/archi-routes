@@ -12,7 +12,8 @@ import {
   LayoutDashboard,
   Bot,
   Podcast,
-  BarChart3
+  BarChart3,
+  Route
 } from 'lucide-react'
 
 export default function AdminLayout({
@@ -75,6 +76,11 @@ export default function AdminLayout({
           name: 'Users',
           href: '/admin/users',
           icon: Users
+        },
+        {
+          name: 'Routes',
+          href: '/admin/routes',
+          icon: Route
         }
       ]
     },

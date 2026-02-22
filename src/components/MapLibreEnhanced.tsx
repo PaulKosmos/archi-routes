@@ -3,6 +3,7 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   forwardRef,
@@ -93,7 +94,8 @@ interface MapLibreEnhancedProps {
   selectedRoute?: string | null
   hoveredRoute?: string | null
   hoveredBuilding?: string | null
-  onBuildingClick?: (buildingId: string) => void
+  onBuildingClick?: (buildingId: string | null) => void
+  onMapBuildingSelect?: (buildingId: string | null) => void
   onRouteClick?: (routeId: string) => void
   onAddToRoute?: (buildingId: string) => void
   onStartRouteFrom?: (buildingId: string) => void
@@ -587,6 +589,7 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
       hoveredRoute,
       hoveredBuilding,
       onBuildingClick,
+      onMapBuildingSelect,
       onRouteClick,
       onAddToRoute,
       onBuildingDetails,
@@ -619,6 +622,16 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
     const [detailedPopupBuilding, setDetailedPopupBuilding] = useState<Building | null>(null)
     const lastClickedBuildingRef = useRef<string | null>(null)
     const isFirstLoad = useRef(true)
+
+    // Refs to keep handleMapClick stable (avoids re-registration race condition)
+    const addBuildingModeRef = useRef(addBuildingMode)
+    const radiusModeRef = useRef(radiusMode)
+    const onMapClickRef = useRef(onMapClick)
+    const onMapBuildingSelectRef = useRef(onMapBuildingSelect)
+    useLayoutEffect(() => { addBuildingModeRef.current = addBuildingMode }, [addBuildingMode])
+    useLayoutEffect(() => { radiusModeRef.current = radiusMode }, [radiusMode])
+    useLayoutEffect(() => { onMapClickRef.current = onMapClick }, [onMapClick])
+    useLayoutEffect(() => { onMapBuildingSelectRef.current = onMapBuildingSelect }, [onMapBuildingSelect])
 
     // Filter valid buildings
     const validBuildings = useMemo(() =>
@@ -797,16 +810,19 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
       openBuildingPopup
     }), [centerOnRoute, centerOnBuilding, openBuildingPopup])
 
-    // Handle map click
+    // Handle map click — stable handler using refs to avoid re-registration race condition
     const handleMapClick = useCallback((event: maplibregl.MapLayerMouseEvent) => {
-      if (radiusMode === 'map' || addBuildingMode) {
-        onMapClick?.(event.lngLat.lat, event.lngLat.lng)
+      if (radiusModeRef.current === 'map' || addBuildingModeRef.current) {
+        onMapClickRef.current?.(event.lngLat.lat, event.lngLat.lng)
+      } else {
+        // Clicking empty space in normal mode → clear building selection
+        onMapBuildingSelectRef.current?.(null)
       }
 
       // Close detailed popup when clicking on map
       setDetailedPopupBuilding(null)
       lastClickedBuildingRef.current = null
-    }, [radiusMode, addBuildingMode, onMapClick])
+    }, []) // empty deps: handler never recreated, always reads latest values via refs
 
     // Handle marker click
     const handleMarkerClick = useCallback((building: Building) => {
@@ -819,6 +835,9 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
         onBuildingClick?.(building.id)
       } else {
         // Desktop: two-level popup logic
+        // Always update selection state in parent (no centering)
+        onMapBuildingSelect?.(building.id)
+
         if (lastClickedBuildingRef.current === building.id) {
           // Second click - open detailed popup
           setHoverPopupBuilding(null)
@@ -831,7 +850,7 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
           lastClickedBuildingRef.current = building.id
         }
       }
-    }, [onBuildingClick])
+    }, [onBuildingClick, onMapBuildingSelect])
 
     // Handle marker hover
     const handleMarkerEnter = useCallback((building: Building) => {
@@ -879,7 +898,7 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
             <div className="flex items-center space-x-3">
               <span className="text-2xl">📍</span>
               <div>
-                <p className="font-semibold">Select building location</p>
+                <p className="font-semibold">Select object location</p>
                 <p className="text-xs text-green-100">Click on the map at the desired location</p>
               </div>
             </div>
@@ -893,7 +912,7 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
               <span className="text-lg md:text-2xl">🗺️</span>
               <div>
                 <p className="font-semibold text-sm md:text-base">Route creation mode</p>
-                <p className="text-[10px] md:text-xs text-purple-100">Tap buildings to add them to the route</p>
+                <p className="text-[10px] md:text-xs text-purple-100">Tap objects to add them to the route</p>
               </div>
             </div>
           </div>
@@ -943,7 +962,7 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
 
             {showBuildings && (
               <div className="mb-3">
-                <h5 className="text-xs font-medium text-gray-700 mb-2">Buildings</h5>
+                <h5 className="text-xs font-medium text-gray-700 mb-2">Objects</h5>
                 <div className="flex items-center space-x-2 mb-1">
                   <div className="w-4 h-4 rounded-full" style={{ backgroundColor: MARKER_COLORS.normal.core }}></div>
                   <span className="text-xs text-gray-600">Architectural objects</span>

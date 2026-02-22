@@ -72,11 +72,11 @@ export default function RouteCreationMethodModal({
                 </li>
                 <li className="flex items-center justify-center">
                   <span className="mr-2">✓</span>
-                  <span>Choose building order</span>
+                  <span>Choose object order</span>
                 </li>
                 <li className="flex items-center justify-center">
                   <span className="mr-2">✓</span>
-                  <span>From 2 to 20 buildings</span>
+                  <span>From 2 to 20 objects</span>
                 </li>
               </ul>
 

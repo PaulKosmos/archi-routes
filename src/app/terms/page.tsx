@@ -256,7 +256,7 @@ export default function TermsPage() {
                   If you have any questions about these Terms of Use, please contact us:
                 </p>
                 <ul className="list-none text-muted-foreground space-y-2">
-                  <li>Email: <a href="mailto:legal@archiroutes.com" className="text-primary hover:underline">legal@archiroutes.com</a></li>
+                  <li>Email: <a href="mailto:info@archiroutes.com" className="text-primary hover:underline">info@archiroutes.com</a></li>
                   <li>Contact Form: <Link href="/contact" className="text-primary hover:underline">Visit our contact page</Link></li>
                 </ul>
               </div>

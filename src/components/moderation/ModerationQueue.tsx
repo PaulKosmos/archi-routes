@@ -218,7 +218,7 @@ export default function ModerationQueue() {
   const getContentTypeLabel = (type: string) => {
     switch (type) {
       case 'building':
-        return 'Building'
+        return 'Object'
       case 'review':
         return 'Review'
       case 'blog':
@@ -339,7 +339,7 @@ export default function ModerationQueue() {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Types</option>
-              <option value="building">Buildings</option>
+              <option value="building">Objects</option>
               <option value="review">Reviews</option>
               <option value="blog">Articles</option>
             </select>
@@ -465,7 +465,7 @@ export default function ModerationQueue() {
 
                       {item.content_type === 'review' && item.preview_data?.building_name && (
                         <p className="text-sm text-blue-600 mb-1">
-                          Building: {item.preview_data.building_name}
+                          Object: {item.preview_data.building_name}
                         </p>
                       )}
 

@@ -38,7 +38,7 @@ export default function BuildingCardBlock({ block }: BuildingCardBlockProps) {
   if (!building_id || !building) {
     return (
       <div className="building-card-block my-8 p-6 bg-muted border border-border">
-        <p className="text-muted-foreground text-center">Building not found</p>
+        <p className="text-muted-foreground text-center">Object not found</p>
       </div>
     );
   }

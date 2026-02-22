@@ -39,7 +39,7 @@ export default function BuildingCreator({
     const newErrors: Record<string, string> = {}
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Building name is required'
+      newErrors.name = 'Object name is required'
     }
 
     if (!formData.city.trim()) {
@@ -74,7 +74,7 @@ export default function BuildingCreator({
     }
 
     if (!user) {
-      alert('You must be logged in to create buildings')
+      alert('You must be logged in to create objects')
       return
     }
 
@@ -131,7 +131,7 @@ export default function BuildingCreator({
       
     } catch (error) {
       console.error('❌ Error creating building:', error)
-      alert('Error creating building. Please try again.')
+      alert('Error creating object. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -205,7 +205,7 @@ export default function BuildingCreator({
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center">
             <Building2 className="w-5 h-5 mr-2" />
-            Create New Building
+            Create New Object
           </h2>
           <button
             onClick={handleClose}
@@ -225,7 +225,7 @@ export default function BuildingCreator({
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Building2 className="w-4 h-4 inline mr-1" />
-                  Building Name *
+                  Object Name *
                 </label>
                 <input
                   type="text"
@@ -340,7 +340,7 @@ export default function BuildingCreator({
               <textarea
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}
-                placeholder="Brief description of the building, its history and features..."
+                placeholder="Brief description of the object, its history and features..."
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -349,14 +349,14 @@ export default function BuildingCreator({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Camera className="w-4 h-4 inline mr-1" />
-                Building Image
+                Object Image
               </label>
               
               {formData.image_url ? (
                 <div className="relative">
                   <img
                     src={formData.image_url}
-                    alt="Building preview"
+                    alt="Object preview"
                     className="w-full h-32 object-cover rounded-lg"
                   />
                   <button
@@ -403,7 +403,7 @@ export default function BuildingCreator({
                 type="text"
                 value={formData.address}
                 onChange={(e) => handleChange('address', e.target.value)}
-                placeholder="Full building address"
+                placeholder="Full object address"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -473,7 +473,7 @@ export default function BuildingCreator({
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    Create Building
+                    Create Object
                   </>
                 )}
               </button>

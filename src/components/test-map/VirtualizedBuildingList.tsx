@@ -25,7 +25,7 @@ export default function VirtualizedBuildingList({
   onAddToRoute,
   onStartRouteFrom,
   onRemoveFromRoute,
-  title = "🏛️ Buildings",
+  title = "🏛️ Objects",
   maxHeight = 400
 }: VirtualizedBuildingListProps) {
 
@@ -127,7 +127,7 @@ export default function VirtualizedBuildingList({
                   <button
                     onClick={(e) => handleStartRouteFrom(e, building.id)}
                     className="flex items-center justify-center w-8 h-8 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-full transition-colors"
-                    title="Start route from this building"
+                    title="Start route from this object"
                   >
                     <Play className="w-4 h-4" />
                   </button>

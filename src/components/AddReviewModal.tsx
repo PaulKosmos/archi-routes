@@ -61,6 +61,13 @@ export default function AddReviewModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentTag, setCurrentTag] = useState('')
 
+  // Per-photo source attribution (parallel to form.photos)
+  const [photoSources, setPhotoSources] = useState<Array<{ isOwnPhoto: boolean; source: string }>>([])
+
+  const updatePhotoSource = (index: number, field: 'isOwnPhoto' | 'source', value: boolean | string) => {
+    setPhotoSources(prev => prev.map((ps, i) => i === index ? { ...ps, [field]: value } : ps))
+  }
+
   if (!isOpen) return null
 
   // Автоопределение типа обзора по роли пользователя
@@ -87,6 +94,7 @@ export default function AddReviewModal({
       return
     }
     setForm(prev => ({ ...prev, photos: [...prev.photos, ...files] }))
+    setPhotoSources(prev => [...prev, ...files.map(() => ({ isOwnPhoto: true, source: '' }))])
   }
 
   const removePhoto = (index: number) => {
@@ -94,6 +102,7 @@ export default function AddReviewModal({
       ...prev,
       photos: prev.photos.filter((_, i) => i !== index)
     }))
+    setPhotoSources(prev => prev.filter((_, i) => i !== index))
   }
 
   const addTag = () => {
@@ -170,6 +179,13 @@ export default function AddReviewModal({
 
       const reviewType = getReviewType()
 
+      // Build photo_sources array (same length as photos)
+      const photoSourcesForDB = photoUrls.length > 0
+        ? photoSources.slice(0, photoUrls.length).map(ps =>
+            ps.isOwnPhoto ? 'My photo' : (ps.source.trim() || null)
+          )
+        : null
+
       const { error } = await supabase
         .from('building_reviews')
         .insert({
@@ -180,6 +196,7 @@ export default function AddReviewModal({
           content: form.content,
           review_type: reviewType,
           photos: photoUrls.length > 0 ? photoUrls : null,
+          photo_sources: photoSourcesForDB,
           audio_url: audioUrl,
           audio_duration_seconds: audioDuration,
           tags: form.tags.length > 0 ? form.tags : null,
@@ -216,6 +233,7 @@ export default function AddReviewModal({
         photos: [],
         audio: null
       })
+      setPhotoSources([])
 
       onClose()
       if (onSuccess) onSuccess()
@@ -238,7 +256,7 @@ export default function AddReviewModal({
               Write a Review
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              About building: <span className="font-medium">{building.name}</span>
+              About object: <span className="font-medium">{building.name}</span>
             </p>
           </div>
           <button
@@ -385,22 +403,48 @@ export default function AddReviewModal({
 
               {form.photos.length > 0 && (
                 <div className="grid grid-cols-3 gap-3 mt-3">
-                  {form.photos.map((photo, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={URL.createObjectURL(photo)}
-                        alt={`Photo ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
+                  {form.photos.map((photo, index) => {
+                    const ps = photoSources[index] ?? { isOwnPhoto: true, source: '' }
+                    return (
+                      <div key={index} className="group">
+                        <div className="relative">
+                          <img
+                            src={URL.createObjectURL(photo)}
+                            alt={`Photo ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                        {/* Per-photo source attribution */}
+                        <div className="mt-1.5 space-y-1">
+                          <label className="flex items-center gap-1.5 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={ps.isOwnPhoto}
+                              onChange={(e) => updatePhotoSource(index, 'isOwnPhoto', e.target.checked)}
+                              className="w-3 h-3 accent-blue-600"
+                            />
+                            <span className="text-xs text-gray-600">My photo</span>
+                          </label>
+                          {!ps.isOwnPhoto && (
+                            <input
+                              type="text"
+                              value={ps.source}
+                              onChange={(e) => updatePhotoSource(index, 'source', e.target.value)}
+                              placeholder="Source / credit..."
+                              className="w-full px-1.5 py-0.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </div>

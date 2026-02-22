@@ -347,11 +347,11 @@ export default function AddBuildingClient() {
   // Валидация шага 1 (здание)
   const validateBuildingData = () => {
     if (!buildingData.name.trim()) {
-      alert('Enter building name')
+      alert('Enter object name')
       return false
     }
     if (!buildingData.address.trim()) {
-      alert('Enter building address')
+      alert('Enter object address')
       return false
     }
     if (!buildingData.city.trim()) {
@@ -359,7 +359,7 @@ export default function AddBuildingClient() {
       return false
     }
     if (buildingData.latitude === 0 || buildingData.longitude === 0) {
-      alert('Select building coordinates on the map')
+      alert('Select object coordinates on the map')
       return false
     }
     return true
@@ -584,7 +584,7 @@ export default function AddBuildingClient() {
             code: reviewError.code
           })
           // Не прерываем выполнение, так как здание уже создано
-          alert('Building created, but there was an error creating the review. You can add a review later.')
+          alert('Object created, but there was an error creating the review. You can add a review later.')
         } else {
           console.log('✅ Обзор создан успешно! ID:', reviewResult?.id)
         }
@@ -654,7 +654,7 @@ export default function AddBuildingClient() {
               }`}>
               <Building className="h-4 w-4" />
             </div>
-            <span className="ml-2 font-medium">Building</span>
+            <span className="ml-2 font-medium">Object</span>
           </div>
 
           <div className={`w-16 h-0.5 ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
@@ -771,17 +771,22 @@ export default function AddBuildingClient() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select style</option>
-                    <option value="Modernism">Modernism</option>
-                    <option value="Constructivism">Constructivism</option>
-                    <option value="Stalinist architecture">Stalinist architecture</option>
-                    <option value="Brutalism">Brutalism</option>
                     <option value="Classicism">Classicism</option>
                     <option value="Baroque">Baroque</option>
                     <option value="Gothic">Gothic</option>
                     <option value="Romanesque">Romanesque</option>
+                    <option value="Renaissance">Renaissance</option>
+                    <option value="Neo-Renaissance">Neo-Renaissance</option>
+                    <option value="Constructivism">Constructivism</option>
                     <option value="Art Deco">Art Deco</option>
+                    <option value="Modernism">Modernism</option>
                     <option value="Postmodernism">Postmodernism</option>
-                    <option value="Contemporary">Contemporary</option>
+                    <option value="National Style">National Style</option>
+                    <option value="Stalinist Empire Style">Stalinist Empire Style</option>
+                    <option value="Brutalism">Brutalism</option>
+                    <option value="Minimalism">Minimalism</option>
+                    <option value="High-tech">High-tech</option>
+                    <option value="Contemporary Architecture">Contemporary Architecture</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>
@@ -976,9 +981,9 @@ export default function AddBuildingClient() {
               <textarea
                 value={buildingData.description}
                 onChange={(e) => setBuildingData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Brief building description, its features, historical significance..."
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                placeholder="Brief object description, its features, historical significance..."
+                rows={8}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y min-h-[160px]"
               />
             </div>
 
@@ -1103,7 +1108,7 @@ export default function AddBuildingClient() {
                       <textarea
                         value={reviewData.content}
                         onChange={(e) => setReviewData(prev => ({ ...prev, content: e.target.value }))}
-                        placeholder="Tell about the building: what impressed you, what details you noticed, what you felt..."
+                        placeholder="Tell about the object: what impressed you, what details you noticed, what you felt..."
                         rows={6}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                       />

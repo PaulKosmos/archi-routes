@@ -49,7 +49,7 @@ export default function BuildingList({
   onAddToRoute,
   onStartRouteFrom,
   onRemoveFromRoute,
-  title = "Buildings",
+  title = "Objects",
 }: BuildingListProps) {
 
   const handleRemoveFromRoute = useCallback((e: React.MouseEvent, buildingId: string) => {
@@ -63,7 +63,7 @@ export default function BuildingList({
         <h3 className="font-medium font-display text-foreground mb-3">{title}</h3>
         <div className="text-center py-8 text-muted-foreground">
           <Building2 className="w-10 h-10 mx-auto mb-2 text-muted-foreground/40" />
-          <p className="text-sm">No buildings found</p>
+          <p className="text-sm">No objects found</p>
           <p className="text-xs mt-0.5">Try changing filters</p>
         </div>
       </div>

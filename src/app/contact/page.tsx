@@ -235,10 +235,10 @@ export default function ContactPage() {
               <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
               <div className="space-y-6">
                 <div className="bg-card border border-border rounded-lg p-6">
-                  <h3 className="font-semibold text-lg mb-2">How do I submit a building?</h3>
+                  <h3 className="font-semibold text-lg mb-2">How do I submit an object?</h3>
                   <p className="text-muted-foreground">
-                    You can submit buildings through our map interface when logged in. Click on any location
-                    and select "Add Building" to contribute to our community.
+                    You can submit objects through our map interface when logged in. Click on any location
+                    and select "Add Object" to contribute to our community.
                   </p>
                 </div>
                 <div className="bg-card border border-border rounded-lg p-6">

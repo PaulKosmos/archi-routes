@@ -33,7 +33,7 @@ export default function AddBuildingInstructionModal({
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
                 <MapPin className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-2xl font-bold">Add Building Mode</h2>
+              <h2 className="text-2xl font-bold">Add Object Mode</h2>
             </div>
             <button
               onClick={onCancel}
@@ -55,7 +55,7 @@ export default function AddBuildingInstructionModal({
 
           <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
             <p className="text-gray-700 leading-relaxed">
-              Or press <strong>"Add Building"</strong> again to exit mode.
+              Or press <strong>"Add Object"</strong> again to exit mode.
             </p>
           </div>
 

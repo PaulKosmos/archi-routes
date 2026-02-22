@@ -90,7 +90,8 @@ export default function BlogArticleMap({
    * Обработчик клика по зданию
    */
   const handleBuildingClick = useCallback(
-    (buildingId: string) => {
+    (buildingId: string | null) => {
+      if (!buildingId) { setSelectedBuilding(null); return; }
       setSelectedBuilding(buildingId);
       if (onBuildingClick) {
         onBuildingClick(buildingId);

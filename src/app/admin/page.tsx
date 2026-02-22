@@ -122,6 +122,12 @@ export default function AdminDashboard() {
       icon: Podcast
     },
     {
+      name: 'Routes',
+      description: 'Manage route publication and visibility',
+      href: '/admin/routes',
+      icon: Route
+    },
+    {
       name: 'Auto-generation',
       description: 'Bulk content creation',
       href: '/admin/autogeneration',
@@ -163,7 +169,7 @@ export default function AdminDashboard() {
           <div className="bg-card border border-border rounded-[var(--radius)] shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Buildings</p>
+                <p className="text-sm font-medium text-muted-foreground">Objects</p>
                 <p className="text-3xl font-metrics font-bold text-foreground mt-2">{stats?.buildings_count || 0}</p>
               </div>
               <div className="p-3 bg-primary/10 rounded-[var(--radius)]">

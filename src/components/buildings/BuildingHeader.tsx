@@ -88,7 +88,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
 
   const handleRateBuilding = async (rating: number) => {
     if (!user) {
-      toast.error('Sign in to rate this building')
+      toast.error('Sign in to rate this object')
       return
     }
 
@@ -169,7 +169,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
       try {
         await navigator.share({
           title: building.name,
-          text: building.description || `Architectural building: ${building.name}`,
+          text: building.description || `Architectural object: ${building.name}`,
           url: window.location.href
         })
       } catch (error) {
@@ -263,7 +263,7 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
                   <Link
                     href={`/buildings/${building.id}/edit`}
                     className="p-3 bg-card/90 text-foreground rounded-full backdrop-blur-sm hover:bg-card transition-colors"
-                    title="Edit building"
+                    title="Edit object"
                   >
                     <Edit className="h-5 w-5" />
                   </Link>

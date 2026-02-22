@@ -138,7 +138,7 @@ export function BuildingsPage({
                 onFiltersToggle={() => setIsFiltersPanelOpen(!isFiltersPanelOpen)}
                 size="lg"
                 autoFocus
-                placeholder="Search for buildings, monuments, objects..."
+                placeholder="Search for objects, monuments, architectural sites..."
                 className="w-full"
               />
             </div>

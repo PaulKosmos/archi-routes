@@ -116,7 +116,7 @@ export default function MapLibreNewsMap({
               cursor: 'pointer'
             }}
           >
-            <span role="img" aria-label="building">&#127963;</span>
+            <span role="img" aria-label="object">&#127963;</span>
           </div>
         </Marker>
       ))}

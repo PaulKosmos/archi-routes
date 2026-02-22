@@ -919,7 +919,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                       </div>
                     ) : buildingReviews.length === 0 ? (
                       <div className="bg-muted/50 border border-dashed border-border rounded-[var(--radius)] p-6 text-center">
-                        <p className="text-muted-foreground">No reviews yet for this building</p>
+                        <p className="text-muted-foreground">No reviews yet for this object</p>
                       </div>
                     ) : (
                       <>

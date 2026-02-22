@@ -787,7 +787,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
               {/* Связанные здания */}
               {article.buildings && article.buildings.length > 0 && (
                 <div className="mt-12">
-                  <h3 className="text-lg font-bold mb-6 font-display">Featured Buildings</h3>
+                  <h3 className="text-lg font-bold mb-6 font-display">Featured Objects</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {article.buildings.map((building) => (
                       <Link

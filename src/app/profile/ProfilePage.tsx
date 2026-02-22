@@ -163,7 +163,7 @@ export default function ProfilePage() {
         ...(buildingsRes.data?.map(building => ({
           id: building.id,
           type: 'building' as const,
-          title: `Added building "${building.name}"`,
+          title: `Added object "${building.name}"`,
           description: 'New architectural discovery',
           created_at: building.created_at,
           url: `/buildings/${building.id}`
@@ -172,7 +172,7 @@ export default function ProfilePage() {
           id: review.id,
           type: 'review' as const,
           title: `Wrote review for "${(review.buildings as any).name}"`,
-          description: review.title || 'New building review',
+          description: review.title || 'New object review',
           created_at: review.created_at,
           url: `/buildings/${review.id}`
         })) || []),
@@ -180,7 +180,7 @@ export default function ProfilePage() {
           id: favorite.id,
           type: 'favorite' as const,
           title: `Added to favorites "${(favorite.buildings as any).name}"`,
-          description: 'New building in collection',
+          description: 'New object in collection',
           created_at: favorite.created_at,
           url: `/buildings/${favorite.id}`
         })) || []),
@@ -370,7 +370,7 @@ export default function ProfilePage() {
                 <p className="text-sm sm:text-2xl font-bold text-gray-900 leading-tight">
                   {loading ? '...' : stats.buildings_count}
                 </p>
-                <p className="text-[9px] sm:text-sm text-gray-600 truncate leading-tight">Buildings</p>
+                <p className="text-[9px] sm:text-sm text-gray-600 truncate leading-tight">Objects</p>
               </div>
             </div>
           </div>
@@ -484,14 +484,14 @@ export default function ProfilePage() {
                   <div className="text-center py-8">
                     <Clock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No Activity Yet</h3>
-                    <p className="text-gray-500 mb-4">Start creating routes and adding buildings!</p>
+                    <p className="text-gray-500 mb-4">Start creating routes and adding objects!</p>
                     <div className="space-x-3">
                       <Link
                         href="/buildings/new"
                         className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors inline-flex items-center space-x-2"
                       >
                         <Building2 className="w-4 h-4" />
-                        <span>Add Building</span>
+                        <span>Add Object</span>
                       </Link>
                     </div>
                   </div>
@@ -542,7 +542,7 @@ export default function ProfilePage() {
                 >
                   <div className="flex items-center space-x-2 sm:space-x-3">
                     <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-                    <span className="font-medium text-gray-900 text-sm sm:text-base">Buildings</span>
+                    <span className="font-medium text-gray-900 text-sm sm:text-base">Objects</span>
                   </div>
                   <span className="text-sm text-gray-500">{stats.buildings_count}</span>
                 </Link>

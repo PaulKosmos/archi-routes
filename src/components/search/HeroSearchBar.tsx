@@ -101,7 +101,7 @@ export function HeroSearchBar({ className = '' }: HeroSearchBarProps) {
           activeFiltersCount={0}
           onFiltersToggle={handleFiltersToggle}
           size="lg"
-          placeholder="Find buildings, architects, styles..."
+          placeholder="Find objects, architects, styles..."
           showFiltersButton={true}
           className="w-full"
         />

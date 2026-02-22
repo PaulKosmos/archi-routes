@@ -174,7 +174,7 @@ export default function EditBuildingClient({
       }
 
       console.log('✅ Здание успешно удалено!')
-      alert('Building deleted successfully!')
+      alert('Object deleted successfully!')
 
       // Перенаправляем на главную страницу
       router.push('/')
@@ -247,7 +247,7 @@ export default function EditBuildingClient({
       }
 
       console.log('💾 Building updated successfully:', data)
-      alert('Building updated successfully!')
+      alert('Object updated successfully!')
       router.push(`/buildings/${building.id}`)
       router.refresh()
     } catch (error) {
@@ -258,10 +258,10 @@ export default function EditBuildingClient({
       if (error instanceof Error) {
         console.error('💾 Error message:', error.message)
         console.error('💾 Error stack:', error.stack)
-        alert(`Error updating building: ${error.message}`)
+        alert(`Error updating object: ${error.message}`)
       } else {
         console.error('💾 Unknown error type:', error)
-        alert('Unknown error updating building')
+        alert('Unknown error updating object')
       }
     } finally {
       setLoading(false)
@@ -285,7 +285,7 @@ export default function EditBuildingClient({
       <div className="bg-white rounded-lg shadow-lg p-8">
         {/* Заголовок */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Building</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Object</h1>
           <p className="text-gray-600">
             Editing: <strong>{building.name}</strong>
           </p>
@@ -346,13 +346,58 @@ export default function EditBuildingClient({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Architectural Style
                 </label>
-                <input
-                  type="text"
+                <select
                   value={formData.architectural_style}
                   onChange={(e) => handleInputChange('architectural_style', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="E.g.: Modernism, Gothic, Baroque"
-                />
+                >
+                  <option value="">Select style</option>
+                  <option value="Classicism">Classicism</option>
+                  <option value="Baroque">Baroque</option>
+                  <option value="Gothic">Gothic</option>
+                  <option value="Romanesque">Romanesque</option>
+                  <option value="Renaissance">Renaissance</option>
+                  <option value="Neo-Renaissance">Neo-Renaissance</option>
+                  <option value="Constructivism">Constructivism</option>
+                  <option value="Art Deco">Art Deco</option>
+                  <option value="Modernism">Modernism</option>
+                  <option value="Postmodernism">Postmodernism</option>
+                  <option value="National Style">National Style</option>
+                  <option value="Stalinist Empire Style">Stalinist Empire Style</option>
+                  <option value="Brutalism">Brutalism</option>
+                  <option value="Minimalism">Minimalism</option>
+                  <option value="High-tech">High-tech</option>
+                  <option value="Contemporary Architecture">Contemporary Architecture</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Object Type
+                </label>
+                <select
+                  value={formData.building_type}
+                  onChange={(e) => handleInputChange('building_type', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select type</option>
+                  <option value="Architectural Monument">Architectural Monument</option>
+                  <option value="Residential Building">Residential Building</option>
+                  <option value="Public Building">Public Building</option>
+                  <option value="Religious Structure">Religious Structure</option>
+                  <option value="Museum">Museum</option>
+                  <option value="Theater">Theater</option>
+                  <option value="Railway Station">Railway Station</option>
+                  <option value="Bridge">Bridge</option>
+                  <option value="Park">Park</option>
+                  <option value="Sculpture / Monument">Sculpture / Monument</option>
+                  <option value="Historic Personality">Historic Personality</option>
+                  <option value="Memorial Place">Memorial Place</option>
+                  <option value="Cafe">Cafe</option>
+                  <option value="Bar">Bar</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
 
@@ -503,9 +548,9 @@ export default function EditBuildingClient({
                 >
                   <option value="">Not Specified</option>
                   <option value="easy">Easy</option>
-                  <option value="moderate">Moderate</option>
-                  <option value="difficult">Difficult</option>
-                  <option value="very_difficult">Very Difficult</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                  <option value="restricted">Restricted</option>
                 </select>
               </div>
 
@@ -539,7 +584,7 @@ export default function EditBuildingClient({
                 onChange={(e) => handleInputChange('historical_significance', e.target.value)}
                 rows={4}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Historical importance, events related to the building, cultural significance"
+                placeholder="Historical importance, events related to the object, cultural significance"
               />
             </div>
 
@@ -635,7 +680,7 @@ export default function EditBuildingClient({
               Confirm Deletion
             </h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete the building <strong>"{building.name}"</strong>?
+              Are you sure you want to delete the object <strong>"{building.name}"</strong>?
               <br /><br />
               🚨 <span className="text-red-600 font-medium">This action cannot be undone!</span> All related reviews and data will be deleted.
             </p>

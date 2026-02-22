@@ -3,8 +3,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 // CORS Configuration
 const allowedOrigins = [
-  'https://archi-routes.com',
-  'https://www.archi-routes.com',
   'https://archiroutes.com',
   'https://www.archiroutes.com',
   // Add your Vercel preview URLs pattern if needed

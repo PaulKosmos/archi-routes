@@ -57,7 +57,7 @@ export default function MapStatsPanel({
         <div className="bg-blue-50 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-blue-900">Buildings</p>
+              <p className="text-sm font-medium text-blue-900">Objects</p>
               <p className="text-2xl font-bold text-blue-700">{buildingsCount}</p>
             </div>
             <Building2 className="w-8 h-8 text-blue-600" />

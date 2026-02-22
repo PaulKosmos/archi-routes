@@ -68,14 +68,14 @@ export default function ImageLightbox({ images, initialIndex, isOpen, onClose }:
       {images.length > 1 && (
         <>
           <button
-            onClick={goToPrevious}
+            onClick={(e) => { e.stopPropagation(); goToPrevious() }}
             className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
           >
             <ChevronLeft className="w-8 h-8 text-white" />
           </button>
 
           <button
-            onClick={goToNext}
+            onClick={(e) => { e.stopPropagation(); goToNext() }}
             className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
           >
             <ChevronRight className="w-8 h-8 text-white" />
@@ -89,7 +89,7 @@ export default function ImageLightbox({ images, initialIndex, isOpen, onClose }:
           {images.map((_, idx) => (
             <button
               key={idx}
-              onClick={() => setCurrentIndex(idx)}
+              onClick={(e) => { e.stopPropagation(); setCurrentIndex(idx) }}
               className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex
                   ? 'bg-white w-8'
                   : 'bg-white/50 hover:bg-white/70'

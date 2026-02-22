@@ -155,7 +155,7 @@ export default function PrivacyPage() {
                   <li>Withdraw consent at any time</li>
                 </ul>
                 <p className="text-muted-foreground leading-relaxed mt-4">
-                  To exercise these rights, please contact us at <a href="mailto:privacy@archiroutes.com" className="text-primary hover:underline">privacy@archiroutes.com</a>
+                  To exercise these rights, please contact us at <a href="mailto:info@archiroutes.com" className="text-primary hover:underline">info@archiroutes.com</a>
                 </p>
               </div>
 
@@ -196,7 +196,7 @@ export default function PrivacyPage() {
                   If you have any questions about this Privacy Policy, please contact us:
                 </p>
                 <ul className="list-none text-muted-foreground space-y-2">
-                  <li>Email: <a href="mailto:privacy@archiroutes.com" className="text-primary hover:underline">privacy@archiroutes.com</a></li>
+                  <li>Email: <a href="mailto:info@archiroutes.com" className="text-primary hover:underline">info@archiroutes.com</a></li>
                   <li>Contact Form: <Link href="/contact" className="text-primary hover:underline">Visit our contact page</Link></li>
                 </ul>
               </div>

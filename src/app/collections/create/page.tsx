@@ -108,7 +108,7 @@ export default function CreateCollectionPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">New Collection</h1>
             <p className="text-gray-600 mt-1">
-              Create a personal selection of architectural buildings
+              Create a personal selection of architectural objects
             </p>
           </div>
 
@@ -159,7 +159,7 @@ export default function CreateCollectionPage() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Brief description of the collection and building selection criteria..."
+                  placeholder="Brief description of the collection and object selection criteria..."
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   maxLength={500}
@@ -256,8 +256,8 @@ export default function CreateCollectionPage() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h4 className="font-medium text-blue-900 mb-2">What's Next?</h4>
                 <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• After creation, you can add buildings to the collection</li>
-                  <li>• Use building pages or search results to add buildings</li>
+                  <li>• After creation, you can add objects to the collection</li>
+                  <li>• Use object pages or search results to add objects</li>
                   <li>• Privacy settings can be changed at any time</li>
                   <li>• Public collections will appear in the general catalog</li>
                 </ul>

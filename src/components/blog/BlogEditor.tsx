@@ -282,7 +282,7 @@ export default function BlogEditor({ content, onChange, placeholder = "Start wri
               type="button"
               onClick={insertBuildingMention}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title="Add Building"
+              title="Add Object"
             >
               <Building2 className="w-4 h-4" />
             </button>

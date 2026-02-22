@@ -168,7 +168,7 @@ export default function AddToCollectionButton({
   if (!user) {
     return (
       <button
-        onClick={() => alert('Please log in to add buildings to collections')}
+        onClick={() => alert('Please log in to add objects to collections')}
         className={`inline-flex items-center gap-2 ${getSizeClasses(size)} text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors`}
       >
         <BookmarkPlus className={getIconSize(size)} />

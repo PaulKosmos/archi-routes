@@ -85,7 +85,7 @@ export default function BuildingNews({
         {showTitle && (
           <div className="flex items-center gap-2 mb-4">
             <Building2 className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold font-display text-foreground">News About This Building</h3>
+            <h3 className="text-lg font-semibold font-display text-foreground">News About This Object</h3>
           </div>
         )}
         <div className="animate-pulse space-y-4">

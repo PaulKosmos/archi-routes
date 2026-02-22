@@ -35,10 +35,10 @@ export default function MapControls({
               ? 'bg-blue-50 border-blue-200 text-blue-700'
               : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
             }`}
-          title="Show buildings only"
+          title="Show objects only"
         >
           <Building2 className="w-4 h-4 mr-2" />
-          Buildings
+          Objects
         </button>
 
         <button
@@ -76,7 +76,7 @@ export default function MapControls({
               ? 'bg-green-600 border-green-600 text-white hover:bg-green-700'
               : 'bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed'
             }`}
-          title={currentRouteBuildings.length > 0 ? `Create route from ${currentRouteBuildings.length} buildings` : "Add buildings to route"}
+          title={currentRouteBuildings.length > 0 ? `Create route from ${currentRouteBuildings.length} objects` : "Add objects to route"}
         >
           <RouteIcon className="w-4 h-4 mr-2" />
           Create Route
@@ -94,10 +94,10 @@ export default function MapControls({
               ? 'bg-green-50 border-green-200 text-green-700'
               : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
             }`}
-          title="Show/hide buildings panel"
+          title="Show/hide objects panel"
         >
           <Building2 className="w-4 h-4 mr-2" />
-          Buildings
+          Objects
         </button>
 
         {/* Кнопка показать/скрыть панель маршрутов */}

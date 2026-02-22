@@ -11,7 +11,7 @@ const AddBuildingClient = dynamic(() => import('./AddBuildingClient'), {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading add building form...</p>
+          <p className="text-gray-600">Loading add object form...</p>
         </div>
       </div>
     </div>

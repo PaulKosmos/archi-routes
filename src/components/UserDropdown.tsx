@@ -238,7 +238,7 @@ export default function UserDropdown() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-primary" />
-                <span className="text-muted-foreground">Buildings:</span>
+                <span className="text-muted-foreground">Objects:</span>
                 <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.buildings_count}
                 </span>
@@ -298,7 +298,7 @@ export default function UserDropdown() {
               onClick={() => setIsOpen(false)}
             >
               <Building2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="flex-1">My Buildings</span>
+              <span className="flex-1">My Objects</span>
               {stats.buildings_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
                   {stats.buildings_count}

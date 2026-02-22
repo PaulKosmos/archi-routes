@@ -32,32 +32,30 @@ export default function CategoryTabs({
 
   return (
     <div className={`mb-6 pb-4 border-b border-border ${className}`}>
-      <div className="flex items-center justify-between overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex items-center justify-between">
 
-        {/* Вкладка "Все новости" */}
         <button
           type="button"
           onClick={() => handleCategoryClick(undefined)}
-          className={`px-6 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap cursor-pointer border-b-2 ${!selectedCategory
-              ? 'text-[hsl(var(--news-primary))] border-[hsl(var(--news-primary))]'
-              : 'text-muted-foreground border-transparent hover:text-foreground hover:border-muted-foreground/30'
+          className={`text-sm font-semibold tracking-wide transition-colors whitespace-nowrap cursor-pointer ${!selectedCategory
+              ? 'text-[hsl(var(--news-primary))]'
+              : 'text-muted-foreground hover:text-foreground'
             }`}
         >
-          ALL NEWS
+          All
         </button>
 
-        {/* Вкладки категорий */}
         {NEWS_CATEGORIES.map((category) => (
           <button
             type="button"
             key={category.value}
             onClick={() => handleCategoryClick(category.value)}
-            className={`px-6 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap cursor-pointer border-b-2 ${selectedCategory === category.value
-                ? 'text-[hsl(var(--news-primary))] border-[hsl(var(--news-primary))]'
-                : 'text-muted-foreground border-transparent hover:text-foreground hover:border-muted-foreground/30'
+            className={`text-sm font-semibold tracking-wide transition-colors whitespace-nowrap cursor-pointer ${selectedCategory === category.value
+                ? 'text-[hsl(var(--news-primary))]'
+                : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            {category.label.toUpperCase()}
+            {category.label}
           </button>
         ))}
       </div>

@@ -110,16 +110,27 @@ export default function MapLibreRouteViewer({
 
   // Center on current point when it changes
   useEffect(() => {
-    if (!mapRef.current || routePoints.length === 0) return
+    if (routePoints.length === 0) return
 
     const currentPoint = routePoints[currentPointIndex]
     if (!currentPoint) return
 
-    mapRef.current.flyTo({
-      center: [currentPoint.longitude, currentPoint.latitude],
-      zoom: 15,
-      duration: 500
-    })
+    if (!mapRef.current) {
+      // Map not yet mounted — update viewState so it renders at correct position on mount
+      setViewState(prev => ({
+        ...prev,
+        longitude: currentPoint.longitude,
+        latitude: currentPoint.latitude,
+        zoom: 15
+      }))
+    } else {
+      // Map is mounted — use smooth animation
+      mapRef.current.flyTo({
+        center: [currentPoint.longitude, currentPoint.latitude],
+        zoom: 15,
+        duration: 500
+      })
+    }
   }, [currentPointIndex, routePoints])
 
   // Get point status

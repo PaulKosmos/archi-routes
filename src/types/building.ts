@@ -57,6 +57,7 @@ export interface BuildingReview {
   title?: string
   content?: string
   photos?: string[]
+  photo_sources?: string[] | null
   visit_date?: string
   is_verified: boolean
   helpful_count: number

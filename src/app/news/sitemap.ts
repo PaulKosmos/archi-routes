@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       return [];
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com';
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archiroutes.com';
 
     // Формируем sitemap для новостей
     const newsSitemap: MetadataRoute.Sitemap = (newsArticles || []).map((article) => ({

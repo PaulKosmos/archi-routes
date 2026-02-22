@@ -7,6 +7,7 @@ import { createClient } from '../../../../lib/supabase'
 import { useEditPermissions } from '../../../../hooks/useEditPermissions'
 import type { Building } from '../../../../types/building'
 import { Save, X, Upload, MapPin, ArrowLeft } from 'lucide-react'
+import { noCyrillic } from '../../../../lib/utils'
 
 interface BuildingEditClientProps {
   building: Building & {
@@ -141,7 +142,7 @@ export default function BuildingEditClient({
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: typeof value === 'string' ? noCyrillic(value) : value
     }))
   }
 
@@ -221,7 +222,7 @@ export default function BuildingEditClient({
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Building name"
+                placeholder="Object name"
               />
             </div>
 
@@ -249,7 +250,7 @@ export default function BuildingEditClient({
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Building description, its history and features"
+              placeholder="Object description, its history and features"
             />
           </div>
 

@@ -112,7 +112,7 @@ export default function BlogRouteBuilder({
    */
   const handleCreateRoute = useCallback(() => {
     if (selectedBuildingIds.size === 0) {
-      alert('Select at least one building for the route');
+      alert('Select at least one object for the route');
       return;
     }
 

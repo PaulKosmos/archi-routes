@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
+import { noCyrillic } from '@/lib/utils'
 import { useState, useRef, useMemo, useEffect } from 'react'
 import {
   Save,
@@ -117,7 +118,7 @@ export default function ProfileEditPage() {
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: noCyrillic(value)
     }))
 
     // Очищаем ошибку при изменении поля

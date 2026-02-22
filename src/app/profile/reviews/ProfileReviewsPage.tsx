@@ -281,7 +281,7 @@ export default function ProfileReviewsPage() {
                   <Search className="absolute left-3 top-2.5 sm:top-3 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search by review title or building..."
+                    placeholder="Search by review title or object..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -353,13 +353,13 @@ export default function ProfileReviewsPage() {
               {reviews.length === 0 ? (
                 <>
                   <h3 className="text-xl font-medium text-gray-900 mb-2">No Reviews Yet</h3>
-                  <p className="text-gray-500 mb-6">Start leaving reviews on buildings!</p>
+                  <p className="text-gray-500 mb-6">Start leaving reviews on objects!</p>
                   <Link
                     href="/"
                     className="bg-primary text-primary-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-primary/90 transition-colors inline-flex items-center gap-2"
                   >
                     <Building2 className="w-4 h-4" />
-                    <span>Explore Buildings</span>
+                    <span>Explore Objects</span>
                   </Link>
                 </>
               ) : (
@@ -486,7 +486,7 @@ export default function ProfileReviewsPage() {
                         <Link
                           href={`/buildings/${review.buildings.id}`}
                           className="p-1.5 text-primary hover:bg-accent rounded-[var(--radius)] transition-colors"
-                          title="View Building"
+                          title="View Object"
                         >
                           <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </Link>

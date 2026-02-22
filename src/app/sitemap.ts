@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archi-routes.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://archiroutes.com'
 
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Missing Supabase credentials for sitemap generation')

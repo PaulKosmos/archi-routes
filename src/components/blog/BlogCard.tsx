@@ -23,34 +23,34 @@ export default function BlogCard({ post, viewMode }: BlogCardProps) {
   if (viewMode === 'list') {
     return (
       <Link href={`/blog/${post.slug}`}>
-        <article className="bg-card border border-border overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg flex flex-row">
+        <article className="bg-card border border-border overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg flex flex-row md:h-36">
           {/* Изображение */}
           {post.featured_image_url && (
-            <div className="relative w-32 h-32 md:w-1/2 md:h-auto min-h-[8rem] overflow-hidden flex-shrink-0">
+            <div className="relative w-24 md:w-56 flex-shrink-0 overflow-hidden self-stretch">
               <img
                 src={post.featured_image_url}
                 alt={post.title}
-                className="w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
           )}
 
           {/* Контент */}
-          <div className="p-3 md:p-6 md:w-1/2 flex flex-col justify-between flex-1 min-w-0">
+          <div className="p-3 md:p-5 flex flex-col justify-between flex-1 min-w-0">
             <div>
-              <h3 className="text-sm md:text-xl font-bold mb-1 md:mb-3 line-clamp-2 hover:text-[hsl(var(--blog-primary))] transition-colors cursor-pointer">
+              <h3 className="text-sm md:text-xl font-bold mb-1 md:mb-2 line-clamp-2 hover:text-[hsl(var(--blog-primary))] transition-colors cursor-pointer">
                 {post.title}
               </h3>
 
               {post.excerpt && (
-                <p className="text-muted-foreground mb-2 md:mb-4 line-clamp-2 md:line-clamp-3 text-xs md:text-sm">
+                <p className="hidden md:block text-muted-foreground mb-3 line-clamp-2 text-sm">
                   {post.excerpt}
                 </p>
               )}
             </div>
 
             {/* Мета-информация */}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 md:pt-4 border-t border-border text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 md:pt-3 border-t border-border text-xs text-muted-foreground">
               <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3 md:h-3.5 md:w-3.5" />
                 <span>{formatDate(post.published_at || post.created_at)}</span>

@@ -25,12 +25,12 @@ export default function NewsStructuredData({ article }: NewsStructuredDataProps)
       name: 'Archi Routes',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://archi-routes.com/logo.png',
+        url: 'https://archiroutes.com/logo.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://archi-routes.com/news/${article.slug}`,
+      '@id': `https://archiroutes.com/news/${article.slug}`,
     },
     articleSection: (() => {
       const sections = {

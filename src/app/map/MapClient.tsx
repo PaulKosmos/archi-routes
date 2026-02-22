@@ -479,29 +479,30 @@ export default function TestMapPage() {
 
   // Обработчики для выбора объектов (оптимизированы с useCallback)
   const handleBuildingClick = useCallback((buildingId: string | null) => {
-    if (!buildingId) return
+    // null or same building → deselect
+    if (!buildingId || buildingId === selectedBuilding?.id) {
+      setSelectedBuilding(null)
+      setSelectedRoute(null)
+      return
+    }
     const building = filteredBuildings.find(b => b.id === buildingId)
     setSelectedBuilding(building || null)
     setSelectedRoute(null)
 
     // Центрируем карту на выбранном здании и открываем popup
-    if (mapRef.current && buildingId) {
+    if (mapRef.current) {
       const isMobile = window.innerWidth < 768
 
       if (isMobile) {
         // На мобильных центрируем только если открыта панель Buildings
         if (showMobileBuildings) {
           mapRef.current.centerOnBuilding(buildingId)
-
-          // Открываем popup после небольшой задержки (чтобы карта успела центрироваться)
           setTimeout(() => {
             if (mapRef.current) {
               mapRef.current.openBuildingPopup(buildingId)
             }
-          }, 1100) // Чуть больше чем duration анимации (1000ms)
+          }, 1100)
         }
-        // Если панель Buildings закрыта - ничего не делаем,
-        // EnhancedMap сам обработает клик и покажет детальный popup
       } else {
         // Для десктопа - центрируем карту и открываем popup после анимации
         mapRef.current.centerOnBuilding(buildingId)
@@ -512,7 +513,19 @@ export default function TestMapPage() {
         }, 1100)
       }
     }
-  }, [filteredBuildings, showMobileBuildings])
+  }, [filteredBuildings, selectedBuilding, showMobileBuildings])
+
+  // Вызывается при клике на маркер на карте — только обновляет выделение, без центрирования
+  const handleMapMarkerSelect = useCallback((buildingId: string | null) => {
+    if (!buildingId) {
+      setSelectedBuilding(null)
+      setSelectedRoute(null)
+      return
+    }
+    const building = filteredBuildings.find(b => b.id === buildingId)
+    setSelectedBuilding(building || null)
+    setSelectedRoute(null)
+  }, [filteredBuildings])
 
   const handleBuildingDetails = useCallback((buildingIdOrObject: string | Building) => {
     // Открываем модальное окно с детальной информацией о здании
@@ -733,6 +746,13 @@ export default function TestMapPage() {
 
         const reviewLanguage = buildingData.review.language || 'en'
 
+        // Build photo_sources array for DB
+        const photoSourcesForDB = reviewPhotoUrls.length > 0 && buildingData.reviewPhotoSources
+          ? buildingData.reviewPhotoSources.slice(0, reviewPhotoUrls.length).map(ps =>
+              ps.isOwnPhoto ? 'My photo' : (ps.source.trim() || null)
+            )
+          : null
+
         const { data: review, error: reviewError } = await supabase
           .from('building_reviews')
           .insert({
@@ -744,6 +764,7 @@ export default function TestMapPage() {
             review_type: 'general',
             tags: buildingData.review.tags.length > 0 ? buildingData.review.tags : null,
             photos: reviewPhotoUrls.length > 0 ? reviewPhotoUrls : null,
+            photo_sources: photoSourcesForDB,
             audio_url: audioPath,
             language: reviewLanguage,
             original_language: reviewLanguage
@@ -939,7 +960,14 @@ export default function TestMapPage() {
   }, [])
 
   // Сохранение личного маршрута
-  const handleSavePersonalRoute = useCallback(async (routeName: string) => {
+  const handleSavePersonalRoute = useCallback(async (routeName: string, segmentModes: Array<'walking' | 'cycling' | 'driving' | 'public_transport'> = []) => {
+    // Pick the dominant transport mode across all segments
+    const transportMode: 'walking' | 'cycling' | 'driving' | 'public_transport' = segmentModes.length > 0
+      ? (segmentModes.reduce<Record<string, number>>((acc, m) => { acc[m] = (acc[m] || 0) + 1; return acc }, {} as Record<string, number>),
+         segmentModes.reduce((a, b, _, arr) =>
+           arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b
+         ))
+      : 'walking'
     if (!user) {
       toast.error('Authentication required')
       return
@@ -951,8 +979,10 @@ export default function TestMapPage() {
     }
 
     try {
-      // Получаем данные зданий
-      const buildingsData = buildings.filter(b => selectedBuildingsForRoute.includes(b.id))
+      // Получаем данные зданий в правильном порядке выбора
+      const buildingsData = selectedBuildingsForRoute
+        .map(id => buildings.find(b => b.id === id))
+        .filter(Boolean) as typeof buildings
 
       // Строим маршрут по реальным дорогам с использованием MapBox
       toast.loading('Building route along real roads...')
@@ -966,7 +996,7 @@ export default function TestMapPage() {
       let routeResult
       try {
         routeResult = await buildRoute(routePointsForApi, {
-          transportMode: 'walking'
+          transportMode
         })
         console.log('✅ Маршрут построен:', routeResult)
       } catch (routeError) {
@@ -998,7 +1028,7 @@ export default function TestMapPage() {
           route_summary: routeResult.summary as any,
           distance_km: routeResult.distance > 0 ? routeResult.distance / 1000 : null,
           estimated_duration_minutes: routeResult.duration > 0 ? Math.round(routeResult.duration / 60) : null,
-          transport_mode: 'walking',
+          transport_mode: transportMode,
           created_by: user.id,
           is_published: false, // Личный маршрут не публичный
           route_visibility: 'private',
@@ -1204,6 +1234,7 @@ export default function TestMapPage() {
                 hoveredRoute={hoveredRoute}
                 hoveredBuilding={hoveredBuilding}
                 onBuildingClick={handleBuildingClick}
+                onMapBuildingSelect={handleMapMarkerSelect}
                 onRouteClick={handleRouteClick}
                 onAddToRoute={routeCreationMode ? handleAddBuildingToRoute : undefined}
                 onStartRouteFrom={routeCreationMode ? handleStartRouteFromBuilding : undefined}
@@ -1242,7 +1273,7 @@ export default function TestMapPage() {
                     title={mapView === 'buildings' ? 'Hide objects panel' : 'Show objects panel'}
                   >
                     <Building2 className="w-4 h-4" />
-                    <span>Buildings</span>
+                    <span>Objects</span>
                   </button>
 
                   {/* Кнопка Маршруты */}
@@ -1266,10 +1297,10 @@ export default function TestMapPage() {
                         ? 'bg-green-600 text-white ring-2 ring-green-200'
                         : 'bg-green-600 text-white hover:bg-green-700'
                         }`}
-                      title={addBuildingMode ? 'Exit add building mode' : 'Add building to map'}
+                      title={addBuildingMode ? 'Exit add object mode' : 'Add object to map'}
                     >
                       <Plus className="w-4 h-4" />
-                      <span>Add Building</span>
+                      <span>Add Object</span>
                     </button>
                   )}
 
@@ -1331,7 +1362,7 @@ export default function TestMapPage() {
       <PersonalRouteCreationModal
         isOpen={isRouteCreationModalOpen}
         onClose={() => setIsRouteCreationModalOpen(false)}
-        selectedBuildings={buildings.filter(b => selectedBuildingsForRoute.includes(b.id))}
+        selectedBuildings={selectedBuildingsForRoute.map(id => buildings.find(b => b.id === id)).filter(Boolean) as any}
         onRemoveBuilding={handleRemoveBuildingFromRoute}
         onReorderBuildings={handleReorderBuildings}
         onSave={handleSavePersonalRoute}
@@ -1468,7 +1499,7 @@ export default function TestMapPage() {
               style={{ backgroundColor: '#F26438' }}
             >
               <Plus className="w-4 h-4" />
-              <span>Add building to map</span>
+              <span>Add object to map</span>
             </button>
           </div>
         )}
