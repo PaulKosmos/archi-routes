@@ -175,8 +175,7 @@ export function SearchResults({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-display font-bold text-foreground">
-            {loading ? 'Searching...' : `Found ${totalCount} ${totalCount === 1 ? 'building' :
-                totalCount < 5 ? 'buildings' : 'buildings'
+            {loading ? 'Searching...' : `Found ${totalCount} ${totalCount === 1 ? 'object' : 'objects'
               }`}
           </h2>
           {query && !loading && (

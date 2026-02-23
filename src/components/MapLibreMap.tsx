@@ -1,8 +1,8 @@
 // src/components/MapLibreMap.tsx - MapLibre GL JS версия карты
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
-import Map, { Marker, Popup, NavigationControl, ScaleControl } from 'react-map-gl/maplibre'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
+import Map, { Marker, Popup, NavigationControl, ScaleControl, MapRef } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { Building } from '../types/building'
 
@@ -62,8 +62,16 @@ export default function MapLibreMap({
   selectedBuilding = null,
   onBuildingClick
 }: MapLibreMapProps) {
+  const mapRef = useRef<MapRef>(null)
   const [currentStyle, setCurrentStyle] = useState<keyof typeof MAP_STYLES>('light')
   const [popupInfo, setPopupInfo] = useState<Building | null>(null)
+
+  useEffect(() => {
+    const canvas = mapRef.current?.getCanvas()
+    if (canvas) {
+      canvas.style.filter = currentStyle === 'dark' ? 'brightness(1.45) contrast(0.88)' : ''
+    }
+  }, [currentStyle])
   const [viewState, setViewState] = useState({
     longitude: 13.4050,
     latitude: 52.5200,
@@ -147,6 +155,7 @@ export default function MapLibreMap({
 
       {/* Карта MapLibre */}
       <Map
+        ref={mapRef}
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
         mapStyle={MAP_STYLES[currentStyle].url}

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, MapPin, Clock, Navigation, Star, Check, Headphones, CheckCircle, Award, Pencil, Share2, MessageSquare, GraduationCap, Scroll, Map as MapIcon, Inbox, Trophy } from 'lucide-react'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, MapPin, Clock, Navigation, Star, Check, Headphones, CheckCircle, Award, Pencil, Trash2, Share2, MessageSquare, GraduationCap, Scroll, Map as MapIcon, Inbox, Trophy } from 'lucide-react'
 import { Route, RoutePoint, Building, BuildingReview } from '@/types/building'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
@@ -30,12 +30,14 @@ interface RouteViewerModalProps {
   isOpen: boolean
   onClose: () => void
   route: Route | null
+  onDelete?: () => void
 }
 
 export default function RouteViewerModal({
   isOpen,
   onClose,
-  route
+  route,
+  onDelete
 }: RouteViewerModalProps) {
   // ✅ Create NEW Supabase client for this component
   const supabase = useMemo(() => createClient(), [])
@@ -44,6 +46,8 @@ export default function RouteViewerModal({
   const [routePoints, setRoutePoints] = useState<RoutePoint[]>([])
   const [currentPointIndex, setCurrentPointIndex] = useState(0)
   const [loading, setLoading] = useState(true)
+  const mobileScrollRef = useRef<HTMLDivElement>(null)
+  const [showMapSheet, setShowMapSheet] = useState(false)
   const [geolocationEnabled, setGeolocationEnabled] = useState(false)
 
   // Check edit permissions
@@ -52,6 +56,28 @@ export default function RouteViewerModal({
     profile?.role === 'admin' ||
     profile?.role === 'moderator'
   )
+
+  // Delete state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  const handleDelete = async () => {
+    if (!route) return
+    setIsDeleting(true)
+    try {
+      await supabase.from('route_points').delete().eq('route_id', route.id)
+      const { error } = await supabase.from('routes').delete().eq('id', route.id)
+      if (error) throw error
+      toast.success('Route deleted')
+      onDelete?.()
+      onClose()
+    } catch (err: any) {
+      toast.error(`Error: ${err.message}`)
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteConfirm(false)
+    }
+  }
 
   // Debug permissions
   useEffect(() => {
@@ -71,6 +97,7 @@ export default function RouteViewerModal({
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
   const [loadingReviews, setLoadingReviews] = useState(false)
   const [showAllReviews, setShowAllReviews] = useState(false)
+  const [reviewTextExpanded, setReviewTextExpanded] = useState(false)
   const [userRatings, setUserRatings] = useState<Map<string, number>>(new Map())
   const [hoveredRating, setHoveredRating] = useState<{ reviewId: string, rating: number } | null>(null)
 
@@ -259,6 +286,7 @@ export default function RouteViewerModal({
       if (error) throw error
 
       setSelectedReviewId(reviewId)
+      setReviewTextExpanded(false)
       toast.success('✅ Review selected!')
     } catch (error) {
       console.error('Error saving review selection:', error)
@@ -369,6 +397,22 @@ export default function RouteViewerModal({
   useEffect(() => {
     setCurrentPhotoIndex(0)
     setShowAllReviews(false)
+  }, [currentPointIndex])
+
+  // Auto-scroll mobile carousel to keep active card visible
+  useEffect(() => {
+    const container = mobileScrollRef.current
+    if (!container) return
+    const activeCard = container.children[currentPointIndex] as HTMLElement
+    if (!activeCard) return
+    const containerWidth = container.offsetWidth
+    const cardLeft = activeCard.offsetLeft
+    const cardWidth = activeCard.offsetWidth
+    container.scrollTo({
+      left: cardLeft - containerWidth / 2 + cardWidth / 2,
+      behavior: 'smooth'
+    })
+    setReviewTextExpanded(false)
   }, [currentPointIndex])
 
   // Navigation
@@ -492,18 +536,27 @@ export default function RouteViewerModal({
               </button>
             </div>
 
-            {/* Edit button (for creator/admin/moderator) */}
+            {/* Edit + Delete buttons (for creator/admin/moderator) */}
             {canEdit && (
-              <button
-                onClick={() => {
-                  console.log('🔧 Opening route editing:', route.id)
-                  window.open(`/routes/${route.id}/edit`, '_blank')
-                }}
-                className="p-1.5 md:p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
-                title="Edit route"
-              >
-                <Pencil className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    console.log('🔧 Opening route editing:', route.id)
+                    window.open(`/routes/${route.id}/edit`, '_blank')
+                  }}
+                  className="p-1.5 md:p-2 hover:bg-muted rounded-[var(--radius)] transition-colors"
+                  title="Edit route"
+                >
+                  <Pencil className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="p-1.5 md:p-2 hover:bg-red-50 rounded-[var(--radius)] transition-colors"
+                  title="Delete route"
+                >
+                  <Trash2 className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
+                </button>
+              </>
             )}
 
             <button
@@ -827,9 +880,15 @@ export default function RouteViewerModal({
                   {/* Review text (if selected) or building description */}
                   {selectedReview && selectedReview.content ? (
                     <div className="prose max-w-none mb-4">
-                      <p className="text-sm md:text-base text-foreground leading-relaxed whitespace-pre-line">
+                      <p className={`text-sm md:text-base text-foreground leading-relaxed whitespace-pre-line ${reviewTextExpanded ? '' : 'line-clamp-3'}`}>
                         {selectedReview.content}
                       </p>
+                      <button
+                        onClick={() => setReviewTextExpanded(v => !v)}
+                        className="mt-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+                      >
+                        {reviewTextExpanded ? 'Show less' : 'Show more'}
+                      </button>
                       {selectedReview.tags && selectedReview.tags.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-3">
                           {selectedReview.tags.map((tag, idx) => (
@@ -1078,13 +1137,13 @@ export default function RouteViewerModal({
                   )}
                 </div>
 
-                {/* Mini-map */}
-                <div className="mb-4 md:mb-6">
-                  <h4 className="text-lg md:text-xl font-semibold font-display text-foreground mb-3 md:mb-4 flex items-center gap-2">
+                {/* Mini-map — desktop only (mobile uses bottom sheet) */}
+                <div className="hidden md:block mb-6">
+                  <h4 className="text-xl font-semibold font-display text-foreground mb-4 flex items-center gap-2">
                     <MapIcon className="w-5 h-5 flex-shrink-0" />
                     Map
                   </h4>
-                  <div className="h-48 md:h-64 rounded-[var(--radius)] overflow-hidden border-2 border-border">
+                  <div className="h-64 rounded-[var(--radius)] overflow-hidden border-2 border-border">
                     <DynamicMiniMap
                       route={route}
                       routePoints={routePoints}
@@ -1161,78 +1220,149 @@ export default function RouteViewerModal({
           </div>
         </div>
 
-        {/* Route preview for mobile version */}
-        <div className="md:hidden border-t-2 border-border bg-background p-3">
-          <h4 className="text-sm font-semibold font-display text-foreground mb-2">
-            Route ({routePoints.length} points)
-          </h4>
-          <div className="flex space-x-2 overflow-x-auto pb-2 -mx-3 px-3 scrollbar-hide">
-            {routePoints.map((point, index) => {
-              const isCurrent = index === currentPointIndex
-              const isPassed = index < currentPointIndex
-
-              return (
-                <button
-                  key={point.id}
-                  onClick={() => setCurrentPointIndex(index)}
-                  className={`flex-shrink-0 w-20 transition-all ${isCurrent ? 'scale-105' : isPassed ? 'opacity-40' : ''
-                    }`}
-                >
-                  <div className={`relative rounded-[var(--radius)] border-2 overflow-hidden ${isCurrent
-                    ? 'border-primary shadow-md'
-                    : isPassed
-                      ? 'border-border bg-muted'
-                      : 'border-border'
-                    }`}>
-                    {/* Миниатюра или placeholder */}
-                    {point.buildings?.image_url ? (
-                      <img
-                        src={getStorageUrl(point.buildings.image_url, 'photos')}
-                        alt={point.title}
-                        className={`w-full h-16 object-cover ${isPassed ? 'grayscale' : ''}`}
-                      />
-                    ) : (
-                      <div className={`w-full h-16 bg-muted flex items-center justify-center ${isPassed ? 'opacity-50' : ''
-                        }`}>
-                        <MapPin className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                    )}
-
-                    {/* Номер точки */}
-                    <div className={`absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold font-metrics ${isCurrent
-                      ? 'bg-primary text-primary-foreground'
-                      : isPassed
-                        ? 'bg-muted-foreground/60 text-white'
-                        : 'bg-card text-foreground border border-border'
-                      }`}>
-                      {isPassed ? <Check className="w-3 h-3" /> : index + 1}
-                    </div>
-
-                    {/* Индикатор текущей */}
-                    {isCurrent && (
-                      <div className="absolute top-1 right-1">
-                        <Navigation className="w-4 h-4 text-primary" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Название точки */}
-                  <div className={`mt-1 text-xs font-medium text-center truncate ${isCurrent
-                    ? 'text-primary'
-                    : isPassed
-                      ? 'text-muted-foreground'
-                      : 'text-foreground'
-                    }`}>
-                    {point.title}
-                  </div>
-                </button>
-              )
-            })}
+        {/* Mobile map sheet — peek handle always visible, expands on toggle */}
+        <div
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-card border-t-2 border-border ${
+            showMapSheet ? 'h-[35vh]' : 'h-[28px]'
+          }`}
+          onTouchStart={(e) => { (e.currentTarget as any)._touchY = e.touches[0].clientY }}
+          onTouchEnd={(e) => {
+            const startY = (e.currentTarget as any)._touchY
+            if (startY == null) return
+            const dy = e.changedTouches[0].clientY - startY
+            if (dy > 50) setShowMapSheet(false)
+          }}
+        >
+          {/* Handle — always visible at top of sheet, slides with it */}
+          <button
+            onClick={() => setShowMapSheet(v => !v)}
+            className="w-full h-[28px] flex justify-center items-center hover:bg-muted/40 transition-colors flex-shrink-0"
+            aria-label={showMapSheet ? 'Hide map' : 'Show map'}
+          >
+            <div className={`w-12 h-1.5 rounded-full transition-colors duration-200 ${showMapSheet ? 'bg-primary' : 'bg-foreground/25'}`} />
+          </button>
+          {/* Map */}
+          <div className="h-[calc(35vh-28px)]">
+            {showMapSheet && (
+              <DynamicMiniMap
+                route={route}
+                routePoints={routePoints}
+                currentPointIndex={currentPointIndex}
+                geolocationEnabled={geolocationEnabled}
+              />
+            )}
           </div>
         </div>
 
-        {/* Footer: Навигация */}
-        <div className="flex items-center justify-between p-3 md:p-6 border-t-2 border-border bg-card">
+        {/* Mobile: merged route points + navigation */}
+        <div className="md:hidden bg-background">
+          {/* Row: prev arrow · scrollable cards · next arrow */}
+          <div className="flex items-center gap-1.5 px-2 pt-2">
+            <button
+              onClick={goToPrevious}
+              disabled={currentPointIndex === 0}
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full border-2 border-border bg-card text-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            <div ref={mobileScrollRef} className="flex-1 flex space-x-2 overflow-x-auto scrollbar-hide">
+              {routePoints.map((point, index) => {
+                const isCurrent = index === currentPointIndex
+                const isPassed = index < currentPointIndex
+
+                return (
+                  <button
+                    key={point.id}
+                    onClick={() => setCurrentPointIndex(index)}
+                    className={`flex-shrink-0 w-[72px] transition-all ${isCurrent ? 'scale-105' : isPassed ? 'opacity-40' : ''}`}
+                  >
+                    <div className={`relative rounded-[var(--radius)] border-2 overflow-hidden ${isCurrent
+                      ? 'border-primary shadow-md'
+                      : isPassed
+                        ? 'border-border bg-muted'
+                        : 'border-border'
+                      }`}>
+                      {point.buildings?.image_url ? (
+                        <img
+                          src={getStorageUrl(point.buildings.image_url, 'photos')}
+                          alt={point.title}
+                          className={`w-full h-14 object-cover ${isPassed ? 'grayscale' : ''}`}
+                        />
+                      ) : (
+                        <div className={`w-full h-14 bg-muted flex items-center justify-center ${isPassed ? 'opacity-50' : ''}`}>
+                          <MapPin className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                      )}
+
+                      {/* Номер точки */}
+                      <div className={`absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold font-metrics ${isCurrent
+                        ? 'bg-primary text-primary-foreground'
+                        : isPassed
+                          ? 'bg-muted-foreground/60 text-white'
+                          : 'bg-card text-foreground border border-border'
+                        }`}>
+                        {isPassed ? <Check className="w-3 h-3" /> : index + 1}
+                      </div>
+
+                      {isCurrent && (
+                        <div className="absolute top-1 right-1">
+                          <Navigation className="w-3 h-3 text-primary" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className={`mt-0.5 text-[10px] font-medium text-center truncate ${isCurrent
+                      ? 'text-primary'
+                      : isPassed
+                        ? 'text-muted-foreground'
+                        : 'text-foreground'
+                      }`}>
+                      {point.title}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+
+            <button
+              onClick={goToNext}
+              disabled={currentPointIndex === routePoints.length - 1}
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Counter + Map button */}
+          <div className="flex items-center justify-between px-2 py-2">
+            <div className="flex items-center gap-2 min-w-0">
+              {currentPoint && (
+                <span className="text-xs font-medium text-foreground truncate max-w-[45vw]">
+                  {currentPoint.title}
+                </span>
+              )}
+              <span className="text-xs text-muted-foreground font-metrics shrink-0">
+                {currentPointIndex + 1} / {routePoints.length}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowMapSheet(v => !v)}
+              className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                showMapSheet
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-foreground hover:bg-muted/80'
+              }`}
+            >
+              <MapIcon className="w-3.5 h-3.5" />
+              Map
+            </button>
+          </div>
+        </div>
+
+
+        {/* Footer: навигация — только десктоп */}
+        <div className="hidden md:flex items-center justify-between p-3 md:p-6 border-t-2 border-border bg-card">
           <button
             onClick={goToPrevious}
             disabled={currentPointIndex === 0}
@@ -1273,6 +1403,42 @@ export default function RouteViewerModal({
           onClose={() => setShowAddRouteReviewModal(false)}
           onSuccess={loadRouteReviews}
         />
+      )}
+
+      {/* Delete confirmation */}
+      {showDeleteConfirm && (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/50 rounded-[var(--radius)] md:rounded-2xl">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-6 h-6 text-red-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">Delete Route?</h3>
+            <p className="text-sm text-gray-500 text-center mb-6">
+              Are you sure you want to delete <strong className="text-gray-700">"{route.title}"</strong>? This action is irreversible.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

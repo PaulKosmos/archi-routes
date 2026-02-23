@@ -102,6 +102,7 @@ export default function TestMapPage() {
   // Состояние карты
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null)
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null)
+  const [activeRouteBuildingIds, setActiveRouteBuildingIds] = useState<string[]>([])
   const [hoveredRoute, setHoveredRoute] = useState<string | null>(null)
   const [hoveredBuilding, setHoveredBuilding] = useState<string | null>(null)
   const [showRoutes, setShowRoutes] = useState(false) // Скрываем маршруты по умолчанию
@@ -201,6 +202,25 @@ export default function TestMapPage() {
       mapRef.current.centerOnRoute(selectedRoute.id)
     }
   }, [selectedRoute])
+
+  // Загружаем building_id точек выбранного маршрута для подсветки маркеров
+  useEffect(() => {
+    if (!selectedRoute) {
+      setActiveRouteBuildingIds([])
+      return
+    }
+    supabase
+      .from('route_points')
+      .select('building_id, order_index')
+      .eq('route_id', selectedRoute.id)
+      .not('building_id', 'is', null)
+      .order('order_index', { ascending: true })
+      .then(({ data }) => {
+        setActiveRouteBuildingIds(
+          (data || []).map((p: { building_id: string }) => p.building_id).filter(Boolean)
+        )
+      })
+  }, [selectedRoute?.id])
 
   const loadData = async () => {
     try {
@@ -1231,6 +1251,7 @@ export default function TestMapPage() {
                 routes={filteredRoutes.map(convertRouteForMap)}
                 selectedBuilding={selectedBuilding?.id || null}
                 selectedRoute={selectedRoute?.id || null}
+                activeRouteBuildingIds={activeRouteBuildingIds}
                 hoveredRoute={hoveredRoute}
                 hoveredBuilding={hoveredBuilding}
                 onBuildingClick={handleBuildingClick}
@@ -1483,16 +1504,17 @@ export default function TestMapPage() {
         onClose={() => setShowMobileBuildings(false)}
         title={`Buildings (${filteredBuildings.length})`}
         showBackdrop={false}
+        maxHeight="42vh"
       >
         {/* Кнопка добавления нового объекта */}
         {user && (
-          <div className="mb-2 -mt-2">
+          <div className="mb-1.5">
             <button
               onClick={() => {
                 setShowMobileBuildings(false)
                 handleToggleAddBuildingMode()
               }}
-              className={`w-full px-4 py-3 text-sm rounded-[var(--radius)] transition-all flex items-center justify-center gap-2 font-medium text-white ${addBuildingMode || showInstructionModal
+              className={`w-full px-4 py-2 text-sm rounded-[var(--radius)] transition-all flex items-center justify-center gap-2 font-medium text-white ${addBuildingMode || showInstructionModal
                 ? 'ring-2 ring-orange-200'
                 : 'hover:opacity-90 active:opacity-80'
                 }`}

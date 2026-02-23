@@ -111,6 +111,7 @@ interface MapLibreEnhancedProps {
   addBuildingMode?: boolean
   routeCreationMode?: boolean
   selectedBuildingsForRoute?: string[]
+  activeRouteBuildingIds?: string[]
   hideLegend?: boolean
   compactControls?: boolean
   onViewStateChange?: (center: { lat: number; lng: number }, zoom: number) => void
@@ -143,32 +144,38 @@ const TRANSPORT_COLORS: Record<string, string> = {
 
 // Marker color schemes (coral palette from logo)
 const MARKER_COLORS = {
-  normal: { core: '#F26438', gradient: '#F57C53', ring: '#F26438', ringOpacity: 0.2 },
-  hovered: { core: '#F57C53', gradient: '#F89470', ring: '#F57C53', ringOpacity: 0.35 },
-  selected: { core: '#F89470', gradient: '#FBA98B', ring: '#F89470', ringOpacity: 0.4 },
-  route: { core: '#E64D20', gradient: '#F26438', ring: '#E64D20', ringOpacity: 0.3 }
+  normal:       { core: '#F26438', gradient: '#F57C53', ring: '#F26438', ringOpacity: 0.2 },
+  hovered:      { core: '#F57C53', gradient: '#F89470', ring: '#F57C53', ringOpacity: 0.35 },
+  selected:     { core: '#F89470', gradient: '#FBA98B', ring: '#F89470', ringOpacity: 0.4 },
+  route:        { core: '#E64D20', gradient: '#F26438', ring: '#E64D20', ringOpacity: 0.3 },
+  viewed_route: { core: '#059669', gradient: '#34D399', ring: '#10B981', ringOpacity: 0.35 },
 }
+
+type MarkerState = 'normal' | 'hovered' | 'selected' | 'route' | 'viewed_route'
 
 // Get marker state
 const getMarkerState = (
   buildingId: string,
   selectedBuilding: string | null | undefined,
   hoveredBuilding: string | null | undefined,
-  selectedBuildingsForRoute: string[]
-): 'normal' | 'hovered' | 'selected' | 'route' => {
+  selectedBuildingsForRoute: string[],
+  activeRouteBuildingIds: string[]
+): MarkerState => {
   if (selectedBuildingsForRoute.includes(buildingId)) return 'route'
+  if (activeRouteBuildingIds.includes(buildingId)) return 'viewed_route'
   if (selectedBuilding === buildingId) return 'selected'
   if (hoveredBuilding === buildingId) return 'hovered'
   return 'normal'
 }
 
 // Get marker size based on state
-const getMarkerSize = (state: 'normal' | 'hovered' | 'selected' | 'route'): number => {
+const getMarkerSize = (state: MarkerState): number => {
   switch (state) {
-    case 'route': return 34
-    case 'selected': return 30
-    case 'hovered': return 26
-    default: return 22
+    case 'route':        return 34
+    case 'viewed_route': return 32
+    case 'selected':     return 30
+    case 'hovered':      return 26
+    default:             return 22
   }
 }
 
@@ -177,13 +184,15 @@ const BuildingMarker = ({
   building,
   state,
   routeIndex,
+  viewedRouteIndex,
   onClick,
   onMouseEnter,
   onMouseLeave
 }: {
   building: Building
-  state: 'normal' | 'hovered' | 'selected' | 'route'
+  state: MarkerState
   routeIndex: number
+  viewedRouteIndex: number
   onClick: () => void
   onMouseEnter: () => void
   onMouseLeave: () => void
@@ -264,26 +273,26 @@ const BuildingMarker = ({
           {/* Number or dot */}
           {state === 'route' && routeIndex >= 0 ? (
             <text
-              x="24"
-              y="24"
-              textAnchor="middle"
-              dominantBaseline="central"
+              x="24" y="24"
+              textAnchor="middle" dominantBaseline="central"
               fill="white"
               fontFamily="'DM Sans', 'Inter', -apple-system, sans-serif"
-              fontSize="14"
-              fontWeight="700"
-              letterSpacing="-0.3"
+              fontSize="14" fontWeight="700" letterSpacing="-0.3"
             >
               {routeIndex + 1}
             </text>
-          ) : (
-            <circle
-              cx="24"
-              cy="24"
-              r="2.5"
+          ) : state === 'viewed_route' && viewedRouteIndex >= 0 ? (
+            <text
+              x="24" y="24"
+              textAnchor="middle" dominantBaseline="central"
               fill="white"
-              opacity="0.9"
-            />
+              fontFamily="'DM Sans', 'Inter', -apple-system, sans-serif"
+              fontSize="13" fontWeight="700" letterSpacing="-0.3"
+            >
+              {viewedRouteIndex + 1}
+            </text>
+          ) : (
+            <circle cx="24" cy="24" r="2.5" fill="white" opacity="0.9" />
           )}
         </svg>
       </div>
@@ -604,6 +613,7 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
       addBuildingMode = false,
       routeCreationMode = false,
       selectedBuildingsForRoute = [],
+      activeRouteBuildingIds = [],
       hideLegend = false,
       compactControls = false,
       onViewStateChange
@@ -611,6 +621,14 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
 
     const mapRef = useRef<MapRef>(null)
     const [currentStyle, setCurrentStyle] = useState<keyof typeof MAP_STYLES>('light')
+
+    // Apply brightness filter only to the map canvas, not popups/markers
+    useEffect(() => {
+      const canvas = mapRef.current?.getCanvas()
+      if (canvas) {
+        canvas.style.filter = currentStyle === 'dark' ? 'brightness(1.45) contrast(0.88)' : ''
+      }
+    }, [currentStyle])
     const [viewState, setViewState] = useState({
       longitude: 13.4050,
       latitude: 52.5200,
@@ -1013,6 +1031,12 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
           style={{ width: '100%', height: '100%', minHeight: '400px', cursor: cursorStyle }}
           attributionControl={false}
           reuseMaps
+          onLoad={() => {
+            const canvas = mapRef.current?.getCanvas()
+            if (canvas && currentStyle === 'dark') {
+              canvas.style.filter = 'brightness(1.45) contrast(0.88)'
+            }
+          }}
           onClick={handleMapClick}
         >
           {/* Attribution - MapLibre GL JS + OpenFreeMap + OpenStreetMap */}
@@ -1111,9 +1135,11 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
               building.id,
               selectedBuilding,
               hoveredBuilding,
-              selectedBuildingsForRoute
+              selectedBuildingsForRoute,
+              activeRouteBuildingIds
             )
             const routeIndex = selectedBuildingsForRoute.indexOf(building.id)
+            const viewedRouteIndex = activeRouteBuildingIds.indexOf(building.id)
 
             return (
               <BuildingMarker
@@ -1121,6 +1147,7 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
                 building={building}
                 state={state}
                 routeIndex={routeIndex}
+                viewedRouteIndex={viewedRouteIndex}
                 onClick={() => handleMarkerClick(building)}
                 onMouseEnter={() => handleMarkerEnter(building)}
                 onMouseLeave={handleMarkerLeave}

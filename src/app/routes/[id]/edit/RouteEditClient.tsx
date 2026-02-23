@@ -27,10 +27,47 @@ function getModeInfo(mode: TransportMode) {
   return TRANSPORT_MODES.find(m => m.value === mode) ?? TRANSPORT_MODES[0]
 }
 
-function SegmentConnector({ mode, onChange }: { mode: TransportMode; onChange: (m: TransportMode) => void }) {
+const TRANSPORT_SPEEDS: Record<TransportMode, number> = {
+  walking: 5,
+  cycling: 15,
+  driving: 40,
+  public_transport: 20,
+}
+
+function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371e3
+  const φ1 = lat1 * Math.PI / 180
+  const φ2 = lat2 * Math.PI / 180
+  const Δφ = (lat2 - lat1) * Math.PI / 180
+  const Δλ = (lon2 - lon1) * Math.PI / 180
+  const a = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+function formatSegmentDist(meters: number): string {
+  return meters >= 1000 ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} m`
+}
+
+function formatSegmentTime(meters: number, mode: TransportMode): string {
+  const minutes = Math.round((meters / 1000) / TRANSPORT_SPEEDS[mode] * 60)
+  return minutes < 1 ? '<1 min' : `${minutes} min`
+}
+
+function SegmentConnector({
+  mode, onChange, fromLat, fromLon, toLat, toLon
+}: {
+  mode: TransportMode
+  onChange: (m: TransportMode) => void
+  fromLat: number
+  fromLon: number
+  toLat: number
+  toLon: number
+}) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const info = getModeInfo(mode)
+
+  const distMeters = haversineMeters(fromLat, fromLon, toLat, toLon)
 
   useEffect(() => {
     if (!open) return
@@ -44,16 +81,21 @@ function SegmentConnector({ mode, onChange }: { mode: TransportMode; onChange: (
   return (
     <div className="flex flex-col items-center py-0.5 relative" ref={ref}>
       <div className="w-px h-3 bg-gray-200" />
-      <button
-        type="button"
-        onClick={() => setOpen(v => !v)}
-        className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-medium transition-all shadow-sm
-          ${open ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700'}`}
-      >
-        {info.icon}
-        <span>{info.shortLabel}</span>
-        <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setOpen(v => !v)}
+          className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-medium transition-all shadow-sm
+            ${open ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700'}`}
+        >
+          {info.icon}
+          <span>{info.shortLabel}</span>
+          <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        </button>
+        <span className="text-[11px] text-gray-400 tabular-nums select-none">
+          ~{formatSegmentDist(distMeters)} · {formatSegmentTime(distMeters, mode)}
+        </span>
+      </div>
       <div
         className={`absolute top-full mt-1 z-20 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden transition-all duration-200 origin-top
           ${open ? 'opacity-100 scale-y-100 pointer-events-auto' : 'opacity-0 scale-y-0 pointer-events-none'}`}
@@ -650,6 +692,10 @@ export default function RouteEditClient({ route, buildings }: RouteEditClientPro
                         <SegmentConnector
                           mode={segmentModes[index] ?? 'walking'}
                           onChange={m => setSegmentModes(prev => prev.map((v, i) => i === index ? m : v))}
+                          fromLat={point.latitude ?? 0}
+                          fromLon={point.longitude ?? 0}
+                          toLat={routePoints[index + 1].latitude ?? 0}
+                          toLon={routePoints[index + 1].longitude ?? 0}
                         />
                       )}
                     </div>

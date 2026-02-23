@@ -2,15 +2,16 @@
 
 'use client'
 
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { BuildingReviewWithProfile } from '@/types/building'
-import { Play, Pause, Volume2, VolumeX, Star, User, Calendar, Award, MessageSquare, Pencil, Globe, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Star, User, Calendar, Award, MessageSquare, Pencil, Globe, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { getStorageUrl } from '@/lib/storage'
 import PhotoGallery from '@/components/ui/PhotoGallery'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import toast from 'react-hot-toast'
+import AudioPlayer from '../AudioPlayer'
 
 interface BuildingReviewsProps {
   reviews: BuildingReviewWithProfile[]
@@ -21,256 +22,6 @@ interface BuildingReviewsProps {
   onOpenAddReview?: () => void
 }
 
-interface AudioPlayerProps {
-  audioUrl: string
-  duration?: number
-}
-
-function AudioPlayer({ audioUrl, duration }: AudioPlayerProps) {
-  const audioRef = useRef<HTMLAudioElement>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [totalDuration, setTotalDuration] = useState(duration || 0)
-  const [isMuted, setIsMuted] = useState(false)
-  const [volume, setVolume] = useState(1)
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setHasError] = useState(false)
-
-  // Получаем полный URL для аудио из Supabase Storage
-  const fullAudioUrl = getStorageUrl(audioUrl, 'audio')
-
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    const updateTime = () => {
-      console.log('⏰ Time update:', audio.currentTime, '/', audio.duration)
-      setCurrentTime(audio.currentTime)
-    }
-
-    const updateDuration = () => {
-      console.log('📏 Duration loaded:', audio.duration)
-      setTotalDuration(audio.duration || 0)
-      setIsLoading(false)
-    }
-
-    const handleEnded = () => {
-      console.log('🔚 Audio ended')
-      setIsPlaying(false)
-      setCurrentTime(0)
-    }
-
-    const handleLoadStart = () => {
-      console.log('🔄 Audio loading started')
-      setIsLoading(true)
-    }
-
-    const handleCanPlay = () => {
-      console.log('✅ Audio can play')
-      setIsLoading(false)
-    }
-
-    const handleLoadedData = () => {
-      console.log('📊 Audio data loaded, duration:', audio.duration)
-      if (audio.duration && !isNaN(audio.duration)) {
-        setTotalDuration(audio.duration)
-      }
-      setIsLoading(false)
-    }
-
-    const handleError = (e: any) => {
-      console.error('🎵 Audio loading error:', e)
-      console.error('🎵 Audio error details:', {
-        error: audio.error,
-        networkState: audio.networkState,
-        readyState: audio.readyState,
-        src: audio.src
-      })
-      setHasError(true)
-      setIsLoading(false)
-    }
-
-    // Добавляем все обработчики
-    audio.addEventListener('timeupdate', updateTime)
-    audio.addEventListener('loadedmetadata', updateDuration)
-    audio.addEventListener('loadeddata', handleLoadedData)
-    audio.addEventListener('ended', handleEnded)
-    audio.addEventListener('loadstart', handleLoadStart)
-    audio.addEventListener('canplay', handleCanPlay)
-    audio.addEventListener('error', handleError)
-
-    // Принудительно загружаем метаданные
-    audio.load()
-
-    return () => {
-      audio.removeEventListener('timeupdate', updateTime)
-      audio.removeEventListener('loadedmetadata', updateDuration)
-      audio.removeEventListener('loadeddata', handleLoadedData)
-      audio.removeEventListener('ended', handleEnded)
-      audio.removeEventListener('loadstart', handleLoadStart)
-      audio.removeEventListener('canplay', handleCanPlay)
-      audio.removeEventListener('error', handleError)
-    }
-  }, [fullAudioUrl])
-
-  const togglePlayPause = async () => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    try {
-      if (isPlaying) {
-        audio.pause()
-        setIsPlaying(false)
-        console.log('⏸️ Audio paused')
-      } else {
-        const playPromise = audio.play()
-        if (playPromise !== undefined) {
-          await playPromise
-          setIsPlaying(true)
-          console.log('▶️ Audio playing')
-        }
-      }
-    } catch (error) {
-      console.error('🎵 Audio play error:', error)
-      setHasError(true)
-    }
-  }
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const audio = audioRef.current
-    if (!audio || !totalDuration) return
-
-    const newTime = (Number(e.target.value) / 100) * totalDuration
-    console.log('🎯 Seeking to:', newTime, 'of', totalDuration)
-    audio.currentTime = newTime
-    setCurrentTime(newTime)
-  }
-
-  const toggleMute = () => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    audio.muted = !isMuted
-    setIsMuted(!isMuted)
-  }
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    const newVolume = Number(e.target.value) / 100
-    audio.volume = newVolume
-    setVolume(newVolume)
-  }
-
-  const formatTime = (seconds: number) => {
-    console.log('⏰ Formatting time:', seconds, 'isNaN:', isNaN(seconds))
-    if (isNaN(seconds) || seconds === 0 || !isFinite(seconds)) return '0:00'
-    const mins = Math.floor(seconds / 60)
-    const secs = Math.floor(seconds % 60)
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
-  const progressPercentage = totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0
-
-  if (hasError) {
-    return (
-      <div className="bg-red-50 rounded-lg p-4 mt-4">
-        <p className="text-red-600 text-sm">Failed to load audio file</p>
-        <p className="text-red-500 text-xs mt-1">URL: {fullAudioUrl}</p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="bg-muted rounded-[var(--radius)] p-3 sm:p-4 mt-3 sm:mt-4">
-      <audio
-        ref={audioRef}
-        src={fullAudioUrl}
-        preload="metadata"
-        crossOrigin="anonymous"
-        style={{ display: 'none' }}
-      />
-
-      {/* Заголовок с информацией о длительности */}
-      <div className="flex items-center justify-between mb-2 sm:mb-3">
-        <span className="text-xs sm:text-sm font-medium text-foreground">Audio Commentary</span>
-        <span className="text-xs sm:text-sm text-muted-foreground font-metrics">
-          {isLoading ? 'Loading...' : formatTime(totalDuration)}
-        </span>
-      </div>
-
-      {/* Progress bar */}
-      <div className="mb-2 sm:mb-3">
-        <div className="relative w-full h-1.5 sm:h-2 bg-muted-foreground/20 rounded-full">
-          <div
-            className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
-            style={{ width: `${progressPercentage}%` }}
-          />
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={progressPercentage}
-            onChange={handleSeek}
-            disabled={isLoading || totalDuration === 0}
-            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
-          />
-        </div>
-        <div className="flex justify-between text-[10px] sm:text-xs text-muted-foreground mt-1 font-metrics">
-          <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(totalDuration)}</span>
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        {/* Play/Pause */}
-        <button
-          onClick={togglePlayPause}
-          disabled={isLoading || hasError}
-          className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
-            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : isPlaying ? (
-            <Pause className="h-4 w-4 sm:h-5 sm:w-5" />
-          ) : (
-            <Play className="h-4 w-4 sm:h-5 sm:w-5 ml-0.5" />
-          )}
-        </button>
-
-        {/* Volume - mute button always, slider only on desktop */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={toggleMute}
-            className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {isMuted || volume === 0 ? (
-              <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" />
-            ) : (
-              <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
-            )}
-          </button>
-          <div className="hidden sm:block relative w-20 h-1 bg-muted-foreground/20 rounded-full">
-            <div
-              className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-100"
-              style={{ width: `${(isMuted ? 0 : volume) * 100}%` }}
-            />
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={isMuted ? 0 : volume * 100}
-              onChange={handleVolumeChange}
-              className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, onRate, onHoverRating, onLeaveRating }: {
   review: BuildingReviewWithProfile
@@ -410,8 +161,9 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
         {/* Аудио плеер */}
         {review.audio_url && (
           <AudioPlayer
-            audioUrl={review.audio_url}
-            duration={review.audio_duration_seconds}
+            audioUrl={getStorageUrl(review.audio_url, 'audio')}
+            title="Audio Commentary"
+            duration={review.audio_duration_seconds ?? undefined}
           />
         )}
 

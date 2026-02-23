@@ -179,14 +179,6 @@ export default function Header({ buildings = [], onRouteCreated }: HeaderProps) 
                 {/* Навигация */}
                 <div className="space-y-3">
                   <a
-                    href="/search"
-                    className="block text-foreground hover:text-primary font-medium transition-colors flex items-center gap-2"
-                    onClick={() => setShowMobileMenu(false)}
-                  >
-                    <Search className="h-4 w-4" />
-                    <span>Search</span>
-                  </a>
-                  <a
                     href="/map"
                     className="block text-foreground hover:text-[hsl(var(--map-primary))] font-medium transition-colors"
                     onClick={() => setShowMobileMenu(false)}

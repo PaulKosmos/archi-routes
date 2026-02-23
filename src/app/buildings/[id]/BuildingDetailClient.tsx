@@ -448,6 +448,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
         building={building}
         userFavorite={userFavorite}
         onFavoriteUpdate={fetchBuildingData}
+        images={galleryLightboxImages}
       />
 
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">

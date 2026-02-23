@@ -38,7 +38,7 @@ export function SearchBar({
   activeFiltersCount,
   onFiltersToggle,
   size = 'md',
-  placeholder = 'Search buildings, architects...',
+  placeholder = 'Search objects, architects...',
   showFiltersButton = true,
   autoFocus = false,
   className = ''

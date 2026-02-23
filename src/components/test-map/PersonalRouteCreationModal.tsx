@@ -24,17 +24,54 @@ function getModeInfo(mode: TransportMode) {
   return TRANSPORT_MODES.find(m => m.value === mode) ?? TRANSPORT_MODES[0]
 }
 
+// Скорости транспорта в км/ч для локального расчёта (без API)
+const TRANSPORT_SPEEDS: Record<TransportMode, number> = {
+  walking: 5,
+  cycling: 15,
+  driving: 40,
+  public_transport: 20,
+}
+
+function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371e3
+  const φ1 = lat1 * Math.PI / 180
+  const φ2 = lat2 * Math.PI / 180
+  const Δφ = (lat2 - lat1) * Math.PI / 180
+  const Δλ = (lon2 - lon1) * Math.PI / 180
+  const a = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+function formatSegmentDist(meters: number): string {
+  return meters >= 1000 ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} m`
+}
+
+function formatSegmentTime(meters: number, mode: TransportMode): string {
+  const minutes = Math.round((meters / 1000) / TRANSPORT_SPEEDS[mode] * 60)
+  return minutes < 1 ? '<1 min' : `${minutes} min`
+}
+
 /** Компактный переключатель режима между двумя зданиями */
 function SegmentConnector({
   mode,
   onChange,
+  fromLat,
+  fromLon,
+  toLat,
+  toLon,
 }: {
   mode: TransportMode
   onChange: (m: TransportMode) => void
+  fromLat: number
+  fromLon: number
+  toLat: number
+  toLon: number
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const info = getModeInfo(mode)
+
+  const distMeters = haversineMeters(fromLat, fromLon, toLat, toLon)
 
   // Закрываем по клику вне
   useEffect(() => {
@@ -51,20 +88,27 @@ function SegmentConnector({
       {/* верхняя линия */}
       <div className="w-px h-3 bg-gray-200" />
 
-      {/* кнопка-переключатель */}
-      <button
-        type="button"
-        onClick={() => setOpen(v => !v)}
-        className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-medium transition-all shadow-sm
-          ${open
-            ? 'bg-purple-50 border-purple-300 text-purple-700'
-            : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700'
-          }`}
-      >
-        {info.icon}
-        <span className="hidden sm:inline">{info.shortLabel}</span>
-        <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-      </button>
+      {/* кнопка-переключатель + метрики */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setOpen(v => !v)}
+          className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-medium transition-all shadow-sm
+            ${open
+              ? 'bg-purple-50 border-purple-300 text-purple-700'
+              : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700'
+            }`}
+        >
+          {info.icon}
+          <span className="hidden sm:inline">{info.shortLabel}</span>
+          <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        </button>
+
+        {/* Расстояние и время — мгновенный локальный расчёт */}
+        <span className="text-[11px] text-gray-400 tabular-nums select-none">
+          ~{formatSegmentDist(distMeters)} · {formatSegmentTime(distMeters, mode)}
+        </span>
+      </div>
 
       {/* шторка с вариантами */}
       <div
@@ -323,6 +367,10 @@ export default function PersonalRouteCreationModal({
                     <SegmentConnector
                       mode={segmentModes[index] ?? 'walking'}
                       onChange={(m) => setSegmentMode(index, m)}
+                      fromLat={building.latitude}
+                      fromLon={building.longitude}
+                      toLat={localBuildings[index + 1].latitude}
+                      toLon={localBuildings[index + 1].longitude}
                     />
                   )}
                 </div>

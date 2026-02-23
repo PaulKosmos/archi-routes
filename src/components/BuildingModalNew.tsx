@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { X, ExternalLink, Heart, BookmarkPlus, MapPin, Calendar, User as UserIcon, Building2, Eye, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pencil, Trash2, Info, DollarSign, TrendingUp, Clock, Bus, Accessibility, Layers, BookOpen, Star } from 'lucide-react'
+import { X, ExternalLink, Heart, BookmarkPlus, MapPin, Calendar, User as UserIcon, Building2, Eye, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pencil, Trash2, Info, DollarSign, TrendingUp, Clock, Bus, Accessibility, Layers, BookOpen, Star, Ruler, Globe, Route } from 'lucide-react'
 import type { Building, BuildingReviewWithProfile } from '@/types/building'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
@@ -128,6 +128,30 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
   const [heroPhotoIndex, setHeroPhotoIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
+  // Touch-свайп для галереи
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent, total: number) => {
+    if (touchStartX.current === null || touchStartY.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    // Игнорируем вертикальные скроллы — реагируем только на горизонтальные свайпы
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return
+    if (dx < 0) {
+      setHeroPhotoIndex(prev => (prev < total - 1 ? prev + 1 : 0))
+    } else {
+      setHeroPhotoIndex(prev => (prev > 0 ? prev - 1 : total - 1))
+    }
+    touchStartX.current = null
+    touchStartY.current = null
+  }
+
   // Ref для отслеживания был ли увеличен счетчик
   const viewCountIncremented = useRef(false)
 
@@ -242,6 +266,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
         setRoutesCount(0)
         setNewsCount(0)
         setActiveTab('reviews')
+        setRouteViewMode('personal')
         setHeroPhotoIndex(0)
       }
       return
@@ -375,10 +400,21 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
           index === self.findIndex(r => r.id === route.id)
         ) || []
 
-      // Подсчитываем общее количество (личные + публичные)
+      // Подсчитываем общее количество уникальных маршрутов (личные + публичные без дублирования)
       const personalCount = user ? uniqueRoutes.filter(r => r.created_by === user.id).length : 0
       const publicCount = uniqueRoutes.filter(r => r.is_published && r.route_visibility === 'public').length
-      setRoutesCount(Math.max(personalCount, publicCount))
+      const totalCount = uniqueRoutes.filter(r =>
+        (user && r.created_by === user.id) ||
+        (r.is_published && r.route_visibility === 'public')
+      ).length
+      setRoutesCount(totalCount)
+
+      // Если нет личных маршрутов, но есть публичные — переключаем на публичный режим
+      if (personalCount === 0 && publicCount > 0) {
+        setRouteViewMode('public')
+      } else {
+        setRouteViewMode('personal')
+      }
 
       // Загружаем количество новостей
       const { count: newsCountData } = await supabase
@@ -577,7 +613,11 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
         <div className="flex-1 overflow-auto">
           {/* Hero: Фото на всю ширину (галерея из обзоров) */}
           {displayHeroPhotos.length > 0 && (
-            <div className="relative w-full h-48 md:h-64 lg:h-80 bg-gray-100 group">
+            <div
+              className="relative w-full h-48 md:h-64 lg:h-80 bg-gray-100 group"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={(e) => handleTouchEnd(e, displayHeroPhotos.length)}
+            >
               <button
                 onClick={() => {
                   setIsLightboxOpen(true)
@@ -938,59 +978,73 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
                 {/* Таб Маршруты */}
                 {activeTab === 'routes' && (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {/* Переключатель Личные/Общественные */}
                     <div className="flex items-center justify-center bg-gray-100 rounded-lg p-1">
                       <button
                         onClick={() => setRouteViewMode('personal')}
-                        className={`flex-1 px-3 py-2 md:px-4 rounded-md font-medium text-sm transition-colors ${routeViewMode === 'personal'
+                        className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 md:px-4 rounded-md font-medium text-sm transition-colors ${routeViewMode === 'personal'
                           ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-gray-600 hover:text-gray-900'
                           }`}
                       >
-                        🙋 Personal
+                        <UserIcon className="w-3.5 h-3.5" />
+                        Personal
                       </button>
                       <button
                         onClick={() => setRouteViewMode('public')}
-                        className={`flex-1 px-3 py-2 md:px-4 rounded-md font-medium text-sm transition-colors ${routeViewMode === 'public'
+                        className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 md:px-4 rounded-md font-medium text-sm transition-colors ${routeViewMode === 'public'
                           ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-gray-600 hover:text-gray-900'
                           }`}
                       >
-                        🌍 Public
+                        <Globe className="w-3.5 h-3.5" />
+                        Public
                       </button>
                     </div>
 
                     {routes.length === 0 ? (
-                      <div className="text-center py-8 md:py-12 text-gray-500 text-sm md:text-base">
-                        📭 {routeViewMode === 'personal'
-                          ? 'You don\'t have any personal routes with this object yet'
-                          : 'This object is not yet included in public routes'}
+                      <div className="text-center py-8 md:py-12 text-gray-400">
+                        <Route className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                        <p className="text-sm md:text-base">
+                          {routeViewMode === 'personal'
+                            ? 'You don\'t have any personal routes with this object yet'
+                            : 'This object is not yet included in public routes'}
+                        </p>
                       </div>
                     ) : (
                       routes.map(route => (
                         <Link
                           key={route.id}
                           href={`/routes/${route.id}`}
-                          className="block p-3 md:p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all"
+                          className="block p-2.5 md:p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all"
                         >
-                          <h3 className="font-semibold text-base md:text-lg text-gray-900 mb-1.5 md:mb-2">
+                          <h3 className="font-semibold text-sm md:text-base text-gray-900 mb-1 md:mb-1.5">
                             {route.title}
                           </h3>
                           {route.description && (
-                            <p className="text-gray-600 text-sm mb-2 md:mb-3 line-clamp-2">
+                            <p className="text-gray-500 text-xs mb-1.5 md:mb-2 line-clamp-2">
                               {route.description}
                             </p>
                           )}
-                          <div className="flex items-center gap-3 md:gap-4 text-xs text-gray-500 flex-wrap">
+                          <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
                             {route.distance_km && (
-                              <span>📏 {route.distance_km.toFixed(1)} km</span>
+                              <span className="flex items-center gap-1">
+                                <Ruler className="w-3 h-3" />
+                                {route.distance_km.toFixed(1)} km
+                              </span>
                             )}
                             {route.estimated_duration_minutes && (
-                              <span>⏱️ {route.estimated_duration_minutes} min</span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {route.estimated_duration_minutes} min
+                              </span>
                             )}
                             {route.points_count && (
-                              <span>📍 {route.points_count} points</span>
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {route.points_count} points
+                              </span>
                             )}
                           </div>
                         </Link>

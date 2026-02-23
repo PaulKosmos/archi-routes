@@ -116,7 +116,7 @@ export function SearchPage({
                 Universal Search
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground line-clamp-2">
-                Find buildings, routes, podcasts, articles and architecture news in one place
+                Find objects, routes, podcasts, articles and architecture news in one place
               </p>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Building } from '@/types/building'
 import { createClient } from '@/lib/supabase'
 import { Heart, Share2, Camera, MapPin, Award, ChevronLeft, ChevronRight, Edit, Star } from 'lucide-react'
@@ -15,13 +15,16 @@ interface BuildingHeaderProps {
   building: Building
   userFavorite: any
   onFavoriteUpdate: () => void
+  images?: string[]
 }
 
-export default function BuildingHeader({ building, userFavorite, onFavoriteUpdate }: BuildingHeaderProps) {
+export default function BuildingHeader({ building, userFavorite, onFavoriteUpdate, images: imagesProp }: BuildingHeaderProps) {
   const supabase = useMemo(() => createClient(), [])
   const { user, profile } = useAuth()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [favoriteLoading, setFavoriteLoading] = useState(false)
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
 
   // Building rating state
   const [buildingRating, setBuildingRating] = useState(0)
@@ -43,11 +46,17 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
     canEdit
   })
 
-  // Получаем все изображения здания с правильными URL
-  const images: string[] = [
-    building.image_url ? getStorageUrl(building.image_url, 'photos') : null,
-    ...(building.image_urls || []).map(url => url ? getStorageUrl(url, 'photos') : null)
-  ].filter((url): url is string => url !== null)
+  // Используем переданный массив или строим из полей здания (fallback)
+  const images: string[] = useMemo(() => {
+    if (imagesProp && imagesProp.length > 0) return imagesProp
+    const candidates = [
+      building.image_url,
+      ...(building.image_urls || [])
+    ]
+    return candidates
+      .filter((raw): raw is string => !!raw)
+      .map(raw => getStorageUrl(raw, 'photos'))
+  }, [imagesProp, building.image_url, building.image_urls])
   
   console.log('🏢 Building images:', {
     originalImageUrl: building.image_url,
@@ -193,6 +202,22 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
     }
   }
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return
+    if (dx < 0) nextImage()
+    else prevImage()
+    touchStartX.current = null
+    touchStartY.current = null
+  }
+
   return (
     <div className="bg-card">
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
@@ -200,7 +225,12 @@ export default function BuildingHeader({ building, userFavorite, onFavoriteUpdat
 
           {/* Изображение - теперь в колонке, не на весь экран */}
           <div className="lg:w-1/2">
-            <div className="relative h-56 sm:h-80 lg:h-96 overflow-hidden rounded-[var(--radius)]">
+            <div
+              className="relative h-56 sm:h-80 lg:h-96 overflow-hidden rounded-[var(--radius)]"
+              style={{ touchAction: 'pan-y' }}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
               {images.length > 0 ? (
                 <>
                   <img

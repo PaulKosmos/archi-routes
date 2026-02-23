@@ -71,8 +71,8 @@ export default function BuildingList({
   }
 
   return (
-    <div className="p-2">
-      <h3 className="font-medium font-display text-foreground mb-2 px-1">{title}</h3>
+    <div className="p-2 pt-0">
+      {title && <h3 className="font-medium font-display text-foreground mb-2 px-1">{title}</h3>}
       <div className="space-y-2">
         {buildings.map(building => {
           const isSelected = selectedBuilding?.id === building.id

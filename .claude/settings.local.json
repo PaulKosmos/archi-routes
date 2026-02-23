@@ -90,7 +90,11 @@
       "mcp__plugin_supabase_supabase__list_projects",
       "mcp__plugin_supabase_supabase__execute_sql",
       "mcp__plugin_supabase_supabase__apply_migration",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:ru.wikipedia.org)",
+      "mcp__playwright__playwright_get",
+      "Bash(cd C:\\\\Users\\\\paulk\\\\projects\\\\Archiroutes\\\\archi-routes-new:*)"
     ],
     "deny": [],
     "ask": []
