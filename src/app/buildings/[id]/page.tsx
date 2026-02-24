@@ -67,7 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           alt: building.name,
         }
       ],
-      siteName: 'Archi-Routes',
+      siteName: 'ArchiRoutes',
     },
     twitter: {
       card: 'summary_large_image',

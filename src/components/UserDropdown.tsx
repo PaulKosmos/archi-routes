@@ -202,11 +202,11 @@ export default function UserDropdown() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-[var(--radius)] shadow-lg py-2 z-50">
+        <div className="absolute right-0 mt-2 w-64 sm:w-80 bg-card border border-border rounded-[var(--radius)] shadow-lg py-1.5 z-50">
           {/* Заголовок профиля */}
-          <div className="px-4 py-3 border-b border-border">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-primary flex items-center justify-center ring-2 ring-border/50">
+          <div className="px-3 py-2 border-b border-border">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-primary flex items-center justify-center ring-2 ring-border/50 shrink-0">
                 {avatar ? (
                   <img
                     src={avatar}
@@ -214,19 +214,19 @@ export default function UserDropdown() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-primary-foreground font-medium text-lg">
+                  <span className="text-primary-foreground font-medium text-base">
                     {displayName.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-foreground truncate">
+                <div className="font-semibold text-foreground text-sm truncate">
                   {displayName}
                 </div>
-                <div className="text-sm text-muted-foreground truncate">
+                <div className="text-xs text-muted-foreground truncate">
                   {user.email}
                 </div>
-                <div className="text-xs text-primary font-medium mt-0.5">
+                <div className="text-xs text-primary font-medium">
                   {getRoleDisplayName(profile.role || 'explorer')}
                 </div>
               </div>
@@ -234,31 +234,31 @@ export default function UserDropdown() {
           </div>
 
           {/* Статистика */}
-          <div className="px-4 py-3 border-b border-border bg-muted/30">
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-primary" />
+          <div className="px-3 py-2 border-b border-border bg-muted/30">
+            <div className="grid grid-cols-2 gap-1.5 text-xs">
+              <div className="flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
                 <span className="text-muted-foreground">Objects:</span>
                 <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.buildings_count}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-primary" />
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
                 <span className="text-muted-foreground">Routes:</span>
                 <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.routes_count}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-primary" />
+              <div className="flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5 text-primary shrink-0" />
                 <span className="text-muted-foreground">Reviews:</span>
                 <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.reviews_count}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Heart className="w-4 h-4 text-primary" />
+              <div className="flex items-center gap-1.5">
+                <Heart className="w-3.5 h-3.5 text-primary shrink-0" />
                 <span className="text-muted-foreground">Favorites:</span>
                 <span className="font-metrics font-semibold text-foreground ml-auto">
                   {loading ? '...' : stats.favorites_count}
@@ -268,36 +268,36 @@ export default function UserDropdown() {
           </div>
 
           {/* Навигационное меню */}
-          <div className="py-1">
+          <div className="py-0.5">
             {/* Основные действия */}
             <a
               href="/profile"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <User className="w-4 h-4 text-muted-foreground" />
+              <User className="w-4 h-4 text-muted-foreground shrink-0" />
               <span>My Profile</span>
             </a>
 
             <a
               href="/profile/edit"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <Edit3 className="w-4 h-4 text-muted-foreground" />
+              <Edit3 className="w-4 h-4 text-muted-foreground shrink-0" />
               <span>Edit Profile</span>
             </a>
 
             {/* Разделитель */}
-            <div className="my-1 border-t border-border" />
+            <div className="my-0.5 border-t border-border" />
 
             {/* Мой контент */}
             <a
               href="/profile/buildings"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <Building2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <Building2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
               <span className="flex-1">My Objects</span>
               {stats.buildings_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
@@ -308,10 +308,10 @@ export default function UserDropdown() {
 
             <a
               href="/profile/routes"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <MapPin className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <MapPin className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
               <span className="flex-1">My Routes</span>
               {stats.routes_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
@@ -322,10 +322,10 @@ export default function UserDropdown() {
 
             <a
               href="/profile/reviews"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <MessageSquare className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <MessageSquare className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
               <span className="flex-1">My Reviews</span>
               {stats.reviews_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
@@ -336,10 +336,10 @@ export default function UserDropdown() {
 
             <a
               href="/profile/articles"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <BookOpen className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <BookOpen className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
               <span className="flex-1">My Blogs</span>
               {stats.articles_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
@@ -349,15 +349,15 @@ export default function UserDropdown() {
             </a>
 
             {/* Разделитель */}
-            <div className="my-1 border-t border-border" />
+            <div className="my-0.5 border-t border-border" />
 
             {/* Избранное и коллекции */}
             <a
               href="/profile/favorites"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <Heart className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <Heart className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
               <span className="flex-1">Favorites</span>
               {stats.favorites_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
@@ -368,10 +368,10 @@ export default function UserDropdown() {
 
             <a
               href="/profile/collections"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <Folder className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <Folder className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
               <span className="flex-1">Collections</span>
               {stats.collections_count > 0 && (
                 <span className="text-xs font-metrics text-muted-foreground">
@@ -382,23 +382,23 @@ export default function UserDropdown() {
 
             <a
               href="/profile/following"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors group"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors group"
               onClick={() => setIsOpen(false)}
             >
-              <Users className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <Users className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
               <span className="flex-1">Subscriptions</span>
             </a>
 
             {/* Разделитель */}
-            <div className="my-1 border-t border-border" />
+            <div className="my-0.5 border-t border-border" />
 
             {/* Настройки */}
             <a
               href="/profile/settings"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <Settings className="w-4 h-4 text-muted-foreground" />
+              <Settings className="w-4 h-4 text-muted-foreground shrink-0" />
               <span>Settings</span>
             </a>
 
@@ -406,10 +406,10 @@ export default function UserDropdown() {
             {profile && ['moderator', 'admin'].includes(profile.role || '') && (
               <a
                 href="/admin"
-                className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                <Shield className="w-4 h-4 text-muted-foreground" />
+                <Shield className="w-4 h-4 text-muted-foreground shrink-0" />
                 <span>Admin Panel</span>
                 {(stats.pending_requests_count || 0) > 0 && (
                   <span className="ml-auto text-xs bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded-full font-medium">
@@ -421,12 +421,12 @@ export default function UserDropdown() {
           </div>
 
           {/* Кнопка выхода */}
-          <div className="border-t border-border pt-1 mt-1">
+          <div className="border-t border-border pt-0.5 mt-0.5">
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors w-full text-left rounded-[var(--radius)]"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors w-full text-left rounded-[var(--radius)]"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 shrink-0" />
               <span>Sign Out</span>
             </button>
           </div>

@@ -103,7 +103,7 @@ export async function generateMetadata({ params }: NewsDetailPageProps): Promise
         section: categoryName,
         tags: article.tags || [],
         locale: 'ru_RU',
-        siteName: 'Archi Routes',
+        siteName: 'ArchiRoutes',
       },
 
       // Twitter Card

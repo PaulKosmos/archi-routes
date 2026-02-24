@@ -104,6 +104,29 @@ export default function RouteViewerModal({
   // Photo gallery
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
 
+  // Touch swipe for gallery (same as BuildingModalNew)
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+
+  const handleGalleryTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const handleGalleryTouchEnd = (e: React.TouchEvent, total: number) => {
+    if (touchStartX.current === null || touchStartY.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return
+    if (dx < 0) {
+      setCurrentPhotoIndex(prev => (prev < total - 1 ? prev + 1 : 0))
+    } else {
+      setCurrentPhotoIndex(prev => (prev > 0 ? prev - 1 : total - 1))
+    }
+    touchStartX.current = null
+    touchStartY.current = null
+  }
+
   // Route export
   const [showExportMenu, setShowExportMenu] = useState(false)
 
@@ -365,33 +388,33 @@ export default function RouteViewerModal({
     [reviews, selectedReviewId]
   )
 
-  // All photos of current point (building + selected review)
+  // All photos of current point: building cover + all review photos (same as BuildingModalNew)
   const currentPointPhotos = useMemo(() => {
     if (!currentPoint || !currentPoint.buildings) return []
 
     const photos: string[] = []
 
-    // If review with photos is selected - show photos from review
-    if (selectedReview && selectedReview.photos && Array.isArray(selectedReview.photos) && selectedReview.photos.length > 0) {
-      photos.push(...selectedReview.photos)
-    } else {
-      // Otherwise show building photos
-      // Add main photo
-      if (currentPoint.buildings.image_url) {
-        photos.push(currentPoint.buildings.image_url)
-      }
-
-      // Add additional photos (if they don't duplicate main)
-      if (currentPoint.buildings.image_urls && Array.isArray(currentPoint.buildings.image_urls)) {
-        const uniquePhotos = currentPoint.buildings.image_urls.filter(
-          url => url !== currentPoint.buildings!.image_url
-        )
-        photos.push(...uniquePhotos)
-      }
+    // Building cover photo first
+    if (currentPoint.buildings.image_url) {
+      photos.push(currentPoint.buildings.image_url)
     }
 
+    // Additional building photos (deduplicated)
+    if (currentPoint.buildings.image_urls && Array.isArray(currentPoint.buildings.image_urls)) {
+      const unique = currentPoint.buildings.image_urls.filter(
+        url => url !== currentPoint.buildings!.image_url
+      )
+      photos.push(...unique)
+    }
+
+    // Then all review photos from all reviews
+    const reviewPhotos = reviews.flatMap(r =>
+      r.photos && Array.isArray(r.photos) ? r.photos : []
+    )
+    photos.push(...reviewPhotos)
+
     return photos
-  }, [currentPoint, selectedReview])
+  }, [currentPoint, reviews])
 
   // Reset photo index and reviews list when point changes
   useEffect(() => {
@@ -794,7 +817,11 @@ export default function RouteViewerModal({
               <div className="p-4 md:p-8">
                 {/* Building photo gallery */}
                 {currentPointPhotos.length > 0 && (
-                  <div className="mb-4 md:mb-6 relative rounded-[var(--radius)] overflow-hidden shadow-lg group">
+                  <div
+                    className="mb-4 md:mb-6 relative rounded-[var(--radius)] overflow-hidden shadow-lg group"
+                    onTouchStart={handleGalleryTouchStart}
+                    onTouchEnd={(e) => handleGalleryTouchEnd(e, currentPointPhotos.length)}
+                  >
                     <img
                       src={getStorageUrl(currentPointPhotos[currentPhotoIndex], 'photos')}
                       alt={`${currentPoint.title} - photo ${currentPhotoIndex + 1}`}
@@ -808,38 +835,47 @@ export default function RouteViewerModal({
                       </div>
                     )}
 
-                    {/* Navigation arrows */}
+                    {/* Navigation arrows — always visible on mobile, hover on desktop */}
                     {currentPointPhotos.length > 1 && (
                       <>
                         <button
-                          onClick={() => setCurrentPhotoIndex(prev =>
-                            prev === 0 ? currentPointPhotos.length - 1 : prev - 1
-                          )}
-                          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-card/90 hover:bg-card text-foreground rounded-full p-2 md:p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setCurrentPhotoIndex(prev =>
+                              prev === 0 ? currentPointPhotos.length - 1 : prev - 1
+                            )
+                          }}
+                          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-1.5 md:p-2 shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                         >
-                          <ChevronLeft className="w-4 h-4 md:w-6 md:h-6" />
+                          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
                         </button>
                         <button
-                          onClick={() => setCurrentPhotoIndex(prev =>
-                            prev === currentPointPhotos.length - 1 ? 0 : prev + 1
-                          )}
-                          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-card/90 hover:bg-card text-foreground rounded-full p-2 md:p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setCurrentPhotoIndex(prev =>
+                              prev === currentPointPhotos.length - 1 ? 0 : prev + 1
+                            )
+                          }}
+                          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-1.5 md:p-2 shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                         >
-                          <ChevronRight className="w-4 h-4 md:w-6 md:h-6" />
+                          <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                         </button>
                       </>
                     )}
 
                     {/* Indicator dots */}
-                    {currentPointPhotos.length > 1 && currentPointPhotos.length <= 10 && (
-                      <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-1.5 md:space-x-2">
+                    {currentPointPhotos.length > 1 && (
+                      <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 md:gap-2">
                         {currentPointPhotos.map((_, index) => (
                           <button
                             key={index}
-                            onClick={() => setCurrentPhotoIndex(index)}
-                            className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${index === currentPhotoIndex
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setCurrentPhotoIndex(index)
+                            }}
+                            className={`h-1.5 md:h-2 rounded-full transition-all ${index === currentPhotoIndex
                               ? 'bg-white w-6 md:w-8'
-                              : 'bg-white/60 hover:bg-white/80'
+                              : 'bg-white/60 hover:bg-white/80 w-1.5 md:w-2'
                               }`}
                           />
                         ))}

@@ -23,9 +23,9 @@ export const metadata: Metadata = {
   },
   description: 'Discover the world\'s architectural masterpieces through interactive routes with professional audio guides. Explore buildings, create your own routes, share your impressions.',
   keywords: ['architecture', 'audio guides', 'routes', 'buildings', 'travel', 'culture', 'architectural tours', 'city exploration'],
-  authors: [{ name: 'Archi-Routes Team' }],
-  creator: 'Archi-Routes',
-  publisher: 'Archi-Routes',
+  authors: [{ name: 'ArchiRoutes Team' }],
+  creator: 'ArchiRoutes',
+  publisher: 'ArchiRoutes',
   formatDetection: {
     email: false,
     address: false,
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: '/',
-    siteName: 'Archi-Routes',
+    siteName: 'ArchiRoutes',
     title: 'Archiroutes - Discover cities and their stories',
     description: 'Discover the world\'s architectural masterpieces through interactive routes with professional audio guides',
     images: [
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Archi-Routes - Architectural Routes',
+        alt: 'ArchiRoutes - Architectural Routes',
       }
     ],
   },

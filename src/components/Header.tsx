@@ -208,55 +208,6 @@ export default function Header({ buildings = [], onRouteCreated }: HeaderProps) 
                   </a>
                 </div>
 
-                {/* Мобильная версия профиля */}
-                {user && (
-                  <div className="border-t border-border pt-3 mt-3">
-                    <div className="space-y-2">
-                      <a
-                        href="/profile"
-                        className="block text-foreground hover:text-primary font-medium transition-colors"
-                        onClick={() => setShowMobileMenu(false)}
-                      >
-                        My Profile
-                      </a>
-                      <a
-                        href="/profile/edit"
-                        className="block text-foreground hover:text-primary font-medium transition-colors"
-                        onClick={() => setShowMobileMenu(false)}
-                      >
-                        Edit Profile
-                      </a>
-                      <a
-                        href="/profile/buildings"
-                        className="block text-foreground hover:text-primary font-medium transition-colors"
-                        onClick={() => setShowMobileMenu(false)}
-                      >
-                        My Buildings
-                      </a>
-                      <a
-                        href="/profile/favorites"
-                        className="block text-foreground hover:text-primary font-medium transition-colors"
-                        onClick={() => setShowMobileMenu(false)}
-                      >
-                        Favorites
-                      </a>
-                      <a
-                        href="/profile/collections"
-                        className="block text-foreground hover:text-primary font-medium transition-colors"
-                        onClick={() => setShowMobileMenu(false)}
-                      >
-                        Collections
-                      </a>
-                      <a
-                        href="/profile/following"
-                        className="block text-foreground hover:text-primary font-medium transition-colors"
-                        onClick={() => setShowMobileMenu(false)}
-                      >
-                        Subscriptions
-                      </a>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )}

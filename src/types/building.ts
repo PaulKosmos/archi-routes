@@ -309,6 +309,25 @@ export const BUILDING_TYPES = {
   MIXED: 'mixed'
 } as const
 
+export interface BuildingReviewComment {
+  id: string
+  review_id: string
+  user_id: string
+  content: string
+  parent_id: string | null
+  created_at: string
+  updated_at: string
+  like_count: number
+  profiles?: {
+    id: string
+    username?: string
+    full_name?: string
+    display_name?: string
+    avatar_url?: string
+  }
+  replies?: BuildingReviewComment[]
+}
+
 export const ARCHITECTURAL_STYLES = {
   GOTHIC: 'gothic',
   RENAISSANCE: 'renaissance',

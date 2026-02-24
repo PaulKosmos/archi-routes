@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { BuildingReviewWithProfile } from '@/types/building'
-import { Star, Headphones, CheckCircle, Award, Calendar, ChevronDown, ChevronUp, Pencil, Globe } from 'lucide-react'
+import { Star, Headphones, CheckCircle, Award, Calendar, ChevronDown, ChevronUp, Pencil, Globe, MessageSquare } from 'lucide-react'
 import { getStorageUrl } from '@/lib/storage'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import AudioPlayer from '../AudioPlayer'
 import ImageLightbox from '../ui/ImageLightbox'
+import ReviewCommentsModal from './ReviewCommentsModal'
 import Link from 'next/link'
 
 interface BuildingReviewsListProps {
@@ -48,6 +49,10 @@ export default function BuildingReviewsList({
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState<string>('all')
+  const [commentsModalReview, setCommentsModalReview] = useState<{
+    id: string; title: string; author: string
+  } | null>(null)
+  const [commentCounts, setCommentCounts] = useState<Map<string, number>>(new Map())
 
   // Compute available languages from reviews
   const availableLanguages = useMemo(() => {
@@ -68,6 +73,24 @@ export default function BuildingReviewsList({
   useEffect(() => {
     setLocalReviews(reviews)
   }, [reviews])
+
+  // Загрузка количества комментариев
+  useEffect(() => {
+    if (reviews.length === 0) return
+    loadCommentCounts(reviews.map(r => r.id))
+  }, [reviews])
+
+  const loadCommentCounts = async (reviewIds: string[]) => {
+    if (reviewIds.length === 0) return
+    const { data } = await supabase
+      .from('building_review_comments')
+      .select('review_id')
+      .in('review_id', reviewIds)
+    if (!data) return
+    const counts = new Map<string, number>()
+    data.forEach(c => counts.set(c.review_id, (counts.get(c.review_id) || 0) + 1))
+    setCommentCounts(counts)
+  }
 
   // Загрузка оценок пользователя
   useEffect(() => {
@@ -456,6 +479,21 @@ export default function BuildingReviewsList({
                   </div>
                 </div>
 
+                {/* Comments button */}
+                <button
+                  onClick={() => setCommentsModalReview({
+                    id: review.id,
+                    title: review.title || 'Review',
+                    author: review.profiles?.display_name || review.profiles?.full_name || review.profiles?.username || 'Author'
+                  })}
+                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-blue-600 transition-colors"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  {commentCounts.get(review.id)
+                    ? `Comments (${commentCounts.get(review.id)})`
+                    : 'Comments'}
+                </button>
+
               </div>
             </div>
           </div>
@@ -481,6 +519,21 @@ export default function BuildingReviewsList({
         isOpen={isLightboxOpen}
         onClose={() => setIsLightboxOpen(false)}
       />
+
+      {/* Comments modal */}
+      {commentsModalReview && (
+        <ReviewCommentsModal
+          isOpen={!!commentsModalReview}
+          onClose={() => {
+            const reviewId = commentsModalReview.id
+            setCommentsModalReview(null)
+            loadCommentCounts([reviewId])
+          }}
+          reviewId={commentsModalReview.id}
+          reviewTitle={commentsModalReview.title}
+          reviewAuthor={commentsModalReview.author}
+        />
+      )}
     </div>
   )
 }
