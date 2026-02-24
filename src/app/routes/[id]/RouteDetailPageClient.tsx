@@ -256,6 +256,7 @@ export default function RouteDetailPageClient() {
               latitude,
               longitude,
               image_url,
+              image_urls,
               building_type
             )
           )

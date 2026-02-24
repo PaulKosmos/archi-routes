@@ -68,6 +68,8 @@ function CommentItem({ comment, currentUserId, likedIds, onReply, onDelete, onLi
     comment.profiles?.username ||
     'User'
   const liked = likedIds.has(comment.id)
+  const replyCount = comment.replies?.length ?? 0
+  const [showReplies, setShowReplies] = useState(false)
 
   return (
     <div className={isReply ? 'pl-10' : ''}>
@@ -113,13 +115,26 @@ function CommentItem({ comment, currentUserId, likedIds, onReply, onDelete, onLi
               </button>
             )}
           </div>
+
+          {/* Toggle replies */}
+          {replyCount > 0 && (
+            <button
+              onClick={() => setShowReplies(v => !v)}
+              className="flex items-center gap-1 mt-2 text-xs text-blue-500 hover:text-blue-700 transition-colors"
+            >
+              <Reply className="w-3 h-3" />
+              {showReplies
+                ? 'Hide replies'
+                : `${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Replies */}
-      {comment.replies && comment.replies.length > 0 && (
+      {/* Replies (collapsed by default) */}
+      {showReplies && replyCount > 0 && (
         <div className="mt-3 space-y-3">
-          {comment.replies.map(reply => (
+          {comment.replies!.map(reply => (
             <CommentItem
               key={reply.id}
               comment={reply}
