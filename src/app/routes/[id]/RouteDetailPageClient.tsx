@@ -413,7 +413,6 @@ export default function RouteDetailPageClient() {
       {!shouldHideHeader && <Header buildings={buildings} />}
       <RouteDetailClient route={route} />
       {!shouldHideHeader && <EnhancedFooter />}
-      {!shouldHideHeader && <ScrollToTopButton />}
     </div>
   )
 }

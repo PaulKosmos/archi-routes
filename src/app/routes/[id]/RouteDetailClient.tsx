@@ -10,7 +10,7 @@ import {
   Route as RouteIcon, Navigation, Download, Share2, Map as MapIcon,
   ExternalLink, CheckCircle, Check, Footprints, Bike, Car, Bus,
   Gauge, Calendar, User, ChevronLeft, ChevronRight,
-  Headphones, Award, X
+  Headphones, Award, X, MessageSquare
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import DeleteContentModal from '../../../components/DeleteContentModal'
@@ -18,6 +18,7 @@ import RouteFavoriteButton from '../../../components/RouteFavoriteButton'
 import { TransportModeHelper, formatDistance, formatDuration } from '../../../types/route'
 import RouteReviewsList from '../../../components/routes/RouteReviewsList'
 import AddRouteReviewModal from '../../../components/routes/AddRouteReviewModal'
+import ReviewCommentsModal from '../../../components/buildings/ReviewCommentsModal'
 import Link from 'next/link'
 import { getStorageUrl } from '../../../lib/storage'
 import toast from 'react-hot-toast'
@@ -92,6 +93,10 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
   const [showAllBuildingReviews, setShowAllBuildingReviews] = useState(false)
   const [userRatings, setUserRatings] = useState<Map<string, number>>(new Map())
   const [hoveredRating, setHoveredRating] = useState<{ reviewId: string, rating: number } | null>(null)
+  const [buildingReviewCommentsModal, setBuildingReviewCommentsModal] = useState<{
+    id: string; title: string; author: string
+  } | null>(null)
+  const [buildingReviewCommentCounts, setBuildingReviewCommentCounts] = useState<Map<string, number>>(new Map())
 
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const touchStartX = useRef<number | null>(null)
@@ -168,6 +173,19 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
           return (b.rating || 0) - (a.rating || 0)
         })
         setBuildingReviews(sorted)
+
+        // Load comment counts
+        if (sorted.length > 0) {
+          const { data: commentsData } = await supabase
+            .from('building_review_comments')
+            .select('review_id')
+            .in('review_id', sorted.map((r: any) => r.id))
+          if (commentsData) {
+            const counts = new Map<string, number>()
+            commentsData.forEach((c: any) => counts.set(c.review_id, (counts.get(c.review_id) || 0) + 1))
+            setBuildingReviewCommentCounts(counts)
+          }
+        }
 
         if (user && sorted.length > 0) {
           const { data: ratingsData } = await supabase
@@ -950,21 +968,32 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                                   )}
                                 </div>
                                 <div className="border-t border-border pt-2" onClick={e => e.stopPropagation()}>
-                                  <div className="flex items-center gap-0.5">
-                                    {[1, 2, 3, 4, 5].map(star => {
-                                      const userRating = userRatings.get(review.id) || 0
-                                      const isActive = userRating >= star || (hoveredRating?.reviewId === review.id && (hoveredRating?.rating ?? 0) >= star)
-                                      return (
-                                        <button key={star}
-                                          onClick={e => { e.stopPropagation(); handleRateReview(review.id, star) }}
-                                          onMouseEnter={() => setHoveredRating({ reviewId: review.id, rating: star })}
-                                          onMouseLeave={() => setHoveredRating(null)}
-                                          className="p-0.5 transition-transform hover:scale-110">
-                                          <Star className={`w-4 h-4 transition-colors ${isActive ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/30'}`} />
-                                        </button>
-                                      )
-                                    })}
-                                    <span className="text-xs text-muted-foreground ml-2">Rate this review</span>
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <div className="flex items-center gap-0.5">
+                                      {[1, 2, 3, 4, 5].map(star => {
+                                        const userRating = userRatings.get(review.id) || 0
+                                        const isActive = userRating >= star || (hoveredRating?.reviewId === review.id && (hoveredRating?.rating ?? 0) >= star)
+                                        return (
+                                          <button key={star}
+                                            onClick={e => { e.stopPropagation(); handleRateReview(review.id, star) }}
+                                            onMouseEnter={() => setHoveredRating({ reviewId: review.id, rating: star })}
+                                            onMouseLeave={() => setHoveredRating(null)}
+                                            className="p-0.5 transition-transform hover:scale-110">
+                                            <Star className={`w-4 h-4 transition-colors ${isActive ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/30'}`} />
+                                          </button>
+                                        )
+                                      })}
+                                      <span className="text-xs text-muted-foreground ml-2">Rate this review</span>
+                                    </div>
+                                    <button
+                                      onClick={e => { e.stopPropagation(); setBuildingReviewCommentsModal({ id: review.id, title: review.title || 'Review', author: 'Author' }) }}
+                                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                                    >
+                                      <MessageSquare className="w-3.5 h-3.5" />
+                                      {buildingReviewCommentCounts.get(review.id)
+                                        ? `Comments (${buildingReviewCommentCounts.get(review.id)})`
+                                        : 'Comments'}
+                                    </button>
                                   </div>
                                 </div>
                               </div>
@@ -1100,6 +1129,25 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
       {route.is_published && (
         <AddRouteReviewModal routeId={route.id} routeTitle={route.title}
           isOpen={showAddReviewModal} onClose={() => setShowAddReviewModal(false)} onSuccess={loadRouteReviews} />
+      )}
+      {buildingReviewCommentsModal && (
+        <ReviewCommentsModal
+          isOpen={!!buildingReviewCommentsModal}
+          onClose={() => {
+            const reviewId = buildingReviewCommentsModal.id
+            setBuildingReviewCommentsModal(null)
+            supabase
+              .from('building_review_comments')
+              .select('review_id')
+              .eq('review_id', reviewId)
+              .then(({ data }) => {
+                if (data) setBuildingReviewCommentCounts(prev => new Map(prev).set(reviewId, data.length))
+              })
+          }}
+          reviewId={buildingReviewCommentsModal.id}
+          reviewTitle={buildingReviewCommentsModal.title}
+          reviewAuthor={buildingReviewCommentsModal.author}
+        />
       )}
       {showExportMenu && (
         <div className="fixed inset-0 z-[4]" onClick={() => setShowExportMenu(false)} />

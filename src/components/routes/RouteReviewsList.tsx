@@ -3,10 +3,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
-import { Star, Clock, Calendar, ChevronDown, ChevronUp, ThumbsUp } from 'lucide-react'
+import { Star, Clock, Calendar, ChevronDown, ChevronUp, ThumbsUp, MessageSquare } from 'lucide-react'
 import { getStorageUrl } from '@/lib/storage'
 import Link from 'next/link'
 import ImageLightbox from '@/components/ui/ImageLightbox'
+import RouteReviewCommentsModal from './RouteReviewCommentsModal'
 
 interface RouteReview {
     id: string
@@ -43,6 +44,25 @@ export default function RouteReviewsList({
     const [lightboxImages, setLightboxImages] = useState<string[]>([])
     const [lightboxIndex, setLightboxIndex] = useState(0)
     const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+    const [commentsModalReview, setCommentsModalReview] = useState<{
+        id: string; title: string; author: string
+    } | null>(null)
+    const [commentCounts, setCommentCounts] = useState<Map<string, number>>(new Map())
+
+    useEffect(() => {
+        if (reviews.length === 0) return
+        const loadCommentCounts = async () => {
+            const { data } = await supabase
+                .from('route_review_comments')
+                .select('review_id')
+                .in('review_id', reviews.map(r => r.id))
+            if (!data) return
+            const counts = new Map<string, number>()
+            data.forEach(c => counts.set(c.review_id, (counts.get(c.review_id) || 0) + 1))
+            setCommentCounts(counts)
+        }
+        loadCommentCounts()
+    }, [reviews])
 
     const toggleExpanded = (reviewId: string) => {
         setExpandedReviews(prev => {
@@ -222,6 +242,23 @@ export default function RouteReviewsList({
                                 ))}
                             </div>
                         )}
+
+                        {/* Comments button */}
+                        <div className="border-t border-border pt-3 mt-3 flex justify-end">
+                            <button
+                                onClick={() => setCommentsModalReview({
+                                    id: review.id,
+                                    title: review.title || 'Review',
+                                    author: review.profiles?.full_name || review.profiles?.username || 'Author'
+                                })}
+                                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                            >
+                                <MessageSquare className="w-3.5 h-3.5" />
+                                {commentCounts.get(review.id)
+                                    ? `Comments (${commentCounts.get(review.id)})`
+                                    : 'Comments'}
+                            </button>
+                        </div>
                     </div>
                 )
             })}
@@ -245,6 +282,29 @@ export default function RouteReviewsList({
                 isOpen={isLightboxOpen}
                 onClose={() => setIsLightboxOpen(false)}
             />
+
+            {/* Comments modal */}
+            {commentsModalReview && (
+                <RouteReviewCommentsModal
+                    isOpen={!!commentsModalReview}
+                    onClose={() => {
+                        const reviewId = commentsModalReview.id
+                        setCommentsModalReview(null)
+                        supabase
+                            .from('route_review_comments')
+                            .select('review_id')
+                            .eq('review_id', reviewId)
+                            .then(({ data }) => {
+                                if (data) {
+                                    setCommentCounts(prev => new Map(prev).set(reviewId, data.length))
+                                }
+                            })
+                    }}
+                    reviewId={commentsModalReview.id}
+                    reviewTitle={commentsModalReview.title}
+                    reviewAuthor={commentsModalReview.author}
+                />
+            )}
         </div>
     )
 }

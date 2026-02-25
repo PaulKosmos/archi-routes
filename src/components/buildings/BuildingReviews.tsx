@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { BuildingReviewWithProfile } from '@/types/building'
-import { Star, User, Calendar, Award, MessageSquare, Pencil, Globe, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Star, User, Calendar, Award, MessageSquare, Pencil, Globe, ChevronLeft, ChevronRight, Heart } from 'lucide-react'
 import Link from 'next/link'
 import { getStorageUrl } from '@/lib/storage'
 import PhotoGallery from '@/components/ui/PhotoGallery'
@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 import AudioPlayer from '../AudioPlayer'
+import ReviewCommentsModal from './ReviewCommentsModal'
 
 interface BuildingReviewsProps {
   reviews: BuildingReviewWithProfile[]
@@ -23,7 +24,7 @@ interface BuildingReviewsProps {
 }
 
 
-function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, onRate, onHoverRating, onLeaveRating }: {
+function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, onRate, onHoverRating, onLeaveRating, commentCount, onOpenComments }: {
   review: BuildingReviewWithProfile
   isActive: boolean
   buildingId: string
@@ -32,6 +33,8 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
   onRate: (reviewId: string, rating: number) => void
   onHoverRating: (reviewId: string, rating: number) => void
   onLeaveRating: () => void
+  commentCount: number
+  onOpenComments: (review: BuildingReviewWithProfile) => void
 }) {
   const { user, profile } = useAuth()
   const avgRating = review.user_rating_avg || 0
@@ -89,9 +92,9 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
             )}
           </div>
 
-          {/* Рейтинг + Edit */}
-          <div className="flex items-center ml-2 sm:ml-4 gap-1 sm:gap-2 flex-shrink-0">
-            {user && (user.id === review.user_id || profile?.role === 'admin' || profile?.role === 'moderator') && (
+          {/* Edit button */}
+          {user && (user.id === review.user_id || profile?.role === 'admin' || profile?.role === 'moderator') && (
+            <div className="ml-2 sm:ml-4 flex-shrink-0">
               <Link
                 href={`/buildings/${buildingId}/review/${review.id}/edit`}
                 className="flex items-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 p-1.5 rounded transition-colors"
@@ -99,20 +102,8 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
               >
                 <Pencil className="w-3.5 h-3.5" />
               </Link>
-            )}
-            <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'fill-gray-200'
-                    }`}
-                />
-              ))}
             </div>
-            <span className="ml-1 text-sm font-medium font-metrics text-foreground">
-              {review.rating}/5
-            </span>
-          </div>
+          )}
         </div>
 
         {/* Автор */}
@@ -242,44 +233,55 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <p className="text-xs text-muted-foreground mb-1.5">Rate this review:</p>
-              <div className="flex items-center space-x-1">
-                {[1, 2, 3, 4, 5].map(star => {
-                  const isStarActive = userRating >= star || (hoveredRating >= star && hoveredRating > 0)
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center space-x-1">
+                  {[1, 2, 3, 4, 5].map(star => {
+                    const isStarActive = userRating >= star || (hoveredRating >= star && hoveredRating > 0)
 
-                  return (
-                    <button
-                      key={star}
-                      onClick={() => onRate(review.id, star)}
-                      onMouseEnter={() => onHoverRating(review.id, star)}
-                      onMouseLeave={onLeaveRating}
-                      className="p-0.5 transition-transform hover:scale-110"
-                      title={`Rate ${star}/5`}
-                    >
-                      <Star
-                        className={`w-5 h-5 transition-colors ${
-                          isStarActive
-                            ? 'fill-yellow-400 text-yellow-400'
-                            : 'text-muted-foreground/30'
-                        }`}
-                      />
-                    </button>
-                  )
-                })}
-                {userRating > 0 && (
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    Your rating: {userRating}/5
-                  </span>
+                    return (
+                      <button
+                        key={star}
+                        onClick={() => onRate(review.id, star)}
+                        onMouseEnter={() => onHoverRating(review.id, star)}
+                        onMouseLeave={onLeaveRating}
+                        className="p-0.5 transition-transform hover:scale-110"
+                        title={`Rate ${star}/5`}
+                      >
+                        <Star
+                          className={`w-5 h-5 transition-colors ${
+                            isStarActive
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-muted-foreground/30'
+                          }`}
+                        />
+                      </button>
+                    )
+                  })}
+                  {userRating > 0 && (
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      Your rating: {userRating}/5
+                    </span>
+                  )}
+                </div>
+
+                {ratingCount > 0 && (
+                  <div className="flex items-center bg-yellow-50 dark:bg-yellow-950/30 px-3 py-1.5 rounded-[var(--radius)]">
+                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1.5" />
+                    <span className="font-semibold text-foreground text-sm font-metrics">{avgRating.toFixed(1)}</span>
+                    <span className="text-xs text-muted-foreground ml-1.5 font-metrics">({ratingCount} ratings)</span>
+                  </div>
                 )}
               </div>
             </div>
 
-            {ratingCount > 0 && (
-              <div className="flex items-center bg-yellow-50 dark:bg-yellow-950/30 px-3 py-1.5 rounded-[var(--radius)]">
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1.5" />
-                <span className="font-semibold text-foreground text-sm font-metrics">{avgRating.toFixed(1)}</span>
-                <span className="text-xs text-muted-foreground ml-1.5 font-metrics">({ratingCount} ratings)</span>
-              </div>
-            )}
+            {/* Comments button */}
+            <button
+              onClick={(e) => { e.stopPropagation(); onOpenComments(review) }}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-blue-600 transition-colors"
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              {commentCount > 0 ? `Comments (${commentCount})` : 'Comments'}
+            </button>
           </div>
         </div>
       </div>
@@ -317,10 +319,30 @@ export default function BuildingReviews({
   const [userRatings, setUserRatings] = useState<Map<string, number>>(new Map())
   const [hoveredRating, setHoveredRating] = useState<{ reviewId: string, rating: number } | null>(null)
   const [localReviews, setLocalReviews] = useState<BuildingReviewWithProfile[]>(reviews)
+  const [commentsModalReview, setCommentsModalReview] = useState<{
+    id: string; title: string; author: string
+  } | null>(null)
+  const [commentCounts, setCommentCounts] = useState<Map<string, number>>(new Map())
 
   // Sync localReviews when reviews prop changes
   useEffect(() => {
     setLocalReviews(reviews)
+  }, [reviews])
+
+  // Load comment counts
+  useEffect(() => {
+    if (reviews.length === 0) return
+    const loadCommentCounts = async () => {
+      const { data } = await supabase
+        .from('building_review_comments')
+        .select('review_id')
+        .in('review_id', reviews.map(r => r.id))
+      if (!data) return
+      const counts = new Map<string, number>()
+      data.forEach(c => counts.set(c.review_id, (counts.get(c.review_id) || 0) + 1))
+      setCommentCounts(counts)
+    }
+    loadCommentCounts()
   }, [reviews])
 
   // Load user ratings
@@ -517,6 +539,12 @@ export default function BuildingReviews({
             onRate={handleRateReview}
             onHoverRating={(reviewId, rating) => setHoveredRating({ reviewId, rating })}
             onLeaveRating={() => setHoveredRating(null)}
+            commentCount={commentCounts.get(filteredReviews[safeIndex]?.id) || 0}
+            onOpenComments={(review) => setCommentsModalReview({
+              id: review.id,
+              title: review.title || 'Review',
+              author: review.profiles?.display_name || review.profiles?.full_name || review.profiles?.username || 'Author'
+            })}
           />
 
           {/* Right arrow */}
@@ -563,6 +591,29 @@ export default function BuildingReviews({
           </Link>
         )}
       </div>
+
+      {/* Comments modal */}
+      {commentsModalReview && (
+        <ReviewCommentsModal
+          isOpen={!!commentsModalReview}
+          onClose={() => {
+            const reviewId = commentsModalReview.id
+            setCommentsModalReview(null)
+            supabase
+              .from('building_review_comments')
+              .select('review_id')
+              .eq('review_id', reviewId)
+              .then(({ data }) => {
+                if (data) {
+                  setCommentCounts(prev => new Map(prev).set(reviewId, data.length))
+                }
+              })
+          }}
+          reviewId={commentsModalReview.id}
+          reviewTitle={commentsModalReview.title}
+          reviewAuthor={commentsModalReview.author}
+        />
+      )}
     </div>
   )
 }

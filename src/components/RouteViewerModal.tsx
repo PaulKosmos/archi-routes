@@ -9,6 +9,8 @@ import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import dynamic from 'next/dynamic'
 import AddRouteReviewModal from './routes/AddRouteReviewModal'
+import ReviewCommentsModal from './buildings/ReviewCommentsModal'
+import RouteReviewCommentsModal from './routes/RouteReviewCommentsModal'
 
 // Dynamic MapLibre mini-map import (migrated from Leaflet)
 const DynamicMiniMap = dynamic(() => import('./MapLibreRouteViewer'), {
@@ -135,6 +137,16 @@ export default function RouteViewerModal({
   const [showAddRouteReviewModal, setShowAddRouteReviewModal] = useState(false)
   const [showAllRouteReviews, setShowAllRouteReviews] = useState(false)
 
+  // Comments modals state
+  const [buildingReviewCommentsModal, setBuildingReviewCommentsModal] = useState<{
+    id: string; title: string; author: string
+  } | null>(null)
+  const [routeReviewCommentsModal, setRouteReviewCommentsModal] = useState<{
+    id: string; title: string; author: string
+  } | null>(null)
+  const [buildingReviewCommentCounts, setBuildingReviewCommentCounts] = useState<Map<string, number>>(new Map())
+  const [routeReviewCommentCounts, setRouteReviewCommentCounts] = useState<Map<string, number>>(new Map())
+
   // Load route points
   useEffect(() => {
     if (!route || !isOpen) {
@@ -196,6 +208,18 @@ export default function RouteViewerModal({
 
       if (!error && data) {
         setRouteReviews(data)
+        // Load route review comment counts
+        if (data.length > 0) {
+          const { data: commentsData } = await supabase
+            .from('route_review_comments')
+            .select('review_id')
+            .in('review_id', data.map((r: any) => r.id))
+          if (commentsData) {
+            const counts = new Map<string, number>()
+            commentsData.forEach((c: any) => counts.set(c.review_id, (counts.get(c.review_id) || 0) + 1))
+            setRouteReviewCommentCounts(counts)
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading route reviews:', error)
@@ -239,6 +263,19 @@ export default function RouteViewerModal({
         })
 
         setReviews(sortedReviews)
+
+        // Load building review comment counts
+        if (sortedReviews.length > 0) {
+          const { data: commentsData } = await supabase
+            .from('building_review_comments')
+            .select('review_id')
+            .in('review_id', sortedReviews.map(r => r.id))
+          if (commentsData) {
+            const counts = new Map<string, number>()
+            commentsData.forEach(c => counts.set(c.review_id, (counts.get(c.review_id) || 0) + 1))
+            setBuildingReviewCommentCounts(counts)
+          }
+        }
 
         // Load user ratings
         if (user) {
@@ -731,6 +768,21 @@ export default function RouteViewerModal({
                                 — {review.profiles.full_name || review.profiles.username || 'Anonymous'}
                               </p>
                             )}
+                            <div className="border-t border-border pt-2 mt-2 flex justify-end">
+                              <button
+                                onClick={() => setRouteReviewCommentsModal({
+                                  id: review.id,
+                                  title: review.title || 'Review',
+                                  author: review.profiles?.full_name || review.profiles?.username || 'Author'
+                                })}
+                                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                              >
+                                <MessageSquare className="w-3.5 h-3.5" />
+                                {routeReviewCommentCounts.get(review.id)
+                                  ? `Comments (${routeReviewCommentCounts.get(review.id)})`
+                                  : 'Comments'}
+                              </button>
+                            </div>
                           </div>
                         ))
                       ) : (
@@ -1148,6 +1200,23 @@ export default function RouteViewerModal({
                                   </div>
                                 </div>
 
+                                {/* Comments button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setBuildingReviewCommentsModal({
+                                      id: review.id,
+                                      title: review.title || 'Review',
+                                      author: 'Author'
+                                    })
+                                  }}
+                                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                                >
+                                  <MessageSquare className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                                  {buildingReviewCommentCounts.get(review.id)
+                                    ? `${buildingReviewCommentCounts.get(review.id)}`
+                                    : '0'}
+                                </button>
                               </div>
                             </div>
                           )
@@ -1438,6 +1507,52 @@ export default function RouteViewerModal({
           isOpen={showAddRouteReviewModal}
           onClose={() => setShowAddRouteReviewModal(false)}
           onSuccess={loadRouteReviews}
+        />
+      )}
+
+      {/* Building review comments modal */}
+      {buildingReviewCommentsModal && (
+        <ReviewCommentsModal
+          isOpen={!!buildingReviewCommentsModal}
+          onClose={() => {
+            const reviewId = buildingReviewCommentsModal.id
+            setBuildingReviewCommentsModal(null)
+            supabase
+              .from('building_review_comments')
+              .select('review_id')
+              .eq('review_id', reviewId)
+              .then(({ data }) => {
+                if (data) {
+                  setBuildingReviewCommentCounts(prev => new Map(prev).set(reviewId, data.length))
+                }
+              })
+          }}
+          reviewId={buildingReviewCommentsModal.id}
+          reviewTitle={buildingReviewCommentsModal.title}
+          reviewAuthor={buildingReviewCommentsModal.author}
+        />
+      )}
+
+      {/* Route review comments modal */}
+      {routeReviewCommentsModal && (
+        <RouteReviewCommentsModal
+          isOpen={!!routeReviewCommentsModal}
+          onClose={() => {
+            const reviewId = routeReviewCommentsModal.id
+            setRouteReviewCommentsModal(null)
+            supabase
+              .from('route_review_comments')
+              .select('review_id')
+              .eq('review_id', reviewId)
+              .then(({ data }) => {
+                if (data) {
+                  setRouteReviewCommentCounts(prev => new Map(prev).set(reviewId, data.length))
+                }
+              })
+          }}
+          reviewId={routeReviewCommentsModal.id}
+          reviewTitle={routeReviewCommentsModal.title}
+          reviewAuthor={routeReviewCommentsModal.author}
         />
       )}
 
