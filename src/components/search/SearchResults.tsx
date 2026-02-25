@@ -87,7 +87,7 @@ export function SearchResults({
           </div>
 
           {/* Информация */}
-          <div className={`${viewMode === 'list' ? 'p-2.5 sm:p-3 flex-1 min-w-0 flex flex-col justify-between overflow-hidden' : 'p-4'}`}>
+          <div className={`${viewMode === 'list' ? 'p-2.5 sm:p-3 flex-1 min-w-0 flex flex-col justify-between overflow-hidden' : 'p-4 flex flex-col flex-1'}`}>
             <div className={viewMode === 'list' ? 'space-y-1' : 'space-y-2'}>
               {/* Название */}
               <h3
@@ -124,7 +124,7 @@ export function SearchResults({
             </div>
 
             {/* Статистика */}
-            <div className={`flex items-center justify-between border-t border-border min-w-0 ${viewMode === 'list' ? 'pt-1.5 mt-1.5' : 'pt-2 mt-2'}`}>
+            <div className={`flex items-center justify-between border-t border-border min-w-0 ${viewMode === 'list' ? 'pt-1.5 mt-1.5' : 'pt-2 mt-auto'}`}>
               <div className="flex items-center gap-2 sm:gap-4 text-xs text-muted-foreground font-metrics">
                 <div className="flex items-center gap-1">
                   <Eye className="w-3 h-3" />
@@ -259,7 +259,7 @@ export function SearchResults({
           </h3>
           <p className="text-muted-foreground max-w-md mx-auto">
             {query
-              ? `No buildings found for "${query}". Try changing your search query or filters.`
+              ? `No objects found for "${query}". Try changing your search query or filters.`
               : 'Try changing filters or use search.'
             }
           </p>

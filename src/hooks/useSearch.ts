@@ -67,6 +67,9 @@ export function useSearch(options: UseSearchOptions = {}) {
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isInitializedRef = useRef(false)
+  // Фиксируем наличие URL-параметров при монтировании, чтобы metadata effect
+  // не перетирал поиск из URL своим вызовом с устаревшим closure (query="")
+  const hasInitialUrlParamsRef = useRef(syncWithUrl && searchParams.size > 0)
 
   // Состояние поиска
   const [query, setQuery] = useState(initialQuery)
@@ -538,9 +541,11 @@ export function useSearch(options: UseSearchOptions = {}) {
   useEffect(() => {
     loadMetadata().then(() => {
       isInitializedRef.current = true
-      // Выполняем начальный поиск для загрузки всех зданий
-      if (autoSearch) {
-        executeSearch(query, filters, 1, false)
+      // Если есть URL-параметры (q=, cities= и т.д.) — дебаунс-эффект уже
+      // запланировал поиск с правильным query из URL. Не вызываем здесь,
+      // иначе устаревший closure (query="") перетрёт правильные результаты.
+      if (autoSearch && !hasInitialUrlParamsRef.current) {
+        executeSearch('', filters, 1, false)
       }
     })
   }, [loadMetadata])

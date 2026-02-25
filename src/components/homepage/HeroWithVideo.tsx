@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase'
 
 interface HeroWithVideoProps {
   videoUrl?: string
@@ -23,10 +24,37 @@ export default function HeroWithVideo({
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/buildings?search=${encodeURIComponent(searchQuery)}`)
+    const q = searchQuery.trim()
+    if (!q) {
+      router.push('/map')
+      return
+    }
+
+    // Проверяем: совпадает ли запрос с городом или страной из базы
+    try {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from('buildings')
+        .select('city, country')
+        .or(`city.ilike.${q},country.ilike.${q}`)
+        .limit(1)
+
+      if (data && data.length > 0) {
+        const b = data[0]
+        const isCityMatch = b.city?.toLowerCase() === q.toLowerCase()
+        if (isCityMatch) {
+          router.push(`/map?city=${encodeURIComponent(b.city)}`)
+        } else {
+          router.push(`/map?country=${encodeURIComponent(b.country)}`)
+        }
+      } else {
+        // Название объекта, архитектора, стиля — открываем карту с текстовым поиском
+        router.push(`/map?q=${encodeURIComponent(q)}`)
+      }
+    } catch {
+      router.push(`/map?q=${encodeURIComponent(q)}`)
     }
   }
 
@@ -115,8 +143,15 @@ export default function HeroWithVideo({
                     onFocus={() => setIsSearchFocused(true)}
                     onBlur={() => setIsSearchFocused(false)}
                     placeholder="Find city, object or architect..."
-                    className="flex-1 bg-transparent text-white placeholder-white/50 py-4 pr-5 outline-none text-base"
+                    className="flex-1 bg-transparent text-white placeholder-white/50 py-4 outline-none text-base"
                   />
+                  <button
+                    type="submit"
+                    className="shrink-0 mr-2 px-5 py-2 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-sm font-medium transition-colors"
+                    style={{ borderRadius: '2px' }}
+                  >
+                    Search
+                  </button>
                 </div>
               </div>
             </form>
@@ -125,7 +160,7 @@ export default function HeroWithVideo({
           {/* CTA Buttons - asymmetric layout */}
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
             <Link
-              href="/map"
+              href="/map?panel=routes"
               className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 font-semibold overflow-hidden transition-all duration-300 hover:bg-gray-100"
               style={{ borderRadius: '2px' }}
             >
@@ -136,7 +171,7 @@ export default function HeroWithVideo({
             </Link>
 
             <Link
-              href="/map"
+              href="/map?panel=objects"
               className="group inline-flex items-center gap-3 px-8 py-4 border-2 border-white/30 text-white font-medium backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white/50"
               style={{ borderRadius: '2px' }}
             >

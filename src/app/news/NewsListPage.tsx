@@ -266,7 +266,7 @@ export default function NewsListPage() {
                 className="inline-flex items-center gap-2 bg-background border border-border text-foreground px-6 py-3 rounded-[var(--radius)] hover:bg-muted transition-colors font-medium"
               >
                 <Edit2 className="w-4 h-4" />
-                Редактировать сетку
+                Edit Grid
               </button>
             )}
             {canManageNews && (
@@ -275,7 +275,7 @@ export default function NewsListPage() {
                 className="inline-flex items-center gap-2 bg-[hsl(var(--news-primary))] text-white px-6 py-3 rounded-[var(--radius)] hover:opacity-90 transition-opacity font-medium"
               >
                 <Plus className="w-4 h-4" />
-                Добавить новость
+                Add Article
               </Link>
             )}
           </div>
@@ -319,7 +319,7 @@ export default function NewsListPage() {
                     onClick={fetchNewsData}
                     className="px-4 py-2 bg-destructive text-destructive-foreground rounded-[var(--radius)] hover:bg-destructive/90 transition-colors"
                   >
-                    Попробовать снова
+                    Try Again
                   </button>
                 </div>
               </div>

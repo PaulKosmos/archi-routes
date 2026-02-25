@@ -293,12 +293,12 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-[hsl(var(--news-primary))] animate-pulse"></div>
-              <h2 className="text-xl font-bold">Режим редактирования сетки</h2>
+              <h2 className="text-xl font-bold">Grid Edit Mode</h2>
             </div>
             {hasChanges && (
               <span className="text-sm text-orange-600 font-medium bg-orange-50 px-3 py-1.5 border border-orange-200 flex items-center gap-1">
                 <span className="w-2 h-2 bg-orange-500 animate-pulse"></span>
-                Несохраненные изменения
+                Unsaved changes
               </span>
             )}
           </div>
@@ -308,7 +308,7 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
               className="px-5 py-2.5 bg-card border-2 border-border hover:bg-muted transition-all font-medium flex items-center gap-2"
             >
               <XIcon className="w-4 h-4" />
-              Отмена
+              Cancel
             </button>
             <button
               onClick={handleSave}
@@ -319,7 +319,7 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
                 }`}
             >
               <Save className="w-4 h-4" />
-              Сохранить и выйти
+              Save & Exit
             </button>
           </div>
         </div>
@@ -330,15 +330,15 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <span className="w-4 h-4 text-[hsl(var(--news-primary))]">↔</span>
-                <span><strong>Перетащите</strong> для изменения порядка</span>
+                <span><strong>Drag</strong> to reorder</span>
               </div>
               <div className="flex items-center gap-2">
                 <Maximize2 className="w-4 h-4 text-[hsl(var(--news-primary))]" />
-                <span><strong>Кликните "Изменить размер"</strong> на карточке</span>
+                <span><strong>Click "Resize"</strong> on a card</span>
               </div>
               <div className="flex items-center gap-2">
                 <Plus className="w-4 h-4 text-[hsl(var(--news-primary))]" />
-                <span><strong>Добавить</strong> новую карточку</span>
+                <span><strong>Add</strong> a new card</span>
               </div>
             </div>
 
@@ -348,7 +348,7 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
               disabled={isSyncing || loading}
               className="px-4 py-2 bg-green-600 text-white font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
             >
-              {isSyncing ? 'Синхронизация...' : 'Синхронизировать все новости'}
+              {isSyncing ? 'Syncing...' : 'Sync all articles'}
             </button>
           </div>
         </div>
@@ -360,16 +360,16 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
               <span className="text-amber-500 text-2xl">⭐</span>
-              Главная новость
+              Featured Article
               <span className="ml-2 px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold border border-amber-300 flex items-center gap-1">
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                 </svg>
-                Не редактируется
+                Read-only
               </span>
             </h2>
             <div className="text-sm text-muted-foreground">
-              Изменить можно в настройках новости
+              Change in article settings
             </div>
           </div>
 
@@ -392,7 +392,7 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
 
           <p className="mt-2 text-sm text-muted-foreground italic flex items-center gap-1">
             <span className="text-amber-500">ℹ️</span>
-            Главная новость занимает ширину 3 стандартных блоков и всегда отображается первой
+            Featured article spans 3 columns and always appears first
           </p>
         </div>
       )}
@@ -400,7 +400,7 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
       {/* Error message */}
       {error && (
         <div className="p-4 bg-destructive/10 border border-destructive text-destructive">
-          <p className="font-medium">Ошибка:</p>
+          <p className="font-medium">Error:</p>
           <p className="text-sm">{error}</p>
         </div>
       )}
@@ -433,9 +433,9 @@ export default function GridEditor({ onSave, onCancel, featuredNews }: GridEdito
           <Plus className="w-6 h-6" />
         </div>
         <div className="text-center">
-          <div className="text-lg">Добавить карточку</div>
+          <div className="text-lg">Add Card</div>
           <div className="text-sm text-muted-foreground font-normal mt-1">
-            Выберите новость для отображения в сетке
+            Select an article to display in the grid
           </div>
         </div>
       </button>

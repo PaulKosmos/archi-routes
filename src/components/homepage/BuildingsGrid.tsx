@@ -60,7 +60,7 @@ export default function BuildingsGrid({ buildings, loading }: BuildingsGridProps
               onClick={() => window.location.href = '/buildings'}
               className="hidden md:flex items-center gap-2 text-sm font-medium hover:gap-3 transition-all"
             >
-              All Buildings
+              All Objects
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
@@ -174,7 +174,7 @@ export default function BuildingsGrid({ buildings, loading }: BuildingsGridProps
             className="inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background font-medium hover:bg-foreground/90 transition-all"
             style={{ borderRadius: '2px' }}
           >
-            All Buildings
+            All Objects
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>

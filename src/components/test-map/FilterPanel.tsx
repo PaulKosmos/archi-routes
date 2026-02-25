@@ -41,6 +41,100 @@ interface FilterPanelProps {
   radiusMode?: 'none' | 'location' | 'map'
   onRadiusModeChange?: (mode: 'none' | 'location' | 'map') => void
   isMobile?: boolean
+  onSearchSubmit?: (query: string) => void
+}
+
+// ── Компонент секции — ВЫНЕСЕН за пределы FilterPanel ───────────
+interface FilterSectionProps {
+  id: string
+  title: string
+  icon: React.ElementType
+  children: React.ReactNode
+  count?: number
+  isExpanded: boolean
+  onToggle: () => void
+}
+
+function FilterSection({ title, icon: Icon, children, count, isExpanded, onToggle }: FilterSectionProps) {
+  return (
+    <div className="border-b border-border last:border-b-0">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted transition-colors text-left"
+      >
+        <div className="flex items-center gap-2.5">
+          <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
+          <span className="text-sm font-medium text-foreground">{title}</span>
+          {count !== undefined && count > 0 && (
+            <span className="bg-[hsl(var(--map-primary))]/10 text-[hsl(var(--map-primary))] text-[10px] px-1.5 py-0.5 rounded-full font-metrics">
+              {count}
+            </span>
+          )}
+        </div>
+        {isExpanded
+          ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
+          : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+        }
+      </button>
+      {isExpanded && (
+        <div className="px-4 pb-4">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Звёздный рейтинг — ВЫНЕСЕН за пределы FilterPanel ───────────
+function StarRating({ filters, onFilterChange }: { filters: Filters; onFilterChange: (f: Filters) => void }) {
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map(star => (
+        <button
+          key={star}
+          onClick={() => onFilterChange({
+            ...filters,
+            minRating: filters.minRating === star ? 0 : star
+          })}
+          className={`transition-colors ${
+            star <= filters.minRating
+              ? 'text-yellow-400 hover:text-yellow-500'
+              : 'text-muted-foreground/25 hover:text-muted-foreground/50'
+          }`}
+        >
+          <Star className="w-5 h-5 fill-current" />
+        </button>
+      ))}
+      <span className="ml-2 text-xs text-muted-foreground font-metrics">
+        {filters.minRating > 0 ? `from ${filters.minRating}★` : 'Any'}
+      </span>
+    </div>
+  )
+}
+
+// ── Чекбокс-строка — ВЫНЕСЕН за пределы FilterPanel ─────────────
+function CheckItem({
+  checked, onChange, label, count
+}: {
+  checked: boolean
+  onChange: () => void
+  label: string
+  count?: number
+}) {
+  return (
+    <label className="flex items-center gap-3 cursor-pointer hover:bg-muted rounded-[var(--radius)] px-2 py-1.5 transition-colors">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="w-4 h-4 rounded border-border accent-[hsl(var(--map-primary))] shrink-0"
+      />
+      <span className="flex-1 text-sm text-foreground">{label}</span>
+      {count !== undefined && (
+        <span className="text-xs text-muted-foreground/60">({count})</span>
+      )}
+    </label>
+  )
 }
 
 export default function FilterPanel({
@@ -52,22 +146,24 @@ export default function FilterPanel({
   onToggleFilters,
   radiusMode = 'none',
   onRadiusModeChange,
-  isMobile = false
+  isMobile = false,
+  onSearchSubmit
 }: FilterPanelProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(['search', 'location', 'rating', 'styles', 'types'])
   )
   const [gettingLocation, setGettingLocation] = useState(false)
 
-  const toggleSection = (section: string) => {
-    const next = new Set(expandedSections)
-    next.has(section) ? next.delete(section) : next.add(section)
-    setExpandedSections(next)
-  }
+  const toggleSection = useCallback((section: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev)
+      next.has(section) ? next.delete(section) : next.add(section)
+      return next
+    })
+  }, [])
 
   const isExpanded = (section: string) => expandedSections.has(section)
 
-  // Подсчёт активных фильтров
   const activeCount = [
     filters.search !== '',
     filters.architecturalStyles.length > 0,
@@ -110,91 +206,6 @@ export default function FilterPanel({
     onFilterChange({ ...filters, [key]: next })
   }, [filters, onFilterChange])
 
-  // ── Компонент секции ────────────────────────────────────────────
-  const FilterSection = ({
-    id, title, icon: Icon, children, count
-  }: {
-    id: string
-    title: string
-    icon: React.ElementType
-    children: React.ReactNode
-    count?: number
-  }) => (
-    <div className="border-b border-border last:border-b-0">
-      <button
-        onClick={() => toggleSection(id)}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted transition-colors text-left"
-      >
-        <div className="flex items-center gap-2.5">
-          <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
-          <span className="text-sm font-medium text-foreground">{title}</span>
-          {count !== undefined && count > 0 && (
-            <span className="bg-[hsl(var(--map-primary))]/10 text-[hsl(var(--map-primary))] text-[10px] px-1.5 py-0.5 rounded-full font-metrics">
-              {count}
-            </span>
-          )}
-        </div>
-        {isExpanded(id)
-          ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
-          : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-        }
-      </button>
-      {isExpanded(id) && (
-        <div className="px-4 pb-4">
-          {children}
-        </div>
-      )}
-    </div>
-  )
-
-  // ── Звёздный рейтинг ────────────────────────────────────────────
-  const StarRating = () => (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map(star => (
-        <button
-          key={star}
-          onClick={() => onFilterChange({
-            ...filters,
-            minRating: filters.minRating === star ? 0 : star
-          })}
-          className={`transition-colors ${
-            star <= filters.minRating
-              ? 'text-yellow-400 hover:text-yellow-500'
-              : 'text-muted-foreground/25 hover:text-muted-foreground/50'
-          }`}
-        >
-          <Star className="w-5 h-5 fill-current" />
-        </button>
-      ))}
-      <span className="ml-2 text-xs text-muted-foreground font-metrics">
-        {filters.minRating > 0 ? `from ${filters.minRating}★` : 'Any'}
-      </span>
-    </div>
-  )
-
-  // ── Чекбокс-строка ──────────────────────────────────────────────
-  const CheckItem = ({
-    checked, onChange, label, count
-  }: {
-    checked: boolean
-    onChange: () => void
-    label: string
-    count?: number
-  }) => (
-    <label className="flex items-center gap-3 cursor-pointer hover:bg-muted rounded-[var(--radius)] px-2 py-1.5 transition-colors">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="w-4 h-4 rounded border-border accent-[hsl(var(--map-primary))] shrink-0"
-      />
-      <span className="flex-1 text-sm text-foreground">{label}</span>
-      {count !== undefined && (
-        <span className="text-xs text-muted-foreground/60">({count})</span>
-      )}
-    </label>
-  )
-
   if (!showFilters && !isMobile) return null
 
   return (
@@ -231,17 +242,35 @@ export default function FilterPanel({
           title="Search"
           icon={Search}
           count={filters.search !== '' ? 1 : 0}
+          isExpanded={isExpanded('search')}
+          onToggle={() => toggleSection('search')}
         >
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <input
-              type="text"
-              value={filters.search}
-              onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
-              placeholder="Name, architect, style..."
-              className="w-full pl-9 pr-4 py-2 text-sm border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--map-primary))] transition-colors"
-            />
-          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              onSearchSubmit?.(filters.search)
+            }}
+            className="relative flex gap-1.5"
+          >
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input
+                type="text"
+                value={filters.search}
+                onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
+                placeholder="City, name, architect..."
+                className="w-full pl-9 pr-4 py-2 text-sm border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-[var(--radius)] outline-none focus:border-[hsl(var(--map-primary))] transition-colors"
+              />
+            </div>
+            {onSearchSubmit && (
+              <button
+                type="submit"
+                className="shrink-0 px-3 py-2 bg-[hsl(var(--map-primary))] hover:bg-[hsl(var(--map-primary))]/90 text-white text-xs font-medium rounded-[var(--radius)] transition-colors"
+              >
+                Go
+              </button>
+            )}
+          </form>
         </FilterSection>
 
         {/* Геолокация */}
@@ -250,6 +279,8 @@ export default function FilterPanel({
           title="Location"
           icon={Navigation}
           count={filters.currentLocation ? 1 : 0}
+          isExpanded={isExpanded('location')}
+          onToggle={() => toggleSection('location')}
         >
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
@@ -331,8 +362,10 @@ export default function FilterPanel({
           title="Rating"
           icon={Star}
           count={filters.minRating > 0 ? 1 : 0}
+          isExpanded={isExpanded('rating')}
+          onToggle={() => toggleSection('rating')}
         >
-          <StarRating />
+          <StarRating filters={filters} onFilterChange={onFilterChange} />
         </FilterSection>
 
         {/* Архитектурные стили */}
@@ -342,6 +375,8 @@ export default function FilterPanel({
             title="Architectural Style"
             icon={Building2}
             count={filters.architecturalStyles.length}
+            isExpanded={isExpanded('styles')}
+            onToggle={() => toggleSection('styles')}
           >
             <div className="space-y-0.5 max-h-48 overflow-y-auto">
               {uniqueValues.architecturalStyles.map(style => (
@@ -363,6 +398,8 @@ export default function FilterPanel({
             title="Object Type"
             icon={Layers}
             count={filters.buildingTypes.length}
+            isExpanded={isExpanded('types')}
+            onToggle={() => toggleSection('types')}
           >
             <div className="space-y-0.5 max-h-48 overflow-y-auto">
               {uniqueValues.buildingTypes.map(type => (
@@ -384,6 +421,8 @@ export default function FilterPanel({
             title="Transport Mode"
             icon={Footprints}
             count={filters.transportModes.length}
+            isExpanded={isExpanded('transport')}
+            onToggle={() => toggleSection('transport')}
           >
             <div className="space-y-0.5">
               {uniqueValues.transportModes.map(mode => {
@@ -424,6 +463,8 @@ export default function FilterPanel({
             title="Cities"
             icon={MapPin}
             count={filters.cities.length}
+            isExpanded={isExpanded('cities')}
+            onToggle={() => toggleSection('cities')}
           >
             <div className="space-y-0.5 max-h-48 overflow-y-auto">
               {uniqueValues.cities.map(city => (
@@ -444,6 +485,8 @@ export default function FilterPanel({
           title="Additional"
           icon={Headphones}
           count={[filters.hasAudio, filters.showOnlyFeatured].filter(Boolean).length}
+          isExpanded={isExpanded('extra')}
+          onToggle={() => toggleSection('extra')}
         >
           <div className="space-y-0.5">
             <label className="flex items-center gap-3 cursor-pointer hover:bg-muted rounded-[var(--radius)] px-2 py-1.5 transition-colors">

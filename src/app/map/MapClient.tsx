@@ -195,6 +195,125 @@ export default function TestMapPage() {
     applyFilters()
   }, [buildings, routes, filters, routeViewMode, user])
 
+  // Геокодинг через Nominatim — fallback когда зданий нет в БД
+  const geocodeAndFly = useCallback((query: string, zoom: number = 12) => {
+    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`)
+      .then(r => r.json())
+      .then((data: Array<{ lat: string; lon: string }>) => {
+        if (data.length > 0) {
+          const lat = parseFloat(data[0].lat)
+          const lng = parseFloat(data[0].lon)
+          setTimeout(() => mapRef.current?.flyToCoordinates(lat, lng, zoom), 600)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  // Центрирование на наборе зданий
+  const flyToCentroid = useCallback((list: Building[], zoom: number = 13) => {
+    if (list.length === 0) return
+    const avgLat = list.reduce((s, b) => s + b.latitude, 0) / list.length
+    const avgLng = list.reduce((s, b) => s + b.longitude, 0) / list.length
+    setTimeout(() => mapRef.current?.flyToCoordinates(avgLat, avgLng, zoom), 600)
+  }, [])
+
+  // Умный поиск в фильтрах — аналог hero-поиска на главной
+  const handleSearchSubmit = useCallback((query: string) => {
+    const q = query.trim()
+    if (!q) return
+
+    // Проверяем совпадение с городом
+    const cityMatch = buildings.find(b => b.city?.toLowerCase() === q.toLowerCase())
+    if (cityMatch) {
+      const cityName = cityMatch.city!
+      setFilters(prev => ({ ...prev, cities: [cityName], search: '' }))
+      const cityBuildings = buildings.filter(b => b.city?.toLowerCase() === q.toLowerCase())
+      flyToCentroid(cityBuildings, 13)
+      return
+    }
+
+    // Проверяем совпадение со страной
+    const countryMatch = buildings.find(b => b.country?.toLowerCase() === q.toLowerCase())
+    if (countryMatch) {
+      const countryBuildings = buildings.filter(b => b.country?.toLowerCase() === q.toLowerCase())
+      setFilters(prev => ({ ...prev, search: q }))
+      flyToCentroid(countryBuildings, 7)
+      return
+    }
+
+    // Общий текстовый поиск — центрируемся на совпадениях или геокодируем
+    setFilters(prev => ({ ...prev, search: q }))
+    const searchLower = q.toLowerCase()
+    const matching = buildings.filter(b =>
+      b.name.toLowerCase().includes(searchLower) ||
+      b.architect?.toLowerCase().includes(searchLower) ||
+      b.architectural_style?.toLowerCase().includes(searchLower) ||
+      b.city?.toLowerCase().includes(searchLower)
+    )
+    if (matching.length > 0) {
+      flyToCentroid(matching, matching.length === 1 ? 16 : 13)
+    } else {
+      geocodeAndFly(q, 12)
+    }
+  }, [buildings, flyToCentroid, geocodeAndFly])
+
+  // Инициализация из URL-параметров (city=, country=, q=) — только один раз после загрузки данных
+  useEffect(() => {
+    if (buildings.length === 0) return
+
+    const params = new URLSearchParams(window.location.search)
+    const cityParam = params.get('city')
+    const countryParam = params.get('country')
+    const qParam = params.get('q')
+    const panelParam = params.get('panel')
+
+    if (panelParam === 'routes') {
+      setMapView('routes')
+    } else if (panelParam === 'objects') {
+      setMapView('buildings')
+    }
+
+    if (cityParam) {
+      const matched = buildings.find(b => b.city?.toLowerCase() === cityParam.toLowerCase())
+      const cityName = matched?.city || cityParam
+      setFilters(prev => ({ ...prev, cities: [cityName] }))
+
+      const cityBuildings = buildings.filter(b => b.city?.toLowerCase() === cityParam.toLowerCase())
+      if (cityBuildings.length > 0) {
+        flyToCentroid(cityBuildings, 13)
+      } else {
+        // Города нет в БД — геокодим и летим
+        geocodeAndFly(cityParam, 12)
+      }
+    } else if (countryParam) {
+      const countryBuildings = buildings.filter(b => b.country?.toLowerCase() === countryParam.toLowerCase())
+      setFilters(prev => ({ ...prev, search: countryParam }))
+      if (countryBuildings.length > 0) {
+        flyToCentroid(countryBuildings, 7)
+      } else {
+        geocodeAndFly(countryParam, 6)
+      }
+    } else if (qParam) {
+      setFilters(prev => ({ ...prev, search: qParam }))
+
+      // Центрируемся на зданиях, совпадающих с запросом
+      const searchLower = qParam.toLowerCase()
+      const matching = buildings.filter(b =>
+        b.name.toLowerCase().includes(searchLower) ||
+        b.architect?.toLowerCase().includes(searchLower) ||
+        b.architectural_style?.toLowerCase().includes(searchLower) ||
+        b.city?.toLowerCase().includes(searchLower)
+      )
+      if (matching.length > 0) {
+        flyToCentroid(matching, matching.length === 1 ? 16 : 13)
+      } else {
+        // Ничего не найдено в БД — геокодим
+        geocodeAndFly(qParam, 12)
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buildings])
+
   // Автоцентрирование карты на выбранном маршруте
   useEffect(() => {
     if (selectedRoute && mapRef.current) {
@@ -1176,6 +1295,7 @@ export default function TestMapPage() {
               onToggleFilters={() => { }}
               radiusMode={radiusMode}
               onRadiusModeChange={setRadiusMode}
+              onSearchSubmit={handleSearchSubmit}
             />
           </div>
         </div>
@@ -1496,6 +1616,7 @@ export default function TestMapPage() {
           radiusMode={radiusMode}
           onRadiusModeChange={setRadiusMode}
           isMobile={true}
+          onSearchSubmit={handleSearchSubmit}
         />
       </MobileBottomSheet>
 

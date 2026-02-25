@@ -40,6 +40,7 @@ interface LazyFilterPanelProps {
   radiusMode?: 'none' | 'location' | 'map'
   onRadiusModeChange?: (mode: 'none' | 'location' | 'map') => void
   isMobile?: boolean
+  onSearchSubmit?: (query: string) => void
 }
 
 // Компонент загрузки для фильтров

@@ -85,6 +85,7 @@ export interface MapLibreEnhancedRef {
   centerOnRoute: (routeId: string) => void
   centerOnBuilding: (buildingId: string) => void
   openBuildingPopup: (buildingId: string) => void
+  flyToCoordinates: (lat: number, lng: number, zoom?: number) => void
 }
 
 interface MapLibreEnhancedProps {
@@ -821,12 +822,20 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
       }
     }, [buildings])
 
+    // Fly to arbitrary coordinates
+    const flyToCoordinates = useCallback((lat: number, lng: number, zoom: number = 13) => {
+      if (mapRef.current) {
+        mapRef.current.flyTo({ center: [lng, lat], zoom, duration: 1500 })
+      }
+    }, [])
+
     // Expose ref methods
     useImperativeHandle(ref, () => ({
       centerOnRoute,
       centerOnBuilding,
-      openBuildingPopup
-    }), [centerOnRoute, centerOnBuilding, openBuildingPopup])
+      openBuildingPopup,
+      flyToCoordinates
+    }), [centerOnRoute, centerOnBuilding, openBuildingPopup, flyToCoordinates])
 
     // Handle map click — stable handler using refs to avoid re-registration race condition
     const handleMapClick = useCallback((event: maplibregl.MapLayerMouseEvent) => {

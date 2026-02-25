@@ -452,6 +452,14 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
       />
 
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <Link
+          href="/buildings"
+          className="inline-flex items-center gap-1 mb-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronLeft className="h-3.5 w-3.5" />
+          All Objects
+        </Link>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
 
           {/* Mobile-only: Building info + Map at top */}
@@ -711,7 +719,7 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
           </div>
 
           {/* Sidebar - info/map hidden on mobile (shown above) */}
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-4 sm:space-y-6 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-5.5rem)] lg:overflow-y-auto lg:pr-1">
 
             {/* Information and statistics (combined block) - desktop only */}
             <div className="hidden lg:block bg-card rounded-[var(--radius)] border border-border p-4 sm:p-6">
