@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { BuildingReviewWithProfile } from '@/types/building'
-import { Star, Headphones, CheckCircle, Award, Calendar, ChevronDown, ChevronUp, Pencil, Globe, MessageSquare } from 'lucide-react'
+import { Star, Headphones, CheckCircle, Award, Calendar, Pencil, Globe, MessageSquare } from 'lucide-react'
 import { getStorageUrl } from '@/lib/storage'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
-import AudioPlayer from '../AudioPlayer'
 import ImageLightbox from '../ui/ImageLightbox'
 import ReviewCommentsModal from './ReviewCommentsModal'
+import ReviewTranslationTabs from './ReviewTranslationTabs'
 import Link from 'next/link'
 
 interface BuildingReviewsListProps {
@@ -48,26 +48,15 @@ export default function BuildingReviewsList({
   const [lightboxImages, setLightboxImages] = useState<string[]>([])
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('all')
+  // displayLanguage: which translation language to show in all cards ('all' = original)
+  const [displayLanguage, setDisplayLanguage] = useState<string>('all')
   const [commentsModalReview, setCommentsModalReview] = useState<{
     id: string; title: string; author: string
   } | null>(null)
   const [commentCounts, setCommentCounts] = useState<Map<string, number>>(new Map())
 
-  // Compute available languages from reviews
-  const availableLanguages = useMemo(() => {
-    const langs = new Set<string>()
-    reviews.forEach(r => {
-      if (r.language) langs.add(r.language)
-    })
-    return Array.from(langs).sort()
-  }, [reviews])
-
-  // Filter reviews by selected language
-  const filteredReviews = useMemo(() => {
-    if (selectedLanguage === 'all') return localReviews
-    return localReviews.filter(r => r.language === selectedLanguage)
-  }, [localReviews, selectedLanguage])
+  // All reviews shown — language selector now controls which translation to display
+  const filteredReviews = localReviews
 
   // Sync localReviews when reviews prop changes
   useEffect(() => {
@@ -242,28 +231,23 @@ export default function BuildingReviewsList({
 
   return (
     <div className="space-y-3 md:space-y-4">
-      {/* Language filter dropdown */}
-      {availableLanguages.length > 1 && (
-        <div className="flex items-center justify-end gap-2 pb-1">
-          <Globe className="w-4 h-4 text-gray-400" />
-          <select
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer appearance-none pr-8"
-            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em' }}
-          >
-            <option value="all">All languages ({reviews.length})</option>
-            {availableLanguages.map(lang => {
-              const count = reviews.filter(r => r.language === lang).length
-              return (
-                <option key={lang} value={lang}>
-                  {LANGUAGE_LABELS[lang] || lang.toUpperCase()} ({count})
-                </option>
-              )
-            })}
-          </select>
-        </div>
-      )}
+      {/* Display language selector — controls which translation to show in all cards */}
+      <div className="flex items-center justify-end gap-2 pb-1">
+        <Globe className="w-4 h-4 text-gray-400" />
+        <select
+          value={displayLanguage}
+          onChange={(e) => setDisplayLanguage(e.target.value)}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer appearance-none pr-8"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em' }}
+        >
+          <option value="all">Original language</option>
+          {(['en','de','es','fr','zh','ar','ru'] as const).map(lang => (
+            <option key={lang} value={lang}>
+              {LANGUAGE_LABELS[lang] || lang.toUpperCase()}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {/* Reviews list */}
       {filteredReviews.map(review => {
@@ -362,13 +346,6 @@ export default function BuildingReviewsList({
               </div>
             </div>
 
-            {/* Заголовок */}
-            {review.title && (
-              <h3 className="text-base md:text-xl font-semibold text-gray-900 mb-2 md:mb-3">
-                {review.title}
-              </h3>
-            )}
-
             {/* Средний рейтинг от пользователей */}
             {ratingCount > 0 && (
               <div className="flex items-center mb-2 md:mb-3 bg-yellow-50 px-2 py-1.5 md:px-3 md:py-2 rounded-lg">
@@ -378,32 +355,21 @@ export default function BuildingReviewsList({
               </div>
             )}
 
-            {/* Превью или полный текст */}
-            {review.content && (
-              <div className="mb-4">
-                <p className={`text-gray-700 leading-relaxed whitespace-pre-line ${!isExpanded && review.content.length > 300 ? 'line-clamp-4' : ''
-                  }`}>
-                  {review.content}
-                </p>
-
-                {review.content.length > 300 && (
-                  <button
-                    onClick={() => toggleExpanded(review.id)}
-                    className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
-                  >
-                    {isExpanded ? (
-                      <>Show less <ChevronUp className="w-4 h-4 ml-1" /></>
-                    ) : (
-                      <>Show more <ChevronDown className="w-4 h-4 ml-1" /></>
-                    )}
-                  </button>
-                )}
-              </div>
-            )}
+            {/* Title + content + language switcher (managed together) */}
+            <ReviewTranslationTabs
+              reviewId={review.id}
+              originalLanguage={review.original_language || review.language || 'en'}
+              originalTitle={review.title}
+              originalContent={review.content || ''}
+              originalAudioUrl={review.audio_url}
+              preferredLanguage={displayLanguage}
+              isExpanded={isExpanded}
+              onToggleExpand={() => toggleExpanded(review.id)}
+            />
 
             {/* Теги */}
             {review.tags && review.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-2 mb-4 mt-3">
                 {review.tags.map((tag, idx) => (
                   <span key={idx} className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
                     #{tag}
@@ -430,16 +396,6 @@ export default function BuildingReviewsList({
                     </button>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* Аудио плеер - показываем всегда если есть аудио */}
-            {review.audio_url && (
-              <div className="mb-4">
-                <AudioPlayer
-                  audioUrl={getStorageUrl(review.audio_url, 'audio')}
-                  duration={review.audio_duration_seconds}
-                />
               </div>
             )}
 

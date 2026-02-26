@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { X, Star, Camera, FileAudio, Tag, Loader2, ArrowLeft } from 'lucide-react'
+import { X, Star, Camera, FileAudio, Tag, Loader2, ArrowLeft, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import { uploadImage, uploadAudio } from '@/lib/storage'
@@ -82,6 +82,8 @@ export default function EditReviewPage() {
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [currentTag, setCurrentTag] = useState('')
   const hasLoadedRef = useRef(false)
 
@@ -309,6 +311,28 @@ export default function EditReviewPage() {
       toast.error('Error updating review: ' + (error.message || 'Unknown error'))
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!user || !review) return
+
+    setIsDeleting(true)
+    try {
+      const { error } = await supabase
+        .from('building_reviews')
+        .delete()
+        .eq('id', reviewId)
+
+      if (error) throw error
+
+      toast.success('Review deleted')
+      router.push('/profile/reviews')
+    } catch (error: any) {
+      console.error('Error deleting review:', error)
+      toast.error('Error deleting review: ' + (error.message || 'Unknown error'))
+      setIsDeleting(false)
+      setShowDeleteConfirm(false)
     }
   }
 
@@ -669,12 +693,49 @@ export default function EditReviewPage() {
 
             {/* Кнопки */}
             <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-              <Link
-                href="/profile/reviews"
-                className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/profile/reviews"
+                  className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </Link>
+
+                {/* Delete button — only for review author */}
+                {review.user_id === user?.id && !showDeleteConfirm && (
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete Review
+                  </button>
+                )}
+
+                {/* Delete confirmation */}
+                {showDeleteConfirm && (
+                  <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                    <span className="text-sm text-red-700 font-medium">Delete permanently?</span>
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                    >
+                      {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      Yes, delete
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteConfirm(false)}
+                      className="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <button
                 type="submit"

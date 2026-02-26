@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
     // Paths that should be accessible without password
     const publicPaths = [
       '/coming-soon',
-      '/api/site-access',
+      '/api/', // all API routes bypass the gate (internal calls have no cookies)
       '/_next',
       '/favicon.ico',
       '/ar-logo.svg',

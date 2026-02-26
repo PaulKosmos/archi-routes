@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import ReviewAIDetail from './ReviewAIDetail'
 
 interface ModerationQueueItem {
   id: string
@@ -154,6 +155,20 @@ export default function ModerationQueue() {
         .from('moderation_queue')
         .update({ status: 'completed' })
         .eq('id', item.id)
+
+      // For reviews: approve all ready translations + update workflow_stage
+      if (item.content_type === 'review') {
+        await supabase
+          .from('review_translations')
+          .update({ status: 'approved' })
+          .eq('review_id', item.content_id)
+          .in('status', ['ready', 'edited_by_admin'])
+
+        await supabase
+          .from('building_reviews')
+          .update({ workflow_stage: 'published' })
+          .eq('id', item.content_id)
+      }
 
       toast.success('Content approved!')
       loadQueue()
@@ -608,6 +623,14 @@ export default function ModerationQueue() {
                       </>
                     )}
                   </div>
+                )}
+
+                {/* AI Analysis & Translations panel — only for reviews */}
+                {item.content_type === 'review' && (
+                  <ReviewAIDetail
+                    reviewId={item.content_id}
+                    moderatorId={user!.id}
+                  />
                 )}
 
                 {/* Предупреждение о дубликатах */}

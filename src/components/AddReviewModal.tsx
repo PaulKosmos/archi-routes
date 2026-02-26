@@ -186,7 +186,7 @@ export default function AddReviewModal({
           )
         : null
 
-      const { error } = await supabase
+      const { data: insertedRows, error } = await supabase
         .from('building_reviews')
         .insert({
           building_id: building.id,
@@ -203,10 +203,22 @@ export default function AddReviewModal({
           is_verified: false,
           is_featured: false,
           language: form.language,
-          original_language: form.language
+          original_language: form.language,
+          workflow_stage: 'submitted',
+          ai_moderation_status: 'pending',
         })
+        .select('id')
 
-      if (error) throw error
+      if (error) {
+        // Handle duplicate review gracefully
+        const msg: string = error?.message || (error as any)?.details || JSON.stringify(error)
+        if (msg.includes('duplicate key') || msg.includes('building_id_user_id_language')) {
+          throw new Error('You have already submitted a review in this language for this building. You can edit your existing review.')
+        }
+        throw new Error(msg || 'Failed to save review')
+      }
+
+      const newReviewId = insertedRows?.[0]?.id
 
       // 4. Update review count
       const { data: buildingData } = await supabase
@@ -222,7 +234,7 @@ export default function AddReviewModal({
         })
         .eq('id', building.id)
 
-      toast.success('Review submitted! It will be visible after moderation review.')
+      toast.success('Review submitted! It will appear after moderation.')
 
       // Очистка формы
       setForm({

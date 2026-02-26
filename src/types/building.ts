@@ -48,6 +48,51 @@ export interface Building {
   style: string // Для обратной совместимости
 }
 
+// ---- AI Moderation & Translation types ----
+
+export interface AIModerationResult {
+  safe: boolean
+  score: number                         // 0.0 (unsafe) → 1.0 (safe)
+  flags: string[]                       // 'profanity' | 'political' | 'spam' | 'off_topic' | 'harassment' | 'misinformation'
+  reasoning: string                     // Human-readable AI explanation
+  recommendation: 'approve' | 'review' | 'reject'
+  detected_language: string             // ISO 639-1 code
+}
+
+export interface ReviewTranslation {
+  id: string
+  review_id: string
+  language: string                      // en | de | es | fr | zh | ar | ru
+  is_original: boolean
+  title?: string | null
+  content: string
+  translated_by: 'ai' | 'human'
+  translation_model?: string | null
+  status: 'pending' | 'ready' | 'edited_by_admin' | 'approved'
+  admin_edited: boolean
+  edited_by?: string | null
+  edited_at?: string | null
+  ai_audio_url?: string | null
+  ai_audio_model?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface AIPrompt {
+  id: string
+  name: string
+  description?: string
+  prompt_template: string
+  model: string
+  fallback_model: string
+  is_active: boolean
+  updated_by?: string | null
+  updated_at: string
+  created_at: string
+}
+
+// ---- Review types ----
+
 // Новые типы для обзоров зданий
 export interface BuildingReview {
   id: string
@@ -79,6 +124,14 @@ export interface BuildingReview {
   // Moderation
   moderation_status?: 'pending' | 'approved' | 'rejected'
   rejection_reason?: string
+  // AI workflow
+  original_language?: string
+  workflow_stage?: 'submitted' | 'ai_moderating' | 'ai_done' | 'translating' | 'ready_for_review' | 'published'
+  ai_moderation_status?: 'pending' | 'processing' | 'passed' | 'flagged' | 'error'
+  ai_moderation_result?: AIModerationResult | null
+  ai_moderation_score?: number | null
+  ai_moderation_at?: string | null
+  ai_moderation_model?: string | null
 }
 
 export interface BuildingReviewWithProfile extends BuildingReview {
@@ -90,6 +143,7 @@ export interface BuildingReviewWithProfile extends BuildingReview {
     avatar_url?: string
     role?: string
   }
+  review_translations?: ReviewTranslation[]
 }
 
 export interface BuildingWithReviews extends Building {

@@ -101,6 +101,11 @@ export default function AdminLayout({
           name: 'Auto-generation',
           href: '/admin/autogeneration',
           icon: Bot
+        },
+        {
+          name: 'AI Prompts',
+          href: '/admin/prompts',
+          icon: Bot
         }
       ]
     }
