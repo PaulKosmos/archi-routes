@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { X, ExternalLink, Heart, BookmarkPlus, MapPin, Calendar, User as UserIcon, Building2, Eye, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pencil, Trash2, Info, DollarSign, TrendingUp, Clock, Bus, Accessibility, Layers, BookOpen, Star, Ruler, Globe, Route as RouteIcon } from 'lucide-react'
-import type { Building, BuildingReviewWithProfile } from '@/types/building'
-import type { Route } from '@/types/route'
+import type { Building, BuildingReviewWithProfile, Route } from '@/types/building'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
 import { useAuth } from '@/hooks/useAuth'
