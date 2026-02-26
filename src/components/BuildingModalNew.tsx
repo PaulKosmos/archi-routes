@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { X, ExternalLink, Heart, BookmarkPlus, MapPin, Calendar, User as UserIcon, Building2, Eye, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pencil, Trash2, Info, DollarSign, TrendingUp, Clock, Bus, Accessibility, Layers, BookOpen, Star, Ruler, Globe, Route } from 'lucide-react'
 import type { Building, BuildingReviewWithProfile } from '@/types/building'
+import type { Route } from '@/types/route'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
 import { useAuth } from '@/hooks/useAuth'
@@ -12,6 +13,9 @@ import AddReviewModal from './AddReviewModal'
 import AddToCollectionButton from './collections/AddToCollectionButton'
 import ImageLightbox from './ui/ImageLightbox'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
+
+const RouteViewerModal = dynamic(() => import('./RouteViewerModal'), { ssr: false })
 
 interface BuildingModalProps {
   building: Building | null
@@ -65,6 +69,9 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
   const [isAddReviewModalOpen, setIsAddReviewModalOpen] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [showPracticalInfo, setShowPracticalInfo] = useState(false)
+  const [showFullDescription, setShowFullDescription] = useState(false)
+  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null)
+  const [routeModalLoading, setRouteModalLoading] = useState(false)
 
   // Проверка прав на редактирование/удаление
   const canEdit = user && building && (
@@ -516,6 +523,23 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
     }
   }
 
+  const handleRouteClick = async (routeId: string) => {
+    setRouteModalLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('routes')
+        .select('*')
+        .eq('id', routeId)
+        .single()
+      if (error) throw error
+      setSelectedRoute(data as Route)
+    } catch {
+      toast.error('Failed to load route')
+    } finally {
+      setRouteModalLoading(false)
+    }
+  }
+
   const handleAddressClick = () => {
     if (building) {
       window.open(`/test-map?building=${building.id}`, '_blank')
@@ -782,6 +806,23 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
             </div>
           </div>
 
+          {/* Описание здания с Show more */}
+          {building.description && (
+            <div className="px-3 md:px-6 py-3 md:py-4 border-b border-gray-200">
+              <p className={`text-sm md:text-base text-gray-700 leading-relaxed whitespace-pre-line ${showFullDescription ? '' : 'line-clamp-3'}`}>
+                {building.description}
+              </p>
+              {building.description.length > 180 && (
+                <button
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                  className="mt-1.5 text-xs md:text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                >
+                  {showFullDescription ? 'Show less' : 'Show more'}
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Практическая информация (аккордеон) */}
           {hasPracticalInfo && (
             <div className="border-b border-gray-200">
@@ -1014,10 +1055,11 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                       </div>
                     ) : (
                       routes.map(route => (
-                        <Link
+                        <button
                           key={route.id}
-                          href={`/routes/${route.id}`}
-                          className="block p-2.5 md:p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all"
+                          onClick={() => handleRouteClick(route.id)}
+                          disabled={routeModalLoading}
+                          className="w-full text-left p-2.5 md:p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all disabled:opacity-60"
                         >
                           <h3 className="font-semibold text-sm md:text-base text-gray-900 mb-1 md:mb-1.5">
                             {route.title}
@@ -1047,7 +1089,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                               </span>
                             )}
                           </div>
-                        </Link>
+                        </button>
                       ))
                     )}
                   </div>
@@ -1101,6 +1143,13 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
         onClose={() => setIsAddReviewModalOpen(false)}
         building={building}
         onSuccess={handleReviewSuccess}
+      />
+
+      {/* Модальное окно маршрута */}
+      <RouteViewerModal
+        isOpen={!!selectedRoute}
+        onClose={() => setSelectedRoute(null)}
+        route={selectedRoute}
       />
 
       {/* Lightbox для hero фото */}

@@ -54,6 +54,8 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
   // Gallery scroll ref
   const galleryRef = useRef<HTMLDivElement>(null)
 
+  const [showFullDescription, setShowFullDescription] = useState(false)
+
   // Building rating state
   const [buildingRating, setBuildingRating] = useState(0)
   const [buildingRatingCount, setBuildingRatingCount] = useState(0)
@@ -555,7 +557,17 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
                 {building.description && (
                   <div>
                     <h2 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-4 text-foreground">Description</h2>
-                    <p className="text-foreground leading-relaxed text-sm sm:text-base">{building.description}</p>
+                    <p className={`text-foreground leading-relaxed text-sm sm:text-base whitespace-pre-line ${showFullDescription ? '' : 'line-clamp-3'}`}>
+                      {building.description}
+                    </p>
+                    {building.description.length > 200 && (
+                      <button
+                        onClick={() => setShowFullDescription(!showFullDescription)}
+                        className="mt-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                      >
+                        {showFullDescription ? 'Show less' : 'Show more'}
+                      </button>
+                    )}
                   </div>
                 )}
 

@@ -39,6 +39,8 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
   const { user, profile } = useAuth()
   const avgRating = review.user_rating_avg || 0
   const ratingCount = review.user_rating_count || 0
+  const [showFullContent, setShowFullContent] = useState(false)
+  const CONTENT_LIMIT = 400
 
   const getReviewTypeLabel = (type: string) => {
     switch (type) {
@@ -162,8 +164,18 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
         {review.content && (
           <div className="mt-4">
             <p className="text-foreground leading-relaxed whitespace-pre-wrap">
-              {review.content}
+              {showFullContent || review.content.length <= CONTENT_LIMIT
+                ? review.content
+                : review.content.slice(0, CONTENT_LIMIT) + '...'}
             </p>
+            {review.content.length > CONTENT_LIMIT && (
+              <button
+                onClick={() => setShowFullContent(!showFullContent)}
+                className="mt-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                {showFullContent ? 'Show less' : 'Show more'}
+              </button>
+            )}
           </div>
         )}
 
@@ -230,8 +242,8 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
 
         {/* User rating section */}
         <div className="mt-4 pt-4 border-t border-border">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground mb-1.5">Rate this review:</p>
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex items-center space-x-1">
@@ -258,8 +270,8 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
                     )
                   })}
                   {userRating > 0 && (
-                    <span className="ml-2 text-sm text-muted-foreground">
-                      Your rating: {userRating}/5
+                    <span className="ml-2 text-sm text-muted-foreground whitespace-nowrap">
+                      Your: {userRating}/5
                     </span>
                   )}
                 </div>
@@ -277,7 +289,7 @@ function ReviewCard({ review, isActive, buildingId, userRating, hoveredRating, o
             {/* Comments button */}
             <button
               onClick={(e) => { e.stopPropagation(); onOpenComments(review) }}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-blue-600 transition-colors"
+              className="flex-shrink-0 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-blue-600 transition-colors"
             >
               <MessageSquare className="w-3.5 h-3.5" />
               {commentCount > 0 ? `Comments (${commentCount})` : 'Comments'}

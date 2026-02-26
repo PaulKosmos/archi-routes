@@ -8,6 +8,7 @@ interface MobileControlBarProps {
   onShowRoutes: () => void
   buildingsCount: number
   routesCount: number
+  hasActiveFilters?: boolean
 }
 
 export default function MobileControlBar({
@@ -15,7 +16,8 @@ export default function MobileControlBar({
   onShowBuildings,
   onShowRoutes,
   buildingsCount,
-  routesCount
+  routesCount,
+  hasActiveFilters = false
 }: MobileControlBarProps) {
   return (
     <div className="
@@ -40,8 +42,15 @@ export default function MobileControlBar({
             transition-colors
           "
         >
-          <Filter className="w-5 h-5 text-[hsl(var(--map-primary))]" />
-          <span className="text-xs font-medium">Filters</span>
+          <div className="relative">
+            <Filter className="w-5 h-5 text-[hsl(var(--map-primary))]" />
+            {hasActiveFilters && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500" />
+            )}
+          </div>
+          <span className={`text-xs font-medium ${hasActiveFilters ? 'text-[hsl(var(--map-primary))]' : ''}`}>
+            Filters{hasActiveFilters ? ' •' : ''}
+          </span>
         </button>
 
         {/* Buildings button */}

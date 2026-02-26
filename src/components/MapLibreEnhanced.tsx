@@ -853,31 +853,12 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
 
     // Handle marker click
     const handleMarkerClick = useCallback((building: Building) => {
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-
-      if (isMobile) {
-        // Mobile: directly open detailed popup
-        setHoverPopupBuilding(null)
-        setDetailedPopupBuilding(building)
-        onBuildingClick?.(building.id)
-      } else {
-        // Desktop: two-level popup logic
-        // Always update selection state in parent (no centering)
-        onMapBuildingSelect?.(building.id)
-
-        if (lastClickedBuildingRef.current === building.id) {
-          // Second click - open detailed popup
-          setHoverPopupBuilding(null)
-          setDetailedPopupBuilding(building)
-          lastClickedBuildingRef.current = null
-        } else {
-          // First click - show hover popup
-          setDetailedPopupBuilding(null)
-          setHoverPopupBuilding(building)
-          lastClickedBuildingRef.current = building.id
-        }
-      }
-    }, [onBuildingClick, onMapBuildingSelect])
+      // One click always opens detailed popup (same on mobile and desktop)
+      setHoverPopupBuilding(null)
+      setDetailedPopupBuilding(building)
+      lastClickedBuildingRef.current = null
+      onBuildingClick?.(building.id)
+    }, [onBuildingClick])
 
     // Handle marker hover
     const handleMarkerEnter = useCallback((building: Building) => {
@@ -887,11 +868,8 @@ const MapLibreEnhanced = forwardRef<MapLibreEnhancedRef, MapLibreEnhancedProps>(
     }, [detailedPopupBuilding])
 
     const handleMarkerLeave = useCallback(() => {
-      // Don't close if this building was just clicked
-      if (hoverPopupBuilding && lastClickedBuildingRef.current !== hoverPopupBuilding.id) {
-        setHoverPopupBuilding(null)
-      }
-    }, [hoverPopupBuilding])
+      setHoverPopupBuilding(null)
+    }, [])
 
     // Close popup handler
     const handleCloseDetailedPopup = useCallback(() => {

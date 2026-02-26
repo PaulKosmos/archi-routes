@@ -176,6 +176,20 @@ export default function TestMapPage() {
   const [selectedNewLocation, setSelectedNewLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [showAddBuildingForm, setShowAddBuildingForm] = useState(false)
 
+  // Есть ли активные фильтры (для индикатора на мобильной кнопке)
+  const hasActiveFilters = useMemo(() => (
+    filters.search.trim() !== '' ||
+    filters.cities.length > 0 ||
+    filters.architecturalStyles.length > 0 ||
+    filters.buildingTypes.length > 0 ||
+    filters.difficultyLevels.length > 0 ||
+    filters.transportModes.length > 0 ||
+    filters.showOnlyFeatured ||
+    filters.minRating > 0 ||
+    filters.hasAudio ||
+    filters.currentLocation !== null
+  ), [filters])
+
   // Уникальные значения для фильтров (мемоизированы)
   const uniqueValues = useMemo(() => ({
     cities: [...new Set(buildings.map(b => b.city).filter(Boolean))] as string[],
@@ -274,10 +288,6 @@ export default function TestMapPage() {
     }
 
     if (cityParam) {
-      const matched = buildings.find(b => b.city?.toLowerCase() === cityParam.toLowerCase())
-      const cityName = matched?.city || cityParam
-      setFilters(prev => ({ ...prev, cities: [cityName] }))
-
       const cityBuildings = buildings.filter(b => b.city?.toLowerCase() === cityParam.toLowerCase())
       if (cityBuildings.length > 0) {
         flyToCentroid(cityBuildings, 13)
@@ -287,15 +297,12 @@ export default function TestMapPage() {
       }
     } else if (countryParam) {
       const countryBuildings = buildings.filter(b => b.country?.toLowerCase() === countryParam.toLowerCase())
-      setFilters(prev => ({ ...prev, search: countryParam }))
       if (countryBuildings.length > 0) {
         flyToCentroid(countryBuildings, 7)
       } else {
         geocodeAndFly(countryParam, 6)
       }
     } else if (qParam) {
-      setFilters(prev => ({ ...prev, search: qParam }))
-
       // Центрируемся на зданиях, совпадающих с запросом
       const searchLower = qParam.toLowerCase()
       const matching = buildings.filter(b =>
@@ -1597,6 +1604,7 @@ export default function TestMapPage() {
         }}
         buildingsCount={filteredBuildings.length}
         routesCount={filteredRoutes.length}
+        hasActiveFilters={hasActiveFilters}
       />
 
       {/* Mobile Bottom Sheets */}
