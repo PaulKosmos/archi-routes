@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { X, ExternalLink, Heart, BookmarkPlus, MapPin, Calendar, User as UserIcon, Building2, Eye, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pencil, Trash2, Info, DollarSign, TrendingUp, Clock, Bus, Accessibility, Layers, BookOpen, Star, Ruler, Globe, Route } from 'lucide-react'
+import { X, ExternalLink, Heart, BookmarkPlus, MapPin, Calendar, User as UserIcon, Building2, Eye, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pencil, Trash2, Info, DollarSign, TrendingUp, Clock, Bus, Accessibility, Layers, BookOpen, Star, Ruler, Globe, Route as RouteIcon } from 'lucide-react'
 import type { Building, BuildingReviewWithProfile } from '@/types/building'
 import type { Route } from '@/types/route'
 import { createClient } from '@/lib/supabase'
@@ -1046,7 +1046,7 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
 
                     {routes.length === 0 ? (
                       <div className="text-center py-8 md:py-12 text-gray-400">
-                        <Route className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                        <RouteIcon className="w-10 h-10 mx-auto mb-3 opacity-40" />
                         <p className="text-sm md:text-base">
                           {routeViewMode === 'personal'
                             ? 'You don\'t have any personal routes with this object yet'
