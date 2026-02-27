@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase'
 import { Building, BuildingReviewWithProfile, RouteWithPoints } from '@/types/building'
 import BuildingHeader from '@/components/buildings/BuildingHeader'
-import BuildingReviews from '@/components/buildings/BuildingReviews'
+import BuildingReviewsList from '@/components/buildings/BuildingReviewsList'
 import { Loader2, MapPin, Clock, Users, Star, Camera, Navigation, Calendar, User, Building as BuildingIcon, Globe, ExternalLink, AlertTriangle, ShieldAlert, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react'
 import ImageLightbox from '@/components/ui/ImageLightbox'
 import Link from 'next/link'
@@ -44,7 +44,6 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
 
   const [data, setData] = useState<BuildingPageData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeReviewIndex, setActiveReviewIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
@@ -643,12 +642,9 @@ export default function BuildingDetailClient({ building }: BuildingDetailClientP
             )}
 
             {/* Reviews */}
-            <BuildingReviews
+            <BuildingReviewsList
               reviews={reviews}
               buildingId={building.id}
-              activeIndex={activeReviewIndex}
-              onActiveIndexChange={setActiveReviewIndex}
-              onReviewAdded={fetchBuildingData}
             />
 
             {/* Related routes */}

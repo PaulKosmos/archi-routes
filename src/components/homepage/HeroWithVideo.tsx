@@ -143,11 +143,11 @@ export default function HeroWithVideo({
                     onFocus={() => setIsSearchFocused(true)}
                     onBlur={() => setIsSearchFocused(false)}
                     placeholder="Find city, object or architect..."
-                    className="flex-1 bg-transparent text-white placeholder-white/50 py-4 outline-none text-base"
+                    className="flex-1 min-w-0 bg-transparent text-white placeholder-white/50 py-4 outline-none text-base"
                   />
                   <button
                     type="submit"
-                    className="shrink-0 mr-2 px-5 py-2 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-sm font-medium transition-colors"
+                    className="shrink-0 mr-2 px-3 sm:px-5 py-2 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-sm font-medium transition-colors"
                     style={{ borderRadius: '2px' }}
                   >
                     Search

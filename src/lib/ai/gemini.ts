@@ -115,7 +115,7 @@ export async function callGeminiTTS(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: text.substring(0, 5000) }] }],
+      contents: [{ parts: [{ text: text.substring(0, 4500) }] }],
       generationConfig: {
         responseModalities: ['AUDIO'],
         speechConfig: {
@@ -131,9 +131,24 @@ export async function callGeminiTTS(
   }
 
   const data = await response.json()
-  const part = data?.candidates?.[0]?.content?.parts?.[0]
-  const base64 = part?.inlineData?.data
-  if (!base64) throw new Error(`Gemini TTS [${model}]: no audio data in response`)
+
+  // Log response for debugging (truncated)
+  console.log(`[Gemini TTS ${model}] response:`, JSON.stringify(data).substring(0, 1000))
+
+  // Check for API-level error in body (some errors return 200 with error field)
+  if (data?.error) {
+    throw new Error(`Gemini TTS [${model}] API error: ${data.error.message || JSON.stringify(data.error)}`)
+  }
+
+  // Search all parts for inlineData (audio may not always be parts[0])
+  const parts: any[] = data?.candidates?.[0]?.content?.parts || []
+  const audioPart = parts.find((p: any) => p.inlineData?.data)
+  const base64 = audioPart?.inlineData?.data
+
+  if (!base64) {
+    const detail = JSON.stringify(data).substring(0, 500)
+    throw new Error(`Gemini TTS [${model}]: no audio data in response. Body: ${detail}`)
+  }
 
   const wavBuffer = pcmBase64ToWav(base64)
   return { wavBuffer, modelUsed: model }

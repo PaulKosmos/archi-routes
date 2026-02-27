@@ -45,10 +45,10 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseAdmin()
 
-    // Fetch review
+    // Fetch review (include workflow_stage to restore it after translation)
     const { data: review, error: reviewError } = await supabase
       .from('building_reviews')
-      .select('id, title, content, language, original_language')
+      .select('id, title, content, language, original_language, workflow_stage')
       .eq('id', review_id)
       .single()
 
@@ -79,9 +79,11 @@ export async function POST(request: NextRequest) {
     const targetLangs = TRANSLATION_LANGUAGES.filter((l) => l !== sourceLang)
 
     if (targetLangs.length === 0) {
+      // Preserve 'published' stage; otherwise move to ready_for_review
+      const finalStage = review.workflow_stage === 'published' ? 'published' : 'ready_for_review'
       await supabase
         .from('building_reviews')
-        .update({ workflow_stage: 'ready_for_review' })
+        .update({ workflow_stage: finalStage })
         .eq('id', review_id)
       return NextResponse.json({ success: true, message: 'No translations needed (only source language)' })
     }
@@ -156,10 +158,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Update workflow stage
+    // Update workflow stage — preserve 'published' if already approved
+    const finalStage = review.workflow_stage === 'published' ? 'published' : 'ready_for_review'
     await supabase
       .from('building_reviews')
-      .update({ workflow_stage: 'ready_for_review' })
+      .update({ workflow_stage: finalStage })
       .eq('id', review_id)
 
     return NextResponse.json({

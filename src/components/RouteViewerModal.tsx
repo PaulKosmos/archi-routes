@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, MapPin, Clock, Navigation, Star, Check, Headphones, CheckCircle, Award, Pencil, Trash2, Share2, MessageSquare, GraduationCap, Scroll, Map as MapIcon, Inbox, Trophy } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, MapPin, Clock, Navigation, Star, Check, Headphones, CheckCircle, Award, Pencil, Trash2, Share2, MessageSquare, GraduationCap, Scroll, Map as MapIcon, Inbox, Trophy, Globe } from 'lucide-react'
 import { Route, RoutePoint, Building, BuildingReview } from '@/types/building'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import dynamic from 'next/dynamic'
 import AddRouteReviewModal from './routes/AddRouteReviewModal'
+import ReviewTranslationTabs from './buildings/ReviewTranslationTabs'
 import ReviewCommentsModal from './buildings/ReviewCommentsModal'
 import RouteReviewCommentsModal from './routes/RouteReviewCommentsModal'
 
@@ -27,6 +28,11 @@ const AudioPlayer = dynamic(() => import('./AudioPlayer'), {
     </div>
   )
 })
+
+const LANG_LABELS: Record<string, string> = {
+  en: '🇬🇧 EN', de: '🇩🇪 DE', es: '🇪🇸 ES',
+  fr: '🇫🇷 FR', zh: '🇨🇳 ZH', ar: '🇸🇦 AR', ru: '🇷🇺 RU',
+}
 
 interface RouteViewerModalProps {
   isOpen: boolean
@@ -100,6 +106,7 @@ export default function RouteViewerModal({
   const [loadingReviews, setLoadingReviews] = useState(false)
   const [showAllReviews, setShowAllReviews] = useState(false)
   const [reviewTextExpanded, setReviewTextExpanded] = useState(false)
+  const [displayLanguage, setDisplayLanguage] = useState('all')
   const [userRatings, setUserRatings] = useState<Map<string, number>>(new Map())
   const [hoveredRating, setHoveredRating] = useState<{ reviewId: string, rating: number } | null>(null)
 
@@ -324,33 +331,39 @@ export default function RouteViewerModal({
 
   // Save review selection
   const handleSelectReview = async (reviewId: string) => {
-    if (!user || !currentPoint || !route) {
-      toast.error('Please log in to save your selection')
-      return
-    }
+    // Optimistic update — UI responds immediately
+    setSelectedReviewId(reviewId)
+    setReviewTextExpanded(false)
+
+    if (!user || !currentPoint || !route) return
 
     try {
-      // Upsert (update or insert)
-      const { error } = await supabase
+      // Try UPDATE first (existing selection for this point)
+      const { data: updated, error: updateError } = await supabase
         .from('route_point_review_selections')
-        .upsert({
-          user_id: user.id,
-          route_id: route.id,
-          route_point_id: currentPoint.id,
-          building_review_id: reviewId,
-          selected_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id,route_id,route_point_id'
-        })
+        .update({ building_review_id: reviewId, selected_at: new Date().toISOString() })
+        .eq('user_id', user.id)
+        .eq('route_id', route.id)
+        .eq('route_point_id', currentPoint.id)
+        .select('id')
 
-      if (error) throw error
+      if (updateError) throw updateError
 
-      setSelectedReviewId(reviewId)
-      setReviewTextExpanded(false)
-      toast.success('✅ Review selected!')
+      // No existing row — INSERT
+      if (!updated || updated.length === 0) {
+        const { error: insertError } = await supabase
+          .from('route_point_review_selections')
+          .insert({
+            user_id: user.id,
+            route_id: route.id,
+            route_point_id: currentPoint.id,
+            building_review_id: reviewId,
+            selected_at: new Date().toISOString()
+          })
+        if (insertError) throw insertError
+      }
     } catch (error) {
       console.error('Error saving review selection:', error)
-      toast.error('Error saving selection')
     }
   }
 
@@ -558,6 +571,21 @@ export default function RouteViewerModal({
               {/* Dropdown menu */}
               {showExportMenu && (
                 <div className="absolute right-0 mt-2 w-40 md:w-48 bg-card rounded-[var(--radius)] shadow-xl border-2 border-border py-2 z-[60]">
+                  <button
+                    className="flex items-center w-full px-3 md:px-4 py-2 hover:bg-muted transition-colors"
+                    onClick={() => {
+                      const url = `${window.location.origin}/routes/${route.id}`
+                      navigator.clipboard.writeText(url).then(() => {
+                        toast.success('Link copied!')
+                      }).catch(() => {
+                        toast.error('Failed to copy link')
+                      })
+                      setShowExportMenu(false)
+                    }}
+                  >
+                    <span className="text-xs md:text-sm font-medium text-foreground">Copy Link</span>
+                  </button>
+                  <div className="border-t border-border my-1" />
                   <a
                     href={exportUrls.google}
                     target="_blank"
@@ -967,18 +995,19 @@ export default function RouteViewerModal({
 
                   {/* Review text (if selected) or building description */}
                   {selectedReview && selectedReview.content ? (
-                    <div className="prose max-w-none mb-4">
-                      <p className={`text-sm md:text-base text-foreground leading-relaxed whitespace-pre-line ${reviewTextExpanded ? '' : 'line-clamp-3'}`}>
-                        {selectedReview.content}
-                      </p>
-                      <button
-                        onClick={() => setReviewTextExpanded(v => !v)}
-                        className="mt-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors"
-                      >
-                        {reviewTextExpanded ? 'Show less' : 'Show more'}
-                      </button>
+                    <div className="mb-4">
+                      <ReviewTranslationTabs
+                        reviewId={selectedReview.id}
+                        originalLanguage={selectedReview.original_language || selectedReview.language || 'en'}
+                        originalTitle={selectedReview.title || null}
+                        originalContent={selectedReview.content || ''}
+                        originalAudioUrl={selectedReview.audio_url || null}
+                        preferredLanguage={displayLanguage}
+                        isExpanded={reviewTextExpanded}
+                        onToggleExpand={() => setReviewTextExpanded(v => !v)}
+                      />
                       {selectedReview.tags && selectedReview.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-3">
+                        <div className="flex flex-wrap gap-2 mt-1">
                           {selectedReview.tags.map((tag, idx) => (
                             <span key={idx} className="bg-muted text-foreground px-2 py-1 rounded-full text-xs">
                               #{tag}
@@ -996,44 +1025,26 @@ export default function RouteViewerModal({
                   )}
                 </div>
 
-                {/* Audio player (if review with audio is selected) */}
-                {selectedReview && selectedReview.audio_url && (
-                  <div className="mb-4 md:mb-6">
-                    <h4 className="text-lg md:text-xl font-semibold font-display text-foreground mb-3 md:mb-4 flex items-center gap-2">
-                      <Headphones className="w-5 h-5" />
-                      Audio Review
-                    </h4>
-                    <AudioPlayer
-                      audioUrl={getStorageUrl(selectedReview.audio_url, 'audio')}
-                      title={selectedReview.title || currentPoint.title}
-                      onPositionChange={async (position) => {
-                        if (user && currentPoint) {
-                          await supabase
-                            .from('route_point_review_selections')
-                            .update({
-                              audio_position_seconds: Math.floor(position),
-                              last_listened_at: new Date().toISOString()
-                            })
-                            .eq('user_id', user.id)
-                            .eq('route_id', route!.id)
-                            .eq('route_point_id', currentPoint.id)
-                        }
-                      }}
-                      initialPosition={0}
-                    />
-                  </div>
-                )}
-
                 {/* Reviews section */}
                 <div className="mb-4 md:mb-6">
-                  <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <div className="flex items-center justify-between mb-3 md:mb-4 flex-wrap gap-2">
                     <h4 className="text-lg md:text-xl font-semibold font-display text-foreground flex items-center gap-2">
                       <MessageSquare className="w-5 h-5 flex-shrink-0" />
                       Reviews {reviews.length > 0 && `(${reviews.length})`}
                     </h4>
                     {reviews.length > 0 && (
-                      <div className="text-xs md:text-sm text-muted-foreground font-metrics">
-                        {reviews.filter(r => r.audio_url).length} with audio
+                      <div className="flex items-center gap-1.5">
+                        <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+                        <select
+                          value={displayLanguage}
+                          onChange={(e) => setDisplayLanguage(e.target.value)}
+                          className="text-xs border border-border rounded-[var(--radius)] px-2 py-1 bg-card text-foreground cursor-pointer"
+                        >
+                          <option value="all">Original</option>
+                          {(['en','de','es','fr','zh','ar','ru'] as const).map(lang => (
+                            <option key={lang} value={lang}>{LANG_LABELS[lang]}</option>
+                          ))}
+                        </select>
                       </div>
                     )}
                   </div>
@@ -1138,18 +1149,19 @@ export default function RouteViewerModal({
                                 )}
                               </div>
 
-                              {/* Title */}
-                              {review.title && (
-                                <h5 className="font-semibold font-display text-foreground mb-1 md:mb-2 text-sm md:text-base">
-                                  {review.title}
-                                </h5>
-                              )}
-
-                              {/* Text preview */}
-                              {review.content && (
-                                <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3 line-clamp-2">
-                                  {review.content}
-                                </p>
+                              {/* Title + text preview — translated when a language is selected */}
+                              {(review.title || review.content) && (
+                                <div className="mb-2 md:mb-3" onClick={e => e.stopPropagation()}>
+                                  <ReviewTranslationTabs
+                                    reviewId={review.id}
+                                    originalLanguage={review.original_language || review.language || 'en'}
+                                    originalTitle={review.title || null}
+                                    originalContent={review.content || ''}
+                                    originalAudioUrl={review.audio_url || null}
+                                    preferredLanguage={displayLanguage}
+                                    compact
+                                  />
+                                </div>
                               )}
 
                               {/* Metadata */}

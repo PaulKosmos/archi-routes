@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default function TermsPage() {
-  const lastUpdated = 'January 15, 2026'
+  const lastUpdated = 'February 27, 2026'
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -157,6 +157,41 @@ export default function TermsPage() {
                   translate, transmit, excerpt (in whole or in part), and distribute such Contributions for any
                   purpose, commercial, advertising, or otherwise, and to prepare derivative works of, or incorporate
                   into other works, such Contributions.
+                </p>
+              </div>
+
+              {/* AI Processing of Contributions */}
+              <div className="mb-12">
+                <h2 className="text-3xl font-bold mb-4">AI Processing of Your Contributions</h2>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  By submitting a review or other textual Contribution to the Site, you acknowledge and agree that:
+                </p>
+                <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
+                  <li>
+                    The text of your Contribution may be automatically <strong>translated</strong> into multiple
+                    languages using AI (Google Gemini API, operated by Google LLC) to make it accessible to
+                    a global audience.
+                  </li>
+                  <li>
+                    An <strong>audio version</strong> of your Contribution may be automatically generated
+                    using AI Text-to-Speech technology and published on the platform as an audio guide.
+                  </li>
+                  <li>
+                    Your Contribution may be processed by AI for <strong>content moderation</strong> purposes
+                    prior to publication.
+                  </li>
+                  <li>
+                    Only the textual content of your Contribution is transmitted for AI processing.
+                    Your personal identifiers (name, email address, etc.) are not included in AI requests.
+                  </li>
+                </ul>
+                <p className="text-muted-foreground leading-relaxed">
+                  AI-generated translations and audio are clearly labelled within the platform. You retain
+                  ownership of your original Contribution. If you object to AI processing of your content,
+                  you may request deletion of your review by contacting us at{' '}
+                  <a href="mailto:info@archiroutes.com" className="text-primary hover:underline">
+                    info@archiroutes.com
+                  </a>.
                 </p>
               </div>
 

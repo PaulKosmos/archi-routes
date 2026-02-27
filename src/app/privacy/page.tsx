@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default function PrivacyPage() {
-  const lastUpdated = 'January 15, 2026'
+  const lastUpdated = 'February 27, 2026'
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -82,6 +82,49 @@ export default function PrivacyPage() {
                 <p className="text-muted-foreground leading-relaxed">
                   With your permission, we may collect location data to provide location-based features such
                   as nearby buildings and personalized route recommendations.
+                </p>
+              </div>
+
+              {/* AI Processing */}
+              <div className="mb-12">
+                <h2 className="text-3xl font-bold mb-4">Artificial Intelligence Processing</h2>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  To enhance your experience and make content accessible to a global audience, ArchiRoutes uses
+                  AI-powered services to process user-submitted content. Specifically:
+                </p>
+                <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
+                  <li>
+                    <strong>Automatic Translation:</strong> Review text you submit may be automatically translated
+                    into up to 7 languages (English, German, Spanish, French, Chinese, Arabic, Russian) using
+                    Google Gemini AI. Translations are stored on our servers and displayed to other users.
+                  </li>
+                  <li>
+                    <strong>Audio Guide Generation:</strong> Review text may be converted into audio using
+                    Google Gemini Text-to-Speech (TTS). Generated audio files are stored in our infrastructure
+                    and made available as audio guides within the platform.
+                  </li>
+                  <li>
+                    <strong>Content Moderation:</strong> Submitted reviews may be analysed by AI to check
+                    for inappropriate or harmful content before publication.
+                  </li>
+                </ul>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  <strong>Third-party AI provider:</strong> The above features are powered by Google Gemini API
+                  (Google LLC). By submitting a review, you acknowledge that the text of your review will be
+                  transmitted to Google's servers for processing in accordance with{' '}
+                  <a
+                    href="https://policies.google.com/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    Google's Privacy Policy
+                  </a>.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  AI-generated translations and audio are clearly labelled within the platform. Only the textual
+                  content of your review is sent for processing — your personal data (name, email, etc.) is
+                  never included in AI requests.
                 </p>
               </div>
 

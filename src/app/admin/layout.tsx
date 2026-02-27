@@ -13,7 +13,8 @@ import {
   Bot,
   Podcast,
   BarChart3,
-  Route
+  Route,
+  MessageSquare
 } from 'lucide-react'
 
 export default function AdminLayout({
@@ -71,6 +72,11 @@ export default function AdminLayout({
           name: 'Moderation',
           href: '/admin/moderation',
           icon: Shield
+        },
+        {
+          name: 'Reviews',
+          href: '/admin/reviews',
+          icon: MessageSquare
         },
         {
           name: 'Users',

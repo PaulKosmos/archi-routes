@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { X, ExternalLink, Heart, BookmarkPlus, MapPin, Calendar, User as UserIcon, Building2, Eye, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pencil, Trash2, Info, DollarSign, TrendingUp, Clock, Bus, Accessibility, Layers, BookOpen, Star, Ruler, Globe, Route as RouteIcon } from 'lucide-react'
+import { X, ExternalLink, Heart, BookmarkPlus, MapPin, Calendar, User as UserIcon, Building2, Eye, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pencil, Trash2, Info, DollarSign, TrendingUp, Clock, Bus, Accessibility, Layers, BookOpen, Star, Ruler, Globe, Route as RouteIcon, Share2 } from 'lucide-react'
 import type { Building, BuildingReviewWithProfile, Route } from '@/types/building'
 import { createClient } from '@/lib/supabase'
 import { getStorageUrl } from '@/lib/storage'
@@ -522,6 +522,17 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
     }
   }
 
+  const handleCopyLink = () => {
+    if (building) {
+      const url = `${window.location.origin}/buildings/${building.id}`
+      navigator.clipboard.writeText(url).then(() => {
+        toast.success('Link copied!')
+      }).catch(() => {
+        toast.error('Failed to copy link')
+      })
+    }
+  }
+
   const handleRouteClick = async (routeId: string) => {
     setRouteModalLoading(true)
     try {
@@ -611,6 +622,15 @@ export default function BuildingModalNew({ building, isOpen, onClose }: Building
                 <Pencil className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
               </button>
             )}
+
+            {/* Поделиться ссылкой */}
+            <button
+              onClick={handleCopyLink}
+              className="p-1.5 md:p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Copy link"
+            >
+              <Share2 className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
+            </button>
 
             {/* Открыть в новом окне - скрыто на мобильных */}
             <button

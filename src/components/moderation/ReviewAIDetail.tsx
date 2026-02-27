@@ -25,15 +25,18 @@ interface ReviewAIData {
   ai_moderation_score: number | null
   ai_moderation_model: string | null
   original_language: string | null
+  original_audio_url: string | null  // user-uploaded audio on the review itself
   translations: ReviewTranslation[]
 }
 
 interface Props {
   reviewId: string       // content_id from moderation_queue
   moderatorId: string
+  /** When true, shows Re-generate Translations even if translations already exist */
+  allowRegenerateTranslations?: boolean
 }
 
-export default function ReviewAIDetail({ reviewId, moderatorId }: Props) {
+export default function ReviewAIDetail({ reviewId, moderatorId, allowRegenerateTranslations = false }: Props) {
   const [data, setData] = useState<ReviewAIData | null>(null)
   const [loading, setLoading] = useState(false)
   const [loaded, setLoaded] = useState(false)
@@ -54,7 +57,7 @@ export default function ReviewAIDetail({ reviewId, moderatorId }: Props) {
       const [reviewRes, translationsRes] = await Promise.all([
         supabase
           .from('building_reviews')
-          .select('workflow_stage, ai_moderation_status, ai_moderation_result, ai_moderation_score, ai_moderation_model, original_language')
+          .select('workflow_stage, ai_moderation_status, ai_moderation_result, ai_moderation_score, ai_moderation_model, original_language, audio_url')
           .eq('id', reviewId)
           .single(),
         supabase
@@ -74,6 +77,7 @@ export default function ReviewAIDetail({ reviewId, moderatorId }: Props) {
         ai_moderation_score: reviewData?.ai_moderation_score ?? null,
         ai_moderation_model: reviewData?.ai_moderation_model || null,
         original_language: reviewData?.original_language || null,
+        original_audio_url: reviewData?.audio_url || null,
         translations: translationsData,
       })
 
@@ -181,9 +185,16 @@ export default function ReviewAIDetail({ reviewId, moderatorId }: Props) {
 
   const openAudioPicker = () => {
     if (!data) return
-    // Pre-select all languages without existing audio
+    // Pre-select languages without audio.
+    // For the original language, also consider the user-uploaded audio_url on the review itself.
     const withoutAudio = new Set(
-      data.translations.filter((t) => !t.ai_audio_url).map((t) => t.language)
+      data.translations
+        .filter((t) => {
+          if (t.ai_audio_url) return false           // already has AI audio
+          if (t.is_original && data.original_audio_url) return false  // original has human audio
+          return true
+        })
+        .map((t) => t.language)
     )
     setSelectedAudioLangs(withoutAudio)
     setShowAudioLangPicker(true)
@@ -528,87 +539,104 @@ export default function ReviewAIDetail({ reviewId, moderatorId }: Props) {
             </div>
           )}
 
-          {/* ── Audio language picker ── */}
-          {showAudioLangPicker && data.translations.length > 0 && (
-            <div className="border border-violet-200 rounded-lg p-3 bg-violet-50">
-              <p className="text-xs font-medium text-violet-700 mb-2">Select languages to generate audio:</p>
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                {data.translations.map((t) => (
-                  <button
-                    key={t.language}
-                    type="button"
-                    onClick={() => toggleAudioLang(t.language)}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      selectedAudioLangs.has(t.language)
-                        ? 'bg-violet-600 text-white'
-                        : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300'
-                    }`}
-                  >
-                    {LANGUAGE_LABELS[t.language] || t.language}
-                    {t.is_original && (
-                      <span className={`text-[10px] ${selectedAudioLangs.has(t.language) ? 'text-violet-200' : 'text-gray-400'}`}>★</span>
-                    )}
-                    {t.ai_audio_url && (
-                      <Volume2 className={`w-3 h-3 ${selectedAudioLangs.has(t.language) ? 'text-violet-200' : 'text-violet-400'}`} />
-                    )}
-                  </button>
-                ))}
-              </div>
-              <div className="flex items-center gap-2">
+          {/* ── Action buttons ── */}
+          <div className="space-y-3 pt-1">
+            <div className="flex flex-wrap gap-2">
+              {/* Generate Translations — first time (no translations yet) */}
+              {data.translations.length === 0 && data.ai_moderation_status === 'passed' && data.workflow_stage !== 'translating' && (
+                <button
+                  onClick={handleTriggerTranslation}
+                  disabled={translating}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                >
+                  {translating
+                    ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating translations...</>
+                    : <><Languages className="w-4 h-4" /> Generate Translations</>
+                  }
+                </button>
+              )}
+
+              {/* Re-generate Translations — when translations exist and allowRegenerateTranslations=true */}
+              {data.translations.length > 0 && allowRegenerateTranslations && data.workflow_stage !== 'translating' && (
+                <button
+                  onClick={() => {
+                    if (confirm('Re-generate all translations? Existing translations will be overwritten with the current prompt.')) {
+                      handleTriggerTranslation()
+                    }
+                  }}
+                  disabled={translating}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 text-sm rounded-lg hover:bg-indigo-200 border border-indigo-200 disabled:opacity-50 transition-colors"
+                >
+                  {translating
+                    ? <><Loader2 className="w-4 h-4 animate-spin" /> Regenerating...</>
+                    : <><RefreshCw className="w-4 h-4" /> Re-generate Translations</>
+                  }
+                </button>
+              )}
+
+              {data.workflow_stage === 'translating' && (
+                <div className="inline-flex items-center gap-2 text-sm text-blue-600 px-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating translations...
+                </div>
+              )}
+
+              {/* Generate Audio button — always visible when translations exist */}
+              {data.translations.length > 0 && !generatingAudio && (
+                <button
+                  onClick={showAudioLangPicker ? () => setShowAudioLangPicker(false) : openAudioPicker}
+                  className={`inline-flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors ${
+                    showAudioLangPicker
+                      ? 'bg-violet-100 text-violet-700 border border-violet-300'
+                      : 'bg-violet-600 text-white hover:bg-violet-700'
+                  }`}
+                >
+                  <Volume2 className="w-4 h-4" />
+                  {showAudioLangPicker ? 'Cancel' : 'Generate Audio'}
+                </button>
+              )}
+              {generatingAudio && (
+                <div className="inline-flex items-center gap-2 text-sm text-violet-600 px-1">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating audio (~{selectedAudioLangs.size * 2}s)...
+                </div>
+              )}
+            </div>
+
+            {/* Audio language picker — appears inline below the buttons */}
+            {showAudioLangPicker && data.translations.length > 0 && (
+              <div className="border border-violet-200 rounded-lg p-3 bg-violet-50">
+                <p className="text-xs font-medium text-violet-700 mb-2">Select languages to generate audio:</p>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {data.translations.map((t) => (
+                    <button
+                      key={t.language}
+                      type="button"
+                      onClick={() => toggleAudioLang(t.language)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        selectedAudioLangs.has(t.language)
+                          ? 'bg-violet-600 text-white'
+                          : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300'
+                      }`}
+                    >
+                      {LANGUAGE_LABELS[t.language] || t.language}
+                      {t.is_original && (
+                        <span className={`text-[10px] ${selectedAudioLangs.has(t.language) ? 'text-violet-200' : 'text-gray-400'}`}>★</span>
+                      )}
+                      {(t.ai_audio_url || (t.is_original && data.original_audio_url)) && (
+                        <Volume2 className={`w-3 h-3 ${selectedAudioLangs.has(t.language) ? 'text-violet-200' : 'text-violet-400'}`} />
+                      )}
+                    </button>
+                  ))}
+                </div>
                 <button
                   onClick={handleGenerateAudio}
                   disabled={selectedAudioLangs.size === 0}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-50 transition-colors"
                 >
                   <Volume2 className="w-3.5 h-3.5" />
-                  Generate ({selectedAudioLangs.size}) ~{selectedAudioLangs.size * 2}s
+                  Generate for {selectedAudioLangs.size} language{selectedAudioLangs.size !== 1 ? 's' : ''} (~{selectedAudioLangs.size * 2}s)
                 </button>
-                <button
-                  onClick={() => setShowAudioLangPicker(false)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <X className="w-3 h-3" />
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ── Action buttons ── */}
-          <div className="flex flex-wrap gap-2 pt-1">
-            {/* Generate Translations */}
-            {data.translations.length === 0 && data.ai_moderation_status === 'passed' && data.workflow_stage !== 'translating' && (
-              <button
-                onClick={handleTriggerTranslation}
-                disabled={translating}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-              >
-                {translating
-                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating translations...</>
-                  : <><Languages className="w-4 h-4" /> Generate Translations</>
-                }
-              </button>
-            )}
-            {data.workflow_stage === 'translating' && (
-              <div className="inline-flex items-center gap-2 text-sm text-blue-600 px-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Generating translations...
-              </div>
-            )}
-
-            {/* Generate Audio — available once translations exist */}
-            {data.translations.length > 0 && !showAudioLangPicker && !generatingAudio && (
-              <button
-                onClick={openAudioPicker}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700 transition-colors"
-              >
-                <Volume2 className="w-4 h-4" /> Generate Audio
-              </button>
-            )}
-            {generatingAudio && (
-              <div className="inline-flex items-center gap-2 text-sm text-violet-600 px-1">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Generating audio (~{selectedAudioLangs.size * 2}s)...
               </div>
             )}
           </div>

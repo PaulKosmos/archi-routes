@@ -10,7 +10,7 @@ import {
   Route as RouteIcon, Navigation, Download, Share2, Map as MapIcon,
   ExternalLink, CheckCircle, Check, Footprints, Bike, Car, Bus,
   Gauge, Calendar, User, ChevronLeft, ChevronRight,
-  Headphones, Award, X, MessageSquare
+  Headphones, Award, X, MessageSquare, Globe
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import DeleteContentModal from '../../../components/DeleteContentModal'
@@ -19,6 +19,7 @@ import { TransportModeHelper, formatDistance, formatDuration } from '../../../ty
 import RouteReviewsList from '../../../components/routes/RouteReviewsList'
 import AddRouteReviewModal from '../../../components/routes/AddRouteReviewModal'
 import ReviewCommentsModal from '../../../components/buildings/ReviewCommentsModal'
+import ReviewTranslationTabs from '../../../components/buildings/ReviewTranslationTabs'
 import Link from 'next/link'
 import { getStorageUrl } from '../../../lib/storage'
 import toast from 'react-hot-toast'
@@ -32,14 +33,6 @@ const MapLibreRouteMap = dynamic(() => import('./MapLibreRouteMap'), {
   )
 })
 
-const AudioPlayer = dynamic(() => import('../../../components/AudioPlayer'), {
-  ssr: false,
-  loading: () => (
-    <div className="h-24 bg-muted animate-pulse rounded-[var(--radius)] flex items-center justify-center">
-      <Headphones className="h-6 w-6 text-muted-foreground animate-pulse" />
-    </div>
-  )
-})
 
 interface RouteDetailClientProps {
   route: any
@@ -102,6 +95,7 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
   const [reviewTextExpanded, setReviewTextExpanded] = useState(false)
+  const [displayLanguage, setDisplayLanguage] = useState('all')
 
   const [routeReviews, setRouteReviews] = useState<any[]>([])
   const [showAddReviewModal, setShowAddReviewModal] = useState(false)
@@ -264,19 +258,36 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
   }
 
   const handleSelectReview = async (reviewId: string) => {
-    if (!user || !currentPoint || !route) { toast.error('Please log in to save your selection'); return }
+    // Optimistic update — UI responds immediately
+    setSelectedReviewId(reviewId)
+    setReviewTextExpanded(false)
+
+    if (!user || !currentPoint || !route) return
+
     try {
-      const { error } = await supabase
+      // Try UPDATE first (existing selection for this point)
+      const { data: updated, error: updateError } = await supabase
         .from('route_point_review_selections')
-        .upsert({
-          user_id: user.id, route_id: route.id, route_point_id: currentPoint.id,
-          building_review_id: reviewId, selected_at: new Date().toISOString()
-        }, { onConflict: 'user_id,route_id,route_point_id' })
-      if (error) throw error
-      setSelectedReviewId(reviewId)
-      toast.success('Review selected!')
+        .update({ building_review_id: reviewId, selected_at: new Date().toISOString() })
+        .eq('user_id', user.id)
+        .eq('route_id', route.id)
+        .eq('route_point_id', currentPoint.id)
+        .select('id')
+
+      if (updateError) throw updateError
+
+      // No existing row — INSERT
+      if (!updated || updated.length === 0) {
+        const { error: insertError } = await supabase
+          .from('route_point_review_selections')
+          .insert({
+            user_id: user.id, route_id: route.id, route_point_id: currentPoint.id,
+            building_review_id: reviewId, selected_at: new Date().toISOString()
+          })
+        if (insertError) throw insertError
+      }
     } catch (e) {
-      toast.error('Error saving selection')
+      console.error('Error saving review selection:', e)
     }
   }
 
@@ -853,20 +864,18 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                     <div className="bg-card border border-border rounded-[var(--radius)] p-5">
                       {selectedReview?.content ? (
                         <>
-                          {selectedReview.title && (
-                            <h3 className="font-semibold font-display text-foreground mb-2">{selectedReview.title}</h3>
-                          )}
-                          <p className={`text-foreground leading-relaxed whitespace-pre-line ${reviewTextExpanded ? '' : 'line-clamp-3'}`}>
-                            {selectedReview.content}
-                          </p>
-                          {selectedReview.content.length > 200 && (
-                            <button onClick={() => setReviewTextExpanded(v => !v)}
-                              className="mt-2 text-sm text-primary hover:text-primary/80 font-medium transition-colors">
-                              {reviewTextExpanded ? 'Show less' : 'Show more'}
-                            </button>
-                          )}
+                          <ReviewTranslationTabs
+                            reviewId={selectedReview.id}
+                            originalLanguage={selectedReview.original_language || selectedReview.language || 'en'}
+                            originalTitle={selectedReview.title || null}
+                            originalContent={selectedReview.content || ''}
+                            originalAudioUrl={selectedReview.audio_url || null}
+                            preferredLanguage={displayLanguage}
+                            isExpanded={reviewTextExpanded}
+                            onToggleExpand={() => setReviewTextExpanded(v => !v)}
+                          />
                           {selectedReview.tags?.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-3">
+                            <div className="flex flex-wrap gap-2 mt-1">
                               {selectedReview.tags.map((tag: string, idx: number) => (
                                 <span key={idx} className="bg-muted text-foreground px-2 py-1 rounded-full text-xs">#{tag}</span>
                               ))}
@@ -881,36 +890,25 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                     </div>
                   )}
 
-                  {/* Audio player */}
-                  {selectedReview?.audio_url && (
-                    <div className="bg-card border border-border rounded-[var(--radius)] p-5">
-                      <h3 className="text-base font-semibold font-display text-foreground mb-3 flex items-center gap-2">
-                        <Headphones className="w-4 h-4 text-primary" />Audio Guide
-                      </h3>
-                      <AudioPlayer
-                        audioUrl={getStorageUrl(selectedReview.audio_url, 'audio')}
-                        title={selectedReview.title || currentPoint.title}
-                        onPositionChange={async (position: number) => {
-                          if (user && currentPoint) {
-                            await supabase.from('route_point_review_selections')
-                              .update({ audio_position_seconds: Math.floor(position), last_listened_at: new Date().toISOString() })
-                              .eq('user_id', user.id).eq('route_id', route.id).eq('route_point_id', currentPoint.id)
-                          }
-                        }}
-                        initialPosition={0}
-                      />
-                    </div>
-                  )}
-
                   {/* Building Reviews */}
                   <div className="bg-card border border-border rounded-[var(--radius)] p-5">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                       <h3 className="text-base font-semibold font-display text-foreground">
                         Building Reviews {buildingReviews.length > 0 && `(${buildingReviews.length})`}
                       </h3>
-                      {buildingReviews.filter((r: any) => r.audio_url).length > 0 && (
-                        <div className="text-sm text-muted-foreground font-metrics flex items-center gap-1">
-                          <Headphones className="w-3 h-3" />{buildingReviews.filter((r: any) => r.audio_url).length} with audio
+                      {buildingReviews.length > 0 && (
+                        <div className="flex items-center gap-1.5">
+                          <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+                          <select
+                            value={displayLanguage}
+                            onChange={(e) => setDisplayLanguage(e.target.value)}
+                            className="text-xs border border-border rounded-[var(--radius)] px-2 py-1 bg-card text-foreground cursor-pointer"
+                          >
+                            <option value="all">Original</option>
+                            {(['en','de','es','fr','zh','ar','ru'] as const).map(lang => (
+                              <option key={lang} value={lang}>{lang.toUpperCase()}</option>
+                            ))}
+                          </select>
                         </div>
                       )}
                     </div>
@@ -959,8 +957,19 @@ export default function RouteDetailClient({ route }: RouteDetailClientProps) {
                                     <span className="flex items-center text-primary text-sm font-medium flex-shrink-0"><Check className="w-4 h-4 mr-1" />Selected</span>
                                   )}
                                 </div>
-                                {review.title && <h4 className="font-semibold font-display text-foreground mb-1 text-sm">{review.title}</h4>}
-                                {review.content && <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{review.content}</p>}
+                                {(review.title || review.content) && (
+                                  <div className="mb-2" onClick={e => e.stopPropagation()}>
+                                    <ReviewTranslationTabs
+                                      reviewId={review.id}
+                                      originalLanguage={review.original_language || review.language || 'en'}
+                                      originalTitle={review.title || null}
+                                      originalContent={review.content || ''}
+                                      originalAudioUrl={review.audio_url || null}
+                                      preferredLanguage={displayLanguage}
+                                      compact
+                                    />
+                                  </div>
+                                )}
                                 <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2 font-metrics">
                                   {review.photos?.length > 0 && <span>{review.photos.length} photos</span>}
                                   {review.audio_duration_seconds && (

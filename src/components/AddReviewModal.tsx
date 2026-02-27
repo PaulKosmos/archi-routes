@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { X, Star, Camera, FileAudio, Tag } from 'lucide-react'
+import Link from 'next/link'
+import { X, Star, Camera, FileAudio, Tag, Bot } from 'lucide-react'
 import { Building } from '@/types/building'
 import { createClient } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
@@ -564,6 +565,17 @@ export default function AddReviewModal({
               )}
             </div>
           </form>
+        </div>
+
+        {/* AI processing notice */}
+        <div className="flex items-start gap-2 px-6 py-3 bg-blue-50 border-t border-blue-100">
+          <Bot className="w-3.5 h-3.5 text-blue-400 mt-0.5 shrink-0" />
+          <p className="text-xs text-blue-600 leading-relaxed">
+            By submitting, you agree that your review text will be processed by AI (Google Gemini) for automatic translation into 7 languages and audio guide generation.{' '}
+            <Link href="/privacy" target="_blank" className="underline underline-offset-2 hover:text-blue-800">
+              Privacy Policy
+            </Link>
+          </p>
         </div>
 
         {/* Footer */}

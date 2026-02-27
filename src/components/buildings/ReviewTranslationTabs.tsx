@@ -22,8 +22,10 @@ interface Props {
   originalContent: string
   originalAudioUrl?: string | null
   preferredLanguage: string  // 'all' = show original
-  isExpanded: boolean
-  onToggleExpand: () => void
+  /** Card preview mode: hides audio, expand button, AI badge, and per-review language tabs */
+  compact?: boolean
+  isExpanded?: boolean
+  onToggleExpand?: () => void
 }
 
 export default function ReviewTranslationTabs({
@@ -33,7 +35,8 @@ export default function ReviewTranslationTabs({
   originalContent,
   originalAudioUrl,
   preferredLanguage,
-  isExpanded,
+  compact = false,
+  isExpanded = false,
   onToggleExpand,
 }: Props) {
   const supabase = useMemo(() => createClient(), [])
@@ -121,8 +124,8 @@ export default function ReviewTranslationTabs({
 
   return (
     <div>
-      {/* ── Language switcher at the top ── */}
-      {hasTranslations && (
+      {/* ── Language switcher at the top (hidden in compact/card mode) ── */}
+      {!compact && hasTranslations && (
         <div className="flex flex-wrap gap-1 mb-3">
           {translations.map((t) => (
             <button
@@ -134,7 +137,6 @@ export default function ReviewTranslationTabs({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              <span>{LANG_FLAGS[t.language] || ''}</span>
               <span>{t.language.toUpperCase()}</span>
               {t.is_original && (
                 <span className={`text-[9px] ${activeLang === t.language ? 'text-blue-200' : 'text-gray-400'}`}>
@@ -148,17 +150,19 @@ export default function ReviewTranslationTabs({
 
       {/* ── Title ── */}
       {displayTitle && (
-        <h3 className="text-base md:text-xl font-semibold text-gray-900 mb-2 md:mb-3">
-          {displayTitle}
-        </h3>
+        compact
+          ? <h5 className="font-semibold font-display text-foreground mb-1 text-sm">{displayTitle}</h5>
+          : <h3 className="text-base md:text-xl font-semibold text-gray-900 mb-2 md:mb-3">{displayTitle}</h3>
       )}
 
       {/* ── Content ── */}
       {contentLoading ? (
-        <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
+        <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
           <Loader2 className="w-3.5 h-3.5 animate-spin" />
           Loading translation...
         </div>
+      ) : compact ? (
+        <p className="text-xs text-muted-foreground line-clamp-2">{displayContent}</p>
       ) : (
         <div className="mb-4">
           <p className={`text-gray-700 leading-relaxed whitespace-pre-line ${
@@ -180,8 +184,8 @@ export default function ReviewTranslationTabs({
         </div>
       )}
 
-      {/* ── Audio player — single player, track switches with active language ── */}
-      {!contentLoading && (() => {
+      {/* ── Audio player — hidden in compact mode ── */}
+      {!compact && !contentLoading && (() => {
         const audioPath = isShowingOriginal
           ? (originalAudioUrl || originalTranslationAIAudio || null)
           : (translationData?.ai_audio_url || null)
@@ -193,8 +197,8 @@ export default function ReviewTranslationTabs({
         ) : null
       })()}
 
-      {/* ── AI translation badge ── */}
-      {!isShowingOriginal && !contentLoading && (
+      {/* ── AI translation badge — hidden in compact mode ── */}
+      {!compact && !isShowingOriginal && !contentLoading && (
         <p className="text-xs text-gray-400 -mt-2 mb-2 flex items-center gap-1">
           <Bot className="w-3 h-3" />
           <span>AI translation · {LANG_FLAGS[activeLang] || ''} {activeLang.toUpperCase()}</span>

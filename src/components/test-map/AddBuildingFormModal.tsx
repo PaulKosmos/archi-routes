@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, MapPin, Building as BuildingIcon, User, Calendar, Palette, Loader2, Globe, Camera, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, MapPin, Building as BuildingIcon, User, Calendar, Palette, Loader2, Globe, Camera, AlertTriangle, ChevronDown, ChevronUp, Bot } from 'lucide-react'
+import Link from 'next/link'
 import { reverseGeocode, type GeocodingResult } from '@/utils/geocoding'
 import { useDuplicateCheck } from '@/hooks/useDuplicateCheck'
 import { useRouter } from 'next/navigation'
@@ -1247,6 +1248,19 @@ export default function AddBuildingFormModal({
             )}
           </div>
         </div>
+
+        {/* AI processing notice — only when review is included */}
+        {showReview && (
+          <div className="flex items-start gap-2 px-3 sm:px-6 py-2.5 bg-blue-50 border-t border-blue-100 flex-shrink-0">
+            <Bot className="w-3.5 h-3.5 text-blue-400 mt-0.5 shrink-0" />
+            <p className="text-xs text-blue-600 leading-relaxed">
+              By submitting, you agree that your review text will be processed by AI (Google Gemini) for automatic translation into 7 languages and audio guide generation.{' '}
+              <Link href="/privacy" target="_blank" className="underline underline-offset-2 hover:text-blue-800">
+                Privacy Policy
+              </Link>
+            </p>
+          </div>
+        )}
 
         {/* Футер с кнопками */}
         <div className="bg-gray-50 px-3 sm:px-6 py-2.5 sm:py-4 border-t border-gray-200 flex-shrink-0">
