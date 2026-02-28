@@ -57,7 +57,7 @@ interface ReviewWithBuilding {
 
 export default function ProfileReviewsPage() {
   const supabase = useMemo(() => createClient(), [])
-  const { user, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const [reviews, setReviews] = useState<ReviewWithBuilding[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -108,11 +108,17 @@ export default function ProfileReviewsPage() {
     }
 
     try {
-      const { error } = await supabase
+      let query = supabase
         .from('building_reviews')
         .delete()
         .eq('id', reviewId)
-        .eq('user_id', user?.id)
+
+      // Admins/moderators can delete any review; regular users only their own
+      if (!['admin', 'moderator'].includes(profile?.role || '')) {
+        query = query.eq('user_id', user?.id)
+      }
+
+      const { error } = await query
 
       if (error) throw error
 
