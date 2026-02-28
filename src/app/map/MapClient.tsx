@@ -28,7 +28,8 @@ import {
   Globe,
   User,
   Plus,
-  Navigation2
+  Navigation2,
+  ChevronLeft
 } from 'lucide-react'
 import MapStatsPanel from '../../components/MapStatsPanel'
 import Header from '../../components/Header'
@@ -1316,6 +1317,15 @@ export default function TestMapPage() {
               className={`hidden md:flex bg-white border-r border-gray-200 shadow-xl flex-col h-full transition-all duration-500 ease-in-out absolute left-0 top-0 bottom-0 z-10 ${showSidebar ? 'w-[360px] lg:w-[420px] xl:w-[480px] translate-x-0' : 'w-[360px] lg:w-[420px] xl:w-[480px] -translate-x-full'
                 }`}
             >
+              {/* Collapse arrow — right edge of sidebar */}
+              <button
+                onClick={() => setMapView(null)}
+                className="absolute -right-7 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-7 h-14 bg-white border border-l-0 border-gray-200 rounded-r-lg shadow-md hover:bg-gray-50 transition-colors"
+                title="Collapse panel"
+              >
+                <ChevronLeft className="w-4 h-4 text-gray-500" />
+              </button>
+
               <div className="flex-1 overflow-y-auto p-4 max-h-[calc(100vh-8rem)]">
                 {mapView === 'buildings' && (
                   <LazyBuildingList
