@@ -1,16 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import dynamic from 'next/dynamic'
 import RouteCreator from './RouteCreator'
 import UserDropdown from './UserDropdown'
 import { GlobalSearchBar } from './search/GlobalSearchBar'
 import { CreateContentDropdown } from './CreateContentDropdown'
 import AuthModal from './AuthModal'
 import NotificationBell from './notifications/NotificationBell'
-import type { Building } from '../types/building'
+import type { Building, Route } from '../types/building'
 import { PlusCircle, Menu, X, MapPin, Search } from 'lucide-react'
+
+const RouteViewerModal = dynamic(() => import('./RouteViewerModal'), { ssr: false })
 
 interface HeaderProps {
   buildings?: Building[]
@@ -25,6 +28,7 @@ export default function Header({ buildings = [], onRouteCreated }: HeaderProps) 
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [previewRoute, setPreviewRoute] = useState<Route | null>(null)
 
   // Проверяем, находимся ли мы на главной странице
   const isHomePage = pathname === '/'
@@ -59,11 +63,16 @@ export default function Header({ buildings = [], onRouteCreated }: HeaderProps) 
 
   const handleCloseRouteCreator = () => {
     setIsRouteCreatorOpen(false)
-    // Вызываем callback для обновления данных
     if (onRouteCreated) {
       console.log('🔄 Calling onRouteCreated callback')
       onRouteCreated()
     }
+  }
+
+  const handleRouteCreated = (route: Route) => {
+    setIsRouteCreatorOpen(false)
+    setPreviewRoute(route)
+    if (onRouteCreated) onRouteCreated()
   }
 
   const handleAuthModalOpen = () => {
@@ -222,8 +231,16 @@ export default function Header({ buildings = [], onRouteCreated }: HeaderProps) 
           user={user}
           buildings={buildings}
           initialMode={routeCreatorMode}
+          onSuccess={handleRouteCreated}
         />
       )}
+
+      {/* Просмотр только что созданного маршрута */}
+      <RouteViewerModal
+        isOpen={!!previewRoute}
+        onClose={() => setPreviewRoute(null)}
+        route={previewRoute}
+      />
 
       {/* Модальное окно авторизации */}
       <AuthModal

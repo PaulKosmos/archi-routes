@@ -3,7 +3,8 @@
 
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { createClient } from '../lib/supabase'
-import type { Building, RoutePoint } from '../types/building'
+import type { Building, RoutePoint, Route } from '../types/building'
+import toast from 'react-hot-toast'
 import { X, Plus, MapPin, Clock, Users, Star, Save, Eye, Settings, Route as RouteIcon, Loader, AlertCircle, Zap, Wrench } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { buildRoute, optimizeRoute } from '../lib/mapbox-routing-service'
@@ -41,9 +42,10 @@ interface RouteCreatorProps {
   user: any
   buildings: Building[]
   initialMode?: 'manual' | 'autogenerate'
+  onSuccess?: (route: Route) => void
 }
 
-export default function RouteCreator({ isOpen, onClose, user, buildings, initialMode = 'manual' }: RouteCreatorProps) {
+export default function RouteCreator({ isOpen, onClose, user, buildings, initialMode = 'manual', onSuccess }: RouteCreatorProps) {
   const supabase = useMemo(() => createClient(), [])
   // Режим создания: 'manual' или 'autogenerate'
   const [creationMode, setCreationMode] = useState<'manual' | 'autogenerate'>(initialMode)
@@ -352,13 +354,19 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
       console.log('✅ Route generated successfully:', result.route_id)
 
-      alert(`🎉 Route created successfully! Redirecting to main page...`)
+      // Fetch full route object and open RouteViewerModal
+      if (onSuccess) {
+        const { data: createdRoute } = await supabase
+          .from('routes')
+          .select('*')
+          .eq('id', result.route_id)
+          .single()
+        if (createdRoute) onSuccess(createdRoute as Route)
+      }
 
+      toast.success('Route created successfully!')
       resetForm()
       onClose()
-
-      // Перенаправляем на главную с обновлением
-      window.location.href = '/'
 
     } catch (error: any) {
       console.error('❌ Auto-generation error:', error)
@@ -645,32 +653,23 @@ export default function RouteCreator({ isOpen, onClose, user, buildings, initial
 
           if (publicationError) {
             console.error('❌ Publication request error:', publicationError)
-            console.error('Publication request error details:', {
-              message: publicationError.message,
-              details: publicationError.details,
-              hint: publicationError.hint,
-              code: publicationError.code
-            })
-
-            // Don't interrupt the route creation process, just notify
-            alert(`Route created, but moderation request was not sent: ${publicationError.message}`)
+            toast.error(`Route created, but moderation request was not sent: ${publicationError.message}`)
           } else {
             console.log('✅ Publication request created successfully:', requestData)
-            alert('Route created and sent for moderation!')
           }
         } catch (error) {
           console.error('Exception creating publication request:', error)
-          alert('Route created, but an error occurred while sending the moderation request')
+          toast.error('Route created, but an error occurred while sending the moderation request')
         }
       }
 
-      alert(`Route created successfully!${routeVisibility === 'public'
-          ? ' Publication request sent for moderation.'
-          : ' Route saved as private.'
-        }`)
-      resetForm()
+      toast.success(routeVisibility === 'public'
+        ? 'Route created and sent for moderation!'
+        : 'Route saved as private!')
 
-      window.location.href = '/'
+      onSuccess?.(route as Route)
+      resetForm()
+      onClose()
 
     } catch (error: any) {
       console.error('Route creation error:', error)
