@@ -146,7 +146,7 @@ export default function RouteViewerModal({
 
   // Comments modals state
   const [buildingReviewCommentsModal, setBuildingReviewCommentsModal] = useState<{
-    id: string; title: string; author: string
+    id: string; title: string; author: string; language?: string
   } | null>(null)
   const [routeReviewCommentsModal, setRouteReviewCommentsModal] = useState<{
     id: string; title: string; author: string
@@ -1219,7 +1219,8 @@ export default function RouteViewerModal({
                                     setBuildingReviewCommentsModal({
                                       id: review.id,
                                       title: review.title || 'Review',
-                                      author: 'Author'
+                                      author: 'Author',
+                                      language: displayLanguage !== 'all' ? displayLanguage : undefined
                                     })
                                   }}
                                   className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
@@ -1559,6 +1560,7 @@ export default function RouteViewerModal({
           reviewId={buildingReviewCommentsModal.id}
           reviewTitle={buildingReviewCommentsModal.title}
           reviewAuthor={buildingReviewCommentsModal.author}
+          language={buildingReviewCommentsModal.language}
         />
       )}
 

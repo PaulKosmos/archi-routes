@@ -14,6 +14,8 @@ interface ReviewCommentsModalProps {
   reviewId: string
   reviewTitle: string
   reviewAuthor: string
+  /** Active language code ('en', 'ru', etc.). Undefined = original/all. */
+  language?: string
 }
 
 const EMOJIS = [
@@ -158,6 +160,7 @@ export default function ReviewCommentsModal({
   reviewId,
   reviewTitle,
   reviewAuthor,
+  language,
 }: ReviewCommentsModalProps) {
   const supabase = useMemo(() => createClient(), [])
   const { user, profile } = useAuth()
@@ -175,7 +178,7 @@ export default function ReviewCommentsModal({
   useEffect(() => {
     if (!isOpen) return
     loadComments()
-  }, [isOpen, reviewId])
+  }, [isOpen, reviewId, language])
 
   // Close on Escape
   useEffect(() => {
@@ -188,10 +191,19 @@ export default function ReviewCommentsModal({
   const loadComments = async () => {
     setLoading(true)
     try {
-      const { data: commentsData, error } = await supabase
+      let query = supabase
         .from('building_review_comments')
         .select('*')
         .eq('review_id', reviewId)
+
+      // Filter by language: specific lang or null (original)
+      if (language) {
+        query = query.eq('language', language)
+      } else {
+        query = query.is('language', null)
+      }
+
+      const { data: commentsData, error } = await query
         .order('created_at', { ascending: true })
 
       if (error) {
@@ -264,6 +276,7 @@ export default function ReviewCommentsModal({
         review_id: reviewId,
         user_id: user.id,
         content: text,
+        language: language || null,
       }
       if (replyingTo) {
         // Reply to parent (always 1 level deep: use parent's own id if it already is a reply)
@@ -418,6 +431,7 @@ export default function ReviewCommentsModal({
               </h3>
               <p className="text-xs text-gray-500 truncate">
                 {reviewTitle} · {reviewAuthor}
+                {language && <span className="ml-1 font-medium text-blue-500 uppercase">[{language}]</span>}
               </p>
             </div>
           </div>

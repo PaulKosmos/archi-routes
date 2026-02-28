@@ -51,7 +51,7 @@ export default function BuildingReviewsList({
   // displayLanguage: which translation language to show in all cards ('all' = original)
   const [displayLanguage, setDisplayLanguage] = useState<string>('all')
   const [commentsModalReview, setCommentsModalReview] = useState<{
-    id: string; title: string; author: string
+    id: string; title: string; author: string; language?: string
   } | null>(null)
   const [commentCounts, setCommentCounts] = useState<Map<string, number>>(new Map())
 
@@ -440,7 +440,8 @@ export default function BuildingReviewsList({
                   onClick={() => setCommentsModalReview({
                     id: review.id,
                     title: review.title || 'Review',
-                    author: review.profiles?.display_name || review.profiles?.full_name || review.profiles?.username || 'Author'
+                    author: review.profiles?.display_name || review.profiles?.full_name || review.profiles?.username || 'Author',
+                    language: displayLanguage !== 'all' ? displayLanguage : undefined
                   })}
                   className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-blue-600 transition-colors"
                 >
@@ -488,6 +489,7 @@ export default function BuildingReviewsList({
           reviewId={commentsModalReview.id}
           reviewTitle={commentsModalReview.title}
           reviewAuthor={commentsModalReview.author}
+          language={commentsModalReview.language}
         />
       )}
     </div>
