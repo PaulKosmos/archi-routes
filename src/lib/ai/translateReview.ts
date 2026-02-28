@@ -125,7 +125,6 @@ export async function performTranslation(
       fallbackModel: promptData.fallback_model,
       temperature: 0.2,
       maxOutputTokens: 16384,
-      thinkingBudget: 0,
     })
     modelUsed = used
     translations = extractJSON<TranslationMap>(text)
