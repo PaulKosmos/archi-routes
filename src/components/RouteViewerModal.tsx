@@ -1442,13 +1442,21 @@ export default function RouteViewerModal({
               })}
             </div>
 
-            <button
-              onClick={goToNext}
-              disabled={currentPointIndex === routePoints.length - 1}
-              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            {currentPointIndex === routePoints.length - 1 ? (
+              <button
+                onClick={onClose}
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors"
+              >
+                <CheckCircle className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={goToNext}
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           {/* Counter + Map button */}
@@ -1500,14 +1508,23 @@ export default function RouteViewerModal({
             )}
           </div>
 
-          <button
-            onClick={goToNext}
-            disabled={currentPointIndex === routePoints.length - 1}
-            className="flex items-center space-x-1 md:space-x-2 px-3 md:px-6 py-2 md:py-3 bg-primary text-primary-foreground rounded-[var(--radius)] font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
-          >
-            <span className="hidden md:inline">Next</span>
-            <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
-          </button>
+          {currentPointIndex === routePoints.length - 1 ? (
+            <button
+              onClick={onClose}
+              className="flex items-center space-x-1 md:space-x-2 px-3 md:px-6 py-2 md:py-3 bg-green-600 text-white rounded-[var(--radius)] font-medium hover:bg-green-700 transition-colors text-sm md:text-base"
+            >
+              <span className="hidden md:inline">Finish</span>
+              <CheckCircle className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+          ) : (
+            <button
+              onClick={goToNext}
+              className="flex items-center space-x-1 md:space-x-2 px-3 md:px-6 py-2 md:py-3 bg-primary text-primary-foreground rounded-[var(--radius)] font-medium hover:bg-primary/90 transition-colors text-sm md:text-base"
+            >
+              <span className="hidden md:inline">Next</span>
+              <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+          )}
         </div>
       </div>
 
