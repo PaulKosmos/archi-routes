@@ -701,8 +701,8 @@ export default function EditReviewPage() {
                   Cancel
                 </Link>
 
-                {/* Delete button — only for review author */}
-                {review.user_id === user?.id && !showDeleteConfirm && (
+                {/* Delete button — for review author or admin/moderator */}
+                {(review.user_id === user?.id || profile?.role === 'admin' || profile?.role === 'moderator') && !showDeleteConfirm && (
                   <button
                     type="button"
                     onClick={() => setShowDeleteConfirm(true)}
