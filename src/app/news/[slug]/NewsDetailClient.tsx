@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { NewsArticleWithDetails, getNewsCategoryIcon, ContentBlock } from '@/types/news';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase';
+import toast from 'react-hot-toast';
 
 // Глобальный Set для отслеживания просмотренных новостей в текущей сессии
 const viewedNews = new Set<string>();
@@ -422,7 +423,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
   // Обработка взаимодействий
   const handleInteraction = async (type: 'like' | 'bookmark' | 'share') => {
     if (!user || !article) {
-      alert('Please log in to interact with news');
+      toast.error('Please log in to interact with news');
       return;
     }
 
@@ -430,11 +431,9 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
       setInteractionLoading(type);
 
       if (type === 'like' || type === 'bookmark') {
-        // Проверяем текущее состояние
         const isActive = type === 'like' ? article.user_interactions?.liked : article.user_interactions?.bookmarked;
 
         if (isActive) {
-          // Убираем взаимодействие
           const { error } = await supabase
             .from('news_interactions')
             .delete()
@@ -444,7 +443,6 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
 
           if (error) throw error;
 
-          // Обновляем локальное состояние
           setArticle(prev => prev ? {
             ...prev,
             user_interactions: {
@@ -456,18 +454,15 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
             bookmarks_count: type === 'bookmark' ? Math.max(0, (prev.bookmarks_count || 0) - 1) : prev.bookmarks_count
           } : null);
         } else {
-          // Добавляем взаимодействие
           const { error } = await supabase
             .from('news_interactions')
-            .insert({
-              news_id: article.id,
-              user_id: user.id,
-              interaction_type: type
-            });
+            .upsert(
+              { news_id: article.id, user_id: user.id, interaction_type: type },
+              { onConflict: 'news_id,user_id,interaction_type', ignoreDuplicates: true }
+            );
 
           if (error) throw error;
 
-          // Обновляем локальное состояние
           setArticle(prev => prev ? {
             ...prev,
             user_interactions: {
@@ -480,28 +475,24 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
           } : null);
         }
       } else if (type === 'share') {
-        // Добавляем взаимодействие share
+        // upsert — не падает при повторном клике
         const { error } = await supabase
           .from('news_interactions')
-          .insert({
-            news_id: article.id,
-            user_id: user.id,
-            interaction_type: 'share'
-          });
+          .upsert(
+            { news_id: article.id, user_id: user.id, interaction_type: 'share' },
+            { onConflict: 'news_id,user_id,interaction_type', ignoreDuplicates: true }
+          );
 
         if (error) throw error;
 
-        // Обновляем счетчик shares
         setArticle(prev => prev ? {
           ...prev,
           shares_count: (prev.shares_count || 0) + 1
         } : null);
       }
-
-
     } catch (error) {
       console.error('Ошибка взаимодействия:', error);
-      alert('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.');
     } finally {
       setInteractionLoading(null);
     }
@@ -621,7 +612,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
                   <div className="absolute top-4 right-4 flex gap-2">
                     <button
                       onClick={() => handleInteraction('like')}
-                      disabled={!user || interactionLoading === 'like'}
+                      disabled={interactionLoading === 'like'}
                       className={`p-3 rounded backdrop-blur-md transition-all ${article.user_interactions?.liked
                         ? 'bg-[hsl(var(--news-primary))] text-white'
                         : 'bg-white/90 text-gray-700 hover:bg-white'
@@ -632,7 +623,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
                     </button>
                     <button
                       onClick={() => handleInteraction('bookmark')}
-                      disabled={!user || interactionLoading === 'bookmark'}
+                      disabled={interactionLoading === 'bookmark'}
                       className={`p-3 rounded backdrop-blur-md transition-all ${article.user_interactions?.bookmarked
                         ? 'bg-[hsl(var(--news-primary))] text-white'
                         : 'bg-white/90 text-gray-700 hover:bg-white'
@@ -649,10 +640,13 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
                             text: article.summary || article.title,
                             url: window.location.href
                           });
+                        } else {
+                          navigator.clipboard.writeText(window.location.href);
+                          toast.success('Link copied!');
                         }
-                        handleInteraction('share');
+                        if (user) handleInteraction('share');
                       }}
-                      disabled={!user || interactionLoading === 'share'}
+                      disabled={interactionLoading === 'share'}
                       className="p-3 rounded bg-white/90 backdrop-blur-md text-gray-700 hover:bg-white transition-all disabled:opacity-50"
                       title="Share"
                     >
@@ -664,7 +658,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
                 <div className="mb-8 flex justify-end gap-2">
                   <button
                     onClick={() => handleInteraction('like')}
-                    disabled={!user || interactionLoading === 'like'}
+                    disabled={interactionLoading === 'like'}
                     className={`p-3 rounded transition-all ${article.user_interactions?.liked
                       ? 'bg-[hsl(var(--news-primary))] text-white'
                       : 'bg-card border border-border text-foreground hover:bg-muted'
@@ -674,7 +668,7 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
                   </button>
                   <button
                     onClick={() => handleInteraction('bookmark')}
-                    disabled={!user || interactionLoading === 'bookmark'}
+                    disabled={interactionLoading === 'bookmark'}
                     className={`p-3 rounded transition-all ${article.user_interactions?.bookmarked
                       ? 'bg-[hsl(var(--news-primary))] text-white'
                       : 'bg-card border border-border text-foreground hover:bg-muted'
@@ -690,10 +684,13 @@ export default function NewsDetailClient({ slug }: NewsDetailClientProps) {
                           text: article.summary || article.title,
                           url: window.location.href
                         });
+                      } else {
+                        navigator.clipboard.writeText(window.location.href);
+                        toast.success('Link copied!');
                       }
-                      handleInteraction('share');
+                      if (user) handleInteraction('share');
                     }}
-                    disabled={!user || interactionLoading === 'share'}
+                    disabled={interactionLoading === 'share'}
                     className="p-3 rounded bg-card border border-border text-foreground hover:bg-muted transition-all disabled:opacity-50"
                   >
                     <Share2 className="h-5 w-5" />
