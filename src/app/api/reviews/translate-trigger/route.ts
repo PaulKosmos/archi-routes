@@ -3,8 +3,10 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@supabase/supabase-js'
-import { createClient } from '@/lib/supabase'
-import { cookies } from 'next/headers'
+import { performTranslation } from '@/lib/ai/translateReview'
+
+// Vercel: allow up to 120s for Gemini translation (requires Pro plan)
+export const maxDuration = 120
 
 function getSupabaseAdmin() {
   return createServerClient(
@@ -47,10 +49,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Check review exists and moderation passed
+    // Check review exists
     const { data: review } = await supabaseAdmin
       .from('building_reviews')
-      .select('id, ai_moderation_status, workflow_stage, original_language, language')
+      .select('id, workflow_stage, original_language, language')
       .eq('id', review_id)
       .single()
 
@@ -62,30 +64,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Translation already in progress' }, { status: 409 })
     }
 
-    // Call translate endpoint internally
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const translateRes = await fetch(`${appUrl}/api/reviews/translate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-internal-key': process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      },
-      body: JSON.stringify({
-        review_id,
-        original_language: review.original_language || review.language || 'en',
-      }),
-    })
+    // Call translation logic directly (no internal HTTP call)
+    const result = await performTranslation(
+      review_id,
+      review.original_language || review.language || 'en',
+      supabaseAdmin
+    )
 
-    if (!translateRes.ok) {
-      const err = await translateRes.text()
-      console.error('[translate-trigger] translate failed:', err)
-      return NextResponse.json({ error: 'Translation failed', details: err }, { status: 500 })
-    }
-
-    const result = await translateRes.json()
     return NextResponse.json(result)
   } catch (error) {
-    console.error('[translate-trigger] Unexpected error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('[translate-trigger] Error:', error)
+    return NextResponse.json(
+      { error: 'Translation failed', details: String(error) },
+      { status: 500 }
+    )
   }
 }
