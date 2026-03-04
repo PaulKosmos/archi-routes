@@ -232,7 +232,7 @@ export default function HeroSectionWithMap() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => searchQuery && setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                placeholder="Enter city name (e.g., Berlin, Istanbul, Prague...)"
+                placeholder="Berlin, Istanbul, Prague..."
                 className="w-full pl-14 pr-4 py-5 text-lg rounded-2xl bg-white/95 backdrop-blur-md shadow-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all"
               />
             </div>
